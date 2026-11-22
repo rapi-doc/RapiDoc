@@ -35,6 +35,22 @@ export { loadSettings, SettingsError } from "./settings.js";
  */
 
 const ACCESS_DENIED_PAGE = "_rapidoc/access-denied/index.html";
+/** The portal's 404 page (or the project's own), always public. */
+const NOT_FOUND_PAGE = "404.html";
+
+/**
+ * The answer for an address with no file: the site's 404 page for a browser asking for a page, a plain
+ * "Not found" for anything else (a script, an image, a JSON request) or a build without that page.
+ */
+function notFound(c, publicDir) {
+  const url = new URL(c.req.url);
+  const asksForPage =
+    !/\.[a-z0-9]+$/i.test(url.pathname) && (c.req.header("accept") || "").includes("text/html");
+  const page = asksForPage && findFile(publicDir, [NOT_FOUND_PAGE]);
+  return page
+    ? fileResponse(c.req.raw, page.full, { status: 404, cacheControl: NO_STORE })
+    : textResponse(404, "Not found");
+}
 const MAX_CHECK_PATHS = 500;
 const MAX_CHECK_BODY = 64 * 1024;
 
@@ -77,7 +93,7 @@ export async function createApp({
       const file = findFile(settings.publicDir, candidates);
       return file
         ? fileResponse(c.req.raw, file.full, { cacheControl: publicCacheControl(file.rel) })
-        : textResponse(404, "Not found");
+        : notFound(c, settings.publicDir);
     });
     return { app: mount(app, settings.mountPath), settings, mcp };
   }
@@ -224,7 +240,7 @@ export async function createApp({
 
     // Nothing there. Readers who may not see the default zone can't tell missing from protected.
     const decision = decide(zones, manifest.access.defaultZone, user);
-    return decision === "allow" ? textResponse(404, "Not found") : refuse(c, decision, null);
+    return decision === "allow" ? notFound(c, settings.publicDir) : refuse(c, decision, null);
   });
 
   app.all("*", () => textResponse(405, "Method not allowed", { allow: "GET, HEAD" }));

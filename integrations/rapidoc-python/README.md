@@ -28,7 +28,7 @@ FastAPI serves Swagger UI at `/docs` unless you create the app with `docs_url=No
 | `spec` | | The OpenAPI document itself (a dict or JSON text), written into the page so the browser makes no request for it. With both, `spec` is shown and `spec_url` is the download link |
 | `title` | the app's title + "API Reference" | Page title |
 | `assets` | `"bundled"` | `"bundled"`: the app serves `rapidoc-min.js`. `"cdn"`: the browser loads the same version from jsDelivr, checked against its SRI hash. `{"script_url": ..., "integrity": ...}`: a URL of your own |
-| `options` | | [Attributes of `<rapi-doc>`](https://rapidocui.com/api/): `{"render_style": "focused", "allow_try": False}`. Names can be written with underscores, hyphens or in camelCase |
+| `options` | | [Attributes of `<rapi-doc>`](https://rapidocui.com/docs/rapidoc/reference/): `{"render_style": "focused", "allow_try": False}`. Names can be written with underscores, hyphens or in camelCase |
 | `head`, `css` | | Markup and CSS added to the page as given |
 | `lang` | `en` | Language of the page |
 | `nonce` | | Content-Security-Policy nonce, or a function that takes the request and returns it |
@@ -61,11 +61,11 @@ Python 3.10 or later; Starlette 0.27 or later. MIT.
 
 ## Upgrading to 0.2.1
 
-0.2.1 ships rapidoc 14. Nothing changes in the options or in what the page shows: rapidoc 14 has no attribute changes ([v13 to v14](https://rapidocui.com/docs/migration/v13-to-v14/)).
+0.2.1 ships rapidoc 14. Nothing changes in the options or in what the page shows: rapidoc 14 has no attribute changes ([v13 to v14](https://rapidocui.com/docs/rapidoc/migration/v13-to-v14/)).
 
 ## Upgrading to 0.2.0
 
-0.2.0 ships rapidoc 13, which changed one set of attributes: `filter-operations` replaces `match-paths`, `match-type` and `remove-endpoints-with-badge-label-as`, and rapidoc 13 ignores those three. If your `options` set any of them, set `filter_operations` instead. Matching is exact, so a v12 `match-paths` prefix becomes a glob: `{"filter_operations": "/pets/**"}`. The [v12 to v13 migration guide](https://rapidocui.com/docs/migration/v12-to-v13/) has the other terms (`tag:`, `badge:`, `deprecated`, `!` to leave out).
+0.2.0 ships rapidoc 13, which changed one set of attributes: `filter-operations` replaces `match-paths`, `match-type` and `remove-endpoints-with-badge-label-as`, and rapidoc 13 ignores those three. If your `options` set any of them, set `filter_operations` instead. Matching is exact, so a v12 `match-paths` prefix becomes a glob: `{"filter_operations": "/pets/**"}`. The [v12 to v13 migration guide](https://rapidocui.com/docs/rapidoc/migration/v12-to-v13/) has the other terms (`tag:`, `badge:`, `deprecated`, `!` to leave out).
 
 ## Releasing (for maintainers)
 

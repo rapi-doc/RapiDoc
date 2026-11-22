@@ -1,5 +1,5 @@
 /**
- * The spec check of the Rapi Mock site, as one function: `checkSpec(text)` parses a spec, validates it, lints it
+ * The spec check of the RapiMock site, as one function: `checkSpec(text)` parses a spec, validates it, lints it
  * with every rule `rapidoc lint --stateful` runs, and starts the stateful mock on it, all in the page. Nothing is
  * sent anywhere.
  *

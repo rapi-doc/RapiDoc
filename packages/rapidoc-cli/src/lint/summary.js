@@ -3,7 +3,7 @@
  * at one thing at a time (an operation, a body, a tag), how many of those passed. "1347 warnings" says little;
  * "Examples: 61% of 2,140 bodies have one" says where the spec stands.
  *
- * The Rapi Mock site's spec check shows it. It reads no file and prints nothing: plain data in, plain data out.
+ * The RapiMock site's spec check shows it. It reads no file and prints nothing: plain data in, plain data out.
  */
 
 /** @import { Rule } from "./types.js" */

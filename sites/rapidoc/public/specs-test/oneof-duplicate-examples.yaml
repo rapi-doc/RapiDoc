@@ -1,0 +1,64 @@
+openapi: 3.1.0
+info:
+  title: oneOf Nested Example Validation
+  version: 1.0.0
+  description: Validates that top-level oneOf request body schemas with discriminator mappings list each variant exactly once in the EXAMPLE dropdown, even when sub-properties contain nested oneOf schemas.
+paths:
+  /things:
+    post:
+      summary: Create a Thing
+      description: Polymorphic Request body containing top-level oneOf variants (PlainVariant and NestedOneOfVariant), where NestedOneOfVariant contains a nested oneOf in EntryRef.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+components:
+  schemas:
+    Request:
+      oneOf:
+        - $ref: '#/components/schemas/PlainVariant'
+        - $ref: '#/components/schemas/NestedOneOfVariant'
+      discriminator:
+        propertyName: kind
+        mapping:
+          plain: '#/components/schemas/PlainVariant'
+          nested: '#/components/schemas/NestedOneOfVariant'
+    PlainVariant:
+      title: PlainVariant
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - plain
+        value:
+          type: string
+    NestedOneOfVariant:
+      title: NestedOneOfVariant
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - nested
+        entry:
+          $ref: '#/components/schemas/EntryRef'
+    EntryRef:
+      oneOf:
+        - type: string
+        - $ref: '#/components/schemas/EntryObject'
+    EntryObject:
+      title: EntryObject
+      type: object
+      properties:
+        id:
+          type: string

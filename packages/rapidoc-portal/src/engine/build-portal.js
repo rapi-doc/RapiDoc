@@ -12,6 +12,7 @@ import { writeMcpOutput } from "./mcp-output.js";
 import { createAstroConfig } from "./astro-integration.js";
 import { createPortalWorkspace, removePortalWorkspace } from "./temp-workspace.js";
 import { reportSpecWarnings } from "./spec-checks.js";
+import { indexBuiltPages } from "../search/indexer.js";
 
 /**
  * @param {string} [projectDir] - Folder containing rapidoc.config.yaml
@@ -38,6 +39,11 @@ export async function buildPortal(projectDir = process.cwd(), options = {}) {
     process.chdir(previousCwd);
     if (!options.keepWorkspace) removePortalWorkspace(workspace);
   }
+
+  // The project's own pages (pages/*.astro) have no Markdown source: the search index gets them from
+  // the pages just built, before the split sorts its records by zone.
+  if (workspace.config.search)
+    indexBuiltPages(outDir, workspace.pages, { siteTitle: workspace.config.site.title });
 
   // With sign-in, the output is split into public/ and protected/ for `rapidoc serve`. If that fails,
   // the unsplit output (protected pages next to public ones) must not be left for someone to deploy.

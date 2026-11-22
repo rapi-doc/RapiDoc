@@ -1,0 +1,417 @@
+{
+  "name": "rapidoc",
+  "version": "14.2.0",
+  "versionTag": "v14.2.0",
+  "versionShort": "v14.2",
+  "buildTime": "2026-11-20T07:38:43.750Z",
+  "bundle": {
+    "minified": {
+      "bytes": 685151,
+      "formatted": "669 KB",
+      "kb": 669,
+      "exactKb": 669.1
+    },
+    "gzip": {
+      "bytes": 184161,
+      "formatted": "180 KB",
+      "kb": 180,
+      "exactKb": 179.8
+    }
+  },
+  "packages": {
+    "rapidoc": {
+      "version": "14.2.0",
+      "bundles": {
+        "rapidoc-flow-min.js": {
+          "size": {
+            "bytes": 283048,
+            "formatted": "276 KB",
+            "kb": 276,
+            "exactKb": 276.4
+          },
+          "gzip": {
+            "bytes": 89492,
+            "formatted": "87.4 KB",
+            "kb": 87,
+            "exactKb": 87.4
+          }
+        },
+        "rapidoc-min.js": {
+          "size": {
+            "bytes": 685151,
+            "formatted": "669 KB",
+            "kb": 669,
+            "exactKb": 669.1
+          },
+          "gzip": {
+            "bytes": 184161,
+            "formatted": "180 KB",
+            "kb": 180,
+            "exactKb": 179.8
+          }
+        }
+      },
+      "npm": {
+        "packed": {
+          "bytes": 624271,
+          "formatted": "610 KB",
+          "kb": 610,
+          "exactKb": 609.6
+        },
+        "unpacked": {
+          "bytes": 2368573,
+          "formatted": "2.3 MB",
+          "kb": 2313,
+          "exactKb": 2313.1
+        },
+        "files": 115
+      }
+    },
+    "@rapidoc/cli": {
+      "version": "0.2.5",
+      "npm": {
+        "packed": {
+          "bytes": 64555,
+          "formatted": "63.0 KB",
+          "kb": 63,
+          "exactKb": 63
+        },
+        "unpacked": {
+          "bytes": 212514,
+          "formatted": "208 KB",
+          "kb": 208,
+          "exactKb": 207.5
+        },
+        "files": 67
+      }
+    },
+    "@rapidoc/docusaurus": {
+      "version": "0.1.2",
+      "npm": {
+        "packed": {
+          "bytes": 8569,
+          "formatted": "8.4 KB",
+          "kb": 8,
+          "exactKb": 8.4
+        },
+        "unpacked": {
+          "bytes": 25265,
+          "formatted": "24.7 KB",
+          "kb": 25,
+          "exactKb": 24.7
+        },
+        "files": 9
+      }
+    },
+    "@rapidoc/embed": {
+      "version": "0.3.2",
+      "npm": {
+        "packed": {
+          "bytes": 17210,
+          "formatted": "16.8 KB",
+          "kb": 17,
+          "exactKb": 16.8
+        },
+        "unpacked": {
+          "bytes": 57738,
+          "formatted": "56.4 KB",
+          "kb": 56,
+          "exactKb": 56.4
+        },
+        "files": 49
+      }
+    },
+    "@rapidoc/express": {
+      "version": "0.1.1",
+      "npm": {
+        "packed": {
+          "bytes": 4008,
+          "formatted": "3.9 KB",
+          "kb": 4,
+          "exactKb": 3.9
+        },
+        "unpacked": {
+          "bytes": 10386,
+          "formatted": "10.1 KB",
+          "kb": 10,
+          "exactKb": 10.1
+        },
+        "files": 6
+      }
+    },
+    "@rapidoc/fastify": {
+      "version": "0.1.1",
+      "npm": {
+        "packed": {
+          "bytes": 3862,
+          "formatted": "3.8 KB",
+          "kb": 4,
+          "exactKb": 3.8
+        },
+        "unpacked": {
+          "bytes": 10096,
+          "formatted": "9.9 KB",
+          "kb": 10,
+          "exactKb": 9.9
+        },
+        "files": 6
+      }
+    },
+    "@rapidoc/hono": {
+      "version": "0.1.2",
+      "npm": {
+        "packed": {
+          "bytes": 4511,
+          "formatted": "4.4 KB",
+          "kb": 4,
+          "exactKb": 4.4
+        },
+        "unpacked": {
+          "bytes": 11926,
+          "formatted": "11.6 KB",
+          "kb": 12,
+          "exactKb": 11.6
+        },
+        "files": 9
+      }
+    },
+    "@rapidoc/mcp": {
+      "version": "0.2.5",
+      "bundles": {
+        "index.js": {
+          "size": {
+            "bytes": 135521,
+            "formatted": "132 KB",
+            "kb": 132,
+            "exactKb": 132.3
+          },
+          "gzip": {
+            "bytes": 39695,
+            "formatted": "38.8 KB",
+            "kb": 39,
+            "exactKb": 38.8
+          }
+        }
+      },
+      "npm": {
+        "packed": {
+          "bytes": 45020,
+          "formatted": "44.0 KB",
+          "kb": 44,
+          "exactKb": 44
+        },
+        "unpacked": {
+          "bytes": 152718,
+          "formatted": "149 KB",
+          "kb": 149,
+          "exactKb": 149.1
+        },
+        "files": 5
+      }
+    },
+    "@rapidoc/mock": {
+      "version": "0.2.5",
+      "npm": {
+        "packed": {
+          "bytes": 134163,
+          "formatted": "131 KB",
+          "kb": 131,
+          "exactKb": 131
+        },
+        "unpacked": {
+          "bytes": 478205,
+          "formatted": "467 KB",
+          "kb": 467,
+          "exactKb": 467
+        },
+        "files": 28
+      }
+    },
+    "@rapidoc/portal": {
+      "version": "0.2.5",
+      "npm": {
+        "packed": {
+          "bytes": 128670,
+          "formatted": "126 KB",
+          "kb": 126,
+          "exactKb": 125.7
+        },
+        "unpacked": {
+          "bytes": 458449,
+          "formatted": "448 KB",
+          "kb": 448,
+          "exactKb": 447.7
+        },
+        "files": 92
+      }
+    },
+    "@rapidoc/prerender": {
+      "version": "0.2.5",
+      "bundles": {
+        "index.js": {
+          "size": {
+            "bytes": 696195,
+            "formatted": "680 KB",
+            "kb": 680,
+            "exactKb": 679.9
+          },
+          "gzip": {
+            "bytes": 163368,
+            "formatted": "160 KB",
+            "kb": 160,
+            "exactKb": 159.5
+          }
+        }
+      },
+      "npm": {
+        "packed": {
+          "bytes": 167484,
+          "formatted": "164 KB",
+          "kb": 164,
+          "exactKb": 163.6
+        },
+        "unpacked": {
+          "bytes": 707875,
+          "formatted": "691 KB",
+          "kb": 691,
+          "exactKb": 691.3
+        },
+        "files": 5
+      }
+    },
+    "@rapidoc/server": {
+      "version": "0.2.5",
+      "npm": {
+        "packed": {
+          "bytes": 20031,
+          "formatted": "19.6 KB",
+          "kb": 20,
+          "exactKb": 19.6
+        },
+        "unpacked": {
+          "bytes": 63157,
+          "formatted": "61.7 KB",
+          "kb": 62,
+          "exactKb": 61.7
+        },
+        "files": 12
+      }
+    },
+    "@rapidoc/starlight": {
+      "version": "0.1.4",
+      "npm": {
+        "packed": {
+          "bytes": 7592,
+          "formatted": "7.4 KB",
+          "kb": 7,
+          "exactKb": 7.4
+        },
+        "unpacked": {
+          "bytes": 21418,
+          "formatted": "20.9 KB",
+          "kb": 21,
+          "exactKb": 20.9
+        },
+        "files": 8
+      }
+    },
+    "@rapidoc/vitepress": {
+      "version": "0.1.3",
+      "npm": {
+        "packed": {
+          "bytes": 7517,
+          "formatted": "7.3 KB",
+          "kb": 7,
+          "exactKb": 7.3
+        },
+        "unpacked": {
+          "bytes": 22159,
+          "formatted": "21.6 KB",
+          "kb": 22,
+          "exactKb": 21.6
+        },
+        "files": 7
+      }
+    },
+    "create-rapidoc": {
+      "version": "0.2.5",
+      "npm": {
+        "packed": {
+          "bytes": 10614,
+          "formatted": "10.4 KB",
+          "kb": 10,
+          "exactKb": 10.4
+        },
+        "unpacked": {
+          "bytes": 28153,
+          "formatted": "27.5 KB",
+          "kb": 27,
+          "exactKb": 27.5
+        },
+        "files": 6
+      }
+    },
+    "rapipdf": {
+      "version": "3.0.1",
+      "bundles": {
+        "node.js": {
+          "size": {
+            "bytes": 1289387,
+            "formatted": "1.2 MB",
+            "kb": 1259,
+            "exactKb": 1259.2
+          },
+          "gzip": {
+            "bytes": 520715,
+            "formatted": "509 KB",
+            "kb": 509,
+            "exactKb": 508.5
+          }
+        },
+        "rapipdf-min.js": {
+          "size": {
+            "bytes": 1830492,
+            "formatted": "1.7 MB",
+            "kb": 1788,
+            "exactKb": 1787.6
+          },
+          "gzip": {
+            "bytes": 766142,
+            "formatted": "748 KB",
+            "kb": 748,
+            "exactKb": 748.2
+          }
+        },
+        "rapipdf.js": {
+          "size": {
+            "bytes": 5620,
+            "formatted": "5.5 KB",
+            "kb": 5,
+            "exactKb": 5.5
+          },
+          "gzip": {
+            "bytes": 2249,
+            "formatted": "2.2 KB",
+            "kb": 2,
+            "exactKb": 2.2
+          }
+        }
+      },
+      "npm": {
+        "packed": {
+          "bytes": 2063648,
+          "formatted": "2.0 MB",
+          "kb": 2015,
+          "exactKb": 2015.3
+        },
+        "unpacked": {
+          "bytes": 5002649,
+          "formatted": "4.8 MB",
+          "kb": 4885,
+          "exactKb": 4885.4
+        },
+        "files": 13
+      }
+    }
+  }
+}

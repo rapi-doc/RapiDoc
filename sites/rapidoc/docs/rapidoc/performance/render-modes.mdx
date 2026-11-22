@@ -1,0 +1,50 @@
+---
+title: Render Modes
+description: Compare RapiDoc's read, view and focused render styles, with measured load times on large specs.
+---
+
+import { Aside } from '@rapidoc/portal/components';
+
+The `render-style` attribute decides how `<rapi-doc>` lays out operations. It is also the setting that matters most for large specs.
+
+```html
+<rapi-doc spec-url="/openapi.yaml" render-style="focused"></rapi-doc>
+```
+
+## The three modes
+
+### `read` (default)
+
+One long page: the overview, then every tag and operation, fully rendered, with a sidebar that follows as you scroll. Good for small and medium APIs that readers go through from top to bottom. Because everything is rendered, load time grows with the size of the spec.
+
+### `view`
+
+Tags with collapsible operations. Several operations can be open at once, and collapsed ones aren't rendered until they are opened, so the page stays light. Search is in the header. Good for most APIs.
+
+### `focused`
+
+A sidebar listing every operation, and one operation at a time in the main area. Only the selected operation is rendered, so it stays fast on very large specs and on slow devices.
+
+## Measured load times
+
+Time to load, parse and render, measured in headless Chrome with RapiDoc 11.0.0:
+
+| Spec | Size | Operations | `focused` | `view` | `read` |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Bookstore (OpenAPI 3.2) | 13.8 KB | 12 | ~56 ms | ~37 ms | ~31 ms |
+| Stripe (OpenAPI 3.0, deep schemas) | 7.00 MB | 644 | ~666 ms | ~650 ms | ~9.22 s |
+| GitHub (OpenAPI 3.1) | 8.19 MB | 1,128 | ~997 ms | ~990 ms | ~5.95 s |
+
+On small specs the mode makes no difference. On large ones, `read` is many times slower than the other two. The [performance tests](/tests/performance) have the details and the scripts that produce them.
+
+<Aside type="tip" title="Which one to choose">
+  If you don't know how large the specs you'll show will get, use `view` or `focused`. Keep `read` for specs of up to a few hundred operations.
+</Aside>
+
+## Switching modes at runtime
+
+`render-style` can be changed at any time, for example from a toggle in your page:
+
+```javascript
+document.querySelector('rapi-doc').setAttribute('render-style', 'read');
+```

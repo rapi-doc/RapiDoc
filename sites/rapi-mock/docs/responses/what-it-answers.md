@@ -1,6 +1,7 @@
 ---
 title: What it answers
-description: Where Rapi Mock's responses come from, and how requests are validated.
+description: Where RapiMock's responses come from, and how requests are validated.
+tableOfContents: false
 ---
 
 - **Examples first.** An operation's response example is returned when the spec has one; otherwise data is generated from the schema, respecting formats, patterns, enums and ranges. Generated data is the same on every run (change it with `--seed`).

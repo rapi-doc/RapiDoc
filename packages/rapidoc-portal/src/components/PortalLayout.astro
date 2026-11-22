@@ -15,10 +15,9 @@ import 'virtual:rapidoc-portal/theme.css';
 import 'virtual:rapidoc-portal/user-css';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import PortalFooter from './PortalFooter.astro';
+import PortalHead from './PortalHead.astro';
 import PortalHeader from './PortalHeader.astro';
-import { openGraphEntries, pageTitle, portalHeadEntries, renderHeadHtml } from '../engine/page-head.js';
 import { themeBootstrapScript } from './theme-script.js';
-import { withBase } from './base-path.js';
 
 interface Props {
   /** The page's own title; site.titleTemplate makes the full one. */
@@ -28,11 +27,6 @@ interface Props {
 }
 
 const { title, description = portalConfig.site.description, sidebarId } = Astro.props;
-const fullTitle = pageTitle(portalConfig, title);
-const headHtml = renderHeadHtml([
-  ...openGraphEntries(portalConfig, { title, description, pathname: Astro.url.pathname }),
-  ...portalHeadEntries(portalConfig),
-]);
 const hasSidebar = Astro.slots.has('sidebar');
 ---
 
@@ -41,11 +35,8 @@ const hasSidebar = Astro.slots.has('sidebar');
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{fullTitle}</title>
-    {description && <meta name="description" content={description} />}
-    {portalConfig.site.favicon && <link rel="icon" href={withBase(portalConfig.site.favicon)} />}
+    <PortalHead title={title} description={description} />
     <script is:inline set:html={`${themeBootstrapScript(portalConfig.theme.mode)};`} />
-    <Fragment set:html={headHtml} />
     <slot name="head" />
   </head>
   <body>

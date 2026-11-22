@@ -1,0 +1,36 @@
+---
+title: RapiFlow
+description: Draw the workflows of an Arazzo spec as a diagram next to your API reference with <rapi-flow>, and run them in the browser against the API or a mock.
+---
+
+import { Aside, CardGrid, LinkCard } from '@rapidoc/portal/components';
+
+An API reference shows operations one at a time. Integrators also need the order: find a pet, check it, order it, read the order back. [Arazzo](https://spec.openapis.org/arazzo/latest.html) describes those sequences, and `<rapi-flow>` draws them: one box per step, linked to its operation, the values each step passes on, and the success and failure branches. Readers can run a workflow from the page and watch each step answer.
+
+<Aside type="tip" title="See it running">
+  The [RapiFlow page](https://rapidocui.com/rapi-flow/) runs a workflow against the in-browser mock, the [rapi-flow example](https://rapidocui.com/examples/arazzo) puts the diagram next to a full API reference, and the [multi-API example](https://rapidocui.com/examples/arazzo-multi) pairs it with one `<rapi-doc-mini>` per API.
+</Aside>
+
+## Load it
+
+`<rapi-flow>` is a separate bundle, `rapidoc-flow-min.js` (`import 'rapidoc/flow'` with a bundler), so pages that only use `<rapi-doc>` don't download it. It carries its own copy of Lit and the Arazzo runtime; `rapidoc-min.js` carries no Arazzo code. The [Quickstart](/docs/quickstart/) puts both on a page and runs a workflow against the in-browser mock.
+
+## Standalone or paired
+
+- **Paired** (`for="<id>"`): the element uses that `<rapi-doc>`'s OpenAPI spec, its selected server and the credentials entered in its Authentication section. Clicking a step scrolls the reference to the step's operation. If the `<rapi-doc>` has `mock-server="true"`, runs go to the in-browser mock. A workflow that calls several APIs can be paired with one element per API (see [one element per API](/docs/pairing/#one-element-per-api)).
+- **Standalone**: the element loads each OpenAPI source of the Arazzo spec itself (`spec-url` replaces the first one's URL) and shows its own credentials fields, one per security scheme of the loaded specs. Values typed there stay in the page. A paired element's sources get no fields: it has its own.
+
+## In a developer portal
+
+`@rapidoc/portal` draws workflows in docs pages with the `{% workflow file="…" id="…" %}` Markdoc tag: the diagram is rendered as static SVG at build time, and `rapidoc-flow-min.js` loads only when a reader clicks **Run workflow**. The portal build also turns each workflow into an MCP tool for `rapidoc serve`'s `/mcp` endpoint.
+
+## Learn more
+
+<CardGrid>
+  <LinkCard title="Quickstart" href="/docs/quickstart/" description="One HTML file: a workflow drawn next to its reference, run against the in-browser mock." />
+  <LinkCard title="Pairing with <rapi-doc>" href="/docs/pairing/" description="API sources, one element per API, and links to a step." />
+  <LinkCard title="Running workflows" href="/docs/running/" description="Run a workflow from the page, against the API or a mock, and what runs." />
+  <LinkCard title="Arazzo extensions" href="/docs/extensions/" description="x-security, x-operation and x-allowReserved." />
+  <LinkCard title="API Reference" href="/docs/reference/" description="Every attribute, method and event, read from the element's source." />
+  <LinkCard title="Slots & Styling" href="/docs/styling/" description="Your own header and footer, CSS parts and properties." />
+</CardGrid>

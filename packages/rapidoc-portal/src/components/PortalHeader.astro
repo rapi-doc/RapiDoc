@@ -1,16 +1,20 @@
 ---
 import portalConfig from 'virtual:rapidoc-portal/config';
 import Icon from './Icon.astro';
+import PortalHeaderMenu from './PortalHeaderMenu.astro';
 import PortalMobileNav from './PortalMobileNav.astro';
 import PortalSearchModal from './PortalSearchModal.astro';
 import PortalUserMenu from './PortalUserMenu.astro';
 import { activeTab } from './header-nav.js';
 import { withBase, withoutBase } from './base-path.js';
+import { isExternal } from '../config/links.js';
 
 interface Props {
   portalConfig?: any;
   /** id of the page's popover sidebar, opened by the menu button on narrow screens */
   sidebarId?: string;
+  /** The page has its own document and takes only this header from the portal (PortalPageHeader) */
+  ownDocument?: boolean;
 }
 
 const config = Astro.props.portalConfig ?? portalConfig;
@@ -22,9 +26,11 @@ const banner = site.banner;
 const bannerKey = banner
   ? `${[...`${banner.message}|${banner.href ?? ''}`].reduce((h, ch) => (Math.imul(h, 31) + ch.codePointAt(0)) | 0, 0) >>> 0}`
   : '';
-const logo = site.logo;
 const headerLinks = config.header.links;
-const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
+const startLinks = headerLinks.filter((link) => link.position === 'start');
+const endLinks = headerLinks.filter((link) => link.position !== 'start');
+// With `header.tabs: sidebar` or `sidebar-select` the tabs are above the sidebar's pages (PortalSidebarTabs), not in a row here.
+const tabsInHeader = config.header.tabs === 'header';
 
 // On pages with a sidebar, the menu button opens the sidebar on narrow screens, and the sidebar
 // lists the header links above its own navigation (PortalSidebar.astro, api-reference.astro).
@@ -39,9 +45,14 @@ const hasSidebar = Boolean(sidebarId);
 
 const currentPath = withoutBase(Astro.url?.pathname || '/');
 const currentTab = activeTab(tabs, currentPath);
+// On a tab's pages its own logo (navigation[].logo) replaces the site's image, alt and badge. The link stays,
+// and the site's text only when it goes with an image (without one, the text is the title standing in for it).
+const logo = currentTab?.logo
+  ? { ...site.logo, text: site.logo.light ? site.logo.text : null, ...currentTab.logo }
+  : site.logo;
 ---
 
-<header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined}>
+<header class="portal-header-root" data-portal-region="header" data-has-sidebar={hasSidebar ? '' : undefined} data-portal-own-document={Astro.props.ownDocument ? '' : undefined}>
   {
     banner && (
       <script is:inline define:vars={{ bannerKey }}>
@@ -86,7 +97,10 @@ const currentTab = activeTab(tabs, currentPath);
       {logo.light && <img src={withBase(logo.light)} alt={logo.text ? '' : logo.alt} class:list={['portal-brand-img', { 'portal-brand-img-light': logo.dark !== logo.light }]} />}
       {logo.dark && logo.dark !== logo.light && <img src={withBase(logo.dark)} alt={logo.text ? '' : logo.alt} class="portal-brand-img portal-brand-img-dark" />}
       {logo.text && <span class="portal-brand-text">{logo.text}</span>}
+      {logo.badge && <span class="portal-brand-badge">{logo.badge}</span>}
     </a>
+
+    {startLinks.length > 0 && <PortalHeaderMenu links={startLinks} allLinks={headerLinks} position="start" currentPath={currentPath} />}
 
     {
       config.search ? (
@@ -101,96 +115,7 @@ const currentTab = activeTab(tabs, currentPath);
     }
 
     <div class="portal-nav-end">
-      <nav class="portal-nav-menu" aria-label="Main">
-        {
-          headerLinks.map((link, linkIndex) => {
-            const hasSubmenu = Array.isArray(link.items) && link.items.length > 0;
-            const anyHasFeatures = hasSubmenu && link.items.some((it) => it.items?.length > 0);
-
-            if (hasSubmenu) {
-              return (
-                <div class="portal-dropdown-wrapper">
-                  <button type="button" class="portal-nav-button portal-dropdown-trigger" aria-expanded="false" aria-controls={`portal-menu-${linkIndex}`}>
-                    <span>{link.label}</span>
-                    <Icon name="caret-down" size={16} class="portal-chevron" />
-                  </button>
-
-                  <div class="portal-megamenu-panel" id={`portal-menu-${linkIndex}`}>
-                    {anyHasFeatures ? (
-                      /* Cypress.io Sectioned Mode: Hero card + 2-column feature links below it */
-                      <div class="portal-megamenu-sections">
-                        {link.items.map((item, idx) => {
-                          const hasFeats = item.items?.length > 0;
-                          return (
-                            <div class:list={['portal-megamenu-section', { 'with-divider': idx < link.items.length - 1 }]}>
-                              <a href={withBase(item.href)} class="portal-megamenu-hero-card">
-                                <div class="portal-card-icon-box">
-                                  <Icon name={item.icon || 'lightning'} duotone />
-                                </div>
-                                <div class="portal-card-body">
-                                  <div class="portal-card-title-row">
-                                    <span class="portal-card-title">{item.label}</span>
-                                    {item.badge && <span class="portal-card-badge">{item.badge}</span>}
-                                    <span class="portal-card-arrow"><Icon name="arrow-right" size={16} /></span>
-                                  </div>
-                                  {item.description && <p class="portal-card-desc">{item.description}</p>}
-                                </div>
-                              </a>
-
-                              {hasFeats && (
-                                <div class="portal-features-grid">
-                                  {item.items.map((feat) => (
-                                    <a href={withBase(feat.href)} class="portal-feature-item">
-                                      <Icon name={feat.icon || 'check-circle'} size={16} class="portal-feature-icon" />
-                                      <span class="portal-feature-label">{feat.label}</span>
-                                    </a>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      /* Cypress.io 2-Column Grid Mode: Wide cards side by side */
-                      <div class="portal-megamenu-grid">
-                        {link.items.map((item) => (
-                          <a href={withBase(item.href)} class="portal-megamenu-card">
-                            <div class="portal-card-icon-box">
-                              <Icon name={item.icon || 'lightning'} duotone />
-                            </div>
-                            <div class="portal-card-body">
-                              <div class="portal-card-title-row">
-                                <span class="portal-card-title">{item.label}</span>
-                                {item.badge && <span class="portal-card-badge">{item.badge}</span>}
-                                <span class="portal-card-arrow"><Icon name="arrow-right" size={16} /></span>
-                              </div>
-                              {item.description && <p class="portal-card-desc">{item.description}</p>}
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            }
-
-            const external = isExternal(link.href);
-            const isActive = !external && link.href !== '/' && (currentPath === link.href || currentPath.startsWith(`${link.href.replace(/\/$/, '')}/`));
-            return (
-              <a
-                href={withBase(link.href)}
-                class:list={['portal-nav-link', link.style && link.style !== 'link' && `portal-nav-${link.style}`, { active: isActive }]}
-                target={external ? '_blank' : undefined}
-                rel={external ? 'noopener noreferrer' : undefined}
-              >
-                {link.label}
-              </a>
-            );
-          })
-        }
-      </nav>
+      {endLinks.length > 0 && <PortalHeaderMenu links={endLinks} allLinks={headerLinks} position="end" currentPath={currentPath} />}
 
 {
         config.header.themeSwitcher && (
@@ -222,7 +147,7 @@ const currentTab = activeTab(tabs, currentPath);
 
   <!-- Row 2: section tabs -->
   {
-    tabs.length > 0 && (
+    tabsInHeader && tabs.length > 0 && (
       <nav class="portal-tabs" data-portal-region="header-tabs" aria-label="Sections">
         {tabs.map((tab) => (
           <a
@@ -416,6 +341,9 @@ const currentTab = activeTab(tabs, currentPath);
   }
 
   .portal-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
     white-space: nowrap;
     padding: 0.5rem 0.875rem;
     font-size: 0.9375rem;
@@ -491,8 +419,9 @@ const currentTab = activeTab(tabs, currentPath);
     position: absolute;
     top: 100%;
     right: 0;
-    width: 680px;
-    max-width: min(680px, calc(100vw - 2rem));
+    /* 340px a column of cards: 680px for the default two */
+    width: calc(var(--portal-menu-columns, 2) * 21.25rem);
+    max-width: calc(100vw - 2rem);
     background: var(--ph-surface, oklch(0.2613 0.0134 272.84));
     border: 1px solid var(--ph-border);
     border-radius: var(--portal-radius);
@@ -604,8 +533,122 @@ const currentTab = activeTab(tabs, currentPath);
   /* 2-Column Card Grid (Products Mode) */
   .portal-megamenu-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(var(--portal-menu-columns, 2), minmax(0, 1fr));
     gap: 0.75rem;
+  }
+
+  /* A menu of plain links: as narrow as its text, 12rem a column at least */
+  .portal-megamenu-panel.portal-menu-simple {
+    width: max-content;
+    min-width: calc(var(--portal-menu-columns, 1) * 12rem);
+    padding: 0.5rem;
+  }
+  .portal-menu-list {
+    display: grid;
+    grid-template-columns: repeat(var(--portal-menu-columns, 1), minmax(0, 1fr));
+    gap: 0.125rem 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .portal-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--portal-radius);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ph-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .portal-menu-link:hover,
+  .portal-menu-link:focus-visible {
+    color: var(--ph-fg);
+    background-color: color-mix(in srgb, var(--ph-fg) 6%, transparent);
+  }
+  .portal-menu-simple .portal-megamenu-footer {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  /* A menu in columns (`groups`): a heading over each column's items */
+  .portal-megamenu-panel:has(.portal-megamenu-groups) {
+    width: 60rem;
+    max-width: min(60rem, calc(100vw - 2rem));
+  }
+  .portal-megamenu-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0.5rem 1.5rem;
+  }
+  .portal-megamenu-group-title {
+    margin: 0 0 0.375rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ph-muted);
+  }
+  .portal-megamenu-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .portal-megamenu-card-compact {
+    padding-block: 0.375rem;
+  }
+  .portal-megamenu-card-compact .portal-card-title {
+    font-weight: 500;
+  }
+  .portal-card-external {
+    flex-shrink: 0;
+    color: var(--ph-muted);
+  }
+  /* The link under a menu's items (`footer`) */
+  .portal-megamenu-footer {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--ph-border);
+  }
+  .portal-megamenu-footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--portal-primary-text);
+    text-decoration: none;
+  }
+  .portal-megamenu-footer-link:hover {
+    text-decoration: underline;
+  }
+  /* The links after the logo (`position: start`): their menus open from the left edge */
+  .portal-nav-menu-start .portal-megamenu-panel {
+    right: auto;
+    left: 0;
+  }
+  /* A label on a link (`badge`) and next to the logo (`site.logo.badge`) */
+  .portal-nav-badge,
+  .portal-brand-badge {
+    padding: 0.0625rem 0.375rem;
+    border: 1px solid var(--ph-border);
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+    color: var(--ph-muted);
+  }
+  .portal-nav-badge {
+    margin-inline-start: 0.375rem;
   }
 
   .portal-megamenu-card {
@@ -941,7 +984,7 @@ const currentTab = activeTab(tabs, currentPath);
     // hovering opens it for the mouse. Keyboard: Enter/Space toggle, ArrowDown opens the menu and moves
     // to the next link, ArrowUp/Home/End move between links, Escape closes the menu and returns to its
     // trigger, and tabbing out closes it. ArrowLeft/ArrowRight move between the top-level items.
-    const navMenu = document.querySelector('.portal-nav-menu');
+    const navMenus = [...document.querySelectorAll('.portal-nav-menu')];
     const wrappers = [...document.querySelectorAll('.portal-dropdown-wrapper')];
     const triggerOf = (wrapper) => wrapper.querySelector('.portal-dropdown-trigger');
     const isOpen = (wrapper) => wrapper.classList.contains('is-open');
@@ -990,7 +1033,7 @@ const currentTab = activeTab(tabs, currentPath);
       });
     });
 
-    if (navMenu) {
+    navMenus.forEach((navMenu) => {
       navMenu.addEventListener('keydown', (e) => {
         if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
         const items = [...navMenu.querySelectorAll(':scope > a, :scope > .portal-dropdown-wrapper > .portal-dropdown-trigger')];
@@ -1001,7 +1044,7 @@ const currentTab = activeTab(tabs, currentPath);
       });
       navMenu.addEventListener('mouseleave', () => closeAll());
       navMenu.querySelectorAll(':scope > a').forEach((link) => link.addEventListener('mouseenter', () => closeAll()));
-    }
+    });
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.portal-dropdown-wrapper')) closeAll();
     });

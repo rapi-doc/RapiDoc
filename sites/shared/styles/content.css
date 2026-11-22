@@ -1,0 +1,25 @@
+/*
+ * The docs pages of every RapiDoc site, for a page without "On this page" (`tableOfContents: false`).
+ *
+ * Its text starts where it starts on a page with that column, so the title doesn't jump sideways between
+ * pages: the column is centered in the width the page would have next to "On this page" (Starlight would
+ * center it in the whole width). Prose keeps its width and leaves the right side empty; a page with a
+ * table (a reference page) grows to the right, into the column's space, so its tables aren't squeezed.
+ * From 72rem, the width at which pages show "On this page"; below it every page has the same layout.
+ */
+@media (min-width: 72rem) {
+  html[data-has-sidebar]:not([data-has-toc]) .sl-container {
+    margin-inline: max(
+        0px,
+        (
+            100% - var(--portal-toc-width, var(--sl-sidebar-width)) -
+              var(--sl-content-width)
+          ) /
+          2
+      )
+      0;
+  }
+  html[data-has-sidebar]:not([data-has-toc]) main:has(.sl-markdown-content table) .sl-container {
+    max-width: 72rem;
+  }
+}

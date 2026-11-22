@@ -1,0 +1,145 @@
+---
+/**
+ * The portal's 404 page: what a host shows for an address that has no page (GitHub Pages, Netlify and
+ * others serve the site's /404.html; `rapidoc serve` does too). In the portal's frame, with a way back:
+ * the home page, the search, and the navigation tabs. A project replaces it with its own
+ * pages/404.astro (engine/project-pages.js).
+ *
+ * Every link and asset on it is root-relative, since it is shown at whatever address was asked for.
+ */
+import Icon from '../components/Icon.astro';
+import PortalLayout from '../components/PortalLayout.astro';
+import { withBase } from '../components/base-path.js';
+import { externalAttrs } from '../config/links.js';
+import portalConfig from 'virtual:rapidoc-portal/config';
+
+const { site, tabs } = portalConfig;
+---
+
+<PortalLayout title="Page not found" description="This address has no page.">
+  <meta slot="head" name="robots" content="noindex" />
+  <main class="portal-not-found">
+    <p class="portal-not-found-code">404</p>
+    <h1>Page not found</h1>
+    <p class="portal-not-found-text">This address has no page. It may have moved, or the link may be wrong.</p>
+    <div class="portal-not-found-actions">
+      <a href={withBase(site.logo.href)} class="portal-not-found-button portal-not-found-primary">
+        <Icon name="house" size={16} />
+        <span>Go to the home page</span>
+      </a>
+      {
+        portalConfig.search && (
+          <button type="button" class="portal-not-found-button" id="portal-not-found-search">
+            <Icon name="magnifying-glass" size={16} />
+            <span>Search</span>
+          </button>
+        )
+      }
+    </div>
+    {
+      tabs.length > 0 && (
+        <nav class="portal-not-found-tabs" aria-label="Sections">
+          {tabs.map((tab: any) => (
+            <a href={withBase(tab.href)} {...externalAttrs(tab.href)}>
+              {tab.icon && <Icon name={tab.icon} size={16} weight="regular" />}
+              <span>{tab.label}</span>
+            </a>
+          ))}
+        </nav>
+      )
+    }
+  </main>
+</PortalLayout>
+
+<script is:inline>
+  // The header's search button opens the search dialog; this one presses it.
+  document.getElementById('portal-not-found-search')?.addEventListener('click', () => {
+    document.getElementById('portal-search-btn')?.click();
+  });
+</script>
+
+<style is:global>
+  .portal-not-found {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 6rem 1.5rem 7rem;
+    text-align: center;
+  }
+  .portal-not-found-code {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--portal-primary-text);
+  }
+  .portal-not-found h1 {
+    margin: 0 0 0.75rem;
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--portal-heading, var(--portal-fg));
+  }
+  .portal-not-found-text {
+    margin: 0 0 2rem;
+    font-size: 1.0625rem;
+    color: var(--portal-muted);
+  }
+  .portal-not-found-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  .portal-not-found-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--portal-radius);
+    background: none;
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--portal-fg);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .portal-not-found-button:hover {
+    background-color: var(--portal-hover-bg);
+  }
+  .portal-not-found-primary {
+    border-color: var(--portal-primary);
+    background-color: var(--portal-primary);
+    color: var(--portal-on-primary);
+  }
+  .portal-not-found-primary:hover {
+    background-color: color-mix(in srgb, var(--portal-primary) 88%, var(--portal-fg));
+  }
+  .portal-not-found :is(a, button):focus-visible {
+    outline: 2px solid var(--portal-primary);
+    outline-offset: 2px;
+  }
+  .portal-not-found-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--portal-border);
+  }
+  .portal-not-found-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--portal-muted);
+    text-decoration: none;
+  }
+  .portal-not-found-tabs a:hover {
+    color: var(--portal-primary-text);
+  }
+</style>

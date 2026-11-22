@@ -3,6 +3,7 @@ title: Configuration keys
 description: Every key of rapidoc.config.yaml in one place.
 sidebar:
   order: 2
+tableOfContents: false
 ---
 
 Every key, with its default. The guides explain each section: [Configuration](/docs/configuration/overview/).
@@ -143,7 +144,7 @@ An allow is `public`, `signed-in`, or `{ groups?, emails? }`.
 
 ## `lint`
 
-Settings for [`rapidoc lint`](/docs/tools/lint/); the build ignores them.
+Settings for [`rapidoc lint`](/docs/tools/spec-checks/#lint); the build ignores them.
 
 | Key | Type | Default |
 | :--- | :--- | :--- |

@@ -16,7 +16,7 @@ const page = (scriptUrl) => `<!doctype html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
-    <title>Rapi Mock</title>
+    <title>RapiMock</title>
     <style>
       html, body { height: 100%; margin: 0; background: #2a2c34; }
     </style>

@@ -20,7 +20,7 @@ const COPIED = [
 ];
 
 /**
- * The spec check of the Rapi Mock site, built into `public/spec-check/` (ignored by git), which the portal
+ * The spec check of the RapiMock site, built into `public/spec-check/` (ignored by git), which the portal
  * copies to the site as `/spec-check/`.
  *
  * - `spec-check.js`: `page.js` with the validator, the lint rules and the mock bundled in, from this repository's
@@ -35,7 +35,7 @@ export default defineConfig({
   // a library build keeps `process.env.NODE_ENV` as written, and a browser has no `process`
   define: { "process.env.NODE_ENV": JSON.stringify("production") },
   plugins: [
-    thirdPartyLicenses({ owner: "the Rapi Mock spec check" }),
+    thirdPartyLicenses({ owner: "the RapiMock spec check" }),
     {
       name: "spec-check-files",
       closeBundle() {

@@ -9,7 +9,7 @@
  *
  * It keeps state and describes operations; it does not answer the API's own requests (no router, no request
  * validation, no token checks): that is the server's work. Nothing here may import a Node module, hono or
- * openapi-backend: this file is bundled for a browser (the Rapi Mock site's spec check).
+ * openapi-backend: this file is bundled for a browser (the RapiMock site's spec check).
  */
 import { control } from "./control.js";
 import { createResponder } from "./responses.js";

@@ -1,0 +1,115 @@
+---
+// The RapiDoc family on the home page: a card per product and tool from page-data/products.ts,
+// and a link to the integrations. Uses the product page classes of styles/global.css.
+import Icon from './Icon.astro';
+import { PRODUCTS, TOOLS, INTEGRATIONS } from '../page-data/products';
+
+const groups = [PRODUCTS, TOOLS];
+const integrationNames = INTEGRATIONS.items
+  .filter((item) => !/^(Build|All)/.test(item.label))
+  .map((item) => item.label.replace(/ \(.*\)$/, ''))
+  .join(' · ');
+---
+
+<section class="rd-family-section" id="family">
+  <div class="rd-section-header rd-section-header--center">
+    <span class="rd-section-badge">The RapiDoc Family</span>
+    <h2 class="rd-section-title">Products and Tools</h2>
+    <p class="rd-section-desc">
+      <code>&lt;rapi-doc&gt;</code> is the reference. Around it: smaller elements for posts and workflows, a PDF, a
+      mock server and a full developer portal, with a command line, MCP and pre-rendering as tools, all reading the
+      same OpenAPI spec.
+    </p>
+  </div>
+
+  {
+    groups.map((group) => (
+      <div class="rd-family-group">
+        <h3 class="rd-family-heading">{group.label}</h3>
+        <div class="rd-feature-grid rd-family-grid">
+          {group.items.map((item) => (
+            <a
+              href={item.href}
+              class="rd-feature-card"
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noopener' : undefined}
+            >
+              {item.icon && (
+                <span class="rd-feature-icon">
+                  <Icon name={item.icon} size={24} weight="duotone" />
+                </span>
+              )}
+              <h4 class="rd-feature-title">
+                {item.label}
+                {item.tag && <span class="rd-feature-tag">{item.tag}</span>}
+              </h4>
+              <p class="rd-feature-text">{item.description}</p>
+              <span class="rd-feature-more">
+                {item.external ? 'Visit' : 'Explore'}
+                <Icon name={item.external ? 'arrow-up-right' : 'arrow-right'} size={14} />
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+
+  <a href="/integrations/" class="rd-feature-card rd-family-integrations">
+    <span class="rd-feature-icon"><Icon name="plug" size={24} weight="duotone" /></span>
+    <span class="rd-family-integrations-text">
+      <span class="rd-feature-title">Integrations</span>
+      <span class="rd-feature-text">{integrationNames}</span>
+    </span>
+    <span class="rd-feature-more">All integrations <Icon name="arrow-right" size={14} /></span>
+  </a>
+</section>
+
+<style>
+  .rd-family-section {
+    position: relative;
+    z-index: 1;
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+    padding: 40px 24px 80px 24px;
+  }
+  .rd-family-section .rd-section-desc code {
+    font-family: var(--rd-font-mono);
+    font-size: 0.92em;
+    color: var(--rd-text-soft);
+  }
+  .rd-family-group {
+    margin-bottom: 28px;
+  }
+  .rd-family-heading {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--rd-text-dim);
+  }
+  .rd-family-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .rd-family-integrations {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .rd-family-integrations .rd-feature-icon {
+    margin-bottom: 0;
+  }
+  .rd-family-integrations-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 220px;
+  }
+  .rd-family-integrations .rd-feature-more {
+    margin-top: 0;
+    padding-top: 0;
+  }
+</style>

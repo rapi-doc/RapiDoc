@@ -1,6 +1,6 @@
 ---
 title: Keeping state
-description: With --stateful, Rapi Mock remembers what you create, change and delete.
+description: With --stateful, RapiMock remembers what you create, change and delete.
 ---
 
 By default every call is answered on its own: a `POST` returns a made-up record, and the next `GET` doesn't know about it. With `--stateful` the mock keeps data, like the real server would:

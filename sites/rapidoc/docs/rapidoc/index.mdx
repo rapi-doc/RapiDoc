@@ -1,0 +1,37 @@
+---
+title: RapiDoc
+description: <rapi-doc> turns an OpenAPI spec into an interactive API reference, as one HTML element with no runtime dependencies.
+---
+
+import { CardGrid, LinkCard } from '@rapidoc/portal/components';
+import DocsCard from '../../components/DocsCard.astro';
+
+**RapiDoc** turns an OpenAPI spec into interactive API documentation. At its core is `<rapi-doc>`, a single HTML element with no runtime dependencies: add one script tag and it works in any page or framework. Its Shadow DOM keeps your site's styles and RapiDoc's styles apart.
+
+<CardGrid>
+  <LinkCard title="Quickstart" description="An API reference in one HTML file." href="/docs/rapidoc/get-started/quickstart/" />
+  <LinkCard title="Which package do I need?" description="Every package in the RapiDoc family and when you need it." href="/docs/#which-package-do-i-need" />
+</CardGrid>
+
+## What you can build
+
+<CardGrid>
+  <DocsCard title="API reference" icon="book-open">
+    `<rapi-doc>` renders navigation, search, schemas, examples, authentication and a **Try** console. Choose one long page, expandable sections, or one operation at a time. [Quickstart](/docs/rapidoc/get-started/quickstart/)
+  </DocsCard>
+  <DocsCard title="Your look" icon="pencil-simple">
+    Six built-in themes, any brand color, light and dark, and full control through CSS custom properties and `::part()`. [Theming](/docs/rapidoc/theming/overview/)
+  </DocsCard>
+  <DocsCard title="A mock in the page" icon="hard-drives">
+    Answer **Try** from the spec's examples and schemas, with nothing to deploy. [In-browser mock](/docs/rapidoc/mocking/in-browser/)
+  </DocsCard>
+  <DocsCard title="Tools for AI agents" icon="robot">
+    A button in `<rapi-doc>` turns the spec into a curated MCP server. [Export MCP Server](/docs/rapidoc/mcp-export/)
+  </DocsCard>
+</CardGrid>
+
+## The rest of the family
+
+`<rapi-doc>` is one of several products: RapiDoc Mini, RapiFlow, RapiPdf, RapiMock and RapiDoc Portal, with the RapiDoc CLI, MCP and pre-rendering as tools. The [documentation home](/docs/) lists them all.
+
+Every attribute, method, event and slot of `<rapi-doc>` is listed in the [API reference](/docs/rapidoc/reference/), and the [Examples](/examples) show it running.

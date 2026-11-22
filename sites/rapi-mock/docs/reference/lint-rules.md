@@ -1,6 +1,7 @@
 ---
 title: Lint rules
 description: The rapidoc lint rules about mocking - examples, and what the stateful mock assumes.
+tableOfContents: false
 ---
 
 These are the `rapidoc lint` rules that concern the mock. The full list is in the [RapiDoc CLI docs](https://rapidocui.com/docs/cli/lint/).

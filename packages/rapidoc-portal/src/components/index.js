@@ -27,6 +27,10 @@ export { default as Link } from "./Link.astro";
 export { default as Trademark } from "./Trademark.astro";
 export { default as SpaceWarning } from "./SpaceWarning.astro";
 export { default as OpenPlaygroundButton } from "./OpenPlaygroundButton.astro";
+// The portal's frame, for a project's own pages (pages/*.astro). A page with its own document takes the
+// portal's <head> tags from `@rapidoc/portal/components/PortalHead.astro`, not from here: importing this
+// file brings the styles and scripts of every component in it to the page.
+export { default as PortalLayout } from "./PortalLayout.astro";
 export { default as PortalHeader } from "./PortalHeader.astro";
 export { default as PortalFooter } from "./PortalFooter.astro";
 // Phosphor icons (https://phosphoricons.com), the portal's one icon set

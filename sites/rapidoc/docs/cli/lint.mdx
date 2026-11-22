@@ -1,0 +1,119 @@
+---
+title: rapidoc lint
+description: "Check that a valid OpenAPI spec also makes a good reference: operationIds, summaries, examples, declared tags and security."
+---
+
+```bash
+npx rapidoc lint openapi.yaml             # one file (or a URL)
+npx rapidoc lint openapi.yaml --rule operation-description=warn --strict
+npx rapidoc lint                          # in a portal: every API in rapidoc.config.*
+```
+
+A valid spec can still make a poor reference: operations without an `operationId` get anchors that change when their summary is edited, bodies without examples leave **Try** and the mock server with nothing to show, tags that aren't declared have no description for their sidebar group. `rapidoc lint` finds those. It runs [`validate`](/docs/cli/validate/)'s check first, so one CI step covers both; an invalid spec is not linted further.
+
+Each finding names the file, line and column, and the rule:
+
+```text
+🔍 orders: specs/orders.yaml
+   ❌ 1 error(s):
+      specs/orders.yaml:37:7  operationId "createOrder" is also used by POST /orders  [operation-operationId-unique]  (#/paths/~1orders~1{id}/delete/operationId)
+   ⚠️ specs/orders.yaml:11:5  GET /orders has no summary  [operation-summary]  (#/paths/~1orders/get)
+   ⚠️ specs/orders.yaml:22:11  application/json request body has no example  [media-example]  (#/paths/~1orders/post/requestBody/content/application~1json)
+```
+
+## Rules
+
+Each rule has a severity: `error` fails the run, `warn` is reported (and fails with `--strict`), `off` is skipped. The defaults lean on `warn`, so the first run on an existing spec doesn't fail CI. `rapidoc lint --rules` prints this list.
+
+| Rule | Checks | Why it matters | Default |
+| :--- | :--- | :--- | :--- |
+| `operation-operationId` | Every operation has an `operationId`. | Anchors and page URLs are built from it (otherwise from the summary, which changes); so are MCP tool names. | warn |
+| `operation-operationId-unique` | No two operations share one. | They would share an anchor and a tool name. | error |
+| `operation-operationId-url-safe` | Letters, digits, `_`, `-` and `.` only. | It appears in URLs. | warn |
+| `operation-summary` | Every operation has a summary. | The sidebar label and the MCP tool's title. | warn |
+| `operation-description` | Every operation has a description. | Readers, and the MCP tool's description. | off |
+| `parameter-description` | Every parameter has a description. A `$ref` is checked where the parameter is written. | The reference shows it beside the field; an AI agent calling the API through MCP has nothing else to go on. | warn |
+| `operation-tag-defined` | Tags used are in the top-level `tags` list. | The sidebar group's description and order come from there. | warn |
+| `tag-description` | Every top-level tag has a description. | It introduces the group. | off |
+| `operation-2xx-response` | A 2xx or 3xx response is documented. | Try has nothing to show as the expected result. | warn |
+| `operation-4xx-response` | A 4xx response is documented. | Readers see the error shapes. | off |
+| `response-error-schema` | A 4xx or 5xx response that says what went wrong has a schema. 401, 403, 404, 405, 406, 410, 412 and 429 may go without. | Clients read the error from it; the mock server answers `Prefer: code=400` with a body of that shape. | warn |
+| `security-defined` | POST, PUT, PATCH and DELETE have a security requirement, their own or the document's. `security: []` opts out. | Try and the mock server need it; MCP marks them as consequential. | warn |
+| `security-scheme-defined` | Every scheme a requirement names is declared. | Try's authentication panel is built from the declarations. | error |
+| `no-unused-components` | Every component is referenced. | Documentation of nothing. | warn |
+| `media-example` | Request and response bodies have an example, on the media type or its schema (or on every property). | Try fills the request with it; the mock server answers with it. | warn |
+| `example-named-map` | A media type's `example` is the value itself, not a map of named examples (`example: { "Calendar": { ... } }`), which belongs under `examples`. | Try and the mock server would send the map, name included. | warn |
+| `example-matches-schema` | Request and response examples fit their schema. Needs `@rapidoc/mock` installed; without it the rule is skipped and lint says so. | Try sends them and the mock server answers with them. | warn |
+| `schema-oneof-discriminator` | A `oneOf` or `anyOf` between object schemas has a `discriminator`, or a property with a different fixed value (`const`, or an `enum` of one) in each. | A client, a code generator and the mock server otherwise guess the shape. | warn |
+| `path-kebab-case` | Path segments other than parameters are kebab-case. | Naming. | off |
+| `no-server-example-com` | Servers aren't example.com or localhost. | Try would call nowhere. | warn |
+| `info-contact` | `info.contact` is set. | Shown in the reference's header. | off |
+| `info-license` | `info.license` is set. | Shown in the reference's header. | off |
+
+## Rules for the stateful mock
+
+`rapidoc mock --stateful` works out resources, keys and links from the spec. Where the spec leaves that unclear, the mock assumes something or keeps no state for the operation. `--stateful` reports those places, before you run the mock:
+
+```bash
+npx rapidoc lint openapi.yaml --stateful
+```
+
+```
+   ⚠️ openapi.yaml:12:5  GET /pets: query parameter color matches no field of Pet: the mock ignores it when listing  [stateful-list-filter]
+   ⚠️ openapi.yaml:163:5  Resource Widget: no key field found for {code}: the mock can't tell one record from another, so reads, updates and deletes of one record keep no state  [stateful-resource-key]
+```
+
+These rules are `off` by default. `--stateful` turns on the first six as warnings; a severity you set by name (`--rule`, or the config) wins. The findings are the mock's own, the same as the **Needs review** labels of its [Mock UI](https://mock.rapidocui.com/), so they need `@rapidoc/mock` installed.
+
+Lint reads the [`mock.config.yaml`](https://mock.rapidocui.com/) beside the spec (or the one `--mock-config` names), the file where you correct what the mock worked out. What it states is not reported, so the list shrinks as you settle things: a resource whose `key` you set, an operation you gave an `action`. An entry in it that no longer fits the spec is reported as `mock-config`, with the file's name.
+
+| Rule | It reports | What to do |
+| :--- | :--- | :--- |
+| `stateful-resource-key` | A resource whose key the spec doesn't show: no path parameter matches a field, or there is no item path such as `/things/{id}`. | Name the path parameter after the field (`{petId}` and `id`), or add the field. |
+| `stateful-list-filter` | A query parameter of a list that matches no field of what it returns (paging and sorting parameters are fine). | Name it after the field it filters by. Otherwise the mock ignores it. |
+| `stateful-write-unmapped` | A `PUT`, `PATCH` or `DELETE` that fits no resource. | Nothing, if it is an action and not a change to a record; the mock answers it without changing data. |
+| `stateful-reference-target` | A field that looks like a reference (`owner_id`) to a resource the spec doesn't have. | Nothing, if the other resource lives in another API; the mock fills the field with generated values. |
+| `stateful-response-unnamed` | A collection and its item path whose records are described by an inline schema. | Move the schema under `components.schemas` and refer to it: the mock knows a record by its schema's name. |
+| `stateful-operation-assumed` | Another assumption about what an operation does: a `GET` that returns a different schema, a `POST` on an item path. | Check the assumption in the message. |
+| `stateful-relation-assumed` | A link between resources matched by more than the field's plain name (`active_credential_id` to `Credential`). Not turned on by `--stateful`: these are usually right. | Turn it on by name to review them. |
+
+## Settings
+
+Set severities in `rapidoc.config.yaml`: in the folder you run the command from, or in the folder you pass it. Most specific wins: `--rule` on the command line, then the API's entry under `lint.apis` (in a portal), then `lint.rules`, then the defaults above.
+
+```yaml title="rapidoc.config.yaml"
+lint:
+  rules:
+    operation-description: warn
+    no-unused-components: off
+  apis:
+    legacy: # a portal API that can't meet a rule yet
+      operation-operationId: off
+```
+
+The `lint` key is read straight from the file, so linting one spec needs no other package. A misspelled rule name is an error with a suggestion.
+
+## Options
+
+| Option | Meaning |
+| :--- | :--- |
+| `--rule <name>=<error \| warn \| off>` | Set a rule's severity; repeat for more. |
+| `--rules` | List the rules, their defaults and what they check. |
+| `--stateful` | Also report what the stateful mock had to assume or could not map (the `stateful-*` rules). Needs `@rapidoc/mock`. |
+| `--mock-config <file>` | With the `stateful-*` rules: your corrections for the stateful mock. Default: `mock.config.yaml` beside the spec or in the folder. |
+| `--format pretty \| json \| sarif` | `pretty` (default) for the terminal; `json` for scripts; `sarif` for GitHub code scanning, with every rule described. |
+| `--strict` | Fail on warnings too. |
+| `--remote` | Also fetch remote `$ref`s (and, in a portal, remote specs in `apis:`). |
+
+## In CI
+
+Exit code `1` on errors (or warnings with `--strict`), `2` for a wrong rule name or severity:
+
+```yaml title=".github/workflows/api.yml"
+# in a job's steps:
+- run: npx rapidoc lint openapi.yaml --strict
+```
+
+Upload a SARIF report to see the findings on the pull request, as [`rapidoc validate`](/docs/cli/validate/#in-ci) shows.
+
+One spec, a URL or a folder of OpenAPI files needs `@rapidoc/cli` alone; a portal folder (with `rapidoc.config.*`) needs `@rapidoc/portal`, to read the `apis:` list.

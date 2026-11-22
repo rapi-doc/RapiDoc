@@ -3,7 +3,9 @@ import path from "node:path";
 import YAML from "yaml";
 import { ConfigError, MANAGED_RAPIDOC_ATTRIBUTES } from "./errors.js";
 import { findHomeDoc } from "../engine/sync-docs.js";
+import { docSlug as cleanSlug, docUrl, isDocFile } from "./doc-paths.js";
 import { normalizeAccess, RESERVED_PREFIXES } from "../access/rules.js";
+import { isExternal } from "./links.js";
 
 /**
  * Turns a valid rapidoc.config.yaml (schema.js) into the config the portal pages read:
@@ -21,18 +23,6 @@ export const SPECS_PATH = "/specs";
 /** Workflow files are published at WORKFLOWS_PATH/<id>.arazzo<ext>. */
 export const WORKFLOWS_PATH = "/workflows";
 export const DEFAULT_PRIMARY_COLOR = "#f76b39";
-
-const isExternal = (href) => /^[a-z][a-z0-9+.-]*:/i.test(href);
-
-/** `guides/first-shipment` or `/guides/index` → `guides/first-shipment`, `guides` */
-function cleanSlug(slug) {
-  return slug
-    .replace(/^\/+|\/+$/g, "")
-    .replace(/(^|\/)index$/, "")
-    .replace(/\.(md|mdx|markdoc|mdoc)$/, "");
-}
-
-const docUrl = (slug) => (slug ? `/docs/${slug}/` : "/docs/");
 
 /** info.title / info.description / info.version of a local spec, or {} if it cannot be read. */
 function readSpecInfo(fullPath) {
@@ -217,7 +207,7 @@ function firstDocIn(docsDir, dir) {
   if (!fs.existsSync(folder)) return cleanSlug(dir);
   const files = fs
     .readdirSync(folder, { recursive: true })
-    .filter((f) => /\.(md|mdx|markdoc)$/.test(f))
+    .filter((f) => isDocFile(f))
     .sort();
   return files.length
     ? cleanSlug(path.posix.join(dir, files[0].split(path.sep).join("/")))
@@ -296,6 +286,17 @@ function buildSidebar(items, ctx) {
 function buildTabs(navigation, ctx) {
   const tabs = navigation.map((tab) => {
     const base = { label: tab.label, icon: tab.icon, badge: tab.badge };
+    // The header shows a tab's own logo on its pages: light, dark, alt and badge as in site.logo (a badge of
+    // false shows none; no badge keeps the site's)
+    if (tab.logo) {
+      const { src, alt, badge } = tab.logo;
+      base.logo = {
+        light: typeof src === "object" ? src.light : src,
+        dark: typeof src === "object" ? src.dark : src,
+        ...(alt && { alt }),
+        ...(badge !== undefined && { badge: badge || null }),
+      };
+    }
     if (tab.items || tab.autogenerate !== undefined) {
       const items = tab.items || [{ label: tab.label, autogenerate: tab.autogenerate }];
       const { sidebar, covered, firstHref } = buildSidebar(items, ctx);
@@ -488,7 +489,12 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
     toc: raw.docs?.toc ?? {},
     editUrl: raw.docs?.editUrl || null,
   };
-  docs.home = Boolean(findHomeDoc(docs.fullPath));
+  // docs/index.* is the home page (/), unless the project has its own (pages/index.astro): then it is
+  // the page at /docs, the documentation's own front page.
+  const hasIndexDoc = Boolean(findHomeDoc(docs.fullPath));
+  const hasHomePage = fs.existsSync(path.join(baseDir, "pages", "index.astro"));
+  docs.home = hasIndexDoc && !hasHomePage;
+  docs.index = hasIndexDoc && hasHomePage;
 
   const tabs = buildTabs(raw.navigation || [], { apis, apiLink, docsDir: docs.fullPath });
   const css = [raw.theme?.css || []].flat().map((file) => path.resolve(baseDir, file));
@@ -507,6 +513,7 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
     text: site.logo?.text ?? (logoSrc ? null : site.title),
     alt: site.logo?.alt || site.title,
     href: site.logo?.href || "/",
+    badge: site.logo?.badge || null,
   };
 
   return {
@@ -538,8 +545,13 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
     },
     head: normalizeHead(raw.head),
     header: {
-      links: raw.header?.links || [],
+      // A menu in columns keeps `groups`, and gets `items`: all of them, for the places that list a
+      // menu flat (the narrow-screen menu).
+      links: (raw.header?.links || []).map((link) =>
+        link.groups ? { ...link, items: link.groups.flatMap((group) => group.items) } : link,
+      ),
       themeSwitcher: raw.header?.themeSwitcher !== false,
+      tabs: raw.header?.tabs || "header",
     },
     tabs,
     apis,

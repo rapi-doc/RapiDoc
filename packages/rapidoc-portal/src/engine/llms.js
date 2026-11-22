@@ -10,7 +10,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import yaml from "yaml";
+import { docPageUrl } from "../config/doc-paths.js";
+import { splitFrontmatter } from "../config/doc-source.js";
 import { activeTab } from "../components/header-nav.js";
 import { createZoneMatcher, PUBLIC_ZONE } from "../access/rules.js";
 
@@ -82,7 +83,7 @@ function holdCode(text) {
  */
 export function toMarkdown(source, portalConfig) {
   const apis = new Map((portalConfig.apis || []).map((api) => [api.id, api]));
-  const code = holdCode(source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, ""));
+  const code = holdCode(splitFrontmatter(source).body);
   let text = code.text;
   // A callout's body gets its code back before it is quoted, so a code block in it is quoted line by line.
   const quote = (type, title, body) => quoteCallout(type, title, code.restore(body));
@@ -151,13 +152,8 @@ export function toMarkdown(source, portalConfig) {
 
 /** Title and description from a page's frontmatter, else its first `#` heading, else its file name. */
 function pageMeta(source, file) {
-  const fm = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  let data = {};
-  try {
-    data = (fm && yaml.parse(fm[1])) || {};
-  } catch {
-    // Unreadable frontmatter: fall back to the heading or file name.
-  }
+  // Unreadable frontmatter is {}: the title falls back to the heading or file name.
+  const { data } = splitFrontmatter(source);
   const heading = source.match(/^#\s+(.+)$/m)?.[1];
   const name = path.basename(file, path.extname(file)).replace(/[-_]/g, " ");
   return {
@@ -167,19 +163,6 @@ function pageMeta(source, file) {
     ),
     description: data.description ? String(data.description) : "",
   };
-}
-
-/** A doc file → its page URL: docs/index.* is the home page, `guides/index.md` is /docs/guides/. */
-function pageUrlOf(docsDir, file) {
-  const slug = path
-    .relative(docsDir, file)
-    .split(path.sep)
-    .join("/")
-    .replace(/\.(md|mdx|markdoc)$/, "")
-    .replace(/(^|\/)index$/, "");
-  if (!slug && path.basename(file).startsWith("index.") && path.dirname(file) === docsDir)
-    return "/";
-  return slug ? `/docs/${slug}/` : "/docs/";
 }
 
 /**
@@ -192,7 +175,9 @@ export function collectDocPages(portalConfig, docFiles) {
     .filter((file) => fs.existsSync(file))
     .map((file) => {
       const source = fs.readFileSync(file, "utf8");
-      const url = pageUrlOf(docsDir, file);
+      const url = docPageUrl(path.relative(docsDir, file), {
+        home: portalConfig.docs.home !== false,
+      });
       return {
         file,
         url,

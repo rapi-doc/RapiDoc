@@ -34,18 +34,18 @@ let instanceCount = 0;
  */
 const MAX_RUN_STEPS = 50;
 
-/** The OpenAPI source descriptions of an Arazzo document that can be loaded, in order. */
+/** The OpenAPI source descriptions of an Arazzo spec that can be loaded, in order. */
 const openapiSources = (doc): any[] =>
   (doc?.sourceDescriptions || []).filter(
     (s) => s?.name && s?.url && (!s.type || s.type === "openapi"),
   );
 
 /**
- * `<rapi-flow>`: draws the workflows of an Arazzo document and can run them. Its doc comments are
+ * `<rapi-flow>`: draws the workflows of an Arazzo spec and can run them. Its doc comments are
  * read like those of `<rapi-doc>` (see the class comment in rapidoc.ts) into the custom elements
  * manifest and the types in dist/.
  *
- * @fires flow-loaded - The Arazzo document and its sources are loaded. <span class="mono
+ * @fires flow-loaded - The Arazzo spec and its sources are loaded. <span class="mono
  * yellow">e.detail</span> is <span class="mono yellow">{ doc, problems }</span>; <span class="mono
  * yellow">problems</span> lists validation findings.
  * @fires step-click - A step box is clicked or activated with the keyboard. <span class="mono
@@ -57,7 +57,7 @@ const openapiSources = (doc): any[] =>
  * class="mono yellow">{ workflowId, inputs, result, trace }</span>: <span class="mono
  * yellow">result</span> is the MCP tool result, and <span class="mono yellow">trace</span> has one
  * entry per step attempt with its request and response.
- * @slot header - Markup shown at the top, above the Arazzo document card: a logo, a title, or
+ * @slot header - Markup shown at the top, above the Arazzo spec card: a logo, a title, or
  * controls such as a mock / real server switch. It stays in the page's DOM, so page styles and
  * scripts reach it.
  * @slot footer - Markup shown at the bottom, below the run panel: links, notes, or legal text.
@@ -65,14 +65,14 @@ const openapiSources = (doc): any[] =>
 @customElement("rapi-flow")
 export default class RapiFlow extends LitElement {
   /**
-   * URL of the Arazzo 1.x document, YAML or JSON.
+   * URL of the Arazzo spec (Arazzo 1.x), YAML or JSON.
    * @group Workflow
    */
   @property({ type: String, attribute: "arazzo-url" })
   arazzoUrl = "";
   /**
    * Replaces the URL of the first OpenAPI source description. Other sources are fetched relative to
-   * the Arazzo file.
+   * the Arazzo spec.
    * @group Workflow
    */
   @property({ type: String, attribute: "spec-url" })
@@ -87,8 +87,8 @@ export default class RapiFlow extends LitElement {
   /**
    * <span class="mono yellow">id</span> of a <span class="mono yellow">&lt;rapi-doc&gt;</span> or
    * <span class="mono yellow">&lt;rapi-doc-mini&gt;</span> on the page, or several ids separated by
-   * spaces, one element per OpenAPI source of the Arazzo document. Each element supplies its source's
-   * spec, server, credentials and mock; clicking a step shows its operation in the element of its
+   * spaces, one element per OpenAPI source of the Arazzo spec. Each element supplies its source's
+   * OpenAPI spec, server, credentials and mock; clicking a step shows its operation in the element of its
    * source. An element is paired with the source its <span class="mono yellow">arazzo-source</span>
    * attribute names, else the source whose URL it has loaded, else the next source not paired yet.
    * A paired <span class="mono yellow">&lt;rapi-doc-mini&gt;</span> gets <span class="mono
@@ -135,11 +135,11 @@ export default class RapiFlow extends LitElement {
   showViewToggle: "true" | "false" = "true";
   /**
    * <span class="mono yellow">true</span> shows a box above the diagram to load any Arazzo
-   * document by URL (YAML or JSON; the server must allow cross-origin requests). Loading one shows
-   * its first workflow. The element then manages the document: with <span class="mono
-   * yellow">for</span>, whenever the document changes (from the box or <span class="mono
+   * spec by URL (YAML or JSON; the server must allow cross-origin requests). Loading one shows
+   * its first workflow. The element then manages the Arazzo spec: with <span class="mono
+   * yellow">for</span>, whenever the Arazzo spec changes (from the box or <span class="mono
    * yellow">arazzo-url</span>), each paired element loads its OpenAPI source, unless it already
-   * shows that spec, so steps resolve and runs go to that API.
+   * shows that OpenAPI spec, so steps resolve and runs go to that API.
    * @group Workflow
    */
   @property({ type: String, attribute: "allow-arazzo-url-load" })
@@ -163,7 +163,7 @@ export default class RapiFlow extends LitElement {
   allowRun: "true" | "false" = "true";
   /**
    * Base URL the first OpenAPI source's requests go to in runs, instead of the server its paired
-   * element selected or the spec's first server.
+   * element selected or the OpenAPI spec's first server.
    * @group Run
    */
   @property({ type: String, attribute: "server-url" })
@@ -180,15 +180,15 @@ export default class RapiFlow extends LitElement {
   serverIsMock: "true" | "false" = "false";
   /**
    * <span class="mono yellow">true</span> shows an Export MCP Server button that downloads an MCP
-   * server with one tool per workflow of the Arazzo document (every one the runtime can run), and
-   * no tool per operation. Its steps call every API source of the document; <span class="mono
+   * server with one tool per workflow of the Arazzo spec (every one the runtime can run), and
+   * no tool per operation. Its steps call every API source of the Arazzo spec; <span class="mono
    * yellow">&lt;rapi-doc&gt;</span>'s own export covers one API's operations.
    * @group MCP
    */
   @property({ type: String, attribute: "mcp" })
   mcp: "true" | "false" = "false";
   /**
-   * Name of the exported MCP server. Defaults to the Arazzo document's title.
+   * Name of the exported MCP server. Defaults to the Arazzo spec's title.
    * @group MCP
    */
   @property({ type: String, attribute: "mcp-server-name" })
@@ -208,7 +208,7 @@ export default class RapiFlow extends LitElement {
   /**
    * Status codes a mock answers with during a run, by step id, `*` for every other step; each a
    * list such as "503, 200", used in turn per attempt, or with a prefix: `random:200,500`,
-   * `cycle:503,503,200`. A step's `x-mock-server-status-code` in the Arazzo document is its starting
+   * `cycle:503,503,200`. A step's `x-mock-server-status-code` in the Arazzo spec is its starting
    * value; a key set here (even to "") wins over it. A paired element's in-browser mock gets them
    * per operation; any other server gets `Prefer: code=<status>` on the request, which
    * `rapidoc mock` honours.
@@ -814,7 +814,7 @@ export default class RapiFlow extends LitElement {
   }
 
   /**
-   * Loads the Arazzo document and its OpenAPI sources. Fires <span class="mono
+   * Loads the Arazzo spec and its OpenAPI sources. Fires <span class="mono
    * yellow">flow-loaded</span> when done.
    * @public
    */
@@ -912,7 +912,7 @@ export default class RapiFlow extends LitElement {
     return resp.text();
   }
 
-  /** The parsed Arazzo document, for a <rapi-doc> that exports workflow tools; null until loaded. */
+  /** The parsed Arazzo spec, for a <rapi-doc> that exports workflow tools; null until loaded. */
   get arazzoDocument(): any {
     return this.doc;
   }
@@ -1882,7 +1882,7 @@ export default class RapiFlow extends LitElement {
   }
 
   /**
-   * The document card: the Arazzo document's URL (the box that loads one by URL, with
+   * The document card: the Arazzo spec's URL (the box that loads one by URL, with
    * allow-arazzo-url-load, else the URL as text), then the API sources it names.
    */
   private renderDocCard() {
@@ -1900,7 +1900,7 @@ export default class RapiFlow extends LitElement {
                   (s) => html`<dt>${s.name}</dt>
                     <dd>
                       ${
-                        // Only a type other than openapi (another Arazzo document) is worth saying
+                        // Only a type other than openapi (another Arazzo spec) is worth saying
                         s.type && s.type !== "openapi"
                           ? html`<span class="flow-src-type">${s.type}</span> `
                           : nothing
@@ -1914,7 +1914,7 @@ export default class RapiFlow extends LitElement {
     </section>`;
   }
 
-  /** The box that loads an Arazzo document by URL (allow-arazzo-url-load). */
+  /** The box that loads an Arazzo spec by URL (allow-arazzo-url-load). */
   private renderUrlBox() {
     // Without the box, the document's URL as text, so a reader knows what is drawn
     if (this.allowArazzoUrlLoad !== "true") {
@@ -1946,8 +1946,8 @@ export default class RapiFlow extends LitElement {
         name="arazzo-url"
         part="url-input"
         autocomplete="off"
-        aria-label="Arazzo document URL"
-        placeholder="Arazzo document URL (YAML or JSON)"
+        aria-label="Arazzo spec URL"
+        placeholder="Arazzo spec URL (YAML or JSON)"
         spellcheck="false"
         .value=${this.boxValue ?? this.arazzoUrl}
         @input=${() => (this.boxError = "")}

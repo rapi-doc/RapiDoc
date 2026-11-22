@@ -1,6 +1,6 @@
 ---
 title: mock.config.yaml
-description: State what Rapi Mock could not read off your spec - a resource's key, what an operation does.
+description: State what RapiMock could not read off your spec - a resource's key, what an operation does.
 ---
 
 The mock reads the data model off the spec, and some APIs don't show it the way the mock expects: the key sits inside the record, or the id travels in the query string. State what it could not see in a `mock.config.yaml` beside the spec:

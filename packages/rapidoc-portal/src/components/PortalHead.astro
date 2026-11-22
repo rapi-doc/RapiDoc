@@ -1,0 +1,36 @@
+---
+/**
+ * What the portal puts in every page's <head>, for a page that brings its own document (a project's
+ * full-screen page in pages/): the title from `site.titleTemplate`, the description, the favicon, the
+ * link-preview tags, the web fonts and the config's `head` entries (analytics). PortalLayout uses it too.
+ *
+ * Imported by its own path, so the page gets no portal styles or scripts with it:
+ *
+ *   import PortalHead from '@rapidoc/portal/components/PortalHead.astro';
+ *
+ *   <head>
+ *     <meta charset="utf-8" />
+ *     <PortalHead title="Sandbox" />
+ *   </head>
+ */
+import portalConfig from 'virtual:rapidoc-portal/config';
+import { openGraphEntries, pageTitle, portalHeadEntries, renderHeadHtml } from '../engine/page-head.js';
+import { withBase } from './base-path.js';
+
+interface Props {
+  /** The page's own title; site.titleTemplate makes the full one. */
+  title: string;
+  description?: string;
+}
+
+const { title, description = portalConfig.site.description } = Astro.props;
+const headHtml = renderHeadHtml([
+  ...openGraphEntries(portalConfig, { title, description, pathname: Astro.url.pathname }),
+  ...portalHeadEntries(portalConfig),
+]);
+---
+
+<title>{pageTitle(portalConfig, title)}</title>
+{description && <meta name="description" content={description} />}
+{portalConfig.site.favicon && <link rel="icon" href={withBase(portalConfig.site.favicon)} />}
+<Fragment set:html={headHtml} />

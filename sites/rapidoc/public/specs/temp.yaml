@@ -1,0 +1,20 @@
+openapi: 3.0.0
+paths:
+  /:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                veryLongNameForAFieldLongLongLong:
+                  type: object
+                  properties:
+                    text:
+                      type: string
+                shortName:
+                  type: object
+                  properties:
+                    text:
+                      type: string

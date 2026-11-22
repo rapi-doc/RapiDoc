@@ -73,7 +73,7 @@ security:
   - OAuth: [orders:read]
 ```
 
-More extensions, such as `x-authorize-params` and `x-token-params` for an `audience`, are in RapiDoc's [OAuth guide](https://rapidocui.com/docs/authentication/oauth/).
+More extensions, such as `x-authorize-params` and `x-token-params` for an `audience`, are in RapiDoc's [OAuth guide](https://rapidocui.com/docs/rapidoc/authentication/oauth/).
 
 ### At your provider
 

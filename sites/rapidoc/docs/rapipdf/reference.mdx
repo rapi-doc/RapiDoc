@@ -1,0 +1,40 @@
+---
+title: API Reference
+description: Every attribute, method and event of <rapi-pdf>, read from the element's source.
+tableOfContents: false
+---
+
+import ElementReference from '../../../shared/components/ElementReference.astro';
+
+Everything `<rapi-pdf>` takes and offers, read from the element's own source. How to use it is in the [overview](/docs/rapipdf/); the same options in Node are on [In Node](/docs/rapipdf/node/).
+
+<ElementReference tag="rapi-pdf" section="filter" />
+
+## Attributes
+
+Set on the element in HTML, or changed at runtime with `setAttribute`.
+
+<ElementReference tag="rapi-pdf" section="attributes" />
+
+## Methods
+
+```js
+const pdf = document.querySelector('rapi-pdf');
+
+await pdf.generatePdf();              // open or download, as the output attribute says
+await pdf.generatePdf(specObject);    // a spec object or spec text instead of spec-url
+const blob = await pdf.getPdfBlob();  // the PDF itself, nothing opened or downloaded
+```
+
+<ElementReference tag="rapi-pdf" section="methods" />
+
+## Events
+
+```js
+const pdf = document.querySelector('rapi-pdf');
+
+pdf.addEventListener('pdf-generated', (e) => console.log('Made a PDF:', e.detail.output));
+pdf.addEventListener('pdf-error', (e) => console.error(e.detail.error));
+```
+
+<ElementReference tag="rapi-pdf" section="events" />

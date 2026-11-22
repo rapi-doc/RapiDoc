@@ -26,7 +26,15 @@ A page can override the table of contents in its frontmatter with the `tableOfCo
 search: true   # default
 ```
 
-The search box in the header searches guides and API operations. Both indexes are built with the site, so there is no search service to run or pay for: guides are indexed by [Pagefind](https://pagefind.app), and every operation's method, path, summary and description go into a second index.
+The search box in the header searches the whole portal. The index is built with the site, so there is no search service to run or pay for.
+
+| What is searched | A result for | Shown with |
+| :--- | :--- | :--- |
+| Guides (`docs/`) | Each page, and each heading in it | The navigation tab the page is in, such as "Guides" or "Reference" |
+| API operations (`apis:`) | Each operation of each spec | Its method, path and the API's name |
+| [Your own pages](/docs/writing/pages/#search) (`pages/`) | Each page, and each `<h2>` and `<h3>` with an id | "Page" |
+
+A search for several words finds results that have all of them, in any order. A name is found with or without its hyphens, and a tab's name finds that tab's pages. Above the results, filters narrow the list to one kind; a filter shows only for a kind the portal has.
 
 Press `/` or `Ctrl K` (`⌘ K` on a Mac) to open it. With [access rules](/docs/access/access-rules/), readers only find what they may read.
 

@@ -1,6 +1,7 @@
 ---
 title: CLI options
 description: Every option of rapidoc mock.
+tableOfContents: false
 ---
 
 ```bash

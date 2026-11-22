@@ -1,0 +1,51 @@
+---
+// Every CSS part of <rapi-doc>, by category (page-data/styling-data.yaml), as the docs' standard tables.
+import { stylingData } from '../page-data/styling-data';
+
+interface Props {
+  category?: string;
+  showHeader?: boolean;
+}
+
+const { category, showHeader = true } = Astro.props;
+
+const categories = category
+  ? stylingData.parts.filter((c) => c.category.toLowerCase() === category.toLowerCase())
+  : stylingData.parts;
+const slug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+---
+
+{
+  categories.map((cat) => (
+    <>
+      {showHeader && (
+        <>
+          <h3 id={`part-cat-${slug(cat.category)}`}>{cat.category}</h3>
+          <p>{cat.description}</p>
+        </>
+      )}
+      <table>
+        <thead>
+          <tr>
+            <th>Part</th>
+            <th>Element</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cat.items.map((item) => (
+            <tr>
+              <td>
+                <code>{item.name}</code>
+              </td>
+              <td>
+                <code style="white-space: nowrap">{item.target}</code>
+              </td>
+              <td>{item.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  ))
+}

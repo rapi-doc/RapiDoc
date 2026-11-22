@@ -1,0 +1,71 @@
+/*
+ * rapidocui.com's look on RapiDoc Portal's shell. The header is the one every RapiDoc site shares
+ * (../../shared/styles/header.css); this file adds the docs sidebar and the site's own pages. The structure
+ * comes from rapidoc.config.yaml (header.links, header.tabs); this file only sizes and colors it, with the
+ * portal's own color tokens, so both themes work.
+ */
+
+@import "../../shared/styles/header.css";
+@import "../../shared/styles/footer.css";
+@import "../../shared/styles/content.css";
+@import "../../shared/styles/dark.css";
+@import "../../shared/styles/light.css";
+
+/* ---- Docs sidebar: 300px, the products above the pages ---- */
+:root {
+  --portal-sidebar-width: 18.75rem;
+}
+:root .portal-sidebar-tabs {
+  gap: 4px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+:root .portal-sidebar-tab {
+  gap: 8px;
+  padding: 4.2px 8px;
+  line-height: 1.85;
+  border-radius: 6px;
+  font-weight: 400;
+}
+:root .portal-sidebar-tab-icon svg {
+  width: 20px;
+  height: 20px;
+}
+:root .portal-sidebar-tab[aria-current="page"] {
+  background: none;
+  color: var(--portal-primary-text);
+}
+:root .portal-sidebar-tab[aria-current="page"] .portal-sidebar-tab-icon {
+  color: var(--portal-primary-text);
+}
+:root .portal-sidebar-tab-external {
+  display: none;
+}
+
+/* ---- The site's own pages (GlobalLayout sets data-site-page): dark only, on the site's darker surface.
+   The portal's tokens take the site's values (styles/tokens.css) there, so the header and its menus
+   match the page under them. ---- */
+/* [data-theme] too: the portal sets its tokens on :root[data-theme], which a lighter selector would lose to */
+html[data-site-page][data-theme] {
+  --portal-bg: #060913;
+  --portal-header-bg: #060913;
+  --portal-surface: #0f1626;
+  --portal-card-bg: #0f1626;
+  --portal-fg: #e2e8f0;
+  --portal-muted: #94a3b8;
+  --portal-border: rgba(255, 255, 255, 0.08);
+  --portal-border-subtle: rgba(255, 255, 255, 0.08);
+  --portal-header-border: rgba(255, 255, 255, 0.08);
+}
+html[data-site-page] .portal-header-root .portal-navbar {
+  background-color: rgba(6, 9, 19, 0.8);
+}
+html[data-site-page] .portal-header-root .portal-megamenu-panel {
+  background: #0f1626;
+}
+/* These pages have no light version: the switcher keeps its place, so nothing in the header moves
+   between them and the docs pages, but it is not shown and cannot be used. */
+html[data-site-page] .portal-header-root .portal-theme-btn {
+  visibility: hidden;
+}

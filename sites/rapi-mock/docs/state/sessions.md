@@ -1,6 +1,7 @@
 ---
 title: Sessions
 description: Give each test its own copy of the data with the X-Mock-Session header.
+tableOfContents: false
 ---
 
 Send an `X-Mock-Session` header to get your own copy of the data. Tests that run at the same time then never see each other's changes:

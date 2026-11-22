@@ -11,6 +11,7 @@ import markdoc from "@astrojs/markdoc";
 import starlight from "@astrojs/starlight";
 import { calloutDirectives } from "./callout-directives.js";
 import { baseLinks } from "./base-links.js";
+import { DEV_LINKS_ENV, devLinksPlugin, parseDevLinks } from "./dev-links.js";
 import { withBase } from "../components/base-path.js";
 import { createStarlightOptions, THEME_CSS_MODULE } from "./starlight-options.js";
 import { resolveDependencyRoot } from "./temp-workspace.js";
@@ -19,6 +20,15 @@ export const CONFIG_MODULE = "virtual:rapidoc-portal/config";
 export const ICONS_MODULE = "virtual:rapidoc-portal/icons";
 /** Imports the `theme.css` files, for the portal's own pages (Starlight's pages get them as customCss). */
 export const USER_CSS_MODULE = "virtual:rapidoc-portal/user-css";
+/**
+ * `projectDir`: the folder of rapidoc.config.yaml, for a project's pages and components that read its
+ * files at build time (the build runs from the temp workspace, so paths from process.cwd() miss).
+ */
+export const PROJECT_MODULE = "virtual:rapidoc-portal/project";
+/** The project's pages, each with a loader of its module: for pages/dev-pages.json.js (`rapidoc dev`). */
+export const PROJECT_PAGES_MODULE = "virtual:rapidoc-portal/project-pages";
+/** `rapidoc dev` only: lists the addresses of the project's pages, for the dev search index. */
+export const DEV_PAGES_ROUTE = "/_rapidoc/dev-pages.json";
 
 /** Where built scripts and styles go (Astro's default is `_astro`); under the portal's reserved, always-public `/_rapidoc/`. */
 export const BUILD_ASSETS_DIR = "_rapidoc/assets";
@@ -33,26 +43,43 @@ const iconsDir = fileURLToPath(new URL("../assets/", import.meta.resolve("@phosp
 // File URLs, not path strings: Astro reads a string entrypoint as relative to the project root.
 const pageUrl = (name) => new URL(`../pages/${name}`, import.meta.url);
 
-/** Pages Starlight does not render. `/` is the home doc (docs/index.*) when there is one. */
-function portalRoutes(portalConfig) {
+/**
+ * Pages Starlight does not render, then the project's own (pages/). `/` is the project's
+ * pages/index.astro when there is one, else the home doc (docs/index.*), else a redirect to the first tab.
+ */
+function portalRoutes(portalConfig, projectPages = []) {
+  const hasHome = portalConfig.docs.home || projectPages.some((page) => page.pattern === "/");
   return [
-    ...(portalConfig.docs.home
-      ? []
-      : [{ pattern: "/", entrypoint: pageUrl("first-tab-redirect.astro") }]),
+    ...(hasHome ? [] : [{ pattern: "/", entrypoint: pageUrl("first-tab-redirect.astro") }]),
     { pattern: "/catalog", entrypoint: pageUrl("catalog.astro") },
-    { pattern: "/docs", entrypoint: pageUrl("first-tab-redirect.astro") },
+    // /docs goes to the first tab, unless docs/index.* is the page there (the project has its own home page)
+    ...(portalConfig.docs.index
+      ? []
+      : [{ pattern: "/docs", entrypoint: pageUrl("first-tab-redirect.astro") }]),
     { pattern: "/apis/[...apiRoute]", entrypoint: pageUrl("api-reference.astro") },
     ...(portalConfig.auth
       ? [{ pattern: "/_rapidoc/[notice]", entrypoint: pageUrl("rapidoc-notice.astro") }]
       : []),
+    // The 404 page: the portal's, unless the project has its own (pages/404.astro)
+    ...(projectPages.some((page) => page.pattern === "/404")
+      ? []
+      : [{ pattern: "/404", entrypoint: pageUrl("not-found.astro") }]),
+    ...projectPages.map(({ pattern, entrypoint }) => ({ pattern, entrypoint })),
   ];
 }
 
 // The theme CSS is a file in the workspace, not virtual: in dev, Astro writes a virtual CSS module's
 // <style> under its URL id (/@id/__x00__…) and Vite's client adds a second copy under its raw id
 // (\0…), after the theme.css files. A file has one id on both sides.
-function virtualModulesPlugin(portalConfig, themeCssPath) {
+function virtualModulesPlugin(portalConfig, themeCssPath, projectDir, pages = []) {
   const modules = {
+    [PROJECT_PAGES_MODULE]: `export default [${pages
+      .map(
+        ({ pattern, file }) =>
+          `{ pattern: ${JSON.stringify(pattern)}, load: () => import(${JSON.stringify(file)}) }`,
+      )
+      .join(", ")}];`,
+    [PROJECT_MODULE]: `export const projectDir = ${JSON.stringify(projectDir)};`,
     [CONFIG_MODULE]: `export default ${JSON.stringify(portalConfig)};`,
     [ICONS_MODULE]: `export const iconsDir = ${JSON.stringify(iconsDir)};`,
     [USER_CSS_MODULE]:
@@ -74,11 +101,17 @@ function virtualModulesPlugin(portalConfig, themeCssPath) {
 /**
  * Folders the dev server may serve files from: the workspace, the folders of the `theme.css` files
  * (in the project, outside the workspace), and the real locations of its dependencies (npm workspace
- * packages are symlinks that resolve outside node_modules).
+ * packages are symlinks that resolve outside node_modules). A project with pages/ adds its own folder:
+ * the styles and scripts of its pages and of what they import are served from there.
  */
-function allowedServeDirs(workspaceRoot, cssFiles = []) {
+function allowedServeDirs(workspace) {
   const dependencyRoot = fs.realpathSync(resolveDependencyRoot());
-  const dirs = [workspaceRoot, ...cssFiles.map((file) => path.dirname(file)), dependencyRoot];
+  const dirs = [
+    workspace.root,
+    ...workspace.config.theme.css.map((file) => path.dirname(file)),
+    ...(workspace.pages?.length ? [workspace.projectDir] : []),
+    dependencyRoot,
+  ];
   for (const pkg of ["rapidoc", "@rapidoc/portal", "@astrojs/starlight", "astro"]) {
     const linked = path.join(dependencyRoot, pkg);
     if (fs.existsSync(linked)) dirs.push(fs.realpathSync(linked));
@@ -90,15 +123,31 @@ function allowedServeDirs(workspaceRoot, cssFiles = []) {
  * @param {object} options
  * @param {object} options.portalConfig - Normalized rapidoc.config.yaml
  * @param {string} options.themeCssPath - The workspace's portal theme CSS (createPortalWorkspace())
+ * @param {string} options.projectDir - Folder of rapidoc.config.yaml
+ * @param {object[]} [options.pages] - The project's own pages (listProjectPages())
  * @returns {import('astro').AstroIntegration}
  */
-export function rapidocPortal({ portalConfig, themeCssPath }) {
+export function rapidocPortal({ portalConfig, themeCssPath, projectDir, pages = [] }) {
   return {
     name: "@rapidoc/portal",
     hooks: {
-      "astro:config:setup": ({ config, injectRoute, updateConfig }) => {
-        for (const route of portalRoutes(portalConfig)) injectRoute(route);
-        updateConfig({ vite: { plugins: [virtualModulesPlugin(portalConfig, themeCssPath)] } });
+      "astro:config:setup": ({ command, config, injectRoute, updateConfig }) => {
+        for (const route of portalRoutes(portalConfig, pages)) injectRoute(route);
+        if (command === "dev" && pages.length > 0)
+          injectRoute({ pattern: DEV_PAGES_ROUTE, entrypoint: pageUrl("dev-pages.json.js") });
+        const plugins = [virtualModulesPlugin(portalConfig, themeCssPath, projectDir, pages)];
+        if (command === "dev" && process.env[DEV_LINKS_ENV]) {
+          const { links, problems } = parseDevLinks(process.env[DEV_LINKS_ENV]);
+          for (const problem of problems)
+            console.warn(`[rapidoc-portal] ${DEV_LINKS_ENV}: ${problem}; left out`);
+          if (links.length) {
+            console.log(
+              `[rapidoc-portal] Links to ${links.map(({ from, to }) => `${from} go to ${to}`).join(", ")}`,
+            );
+            plugins.push(devLinksPlugin(links));
+          }
+        }
+        updateConfig({ vite: { plugins } });
         // First, so `:::type` blocks become portal callouts before Starlight's asides plugin sees them.
         config.markdown.processor.options.mdastPlugins.unshift(calloutDirectives(iconsDir));
         if (portalConfig.site.basePath)
@@ -137,10 +186,15 @@ export function createAstroConfig(workspace, overrides = {}) {
     integrations: [
       markdoc(),
       starlight(createStarlightOptions(workspace.config)),
-      rapidocPortal({ portalConfig: workspace.config, themeCssPath: workspace.themeCssPath }),
+      rapidocPortal({
+        portalConfig: workspace.config,
+        themeCssPath: workspace.themeCssPath,
+        projectDir: workspace.projectDir,
+        pages: workspace.pages,
+      }),
     ],
     vite: {
-      server: { fs: { allow: allowedServeDirs(workspace.root, workspace.config.theme.css) } },
+      server: { fs: { allow: allowedServeDirs(workspace) } },
       // Starlight default-imports js-yaml 4; bundled, it resolves to Starlight's copy, not a hoisted js-yaml 5 (no default export).
       // Astro's cookie code lands in the prerender chunk and imports cookie 2 (`parseCookie`); left external, it resolves
       // from the project, where a hoisted cookie 0.x (express's) breaks the build. Bundled, it resolves to Astro's copy.

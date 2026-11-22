@@ -3,6 +3,7 @@
  *
  *   docs/ change              -> re-sync the docs copy and search index (Astro hot-reloads)
  *   config or spec change     -> rebuild the workspace and restart the Astro server
+ *   page added or removed     -> the same (pages/*.astro are routes; edits to one hot-reload)
  *
  * The temp workspace is deleted on stop(), Ctrl+C (SIGINT), SIGTERM and any other process exit.
  */
@@ -13,6 +14,9 @@ import { dev as astroDev } from "astro";
 import { createAstroConfig } from "./astro-integration.js";
 import { createPortalWorkspace, refreshDocs, removePortalWorkspace } from "./temp-workspace.js";
 import { reportSpecWarnings } from "./spec-checks.js";
+import { PAGES_DIRNAME } from "./project-pages.js";
+import { DEV_PAGES_ROUTE } from "./astro-integration.js";
+import { extractPageRecords, writePageRecords } from "../search/indexer.js";
 
 const WATCH_DEBOUNCE_MS = 150;
 
@@ -51,6 +55,45 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
       removePortalWorkspace(workspace);
       throw err;
     }
+    indexProjectPages();
+  }
+
+  /**
+   * The project's own pages in the dev search: they have no Markdown source, so each is asked for from
+   * the server just started and read as HTML, as a build reads them from its output. Runs after start,
+   * without holding it up; a page added later is found after the restart that adds its route.
+   */
+  async function indexProjectPages() {
+    const current = workspace;
+    if (!current.config.search || current.pages.length === 0) return;
+    const origin = `http://localhost:${server.address.port}${current.config.site.basePath || ""}`;
+    try {
+      const urls = await (await fetch(`${origin}${DEV_PAGES_ROUTE}`)).json();
+      const records = [];
+      const queue = [...urls];
+      const worker = async () => {
+        for (let url = queue.shift(); url !== undefined; url = queue.shift()) {
+          try {
+            const res = await fetch(`${origin}${url}`, { headers: { accept: "text/html" } });
+            if (res.ok)
+              records.push(
+                ...extractPageRecords(await res.text(), url, {
+                  siteTitle: current.config.site.title,
+                }),
+              );
+          } catch {
+            // A page that fails to render shows its error in the browser; the search goes on without it.
+          }
+        }
+      };
+      await Promise.all(Array.from({ length: 4 }, worker));
+      if (stopped || workspace !== current) return;
+      current.pageRecords = records;
+      writePageRecords(path.join(current.publicDir, "search-index.json"), records);
+      console.log(`[rapidoc-portal] Search: ${urls.length} of your own pages added`);
+    } catch (err) {
+      console.warn(`[rapidoc-portal] Search: your own pages were not added (${err.message})`);
+    }
   }
 
   async function stopAstro() {
@@ -70,7 +113,7 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
       try {
         if (restartNeeded) {
           restartNeeded = false;
-          console.log("[rapidoc-portal] Config or spec changed, restarting dev server...");
+          console.log("[rapidoc-portal] Config, spec or pages changed, restarting dev server...");
           await stopAstro();
           await startAstro();
         } else {
@@ -91,14 +134,27 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
     return new Set([workspace.configPath, ...specs, ...workflows]);
   }
 
+  // A page of pages/ that appears or goes away changes the routes, which are set when Astro starts.
+  // An edit to one is hot-reloaded by Astro, like any file a page imports.
+  function isPageAddedOrRemoved(changedPath) {
+    if (!changedPath.endsWith(".astro")) return false;
+    if (!isInside(changedPath, path.join(workspace.projectDir, PAGES_DIRNAME))) return false;
+    return fs.existsSync(changedPath) !== workspace.pages.some((page) => page.file === changedPath);
+  }
+
   await startAstro();
 
-  // Watch the whole project folder once; filter to docs/, the config file, local specs and workflow files.
+  // Watch the whole project folder once; filter to docs/, the config file, local specs, workflow files
+  // and pages added to or removed from pages/.
   const projectRoot = workspace.projectDir;
   watcher = fs.watch(projectRoot, { recursive: true }, (_event, fileName) => {
     if (!fileName) return;
     const changedPath = path.join(projectRoot, fileName.toString());
-    if (isInside(changedPath, workspace.projectDocsDir) || watchedFiles().has(changedPath)) {
+    if (
+      isInside(changedPath, workspace.projectDocsDir) ||
+      watchedFiles().has(changedPath) ||
+      isPageAddedOrRemoved(changedPath)
+    ) {
       onProjectChange(changedPath);
     }
   });

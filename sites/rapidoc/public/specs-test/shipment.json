@@ -1,0 +1,1135 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Shipment API",
+    "description": "The Shipment API provides programmatic access to Cosmo Cargo's interstellar logistics network. Create shipments, calculate rates, track packages in real-time, and manage customs documentation for cross-border deliveries.\n\n## Getting Started\n\nTo start shipping, create a shipment with origin and destination addresses, then calculate rates for your preferred service level. Once confirmed, use the tracking endpoints to monitor delivery progress.\n\n```sh\ncurl -X POST https://api.cosmocargo.com/v1/shipments \\\n  -H \"X-API-Key: your_api_key\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"recipientAddress\": {...}, \"senderAddress\": {...}, \"packages\": [...]}'\n```\n\n## Rate Limits\n\n| Plan       | Requests/min | Burst |\n|------------|-------------|-------|\n| Free       | 60          | 10    |\n| Pro        | 600         | 50    |\n| Enterprise | Custom      | Custom|\n\nRate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) are included in every response.\n\n## Idempotency\n\nPOST and PUT endpoints support idempotency keys via the `Idempotency-Key` header. Sending the same key within 24 hours returns the original response without creating duplicates.\n\n## Versioning\n\nThe API is versioned via the `X-API-Version` header. The current stable version is `2024-01`. Omitting the header defaults to the latest stable version.\n",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Cosmo Cargo API Support",
+      "email": "api@cosmocargo.dev",
+      "url": "https://developers.sh.example.com"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "termsOfService": "https://example.com"
+  },
+  "externalDocs": {
+    "url": "https://example.com"
+  },
+  "x-tagGroups": [
+    {
+      "name": "Shipment",
+      "tags": ["Shipment Management", "Tracking & Notifications"]
+    },
+    {
+      "name": "Billing & International",
+      "tags": ["Rates & Billing", "International Shipping"]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Shipment Management",
+      "description": "Endpoints for creating, tracking, updating, and managing shipments."
+    },
+    {
+      "name": "Rates & Billing",
+      "description": "Endpoints related to calculating shipping rates, billing, and insurance."
+    },
+    {
+      "name": "International Shipping",
+      "description": "Operations for managing customs documentation, duties, and international shipment processes.\n\n<SpaceWarning sector=\"7G\">\nInterstellar customs regulations were updated in Stardate 2025.3. All shipments crossing the Outer Rim must include a Quantum Manifest.\n</SpaceWarning>"
+    },
+    {
+      "name": "Documentation",
+      "description": "Endpoints for generating and retrieving shipment-related documents."
+    },
+    {
+      "name": "Tracking & Notifications",
+      "description": "Endpoints for tracking shipments and configuring notifications for shipment status updates.",
+      "x-displayName": "Notifications",
+      "x-zudoku-seo": {
+        "title": "Interstellar Shipment Tracking & Notifications",
+        "description": "Follow cargo across warp lanes in real time and get notified the moment a shipment changes status."
+      }
+    },
+    {
+      "name": "System",
+      "description": "Endpoints for system health checks and retrieving API version information."
+    },
+    {
+      "name": "Authentication",
+      "description": "Endpoints for obtaining warp-grade OAuth tokens used to authorize cargo operations."
+    },
+    {
+      "name": "Schemas",
+      "description": "Endpoints for retrieving and validating data schemas used across the Cosmo Cargo platform.",
+      "x-zudoku-collapsed": false
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://c1cf69108515455da09b5a33ff336111-oas.api.mockbin.io/",
+      "description": "Production environment"
+    },
+    {
+      "url": "https://api.sh.example.com/v1",
+      "description": "Production environment"
+    },
+    {
+      "url": "https://api.staging.sh.example.com/v1",
+      "description": "Staging environment"
+    },
+    {
+      "url": "https://api.dev.sh.example.com/v1",
+      "description": "Development environment"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "components": {
+    "parameters": {
+      "CorrelationId": {
+        "name": "X-Correlation-ID",
+        "in": "header",
+        "description": "Unique identifier for tracking requests across multiple services",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "example": "123e4567-e89b-12d3-a456-426614174000"
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "description": "Unique key to ensure idempotency of the request",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "example": "550e8400-e29b-41d4-a716-446655440000"
+      },
+      "ApiVersion": {
+        "name": "X-API-Version",
+        "in": "header",
+        "description": "API version requested by the client",
+        "schema": {
+          "type": "string",
+          "nullable": true,
+          "enum": ["2024-01", "2023-12"],
+          "default": "2024-01"
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key passed via the `X-API-Key` header. Get your key from the [developer portal](https://developers.sh.example.com)."
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT bearer token obtained from the authentication service."
+      }
+    },
+    "schemas": {
+      "Shipment": {
+        "type": "object",
+        "required": ["recipientAddress", "senderAddress", "packages"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "recipientEmail": {
+            "type": "string",
+            "format": "email",
+            "example": "recipient@cosmocargo.dev"
+          },
+          "notes": {
+            "type": "array",
+            "description": "Notes about the shipment",
+            "items": {
+              "$ref": "#/components/schemas/Comment"
+            }
+          },
+          "recipientAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "senderAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "packages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Package"
+            },
+            "minItems": 1,
+            "maxItems": 50,
+            "uniqueItems": true
+          },
+          "status": {
+            "type": "string",
+            "enum": ["CREATED", "IN_TRANSIT", "DELIVERED", "EXCEPTION"],
+            "x-enumDescriptions": {
+              "CREATED": "Manifest logged and cargo sealed in the stasis bay, awaiting launch clearance.",
+              "IN_TRANSIT": "Cargo is aboard a freighter, currently in warp between waypoints.",
+              "DELIVERED": "Docked at the destination port and signed for by the recipient.",
+              "EXCEPTION": "Delayed by an anomaly such as an ion storm, customs hold or quantum drift."
+            },
+            "nullable": true
+          },
+          "trackingNumber": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{10,20}$",
+            "deprecated": true,
+            "description": "Use the `tracking` endpoint instead. This field will be removed in a future version."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Comment"
+            },
+            "maxItems": 100
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FRAGILE",
+                "EXPRESS",
+                "INTERNATIONAL",
+                "CUSTOMS_REQUIRED"
+              ]
+            }
+          },
+          "facilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["LAX1", "JFK2", "ORD3", "DFW4", "SEA5"]
+            }
+          },
+          "customData": {
+            "type": "array",
+            "description": "Array of custom data items that can be of any type",
+            "items": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "number" },
+                { "type": "boolean" },
+                { "type": "null" }
+              ]
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Empty object for future extensibility",
+            "properties": {}
+          },
+          "legacyId": {
+            "deprecated": true,
+            "description": "Legacy identifier from the old system. Use `id` instead."
+          },
+          "customFields": {
+            "type": "object",
+            "description": "Dictionary of custom string fields that can be added to the shipment",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "customerReference": "CUST-123",
+              "internalNotes": "Handle with care",
+              "specialInstructions": "Leave at front desk"
+            }
+          },
+          "facilityCapabilities": {
+            "type": "object",
+            "description": "Dictionary of facility capabilities and their status",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Whether the capability is enabled"
+                },
+                "lastChecked": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the capability was last verified"
+                }
+              }
+            },
+            "example": {
+              "temperatureControl": {
+                "enabled": true,
+                "lastChecked": "2024-03-15T10:30:00Z"
+              },
+              "hazardousMaterials": {
+                "enabled": false,
+                "lastChecked": "2024-03-14T15:45:00Z"
+              }
+            }
+          },
+          "tracking": {
+            "$ref": "#/components/schemas/TrackingDetails",
+            "description": "Real-time tracking information for this shipment"
+          },
+          "returnTracking": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/TrackingDetails" },
+              { "type": "null" }
+            ],
+            "description": "Tracking details for return shipment if applicable"
+          }
+        },
+        "additionalProperties": true
+      },
+      "Address": {
+        "type": "object",
+        "required": ["street", "city", "country", "postalCode"],
+        "properties": {
+          "street": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "city": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "country": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$",
+            "description": "ISO 3166-1 alpha-2 country code"
+          },
+          "postalCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20
+          }
+        }
+      },
+      "Package": {
+        "type": "object",
+        "required": ["weight", "dimensions"],
+        "properties": {
+          "weight": {
+            "type": "number",
+            "format": "float",
+            "description": "Weight in kilograms",
+            "minimum": 0.1,
+            "maximum": 1000
+          },
+          "dimensions": {
+            "$ref": "#/components/schemas/Dimensions"
+          }
+        }
+      },
+      "Dimensions": {
+        "type": "object",
+        "required": ["length", "width", "height"],
+        "properties": {
+          "length": {
+            "type": "number",
+            "format": "float",
+            "description": "Length in centimeters",
+            "minimum": 1,
+            "maximum": 300
+          },
+          "width": {
+            "type": "number",
+            "format": "float",
+            "description": "Width in centimeters",
+            "minimum": 1,
+            "maximum": 300
+          },
+          "height": {
+            "type": "number",
+            "format": "float",
+            "description": "Height in centimeters",
+            "minimum": 1,
+            "maximum": 300
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["code", "message"],
+        "example": {
+          "code": "SHIPMENT_NOT_FOUND",
+          "message": "The requested shipment could not be found"
+        },
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z_]+$",
+            "minLength": 1,
+            "maxLength": 50,
+            "example": "SHIPMENT_NOT_FOUND"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "example": "The requested shipment could not be found"
+          }
+        }
+      },
+      "HTTPValidationError": {
+        "type": "object",
+        "required": ["detail"],
+        "properties": {
+          "detail": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["loc", "msg", "type"],
+              "properties": {
+                "loc": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Field location"
+                },
+                "msg": {
+                  "type": "string",
+                  "description": "Error message"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Error type"
+                }
+              }
+            }
+          }
+        },
+        "description": "HTTP validation error details"
+      },
+      "ShipmentValidationError": {
+        "type": "object",
+        "required": ["code", "message", "field"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_ADDRESS",
+              "INVALID_PACKAGE",
+              "INVALID_WEIGHT",
+              "MISSING_FIELD"
+            ],
+            "description": "Specific validation error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message"
+          },
+          "field": {
+            "type": "string",
+            "description": "Field that failed validation"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Suggested fix for the error"
+          }
+        },
+        "description": "Shipment-specific validation error"
+      },
+      "TrackingDetails": {
+        "type": "object",
+        "description": "Detailed tracking information for a shipment",
+        "properties": {
+          "currentLocation": {
+            "type": "string",
+            "description": "Current location of the shipment",
+            "example": "Distribution Center - Los Angeles, CA"
+          },
+          "estimatedDelivery": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Estimated delivery date and time"
+          },
+          "lastUpdate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last tracking update timestamp"
+          },
+          "carrier": {
+            "type": "string",
+            "description": "Carrier handling the shipment",
+            "enum": ["FEDEX", "UPS", "USPS", "DHL"],
+            "example": "FEDEX"
+          },
+          "deliveryConfirmation": {
+            "type": "object",
+            "properties": {
+              "signedBy": {
+                "type": "string",
+                "description": "Name of person who signed for delivery"
+              },
+              "signatureImage": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to signature image"
+              }
+            }
+          }
+        },
+        "required": ["currentLocation", "lastUpdate"]
+      },
+      "ShipmentHistory": {
+        "type": "object",
+        "properties": {
+          "currentShipment": {
+            "$ref": "#/components/schemas/Shipment"
+          },
+          "previousShipment": {
+            "$ref": "#/components/schemas/ShipmentHistory"
+          },
+          "transferredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the shipment was transferred"
+          }
+        },
+        "minProperties": 1,
+        "maxProperties": 3
+      },
+      "Comment": {
+        "type": "object",
+        "required": ["id", "author", "text", "timestamp"],
+        "description": "A comment on a shipment that can have nested replies",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the comment",
+            "pattern": "^[a-zA-Z0-9-]+$"
+          },
+          "author": {
+            "type": "string",
+            "description": "Name of the person who wrote the comment"
+          },
+          "text": {
+            "type": "string",
+            "description": "Content of the comment"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the comment was posted"
+          },
+          "replies": {
+            "type": "array",
+            "description": "Nested replies to this comment",
+            "items": {
+              "$ref": "#/components/schemas/Comment"
+            }
+          }
+        }
+      },
+      "Organization": {
+        "type": "object",
+        "description": "A shipping organization that can have sub-organizations (e.g. regional offices)",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the organization",
+            "pattern": "^[a-zA-Z0-9-]+$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the organization",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "parent": {
+            "$ref": "#/components/schemas/Organization",
+            "description": "The parent organization (direct object circular reference)"
+          },
+          "sub": {
+            "type": "array",
+            "description": "Child organizations (array circular reference)",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/Organization"
+            }
+          }
+        }
+      },
+      "LinkedShipment": {
+        "type": "object",
+        "description": "A shipment that's part of a chain (e.g. multi-leg delivery)",
+        "required": ["id", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the shipment"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["PENDING", "IN_TRANSIT", "DELIVERED"]
+          },
+          "next": {
+            "$ref": "#/components/schemas/LinkedShipment",
+            "nullable": true
+          },
+          "previous": {
+            "$ref": "#/components/schemas/LinkedShipment",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SchemaValidationRequest": {
+        "type": "object",
+        "description": "Request to validate data against a specific schema",
+        "required": ["data"],
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "The data to validate against the schema"
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "strictMode": {
+                "type": "boolean",
+                "description": "Whether to validate in strict mode",
+                "default": false
+              },
+              "allowAdditionalProperties": {
+                "type": "boolean",
+                "description": "Whether to allow properties not defined in the schema",
+                "default": true
+              }
+            }
+          }
+        }
+      },
+      "SchemaValidationResponse": {
+        "type": "object",
+        "description": "Response from schema validation",
+        "required": ["valid"],
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "description": "Whether the data is valid according to the schema"
+          },
+          "errors": {
+            "type": "array",
+            "description": "Validation errors if any",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "JSON path to the invalid property"
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Error message"
+                },
+                "code": {
+                  "type": "string",
+                  "description": "Error code",
+                  "enum": [
+                    "REQUIRED",
+                    "TYPE_MISMATCH",
+                    "ENUM_VIOLATION",
+                    "FORMAT_VIOLATION",
+                    "CONSTRAINT_VIOLATION"
+                  ]
+                }
+              }
+            }
+          },
+          "schemaId": {
+            "type": "string",
+            "description": "Identifier of the schema used for validation"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the validation was performed"
+          }
+        }
+      },
+      "SchemaMetadata": {
+        "type": "object",
+        "description": "Metadata about a schema",
+        "required": ["id", "name", "version"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the schema"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name of the schema"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version of the schema",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the schema"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the schema was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the schema was last updated"
+          },
+          "spaceEntityType": {
+            "type": "string",
+            "description": "The type of space entity this schema represents",
+            "enum": [
+              "CARGO",
+              "VESSEL",
+              "CREW",
+              "ROUTE",
+              "STATION",
+              "PLANET",
+              "ASTEROID",
+              "SATELLITE"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/shipments": {
+      "post": {
+        "tags": ["Shipment Management"],
+        "summary": "Create a new shipment",
+        "description": "Creates a new shipment with the provided details.",
+        "operationId": "createShipment",
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CorrelationId"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ApiVersion"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Shipment"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Shipment created successfully"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Shipment Management"],
+        "summary": "Filter shipments",
+        "description": "Search and filter shipments using various criteria",
+        "operationId": "filterShipments",
+        "responses": {
+          "200": {
+            "description": "Shipments retrieved successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{trackingNumber}": {
+      "get": {
+        "tags": ["Shipment Management"],
+        "summary": "Track a shipment",
+        "description": "Get the current status and tracking information for a shipment",
+        "operationId": "trackShipment",
+        "parameters": [
+          {
+            "name": "trackingNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipment tracking information retrieved successfully"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Shipment Management"],
+        "summary": "Cancel shipment",
+        "description": "Cancel a shipment that hasn't been picked up yet.",
+        "operationId": "cancelShipment",
+        "responses": {
+          "200": {
+            "description": "Shipment cancelled successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/hold": {
+      "put": {
+        "tags": ["Shipment Management"],
+        "summary": "Hold shipment",
+        "description": "Place a shipment on hold at a facility",
+        "operationId": "holdShipment",
+        "parameters": [
+          {
+            "name": "shipmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipment placed on hold successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/rates": {
+      "post": {
+        "tags": ["Rates & Billing"],
+        "summary": "Calculate shipping rates",
+        "description": "Calculate available shipping rates",
+        "operationId": "calculateRates",
+        "responses": {
+          "200": {
+            "description": "Rates calculated successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/insurance": {
+      "post": {
+        "tags": ["Rates & Billing"],
+        "summary": "Add insurance",
+        "description": "Add or modify insurance coverage for a shipment",
+        "operationId": "addInsurance",
+        "responses": {
+          "200": {
+            "description": "Insurance added successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/customs": {
+      "put": {
+        "tags": ["International Shipping"],
+        "summary": "Update customs documentation",
+        "description": "Update or add customs documentation for international shipments",
+        "operationId": "updateCustoms",
+        "responses": {
+          "200": {
+            "description": "Customs documentation updated successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/customs/duties": {
+      "post": {
+        "tags": ["International Shipping"],
+        "summary": "Pay import duties",
+        "description": "Pay import duties and taxes for an international shipment.",
+        "operationId": "payDuties",
+        "responses": {
+          "200": {
+            "description": "Duties paid successfully"
+          }
+        }
+      }
+    },
+    "/schemas": {
+      "get": {
+        "tags": ["Schemas"],
+        "summary": "List available schemas",
+        "description": "Retrieve a list of all available data schemas in the Cosmo Cargo platform",
+        "operationId": "listSchemas",
+        "responses": {
+          "200": {
+            "description": "List of schemas retrieved successfully"
+          }
+        }
+      }
+    },
+    "/schemas/{schemaId}": {
+      "get": {
+        "tags": ["Schemas"],
+        "summary": "Get schema details",
+        "description": "Retrieve detailed information about a specific schema",
+        "operationId": "getSchema",
+        "parameters": [
+          {
+            "name": "schemaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schema details retrieved successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/label": {
+      "get": {
+        "tags": ["Documentation"],
+        "summary": "Get shipping label",
+        "description": "Get the shipping label for a shipment in various formats.",
+        "operationId": "getLabel",
+        "responses": {
+          "200": {
+            "description": "Label generated successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/documents/v2/commercial-invoice": {
+      "get": {
+        "tags": ["Documentation"],
+        "summary": "Get commercial invoice",
+        "description": "Generate an enhanced commercial invoice.",
+        "operationId": "getCommercialInvoiceV2",
+        "responses": {
+          "200": {
+            "description": "Commercial invoice generated successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/documents/commercial-invoice": {
+      "get": {
+        "tags": ["Documentation"],
+        "summary": "Get commercial invoice (legacy)",
+        "description": "Generate a basic commercial invoice.",
+        "deprecated": true,
+        "operationId": "getCommercialInvoice",
+        "responses": {
+          "200": {
+            "description": "Commercial invoice generated successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/events": {
+      "get": {
+        "tags": ["Tracking & Notifications"],
+        "summary": "Get shipment tracking events",
+        "description": "Retrieve detailed tracking events for a shipment",
+        "operationId": "getTrackingEvents",
+        "responses": {
+          "200": {
+            "description": "Tracking events retrieved successfully"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/notifications": {
+      "post": {
+        "tags": ["Tracking & Notifications"],
+        "summary": "Set up notifications",
+        "description": "Configure notification preferences for shipment status updates",
+        "operationId": "setupNotifications",
+        "responses": {
+          "204": {
+            "description": "Notification preferences updated"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/priority": {
+      "put": {
+        "tags": ["Shipment Management"],
+        "summary": "Update shipment priority",
+        "description": "Update the priority level of a shipment",
+        "operationId": "updatePriority",
+        "responses": {
+          "204": {
+            "description": "Shipment priority updated"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/service-levels": {
+      "get": {
+        "tags": ["Shipment Management"],
+        "summary": "Get available service levels",
+        "description": "Get all available service levels for a shipment with their details",
+        "operationId": "getServiceLevels",
+        "responses": {
+          "200": {
+            "description": "Available service levels"
+          }
+        }
+      }
+    },
+    "/shipments/{shipmentId}/claims": {
+      "post": {
+        "tags": ["Shipment Management"],
+        "summary": "Create a lost shipment claim",
+        "description": "Submit a claim for a lost or damaged shipment.",
+        "operationId": "createShipmentClaim",
+        "responses": {
+          "201": {
+            "description": "Claim created successfully"
+          }
+        }
+      }
+    },
+    "/organizations": {
+      "get": {
+        "tags": ["Organization Management"],
+        "summary": "List all organizations",
+        "description": "Returns a list of all organizations in the hierarchy",
+        "operationId": "listOrganizations",
+        "responses": {
+          "200": {
+            "description": "List of organizations"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Organization Management"],
+        "summary": "Create a new organization",
+        "description": "Creates a new organization, optionally as part of an existing hierarchy",
+        "operationId": "createOrganization",
+        "responses": {
+          "201": {
+            "description": "Organization created"
+          }
+        }
+      }
+    },
+    "/routes/{originFacilityId}/{destinationFacilityId}/{serviceLevel}/estimate": {
+      "get": {
+        "tags": ["Route Planning"],
+        "summary": "Get estimated delivery time",
+        "description": "Get estimated delivery time between two facilities for a specific service level",
+        "operationId": "getRouteEstimate",
+        "responses": {
+          "200": {
+            "description": "Route estimate retrieved successfully"
+          }
+        }
+      }
+    },
+    "/schemas/facility-capabilities": {
+      "get": {
+        "tags": ["Schemas"],
+        "summary": "Get facility capabilities",
+        "description": "Retrieve detailed capability information for space cargo facilities",
+        "operationId": "getFacilityCapabilities",
+        "responses": {
+          "200": {
+            "description": "Test response with array and nullable types"
+          }
+        }
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "summary": "Issue OAuth access token",
+        "description": "Exchange client credentials for a short-lived warp-grade access token.",
+        "operationId": "issueOAuthToken",
+        "tags": ["Authentication"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Access token issued"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "description": "Check if the API is up and running. This endpoint is public and requires no authentication.",
+        "operationId": "healthCheck",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "API is healthy"
+          }
+        }
+      }
+    },
+    "/graphql": {
+      "post": {
+        "tags": ["Shipment Management"],
+        "operationId": "graphqlShipmentQuery",
+        "summary": "GraphQL endpoint",
+        "description": "Query the Cosmo Cargo registry via GraphQL.",
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "GraphQL response"
+          }
+        }
+      }
+    },
+    "/version": {
+      "get": {
+        "summary": "Get API version",
+        "description": "Get information about the current API version. This endpoint is public.",
+        "operationId": "getVersion",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Version information"
+          }
+        }
+      }
+    }
+  }
+}

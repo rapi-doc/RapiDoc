@@ -1,0 +1,1576 @@
+---
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { Code } from 'astro:components';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Icon from '../components/Icon.astro';
+import { rapidocBuildInfo } from '../page-data/rapidoc-build-info';
+import { RAPIDOC_PAGE } from '../page-data/snippets';
+
+// "Zero Config, Instant Integration": the quickstart's HTML file (page-data/snippets.ts). Frameworks and
+// self-hosting are links: the framework guide and the quickstart's "Without a CDN".
+const startSample = { file: 'index.html', lang: 'html', code: RAPIDOC_PAGE };
+const startLinks = [
+  { label: 'Quickstart', href: '/docs/rapidoc/get-started/quickstart/' },
+  { label: 'React, Vue, Angular, Svelte', href: '/docs/integrations/front-end/' },
+  { label: 'Without a CDN', href: '/docs/rapidoc/get-started/quickstart/#without-a-cdn' },
+];
+
+// The comparison on the landing page. status: yes = included and open source; partial = only a
+// basic part is free, the rest is commercial; hosted = needs the vendor's commercial or hosted plan;
+// no = not offered (shown as a mark only, no text). Competitor details checked against their docs
+// in November 2026.
+type CompareStatus = 'yes' | 'partial' | 'hosted' | 'no';
+interface CompareCell {
+  status: CompareStatus;
+  text?: string;
+  note?: string;
+  preview?: boolean;
+  href?: string;
+}
+interface CompareRow {
+  name: string;
+  hint: string;
+  rapidoc: CompareCell;
+  redocly: CompareCell;
+  scalar: CompareCell;
+  swagger: CompareCell;
+}
+const compareGroups: { title: string; rows: CompareRow[] }[] = [
+  {
+    title: 'API reference',
+    rows: [
+      {
+        name: 'How you add it',
+        hint: 'What goes into your page',
+        rapidoc: {
+          status: 'yes',
+          text: 'One web component',
+          note: `<rapi-doc> in any framework or plain HTML, ${rapidocBuildInfo.bundle.gzip.formatted} gzipped, no dependencies`,
+        },
+        redocly: { status: 'yes', text: 'React app or standalone script' },
+        scalar: { status: 'yes', text: 'Script tag or framework packages' },
+        swagger: { status: 'yes', text: 'Standalone bundle or React component' },
+      },
+      {
+        name: 'Try it console',
+        hint: 'Call the API from the docs',
+        rapidoc: { status: 'yes', text: 'Included', note: 'With OAuth 2.0, PKCE and API keys', href: '/docs/rapidoc/authentication/oauth/' },
+        redocly: { status: 'hosted', text: 'Replay, on paid plans', note: 'Not in open-source Redoc' },
+        scalar: { status: 'yes', text: 'Included (API client)' },
+        swagger: { status: 'yes', text: 'Included (Try it out)' },
+      },
+      {
+        name: 'Layouts',
+        hint: 'One reference, several audiences',
+        rapidoc: { status: 'yes', text: 'Three render styles', note: 'Read, view and focused, plus <rapi-doc-mini> for one operation', href: '/docs/rapidoc/performance/render-modes/' },
+        redocly: { status: 'yes', text: 'Three-panel layout' },
+        scalar: { status: 'yes', text: 'Modern and classic layouts' },
+        swagger: { status: 'yes', text: 'One collapsible list' },
+      },
+    ],
+  },
+  {
+    title: 'Mocking & workflows',
+    rows: [
+      {
+        name: 'Mock server',
+        hint: 'Responses before the backend exists',
+        rapidoc: {
+          status: 'yes',
+          text: 'In the browser and standalone',
+          note: 'rapidoc mock: examples, generated data, request validation, OAuth scope checks',
+          href: '/docs/rapidoc/mocking/in-browser/#in-the-page-or-as-a-server',
+        },
+        redocly: { status: 'hosted', text: 'In Realm (commercial)' },
+        scalar: { status: 'yes', text: 'Open-source mock server' },
+        swagger: { status: 'hosted', text: 'SwaggerHub (commercial)' },
+      },
+      {
+        name: 'Arazzo workflows',
+        hint: 'Multi-step API journeys',
+        rapidoc: { status: 'yes', text: '<rapi-flow>', note: 'A diagram next to the reference, run step by step', href: '/rapi-flow/' },
+        redocly: { status: 'yes', text: 'Respect, in Redocly CLI', note: 'Runs and lints them' },
+        scalar: { status: 'no' },
+        swagger: { status: 'no' },
+      },
+    ],
+  },
+  {
+    title: 'Developer portal',
+    rows: [
+      {
+        name: 'Docs-as-code portal',
+        hint: 'Guides, references and a catalog',
+        rapidoc: {
+          status: 'yes',
+          text: 'RapiDoc Portal',
+          note: 'Markdown, Markdoc and MDX guides, API catalog, versions, search',
+          href: 'https://portal.rapidocui.com/',
+        },
+        redocly: { status: 'hosted', text: 'Realm (commercial)' },
+        scalar: { status: 'hosted', text: 'Scalar Docs', note: 'Guides and custom domains on paid plans' },
+        swagger: { status: 'hosted', text: 'SwaggerHub Portal', note: 'Paid add-on for Enterprise plans' },
+      },
+      {
+        name: 'Single sign-on (SSO) and access rules',
+        hint: 'Private APIs and partner docs',
+        rapidoc: {
+          status: 'yes',
+          text: 'SSO with any OpenID Connect provider',
+          note: 'Okta, Entra ID, Google, Keycloak; per-page access rules, served by rapidoc serve on your servers',
+          href: 'https://portal.rapidocui.com/docs/access/overview/',
+        },
+        redocly: { status: 'hosted', text: 'RBAC in Realm' },
+        scalar: { status: 'hosted', text: 'SSO on Enterprise' },
+        swagger: { status: 'hosted', text: 'SAML SSO on Enterprise', note: 'In SwaggerHub' },
+      },
+      {
+        name: 'AI agents (MCP)',
+        hint: 'Your API as tools for agents',
+        rapidoc: {
+          status: 'yes',
+          text: 'MCP export and hosting',
+          note: 'Export a server from the browser, or host the tools at /mcp behind sign-in; llms.txt',
+          href: '/docs/mcp/',
+        },
+        redocly: { status: 'hosted', text: 'MCP server and llms.txt in Realm' },
+        scalar: { status: 'hosted', text: 'Hosted MCP servers' },
+        swagger: { status: 'hosted', text: 'MCP server for SwaggerHub', note: 'And MCP server generation from an API' },
+      },
+      {
+        name: 'Command line',
+        hint: 'Checks in CI and local preview',
+        rapidoc: {
+          status: 'yes',
+          text: 'rapidoc CLI',
+          note: 'validate, lint, bundle, mock, and migrate from Redocly or Zudoku',
+          href: '/docs/cli/',
+        },
+        redocly: { status: 'yes', text: 'Redocly CLI', note: 'lint, bundle' },
+        scalar: { status: 'yes', text: 'Scalar CLI' },
+        swagger: { status: 'hosted', text: 'SwaggerHub CLI', note: 'Publishes APIs to SwaggerHub from CI' },
+      },
+    ],
+  },
+  {
+    title: 'License and hosting',
+    rows: [
+      {
+        name: 'License',
+        hint: 'What you may do with it',
+        rapidoc: { status: 'yes', text: 'MIT, every package', note: 'No paid tier' },
+        redocly: { status: 'partial', text: 'Only Redoc and the CLI are MIT', note: 'Everything else is commercial' },
+        scalar: { status: 'partial', text: 'Only the core is MIT', note: 'Docs and MCP are on hosted plans' },
+        swagger: { status: 'partial', text: 'Only Swagger UI, Editor and Codegen are Apache 2.0', note: 'SwaggerHub is commercial' },
+      },
+      {
+        name: 'Self-hosted',
+        hint: 'Your servers, no third party',
+        rapidoc: { status: 'yes', text: 'Everything', note: 'Static files, or rapidoc serve with sign-in; no telemetry' },
+        redocly: { status: 'partial', text: 'Limited to basic Redoc', note: 'Everything else is paywalled or commercial' },
+        scalar: { status: 'partial', text: 'Limited to the API reference', note: 'Scalar Docs is hosted' },
+        swagger: { status: 'partial', text: 'Limited to the open-source tools', note: 'SwaggerHub is hosted' },
+      },
+    ],
+  },
+];
+const statusLabel: Record<CompareStatus, string> = {
+  yes: 'Included',
+  partial: 'Limited',
+  hosted: 'Paid or hosted plan',
+  no: 'Not offered',
+};
+const compareProducts = [
+  { key: 'redocly', name: 'Redocly' },
+  { key: 'scalar', name: 'Scalar' },
+  { key: 'swagger', name: 'Swagger' },
+] as const;
+
+---
+
+<GlobalLayout
+  title="RapiDoc: Interactive API Reference from OpenAPI | RapiDoc"
+  description="Generate beautiful, interactive, and customizable API documentation from OpenAPI 3.0 & 3.1 and Swagger specs with zero build steps using native Web Components."
+  keywords="OpenAPI, Swagger, API documentation, Web Component, OpenAPI 3.1, REST API, API Console, RapiDoc, API Explorer"
+>
+  <!-- RapiDoc Component Registration -->
+  <script slot="script" is:inline type="module" src="/assets/rapidoc-min.js"></script>
+
+  <!-- Ambient background glow elements inspired by Nuxt.com -->
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+  <div class="ambient-glow glow-cyan"></div>
+
+  <!-- Reusable Frosted Glass Navigation -->
+  <PortalHeader />
+
+  <!-- Hero Section: Split DX Studio Layout -->
+  <section class="rd-hero-section">
+    <div class="rd-hero-container">
+      <!-- Left Column: Copy & Personas -->
+      <div class="rd-hero-left">
+        <h1 class="rd-hero-title">
+          API Documentation <br />
+          <span class="rd-gradient-text">Developers & Product Teams</span>
+          <br />
+          Agree On.
+        </h1>
+
+        <p class="rd-hero-subtitle">
+          Build breathtaking, high-performance interactive API references without framework lock-in. Powered by native Web Components,
+          featuring an integrated API console, and self-hosted corporate security.
+        </p>
+
+        <!-- Action CTAs -->
+        <div class="rd-hero-cta-group">
+          <a href="/examples/petstore-3-2" class="rd-btn rd-btn-primary rd-btn-lg">
+            <span>Explore Live Demos</span>
+            <Icon name="arrow-right" size={16} />
+          </a>
+          <a href="#quickstart" class="rd-btn rd-btn-glass rd-btn-lg">
+            <span>Quick Start in 60s</span>
+          </a>
+        </div>
+
+        <!-- Quick Terminal Snippet -->
+        <div class="rd-terminal-box">
+          <span class="rd-terminal-prompt">$</span>
+          <code class="rd-terminal-code">npm install rapidoc</code>
+          <button class="rd-terminal-copy" id="hero-copy-btn" data-code="npm install rapidoc" title="Copy command">
+            <Icon name="copy" size={14} />
+            <span class="rd-copy-label">Copy</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: RapiDoc Dark Mode Interface Preview -->
+      <div class="rd-hero-right">
+        <div class="rd-screenshot-container">
+          <div class="rd-screenshot-mask-y">
+            <img
+              src="/assets/images/RapidocDarkScreenShot.png"
+              alt="RapiDoc Dark Theme - Interactive API Documentation and Console"
+              class="rd-screenshot-img"
+              loading="eager"
+              fetchpriority="high"
+              width="2872"
+              height="1208"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Persona Columns: Side-by-Side (For Developers & For Product Managers) -->
+    <div class="rd-persona-box" id="persona-section">
+      <div class="rd-persona-columns">
+        <!-- Developer Section -->
+        <div class="rd-persona-col">
+          <div class="rd-persona-col-header">
+            <div class="rd-persona-icon-wrap">
+              <Icon name="code" size={16} />
+            </div>
+            <h2 class="rd-persona-title">For Developers</h2>
+          </div>
+          <div class="rd-persona-list">
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>True Web Component:</strong> Zero framework lock-in. Works effortlessly in React, Vue, Angular, Svelte, or plain HTML.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>Curated MCP Server Generator:</strong> Export a Model Context Protocol manifest with JSON Schema tools, MCP safety annotations and a runnable TypeScript project, with transport-header stripping and token budget diagnostics.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>Integrated API Console:</strong> Test real endpoints directly with negative testing enabled — send custom headers & malformed
+                payloads to test edge cases.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>Container Ready:</strong> Tiny ~{rapidocBuildInfo.bundle.minified.formatted} bundle ({
+                  rapidocBuildInfo.bundle.gzip.formatted
+                } gzipped) with zero SSR/Node overhead. Bundles directly into Browser and micro-containers with Go/Rust/Java/Python servers.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>Built In Mock Server:</strong> Prototype client frontends, simulate multi-status responses, and test network latency before
+                backend APIs exist.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Manager Section -->
+        <div class="rd-persona-col">
+          <div class="rd-persona-col-header">
+            <div class="rd-persona-icon-wrap">
+              <Icon name="pencil-simple" size={16} />
+            </div>
+            <h2 class="rd-persona-title">For Product Managers</h2>
+          </div>
+          <div class="rd-persona-list">
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>Agent-Ready with Token Budget Controls:</strong> Future-proof your APIs for AI assistants (Claude, Cursor). Real-time token diagnostics slash prompt overhead by ~80% while shielding internal enterprise routes.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>Self-Hosted Corporate Data Security:</strong> Operates 100% in-browser with zero telemetry or outbound cloud leaks. Ideal
+                for strict compliance and air-gapped VPCs.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>100% Brand Consistency:</strong> White-label fonts, header colors, logos, and light/dark modes with simple HTML attributes.
+                No code forks required.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>3 Layout Modes for Every Reader:</strong> Deliver wiki-style references (Read Mode), fast technical exploration (View
+                Mode), or focused endpoint catalogs.
+              </div>
+            </div>
+            <div class="rd-persona-item">
+              <span class="rd-persona-bullet">✓</span>
+              <div>
+                <strong>Zero SaaS Tax (100% MIT):</strong> No per-seat pricing, no paywalled interactive consoles, and no vendor lock-in.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metrics Proof Bar -->
+  <section class="rd-metrics-section">
+    <div class="rd-metrics-container">
+      <div class="rd-metric-card">
+        <div class="rd-metric-number">0</div>
+        <div class="rd-metric-label">Framework Lock-in</div>
+        <div class="rd-metric-desc">W3C Web Component: React, Vue, Svelte, or pure HTML</div>
+      </div>
+      <div class="rd-metric-card">
+        <div class="rd-metric-number">~{rapidocBuildInfo.bundle.gzip.formatted}</div>
+        <div class="rd-metric-label">Ultra-Light Bundle</div>
+        <div class="rd-metric-desc">
+          Gzipped single bundle ({rapidocBuildInfo.bundle.minified.formatted} minified). Zero VDOM diffing overhead
+        </div>
+      </div>
+      <div class="rd-metric-card">
+        <div class="rd-metric-number">100<span class="rd-unit">%</span></div>
+        <div class="rd-metric-label">Private & Self-Hosted</div>
+        <div class="rd-metric-desc">Zero telemetry. Air-gapped and container ready</div>
+      </div>
+      <div class="rd-metric-card">
+        <div class="rd-metric-number">3</div>
+        <div class="rd-metric-label">Layout Paradigms</div>
+        <div class="rd-metric-desc">View, Read, and Focused modes for all audiences</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The other products and the integrations (page-data/products.ts) -->
+
+  <!-- Dark & Light Modes Showcase Section -->
+  <section class="rd-theme-card-section">
+    <div class="rd-theme-card">
+      <div class="rd-badge-pill" style="margin-bottom: 16px;">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">Visual Polish</span>
+      </div>
+      <h2 class="rd-section-title">Dark & Light Modes Done Right</h2>
+      <p class="rd-section-desc" style="max-width: 640px; margin: 0 auto 28px auto;">
+        RapiDoc provides pixel-perfect high-contrast dark and light themes out of the box, engineered for crystal-clear readability, WCAG AA
+        compliance, and effortless enterprise brand pairing.
+      </p>
+      <div class="rd-theme-card-actions">
+        <a href="/examples/css-dark" target="_blank" class="rd-btn rd-btn-primary">
+          <Icon name="moon" size={15} />
+          <span>High-Contrast Dark Demo</span>
+          <Icon name="arrow-right" size={14} />
+        </a>
+        <a href="/examples/css-light" target="_blank" class="rd-btn rd-btn-primary">
+          <Icon name="sun" size={15} />
+          <span>High-Contrast Light Demo</span>
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento Grid of Key Advantages (Nuxt-Style) -->
+  <section class="rd-bento-section" id="features">
+    <div class="rd-section-header rd-section-header--center">
+      <span class="rd-section-badge">Uncompromising Engineering</span>
+      <h2 class="rd-section-title">Why Teams Choose RapiDoc Over Alternatives</h2>
+      <p class="rd-section-desc">
+        Designed from the ground up for developer productivity, enterprise privacy, and product design flexibility.
+      </p>
+    </div>
+
+    <div class="rd-bento-grid">
+      <!-- Card 1: Large feature -->
+      <div class="rd-bento-card rd-col-span-2">
+        <div class="rd-bento-badge">Framework Agnostic</div>
+        <div class="rd-bento-icon-box">
+          <Icon name="globe" size={24} weight="duotone" />
+        </div>
+        <h3 class="rd-bento-title">Native W3C Web Component Standard</h3>
+        <p class="rd-bento-text">
+          Free of proprietary wrapper lock-in, complicated build steps, or framework runtime baggage. Drop a single <code
+            >&lt;rapi-doc&gt;</code
+          > custom element into React, Vue, Angular, Next.js, Nuxt, Astro, or plain vanilla HTML. Change attributes with JavaScript and it responds
+          instantly.
+        </p>
+        <div class="rd-bento-tags">
+          <span class="rd-tag">No React Hydration Overhead</span>
+          <span class="rd-tag">Zero Build Step</span>
+          <span class="rd-tag">Universal Interoperability</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Interactive Console -->
+      <div class="rd-bento-card">
+        <div class="rd-bento-badge">Real DX</div>
+        <div class="rd-bento-icon-box">
+          <Icon name="terminal-window" size={24} weight="duotone" />
+        </div>
+        <h3 class="rd-bento-title">Built-in Console with Negative Testing</h3>
+        <p class="rd-bento-text">
+          Execute API calls directly in the docs. Unlike rigid renderers that block invalid inputs, RapiDoc lets you test negative edge
+          cases, corrupt payloads, and custom headers.
+        </p>
+      </div>
+
+      <!-- Card: In-Browser Mock Server -->
+      <div class="rd-bento-card">
+        <div class="rd-bento-badge">Zero Setup</div>
+        <div class="rd-bento-icon-box">
+          <Icon name="sparkle" size={24} weight="duotone" />
+        </div>
+        <h3 class="rd-bento-title">In-Browser Mock Server</h3>
+        <p class="rd-bento-text">
+          Frontend teams can prototype before the backend is built. Seamlessly intercepts in-page <code>fetch()</code> calls and generates realistic
+          mock responses from OpenAPI examples or schemas with multi-status and latency simulation.
+        </p>
+        <a
+          href="/examples/mock-server"
+          style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
+        >
+          Explore Mock Server
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+
+      <!-- Card: Curated MCP Server Generator -->
+      <div class="rd-bento-card">
+        <div class="rd-bento-badge">Agent Ready</div>
+        <div class="rd-bento-icon-box">
+          <Icon name="lightning" size={24} weight="duotone" />
+        </div>
+        <h3 class="rd-bento-title">Curated MCP Server Generator</h3>
+        <p class="rd-bento-text">
+          Convert OpenAPI specs into a Model Context Protocol manifest with JSON Schema tools, MCP safety annotations and a runnable TypeScript project. Skips internal and deprecated endpoints, strips transport headers and keeps a live budget of prompt context overhead.
+        </p>
+        <a
+          href="/docs/mcp/"
+          style="color: var(--rd-accent); font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; text-decoration: none;"
+        >
+          Explore MCP Architecture
+          <Icon name="arrow-right" size={14} />
+        </a>
+      </div>
+
+      <!-- Card 3: Embedded Containers -->
+      <div class="rd-bento-card">
+        <div class="rd-bento-badge">Microservices & Edge</div>
+        <div class="rd-bento-icon-box">
+          <Icon name="cube" size={24} weight="duotone" />
+        </div>
+        <h3 class="rd-bento-title">Embedded in Micro-Servers & Containers</h3>
+        <p class="rd-bento-text">
+          With its tiny bundle size and zero server-side rendering dependencies, RapiDoc is ideal for embedding into lightweight Docker
+          containers, Go / Rust / Java backends, and IoT edge devices.
+        </p>
+      </div>
+
+      <!-- Card 4: Schema Visualization -->
+      <div class="rd-bento-card">
+        <div class="rd-bento-badge">Ergonomics</div>
+        <div class="rd-bento-icon-box">
+          <Icon name="tree-structure" size={24} weight="duotone" />
+        </div>
+        <h3 class="rd-bento-title">Tree & Tabular Schema Folding</h3>
+        <p class="rd-bento-text">
+          Choose between Tree and Table representation for deep schemas. All models and examples are auto-expanded by default, completely
+          eliminating tedious 20-click accordions.
+        </p>
+      </div>
+
+      <!-- Card 5: Corporate Security -->
+      <div class="rd-bento-card rd-col-span-2">
+        <div class="rd-bento-badge">Enterprise Ready</div>
+        <div class="rd-bento-icon-box">
+          <Icon name="shield-check" size={24} weight="duotone" />
+        </div>
+        <h3 class="rd-bento-title">100% Self-Hosted & Air-Gapped Security</h3>
+        <p class="rd-bento-text">
+          Trusted by Fortune 500 corporations, defense, and fintech organizations. RapiDoc executes entirely client-side in the browser. No
+          telemetry phoning home, no cloud vendor lock-in, and zero risk of proprietary internal API schemas leaking to third parties.
+        </p>
+        <div class="rd-bento-tags">
+          <span class="rd-tag">100% Offline Capable</span>
+          <span class="rd-tag">Air-Gapped VPC Compliant</span>
+          <span class="rd-tag">Zero Cloud Telemetry</span>
+          <span class="rd-tag">100% MIT Open Source</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison with other API documentation tools (data: compareGroups in the frontmatter) -->
+  <section class="rd-comparison-section" id="comparison">
+    <div class="rd-section-header rd-section-header--center">
+      <span class="rd-section-badge">Comparison</span>
+      <h2 class="rd-section-title">How RapiDoc Compares</h2>
+      <p class="rd-section-desc">
+        From the reference to the whole portal: what each tool includes, and what needs a paid or hosted plan.
+      </p>
+    </div>
+
+    <div class="rd-table-card">
+      <div class="rd-table-responsive">
+        <div class="rd-compare-wrap">
+        <table class="rd-compare-table">
+          <colgroup>
+            <col class="rd-colw-feature" />
+            <col class="rd-colw-rapidoc" />
+            <col span="3" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="rd-th-feature" scope="col">Capability</th>
+              <th class="rd-col-rapidoc" scope="col">
+                <span class="rd-rapidoc-head">
+                  <img src="/assets/images/rapidoc-leaves.svg" alt="" width="20" height="20" />
+                  RapiDoc
+                </span>
+                <span class="rd-rapidoc-sub">MIT · open source</span>
+              </th>
+              {compareProducts.map((p) => <th scope="col">{p.name}</th>)}
+            </tr>
+          </thead>
+          {compareGroups.map((group) => (
+            <tbody>
+              <tr class="rd-group-row">
+                <th scope="colgroup" class="rd-group-title">
+                  {group.title}
+                </th>
+                <td class="rd-col-rapidoc" />
+                <td colspan="3" />
+              </tr>
+              {group.rows.map((row) => (
+                <tr>
+                  <th scope="row" class="rd-td-feature">
+                    <strong>{row.name}</strong>
+                    <span>{row.hint}</span>
+                  </th>
+                  <td class="rd-col-rapidoc">
+                    <div class="rd-cell">
+                      <span class="rd-status rd-status--yes" aria-label="Included">
+                        <Icon name="check" size={14} />
+                      </span>
+                      <div class="rd-cell-body">
+                        <span class="rd-cell-text">
+                          {row.rapidoc.href ? <a href={row.rapidoc.href}>{row.rapidoc.text}</a> : row.rapidoc.text}
+                          {row.rapidoc.preview && <span class="rd-preview-pill">Preview</span>}
+                        </span>
+                        {row.rapidoc.note && <span class="rd-cell-note">{row.rapidoc.note}</span>}
+                      </div>
+                    </div>
+                  </td>
+                  {compareProducts.map((p) => {
+                    const cell = row[p.key];
+                    return (
+                      <td>
+                        <div class="rd-cell">
+                          <span
+                            class={`rd-status rd-status--${cell.status}`}
+                            role="img"
+                            aria-label={statusLabel[cell.status]}
+                          >
+                            {cell.status === 'yes' && <Icon name="check" size={14} />}
+                            {cell.status === 'partial' && <Icon name="tilde" size={14} />}
+                            {cell.status === 'hosted' && <Icon name="cloud" size={14} />}
+                            {cell.status === 'no' && <Icon name="minus" size={14} />}
+                          </span>
+                          {cell.text && (
+                            <div class="rd-cell-body">
+                              <span class="rd-cell-text">{cell.text}</span>
+                              {cell.note && <span class="rd-cell-note">{cell.note}</span>}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          ))}
+        </table>
+        <!-- The RapiDoc column's glowing edges, drawn once over the whole column -->
+        <div class="rd-rapidoc-edges" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rd-compare-legend">
+      <span><span class="rd-status rd-status--yes"><Icon name="check" size={12} /></span> Included, open source</span>
+      <span><span class="rd-status rd-status--partial"><Icon name="tilde" size={12} /></span> Limited, the rest is commercial</span>
+      <span><span class="rd-status rd-status--hosted"><Icon name="cloud" size={12} /></span> Needs a paid or hosted plan</span>
+      <span><span class="rd-status rd-status--no"><Icon name="minus" size={12} /></span> Not offered</span>
+    </div>
+    <p class="rd-compare-footnote">Other products as described in their public documentation, November 2026.</p>
+  </section>
+
+  <!-- Upgraded Shiki Quickstart Code Showcase -->
+  <section class="rd-quickstart-section" id="quickstart">
+    <div class="rd-section-header rd-section-header--center">
+      <span class="rd-section-badge">Get Up & Running</span>
+      <h2 class="rd-section-title">Zero Config, Instant Integration</h2>
+      <p class="rd-section-desc">Save this as a file and open it in a browser. The same element works in any framework.</p>
+    </div>
+
+    <div class="rd-code-box">
+      <div class="rd-code-bar">
+        <div class="rd-code-tabs">
+          <span class="rd-code-tab active">HTML</span>
+        </div>
+        <button class="rd-code-copy" type="button" aria-label="Copy the code">
+          <Icon name="copy" size={14} />
+          <span class="rd-code-copy-label">Copy</span>
+        </button>
+      </div>
+
+      <div class="rd-code-panel active" data-code={startSample.code}>
+        <div class="rd-code-file">{startSample.file}</div>
+        <Code code={startSample.code} lang={startSample.lang} theme="github-dark" />
+        <p class="rd-code-note">
+          One script tag and one element. Nothing to install or build.{' '}
+          {startLinks.map((link, n) => (
+            <>
+              {n > 0 && ' · '}
+              <a href={link.href}>{link.label}</a>
+            </>
+          ))}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modern Call To Action Card -->
+  <section class="rd-cta-section">
+    <div class="rd-cta-card">
+      <div class="rd-cta-glow"></div>
+      <h2 class="rd-cta-title">Ready to Elevate Your API Documentation?</h2>
+      <p class="rd-cta-desc">
+        Join thousands of developers and enterprise organizations delivering lightning-fast, beautifully branded OpenAPI references.
+      </p>
+      <div class="rd-cta-actions">
+        <a href="/examples/petstore-3-2" class="rd-btn rd-btn-primary rd-btn-lg">
+          <span>View Live Petstore Demo</span>
+          <Icon name="arrow-right" size={16} />
+        </a>
+        <a href="/tests" class="rd-btn rd-btn-glass rd-btn-lg">
+          <span>Explore Test Matrix →</span>
+        </a>
+        <a href="https://github.com/rapi-doc/RapiDoc" target="_blank" rel="noopener" class="rd-btn rd-btn-glass rd-btn-lg">
+          <span>Star on GitHub ★</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reusable Modern Footer -->
+  <SiteFooter />
+</GlobalLayout>
+
+<script>
+  // "Zero Config": the copy button
+  const codeCopy = document.querySelector<HTMLButtonElement>('.rd-code-copy');
+  codeCopy?.addEventListener('click', async () => {
+    const code = document.querySelector<HTMLElement>('.rd-code-panel.active')?.dataset.code;
+    if (!code) return;
+    await navigator.clipboard.writeText(code);
+    const label = codeCopy.querySelector('.rd-code-copy-label');
+    if (label) {
+      label.textContent = 'Copied';
+      setTimeout(() => (label.textContent = 'Copy'), 1600);
+    }
+  });
+
+  // Hero Copy Button
+  const heroCopyBtn = document.getElementById('hero-copy-btn');
+  if (heroCopyBtn) {
+    heroCopyBtn.addEventListener('click', async () => {
+      const code = heroCopyBtn.getAttribute('data-code');
+      if (code) {
+        await navigator.clipboard.writeText(code);
+        const label = heroCopyBtn.querySelector('.rd-copy-label');
+        if (label) {
+          label.textContent = 'Copied!';
+          setTimeout(() => {
+            label.textContent = 'Copy';
+          }, 2000);
+        }
+      }
+    });
+  }
+</script>
+
+<style>
+  /* Base resets & layout (the font is the site's, from global.css) */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Hero Section */
+  .rd-hero-section {
+    position: relative;
+    z-index: 1;
+    padding: var(--rd-page-top) 24px 72px 24px;
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+  }
+  .rd-hero-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .rd-hero-left {
+    display: flex;
+    flex-direction: column;
+  }
+  /* Hero Typography */
+  .rd-hero-title {
+    font-size: 2.5rem;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--rd-text-bright);
+    margin: 0 0 18px 0;
+  }
+  .rd-hero-subtitle {
+    font-size: 1.08rem;
+    line-height: 1.6;
+    color: var(--rd-text-muted);
+    margin: 0 0 28px 0;
+    max-width: 580px;
+  }
+
+  /* Persona Box: Side-by-Side (Below Hero & Screenshot) */
+  .rd-persona-box {
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+    padding: 28px 32px;
+    backdrop-filter: blur(12px);
+    margin-top: 48px;
+    margin-bottom: 28px;
+    box-shadow: var(--rd-shadow-panel);
+  }
+  .rd-persona-columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  @media (min-width: 768px) {
+    .rd-persona-columns {
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+  }
+  .rd-persona-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .rd-persona-col-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rd-border);
+  }
+  .rd-persona-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--rd-radius-sm);
+    background: var(--rd-icon-bg);
+    color: var(--rd-accent);
+    flex-shrink: 0;
+  }
+  .rd-persona-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--rd-text-bright);
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .rd-persona-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .rd-persona-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--rd-text-soft);
+  }
+  .rd-persona-item strong {
+    color: var(--rd-text-bright);
+  }
+  .rd-persona-bullet {
+    color: var(--rd-accent);
+    font-weight: 800;
+    font-size: 14px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  /* Hero CTAs & Terminal */
+  .rd-hero-cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .rd-terminal-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
+    width: fit-content;
+    font-family: var(--rd-font-mono);
+    font-size: 13px;
+  }
+  .rd-terminal-prompt {
+    color: var(--rd-accent);
+    font-weight: 700;
+  }
+  .rd-terminal-code {
+    color: var(--rd-text);
+  }
+  .rd-terminal-copy {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--rd-wash);
+    border: 1px solid var(--rd-border);
+    color: var(--rd-text-muted);
+    border-radius: var(--rd-radius-sm);
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--rd-transition);
+  }
+  .rd-terminal-copy:hover {
+    background: var(--rd-wash-strong);
+    color: var(--rd-text-bright);
+  }
+
+  /* Right Column: RapiDoc Dark Preview Screenshot */
+  .rd-hero-right {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .rd-screenshot-container {
+    --corner-radius: var(--rd-radius-md);
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--corner-radius) 0 0 0;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 72%, rgba(0, 0, 0, 0.6) 88%, transparent 98%);
+    mask-image: linear-gradient(to right, #000 0%, #000 72%, rgba(0, 0, 0, 0.6) 88%, transparent 98%);
+  }
+  .rd-screenshot-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-top: 1px solid var(--rd-border-hover);
+    border-left: 1px solid var(--rd-border-hover);
+    border-radius: var(--corner-radius) 0 0 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .rd-screenshot-mask-y {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgba(0, 0, 0, 0.5) 75%, transparent 96%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgba(0, 0, 0, 0.5) 75%, transparent 96%);
+  }
+
+  .rd-screenshot-img {
+    display: block;
+    width: 1350px;
+    max-width: none;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+    padding-top: 8px;
+  }
+
+  /* Metrics Section */
+  .rd-metrics-section {
+    position: relative;
+    z-index: 1;
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+    padding: 0 24px 64px 24px;
+  }
+  .rd-metrics-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .rd-metric-card {
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    text-align: left;
+    transition: var(--rd-transition);
+  }
+  .rd-metric-card:hover {
+    border-color: var(--rd-card-border-hover);
+    background: var(--rd-card-bg-hover);
+  }
+  .rd-metric-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--rd-text-bright);
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .rd-metric-number .rd-unit {
+    font-size: 1.3rem;
+    color: var(--rd-accent);
+  }
+  .rd-metric-label {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--rd-text);
+    margin-bottom: 4px;
+  }
+  .rd-metric-desc {
+    font-size: 12.5px;
+    color: var(--rd-text-dim);
+    line-height: 1.4;
+  }
+
+  /* Theme Showcase Card Section */
+  .rd-theme-card-section {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 72px 24px;
+  }
+  .rd-theme-card {
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+    padding: 48px 32px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--rd-shadow-panel);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .rd-theme-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* Bento Grid Section */
+  .rd-bento-section {
+    position: relative;
+    z-index: 1;
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+    padding: 40px 24px 80px 24px;
+  }
+  .rd-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .rd-bento-card {
+    background: var(--rd-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+    padding: 28px;
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+    transition: var(--rd-transition);
+  }
+  .rd-bento-card:hover {
+    background: var(--rd-card-bg-hover);
+    border-color: var(--rd-card-border-hover);
+  }
+  .rd-col-span-2 {
+    grid-column: span 1;
+  }
+  @media (min-width: 900px) {
+    .rd-col-span-2 {
+      grid-column: span 2;
+    }
+  }
+  .rd-bento-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--rd-accent);
+    margin-bottom: 12px;
+  }
+  /* The card's icon on its own, no box (the site's card standard: 24px regular) */
+  .rd-bento-icon-box {
+    display: flex;
+    color: var(--rd-accent);
+    margin-bottom: 16px;
+  }
+  .rd-bento-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--rd-text-bright);
+    margin: 0 0 10px 0;
+    letter-spacing: -0.01em;
+  }
+  .rd-bento-text {
+    font-size: 13.5px;
+    color: var(--rd-text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .rd-bento-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .rd-tag {
+    font-size: 11px;
+    background: var(--rd-wash);
+    border: 1px solid var(--rd-border);
+    color: var(--rd-text-soft);
+    padding: 3px 8px;
+    border-radius: var(--rd-radius-sm);
+  }
+
+  /* Comparison Section */
+  .rd-comparison-section {
+    position: relative;
+    z-index: 1;
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+    padding: 40px 24px 80px 24px;
+  }
+  /* The table is lighter than the page; the RapiDoc column is darker, with neon edges */
+  .rd-table-card {
+    --rd-cap-w: 210px;
+    --rd-rapidoc-w: 30%;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+    overflow: hidden;
+    backdrop-filter: blur(14px);
+    box-shadow: var(--rd-shadow-panel);
+  }
+  .rd-table-responsive {
+    overflow-x: auto;
+  }
+  .rd-compare-wrap {
+    position: relative;
+    min-width: 960px;
+  }
+  .rd-compare-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: left;
+    font-size: 13.5px;
+  }
+  .rd-colw-feature {
+    width: var(--rd-cap-w);
+  }
+  .rd-colw-rapidoc {
+    width: var(--rd-rapidoc-w);
+  }
+  .rd-compare-table thead th {
+    padding: 18px 20px;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--rd-text-soft);
+    border-bottom: 1px solid var(--rd-border);
+    background: rgba(255, 255, 255, 0.03);
+    vertical-align: bottom;
+  }
+  .rd-compare-table td,
+  .rd-compare-table tbody th {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rd-border);
+    color: var(--rd-text-muted);
+    vertical-align: top;
+    text-align: left;
+    font-weight: 400;
+  }
+  .rd-compare-table tbody:last-child tr:last-child > * {
+    border-bottom: none;
+  }
+
+  /* The capability column stays in view when the table scrolls sideways */
+  .rd-th-feature,
+  .rd-td-feature {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #141a29;
+  }
+  .rd-compare-table thead .rd-th-feature {
+    background: #161c2b;
+  }
+  .rd-td-feature strong {
+    display: block;
+    color: var(--rd-text-bright);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .rd-td-feature span {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--rd-text-muted);
+  }
+
+  /* Group rows */
+  .rd-group-row > * {
+    padding: 22px 20px 8px;
+    border-bottom: 1px solid var(--rd-border);
+  }
+  .rd-compare-table .rd-group-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rd-accent-light);
+  }
+
+  /* The RapiDoc column: darker than the rest, with a faint accent border */
+  .rd-compare-table .rd-col-rapidoc {
+    background: #070a12;
+    color: var(--rd-text);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 1px 0 0 color-mix(in srgb, var(--rd-accent) 22%, transparent),
+      inset -1px 0 0 color-mix(in srgb, var(--rd-accent) 22%, transparent);
+  }
+
+  /* Neon edges, like the RapiDoc sidebar: a 1px line, brightest in the middle and fading towards the
+     ends, with a soft glow on the outside only. Each edge is a strip outside the column: the line on
+     its inner side, the glow fading outwards, both faded at the ends by a mask. */
+  .rd-rapidoc-edges {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--rd-cap-w);
+    width: var(--rd-rapidoc-w);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .rd-rapidoc-edges::before,
+  .rd-rapidoc-edges::after {
+    content: "";
+    position: absolute;
+    top: 6%;
+    bottom: 6%;
+    width: 18px;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  }
+  .rd-rapidoc-edges::before {
+    right: 100%;
+    background:
+      linear-gradient(to left, var(--rd-accent) 0 1px, transparent 1px),
+      linear-gradient(to left, color-mix(in srgb, var(--rd-accent) 22%, transparent), transparent);
+  }
+  .rd-rapidoc-edges::after {
+    left: 100%;
+    background:
+      linear-gradient(to right, var(--rd-accent) 0 1px, transparent 1px),
+      linear-gradient(to right, color-mix(in srgb, var(--rd-accent) 22%, transparent), transparent);
+  }
+  .rd-rapidoc-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--rd-text-bright);
+    letter-spacing: -0.01em;
+  }
+  .rd-rapidoc-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--rd-accent-light);
+  }
+
+  /* A cell: status mark, text, optional note */
+  .rd-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .rd-cell-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .rd-cell-text {
+    color: var(--rd-text);
+    line-height: 1.45;
+  }
+  .rd-col-rapidoc .rd-cell-text {
+    color: var(--rd-text-bright);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .rd-col-rapidoc .rd-cell-text a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--rd-accent-border);
+    text-underline-offset: 3px;
+  }
+  .rd-col-rapidoc .rd-cell-text a:hover {
+    color: var(--rd-accent-light);
+    text-decoration-color: currentColor;
+  }
+  .rd-cell-note {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--rd-text-muted);
+  }
+  .rd-col-rapidoc .rd-cell-note {
+    color: var(--rd-text-muted);
+  }
+
+  .rd-status {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-top: 0;
+    border-radius: 50%;
+  }
+  .rd-status--yes {
+    color: var(--rd-green-light);
+    background: color-mix(in srgb, var(--rd-green) 16%, transparent);
+  }
+  .rd-col-rapidoc .rd-status--yes {
+    color: var(--rd-on-accent);
+    background: var(--rd-accent);
+    box-shadow: 0 0 10px var(--rd-accent-glow);
+  }
+  .rd-status--hosted {
+    color: var(--rd-red-light);
+    background: color-mix(in srgb, var(--rd-red) 14%, transparent);
+  }
+  .rd-status--partial {
+    color: var(--rd-amber-light);
+    background: color-mix(in srgb, var(--rd-amber) 14%, transparent);
+  }
+  .rd-status--no {
+    color: var(--rd-red-light);
+    background: color-mix(in srgb, var(--rd-red) 14%, transparent);
+  }
+  .rd-preview-pill {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: var(--rd-radius-pill);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    vertical-align: 1px;
+    color: var(--rd-sky-light);
+    background: color-mix(in srgb, var(--rd-sky) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rd-sky) 30%, transparent);
+  }
+
+  /* Phones: a narrow sticky capability column, so a product column fits beside it */
+  @media (max-width: 640px) {
+    .rd-table-card {
+      --rd-cap-w: 120px;
+    }
+    .rd-th-feature,
+    .rd-td-feature {
+      padding-inline: 14px;
+    }
+    .rd-td-feature span {
+      display: none;
+    }
+    .rd-compare-wrap {
+      min-width: 820px;
+    }
+  }
+
+  .rd-compare-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 24px;
+    margin-top: 20px;
+    font-size: 12.5px;
+    color: var(--rd-text-muted);
+  }
+  .rd-compare-legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rd-compare-legend .rd-status {
+    width: 18px;
+    height: 18px;
+  }
+  .rd-compare-legend .rd-preview-pill {
+    margin-left: 0;
+  }
+  .rd-compare-footnote {
+    margin: 8px 0 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--rd-text-dim);
+  }
+
+  /* Quickstart Showcase */
+  .rd-quickstart-section {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px 24px;
+  }
+  /* One box: the tabs and the copy button are its header row, the code fills the rest */
+  .rd-code-box {
+    background: var(--rd-bg-surface);
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--rd-shadow-panel);
+  }
+  .rd-code-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px 8px 8px;
+    border-bottom: 1px solid var(--rd-border);
+    background: rgba(255, 255, 255, 0.025);
+  }
+  .rd-code-tabs {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .rd-code-tab {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    padding: 6px 14px;
+    border-radius: var(--rd-radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--rd-text-muted);
+    transition: var(--rd-transition);
+  }
+  .rd-code-tab:hover {
+    color: var(--rd-text-bright);
+  }
+  .rd-code-tab.active {
+    background: var(--rd-wash-strong);
+    color: var(--rd-text-bright);
+  }
+  .rd-code-copy {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: var(--rd-radius-sm);
+    border: 1px solid var(--rd-border);
+    background: transparent;
+    color: var(--rd-text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--rd-transition);
+  }
+  .rd-code-copy:hover {
+    color: var(--rd-text-bright);
+    border-color: var(--rd-border-hover);
+  }
+  @media (max-width: 480px) {
+    .rd-code-copy-label {
+      display: none;
+    }
+    .rd-code-tab {
+      padding-inline: 10px;
+    }
+  }
+  /* Only the active tab's panel shows; the script moves .active */
+  .rd-code-panel {
+    display: none;
+  }
+  .rd-code-panel.active {
+    display: block;
+  }
+  .rd-code-file {
+    padding: 14px 20px 0;
+    font-family: var(--rd-font-mono);
+    font-size: 12px;
+    color: var(--rd-text-dim);
+  }
+  /* !important: Shiki sets the theme background as an inline style */
+  .rd-code-panel :global(pre.astro-code) {
+    margin: 0;
+    padding: 10px 20px 18px;
+    background: transparent !important;
+    font-size: 13px;
+    line-height: 1.65;
+    overflow-x: auto;
+    /* Show => and <!-- as typed, not as ligatures */
+    font-variant-ligatures: none;
+  }
+  .rd-code-note {
+    margin: 0;
+    padding: 12px 20px;
+    border-top: 1px solid var(--rd-border);
+    font-size: 13px;
+    color: var(--rd-text-muted);
+  }
+  .rd-code-note a {
+    white-space: nowrap;
+  }
+
+  /* Call to Action Card */
+  .rd-cta-section {
+    position: relative;
+    z-index: 1;
+    max-width: var(--rd-max-width);
+    margin: 0 auto;
+    padding: 0 24px 80px 24px;
+  }
+  .rd-cta-card {
+    position: relative;
+    background: linear-gradient(135deg, var(--rd-accent-dim) 0%, rgba(255, 255, 255, 0.02) 50%, var(--rd-accent-dim) 100%);
+    border: 1px solid var(--rd-accent-border);
+    border-radius: var(--rd-radius-lg);
+    padding: 56px 32px;
+    text-align: center;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+  }
+  .rd-cta-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--rd-text-bright);
+    letter-spacing: -0.02em;
+    margin: 0 0 14px 0;
+  }
+  .rd-cta-desc {
+    font-size: 16px;
+    color: var(--rd-text-soft);
+    max-width: 580px;
+    margin: 0 auto 28px auto;
+    line-height: 1.6;
+  }
+  .rd-cta-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* Media Queries for Responsive Design */
+  @media (min-width: 768px) {
+    .rd-hero-title {
+      font-size: 3.2rem;
+    }
+    .rd-hero-container {
+      grid-template-columns: 0.9fr 1.1fr;
+      align-items: flex-start;
+      gap: 36px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .rd-hero-title {
+      font-size: 3.6rem;
+    }
+    .rd-hero-section {
+      padding: var(--rd-page-top) 24px 96px 24px;
+    }
+  }
+</style>

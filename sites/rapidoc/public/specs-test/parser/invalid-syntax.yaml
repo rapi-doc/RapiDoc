@@ -1,0 +1,9 @@
+openapi: 3.0.0
+info:
+  title: Invalid YAML Syntax Test
+  version: 1.0.0
+paths:
+  /test:
+    get:
+      summary: Broken yaml indentation
+     tags: [broken] # bad indentation

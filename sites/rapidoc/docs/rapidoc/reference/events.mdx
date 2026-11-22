@@ -1,0 +1,27 @@
+---
+title: Events
+description: Every event <rapi-doc> dispatches, with its detail, read from the element's source.
+tableOfContents: false
+---
+
+import ElementReference from '../../../../shared/components/ElementReference.astro';
+
+CustomEvents dispatched by `<rapi-doc>`. Listen with `addEventListener`; the payload is in `event.detail`. How to use them is in [React to Events](/docs/rapidoc/programmatic-api/event-hooks/).
+
+```js
+const doc = document.querySelector('rapi-doc');
+
+// Before a Try request is sent: add a header
+doc.addEventListener('before-try', (e) => {
+  e.detail.request.headers.append('X-Tenant-ID', 'acme');
+});
+
+// The reader picked another server
+doc.addEventListener('api-server-change', (e) => {
+  console.log('Server:', e.detail.selectedServer);
+});
+```
+
+<ElementReference tag="rapi-doc" section="filter" jumps={false} placeholder="Filter the events of <rapi-doc>" />
+
+<ElementReference tag="rapi-doc" section="events" />

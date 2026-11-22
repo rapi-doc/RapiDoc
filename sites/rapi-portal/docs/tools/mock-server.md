@@ -26,7 +26,7 @@ This site's [example API](/apis/bookstore/) does exactly that: run `npm run mock
 
 ## What it answers
 
-Examples from the spec first, else data generated from the schema; requests are validated against the spec; `Prefer` headers pick a documented response (`Prefer: code=404`); CORS is allowed for any origin. All of that, streamed responses (OpenAPI 3.2 `itemSchema`: Server-Sent Events and JSON Lines, sent one item at a time), and the options (`--port`, `--host`, `--seed`, `--stream-interval`), is on the [Mock Server](https://rapidocui.com/docs/mocking/mock-server/) page of the RapiDoc docs.
+Examples from the spec first, else data generated from the schema; requests are validated against the spec; `Prefer` headers pick a documented response (`Prefer: code=404`); CORS is allowed for any origin. All of that, streamed responses (OpenAPI 3.2 `itemSchema`: Server-Sent Events and JSON Lines, sent one item at a time), and the options (`--port`, `--host`, `--seed`, `--stream-interval`), is on the [Mock Server](https://mock.rapidocui.com/) page of the RapiDoc docs.
 
 ## Real token checks
 

@@ -1,0 +1,28 @@
+---
+title: Integrations
+description: Which RapiDoc integration to use for your front-end framework, server framework or documentation site.
+tableOfContents: false
+---
+
+import { LinkCard, CardGrid } from '@rapidoc/portal/components';
+
+`<rapi-doc>` is a standard custom element, so a page in any framework can use it with a line of setup. The integrations go further: they serve the reference from the app that serves your API, or add reference pages to your documentation site, so there is no HTML to write.
+
+| You have | Use | Page |
+| :--- | :--- | :--- |
+| A React, Next.js, Vue, Nuxt, Angular, Svelte or Astro app | `rapidoc`, the element itself | [Front-End Frameworks](/docs/integrations/front-end/) |
+| A Hono, Express or Fastify API | `@rapidoc/hono`, `@rapidoc/express`, `@rapidoc/fastify` | [Hono, Express & Fastify](/docs/integrations/node/) |
+| A FastAPI or Starlette API | `rapidoc` on PyPI | [FastAPI & Starlette](/docs/integrations/python/) |
+| An ASP.NET Core API | `RapiDoc.AspNetCore` on NuGet | [ASP.NET Core](/docs/integrations/dotnet/) |
+| A Go API (`net/http`, chi, Gin, Echo, Fiber) | `github.com/rapi-doc/rapidoc-go` | [Go](/docs/integrations/go/) |
+| A Starlight, VitePress or Docusaurus site | `@rapidoc/starlight`, `@rapidoc/vitepress`, `@rapidoc/docusaurus` | [Documentation Sites](/docs/integrations/docs-sites/) |
+| A full developer portal, with guides, search and sign-in | `@rapidoc/cli` and `@rapidoc/portal` | [RapiDoc Portal](https://portal.rapidocui.com/) |
+
+## One contract
+
+The server-framework packages all follow one contract, defined in `@rapidoc/embed`: they take the same options (any attribute of `<rapi-doc>`), serve the same routes (the page at `/docs`, the bundle, the OAuth return page) and send the same HTML. The Python, .NET and Go packages are ports of it that pass the same fixtures. So moving an API from one framework to another keeps its reference the same.
+
+<CardGrid>
+  <LinkCard title="Build an Integration" href="/docs/integrations/build-your-own/" description="Write one for another framework, site generator or tool, in any language." />
+  <LinkCard title="All integrations at a glance" href="/integrations/" description="The overview page, with the install line of each." />
+</CardGrid>

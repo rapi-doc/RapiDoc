@@ -1,42 +1,9 @@
 ---
-title: Developer portals from OpenAPI
-description: Turn OpenAPI specs and Markdown guides into a developer portal. Docs as code, static output, optional single sign-on (SSO).
-template: splash
-hero:
-  title: Your APIs and guides<br><mark>one developer portal</mark>
-  tagline: Point RapiDoc Portal at your OpenAPI files, write guides in Markdown or Markdoc, and get a static portal with search, an API catalog and interactive references. This site is built with it.
-  actions:
-    - text: Quickstart
-      link: /docs/getting-started/quickstart/
-    - text: See an API reference
-      link: /apis/bookstore/
-      variant: secondary
+title: RapiDoc Portal documentation
+description: How to build a developer portal from OpenAPI specs and Markdown guides with RapiDoc Portal - configuration, guides, API reference pages, single sign-on (SSO), tools and deployment.
 ---
 
-## What you get
-
-{% card-grid %}
-{% card title="Interactive API reference" icon="code" href="/docs/api-reference/reference-pages/" %}
-Every OpenAPI 3.0, 3.1 or Swagger 2.0 spec gets a reference page rendered by RapiDoc, with Try, code samples and a sidebar that stays in view.
-{% /card %}
-{% card title="Guides as code" icon="book-open" href="/docs/writing/markdown/" %}
-Markdown, MDX and Markdoc pages in a `docs/` folder. Callouts, tabs, steps, cards, and live API operations inside a guide.
-{% /card %}
-{% card title="One config file" icon="sliders-horizontal" href="/docs/configuration/overview/" %}
-`rapidoc.config.yaml` describes the header, tabs, sidebars, theme and footer. An unknown key fails the build with its path and a hint.
-{% /card %}
-{% card title="Search built in" icon="magnifying-glass" href="/docs/configuration/docs-search-redirects/" %}
-Full-text search across guides and API operations, indexed at build time. No search service to run.
-{% /card %}
-{% card title="Single sign-on (SSO)" icon="lock" href="/docs/access/overview/" %}
-Optional SSO with Okta, Microsoft Entra ID, Google or any OpenID Connect provider. Decide who may read which pages, APIs and files, by group or email.
-{% /card %}
-{% card title="Mock server" icon="test-tube" href="/docs/tools/mock-server/" %}
-Serve your specs with their examples, validate requests, and check OAuth tokens and scopes, so you can use Try before your API is deployed.
-{% /card %}
-{% /card-grid %}
-
-## From zero to portal
+RapiDoc Portal turns your OpenAPI files and Markdown or Markdoc guides into a static developer portal, with search, an API catalog, interactive references and optional single sign-on. This site is built with it. What it offers at a glance is on [RapiDoc Portal's page](https://rapidocui.com/portal/).
 
 ```bash
 npm create rapidoc@latest my-portal
@@ -45,7 +12,30 @@ npm install
 npm run dev
 ```
 
-The starter is a portal with an example API, a `rapidoc.config.yaml` and two guides, running on `http://localhost:4321`. Then point it at your own spec. Already have a repository with OpenAPI files? Run `npx @rapidoc/cli init` there instead. [Read the quickstart](/docs/getting-started/quickstart/).
+The starter is a portal with an example API, a `rapidoc.config.yaml` and two guides, on `http://localhost:4321`. Already have a repository with OpenAPI files? Run `npx @rapidoc/cli init` there instead. [Read the quickstart](/docs/getting-started/quickstart/).
+
+## Find your way
+
+{% card-grid %}
+{% card title="Get started" icon="rocket-launch" href="/docs/getting-started/introduction/" %}
+What a portal is made of, the quickstart, and the files of a project.
+{% /card %}
+{% card title="Configuration" icon="sliders-horizontal" href="/docs/configuration/overview/" %}
+`rapidoc.config.yaml`: the site, theme, header, navigation, APIs, workflows, footer and search.
+{% /card %}
+{% card title="Writing guides" icon="pencil-simple-line" href="/docs/writing/markdown/" %}
+Markdown, Markdoc and MDX pages, callouts, live API operations and your own pages.
+{% /card %}
+{% card title="API reference" icon="code" href="/docs/api-reference/reference-pages/" %}
+Reference pages, API versions, the catalog, and RapiDoc's attributes.
+{% /card %}
+{% card title="Single sign-on (SSO)" icon="lock" href="/docs/access/overview/" %}
+Sign-in with Okta, Microsoft Entra ID, Google or any OpenID Connect provider, and who may read what.
+{% /card %}
+{% card title="Tools and deploy" icon="wrench" href="/docs/tools/mock-server/" %}
+A mock for every API, MCP for agents, spec checks, migrating, and hosting the portal.
+{% /card %}
+{% /card-grid %}
 
 ## A live operation, right in a guide
 

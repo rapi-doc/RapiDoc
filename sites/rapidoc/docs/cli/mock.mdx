@@ -1,0 +1,13 @@
+---
+title: rapidoc mock
+description: Serve an API from its OpenAPI spec, with example or generated responses, request validation and token checks.
+tableOfContents: false
+---
+
+```bash
+npx rapidoc mock openapi.yaml                    # http://localhost:4010/openapi
+npx rapidoc mock ./specs --port 4011             # every OpenAPI file in the folder
+npx rapidoc mock openapi.yaml --stateful         # keep state: creates, updates and deletes are remembered
+```
+
+`rapidoc mock` answers every operation of the spec over HTTP, from its examples or with generated data. It validates requests and can check OAuth tokens against your OpenID Connect issuer. With `--stateful` it also [keeps state](https://mock.rapidocui.com/docs/state/overview/): it works out the resources from the spec, starts with generated records, and serves a page at `/__mock/ui` to look inside. It needs `@rapidoc/mock`. See [Mock Server](https://mock.rapidocui.com/) for the options, and the [overview](/docs/rapidoc/mocking/in-browser/#in-the-page-or-as-a-server) for how it compares with the in-browser mock.

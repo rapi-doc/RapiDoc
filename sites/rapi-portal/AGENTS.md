@@ -1,6 +1,6 @@
 # AGENTS.md — `sites/rapi-portal` (the RapiDoc Portal site)
 
-The product and documentation site of RapiDoc Portal, for `https://portal.rapidocui.com`. It moved here from the repository `rapi-doc/rapi-portal-doc` (its source there, before the move, is at the tag `source-before-move`).
+The documentation site of RapiDoc Portal, for `https://portal.rapidocui.com`. Its feature page is `/portal/` on rapidocui.com (`sites/rapidoc/pages/portal.astro`); the home page here is the docs introduction. The CLI's spec commands (validate, lint, bundle, pdf, mcp) are documented on rapidocui.com (`/docs/cli/`); this site keeps the portal's own commands and what is particular to a portal (`docs/tools/spec-checks.md`). It moved here from the repository `rapi-doc/rapi-portal-doc` (its source there, before the move, is at the tag `source-before-move`).
 
 - **Built with**: RapiDoc Portal, from this repository's own `@rapidoc/cli` and `@rapidoc/portal` (not the published ones). The site can therefore describe what is not on npm yet; that is accepted.
 - **Not an npm workspace**, and nothing here is published to npm.
@@ -30,5 +30,7 @@ styles/portal.css     # the amber surfaces, as on rapidocui.com
 1. **A change to the portal, the server or a CLI command the portal's users run updates these pages in the same pull request.** This is why the site's source is in this repository.
 2. **The site is its own example.** It uses the portal's features on itself (tabs, cards, an API reference, a workflow, search). When a config key or Markdoc tag changes, this site's `rapidoc.config.yaml` and pages change with it, as the example portals in `rapi-portal-demo` do (`packages/rapidoc-portal/AGENTS.md` §7).
 3. **`styles/portal.css` is shared in spirit with `sites/rapi-mock/styles/portal.css`.** A color set on `:root` there applies to both schemes: the light block must take back every one of them.
-4. **Links inside the site are absolute paths** (`/docs/tools/lint/`); links to RapiDoc's other products go to their own sites (the mock: `https://mock.rapidocui.com`).
+4. **Links inside the site are absolute paths** (`/docs/tools/spec-checks/#lint`); links to RapiDoc's other products go to their own sites (the mock: `https://mock.rapidocui.com`).
 5. **Look at a changed page in a browser** (`npm run dev:portal-site`). The formatter and the tests do not cover these files.
+6. **The header is the one every RapiDoc site shares**: the Products menu (the same entries as `header.links` in `sites/rapidoc/rapidoc.config.yaml`, as absolute rapidocui.com links), Docs (a link to `https://rapidocui.com/docs/`) and GitHub, laid out by `sites/shared/styles/header.css`, which every site's `styles/portal.css` imports. A change to that menu is made in every site. So is the footer: the same `footer` columns in every site's config (links to this site's own pages relative), lined up by `sites/shared/styles/footer.css`.
+7. **"On this page" only where it helps**: a reference page of wide tables (`reference/cli.md`, `reference/config.md`) sets `tableOfContents: false`, so the tables take that column's width; guides keep it.

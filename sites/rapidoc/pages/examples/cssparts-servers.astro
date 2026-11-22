@@ -1,0 +1,32 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+import { getSpecUrl } from '../../utils/getSpecUrl';
+
+const specUrl = getSpecUrl(Astro.url);
+---
+<ExampleLayout>
+  <rapi-doc
+    id="thedoc"
+    spec-url="/specs/petstore.yaml"
+    render-style="read"
+    color-scheme="light"
+    theme="#df75c4"
+    show-header="false"
+    show-info="true"
+  > </rapi-doc>
+</ExampleLayout>
+
+<style>
+  rapi-doc::part(section-overview-title) {
+    color: #9b2f80;
+  }
+  rapi-doc::part(section-servers) {
+    background: #6b5b95;
+    color:#d1c2e4;
+    margin:0 24px;
+    border-radius: 8px;
+  }
+  rapi-doc::part(label-selected-server) {
+    color: #fff;
+  }
+</style>

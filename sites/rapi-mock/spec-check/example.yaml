@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: City Library
   version: 1.0.0
-  description: A small example for the Rapi Mock spec check - books, their authors, and loans.
+  description: A small example for the RapiMock spec check - books, their authors, and loans.
 servers:
   - url: https://api.library.example
 paths:

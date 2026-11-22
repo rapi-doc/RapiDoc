@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=../../packages/rapidoc-portal/schema.json
-# The Rapi Mock product and documentation site (https://mock.rapidocui.com), built with RapiDoc Portal.
+# The RapiMock product and documentation site (https://mock.rapidocui.com), built with RapiDoc Portal.
 site:
-  title: Rapi Mock
+  title: RapiMock
   url: https://mock.rapidocui.com
   description: A mock server that turns an OpenAPI spec into an API that remembers. Request validation, token checks, state, a UI to look inside, and tests in any language.
   logo:
     src: /rapidoc-leaves.svg
-    text: Rapi Mock
+    text: RapiMock
   favicon: /rapidoc-leaves.svg
 # Google Analytics: the same property as rapidocui.com; content_group tells the sites apart.
 head:
@@ -25,32 +25,79 @@ theme:
     sans: { family: Inter }
     mono: { family: JetBrains Mono }
   css: ./styles/portal.css
+# The header every RapiDoc site shares (sites/rapidoc is the source): the Products menu, with absolute
+# rapidocui.com links, and the Docs menu (Get started, API Reference, Browse). Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
 header:
+  tabs: sidebar-select # the sections above the docs sidebar, as on rapidocui.com
   links:
-    - label: Check a spec
-      href: /spec-check/index.html
-      icon: list-checks
-    - label: Ecosystem
-      items:
-        - label: RapiDoc
-          href: https://rapidocui.com/docs/
-          icon: file-code
-          description: Interactive API reference from your OpenAPI spec
-        - label: RapiDoc Portal
-          href: https://portal.rapidocui.com
-          icon: browsers
-          description: A developer portal from your specs and guides
-        - label: RapiFlow
-          href: https://rapidocui.com/rapi-flow/
-          icon: path
-          description: Step through and run Arazzo workflows
-        - label: RapiDoc CLI
-          href: https://rapidocui.com/cli/
-          icon: terminal
-          description: Preview, validate, lint, bundle and export specs
+    - label: Products
+      position: start
+      groups:
+        - label: Products
+          items:
+            - label: RapiDoc
+              badge: <rapi-doc>
+              href: https://rapidocui.com/rapidoc/
+              icon: file-code
+              description: Interactive API reference from your OpenAPI spec
+            - label: RapiDoc Mini
+              badge: <rapi-doc-mini>
+              href: https://rapidocui.com/rapidoc-mini/
+              icon: puzzle-piece
+              description: A few endpoints, with Try, inside a post or guide
+            - label: RapiFlow
+              badge: <rapi-flow>
+              href: https://rapidocui.com/rapi-flow/
+              icon: path
+              description: Step through and run Arazzo workflows
+            - label: RapiPdf
+              badge: <rapi-pdf>
+              href: https://rapidocui.com/rapipdf/
+              icon: file-pdf
+              description: Turn an OpenAPI spec into a PDF
+            - label: RapiMock
+              badge: rapidoc mock
+              href: https://rapidocui.com/rapi-mock/
+              icon: hard-drives
+              description: A mock server that validates requests and remembers
+            - label: RapiDoc Portal
+              href: https://rapidocui.com/portal/
+              icon: layout
+              description: API references and guides as one site, with search and SSO
+        - label: Tools
+          items:
+            - label: RapiDoc CLI
+              badge: rapidoc
+              href: https://rapidocui.com/cli/
+              icon: terminal
+              description: Preview, validate, lint, bundle and export OpenAPI specs
+            - label: MCP Server
+              href: https://rapidocui.com/docs/mcp/
+              icon: robot
+              description: Turn your API into tools for AI agents
+            - label: Pre-rendering
+              href: https://rapidocui.com/docs/prerender/
+              icon: lightning
+              description: Server-rendered HTML for search engines and a fast first paint
+        - label: Integrations
+          items:
+            - { label: All integrations, href: https://rapidocui.com/integrations/ }
+            - { label: "React, Vue, Angular, Svelte", href: https://rapidocui.com/docs/integrations/front-end/ }
+            - { label: "Hono, Express, Fastify", href: https://rapidocui.com/docs/integrations/node/ }
+            - { label: "Starlight, VitePress, Docusaurus", href: https://rapidocui.com/docs/integrations/docs-sites/ }
+            - { label: "Python (FastAPI, Starlette)", href: https://rapidocui.com/docs/integrations/python/ }
+            - { label: ".NET (ASP.NET Core)", href: https://rapidocui.com/docs/integrations/dotnet/ }
+            - { label: "Go (net/http)", href: https://rapidocui.com/docs/integrations/go/ }
+            - { label: Build an integration, href: https://rapidocui.com/docs/integrations/build-your-own/ }
+      footer:
+        label: Which package do I need?
+        href: "https://rapidocui.com/docs/#which-package-do-i-need"
+    - { label: Docs, href: "https://rapidocui.com/docs/", position: start } # every product's docs: the cards of rapidocui.com/docs
+    - { label: Check a spec, href: /spec-check/index.html, position: start }
     - label: GitHub
       href: https://github.com/rapi-doc/RapiDoc
       icon: github-logo
+      style: button
 navigation:
   - label: Documentation
     icon: book
@@ -61,6 +108,13 @@ navigation:
           - { slug: getting-started/introduction }
           - { slug: getting-started/quickstart }
           - { slug: getting-started/how-it-works }
+      - label: Reference
+        icon: list-bullets
+        items:
+          - { slug: reference/cli }
+          - { slug: reference/control-api }
+          - { slug: reference/config-file }
+          - { slug: reference/lint-rules }
       - label: Responses
         icon: arrows-left-right
         items:
@@ -89,40 +143,47 @@ navigation:
           - { slug: testing/any-language }
           - { slug: testing/javascript }
           - { slug: testing/with-rapidoc }
-  - label: Reference
-    icon: list-bullets
-    items:
-      - { slug: reference/cli }
-      - { slug: reference/control-api }
-      - { slug: reference/config-file }
-      - { slug: reference/lint-rules }
 docs:
   editUrl: https://github.com/rapi-doc/RapiDoc/edit/master/sites/rapi-mock/docs/
+# The footer of every RapiDoc site: the same columns in sites/rapidoc, rapi-flow, rapi-mock and rapi-portal.
+# Links to this site's own pages are relative (an absolute link would open a new tab).
 footer:
   columns:
-    - title: Get started
+    - title: Products
       links:
-        - label: Introduction
-          href: /docs/getting-started/introduction
-        - label: Quickstart
-          href: /docs/getting-started/quickstart
-        - label: Keeping state
-          href: /docs/state/overview
-    - title: Reference
+        - { label: RapiDoc, href: https://rapidocui.com/rapidoc/ }
+        - { label: RapiDoc Mini, href: https://rapidocui.com/rapidoc-mini/ }
+        - { label: RapiFlow, href: https://rapidocui.com/rapi-flow/ }
+        - { label: RapiPdf, href: https://rapidocui.com/rapipdf/ }
+        - { label: RapiMock, href: https://rapidocui.com/rapi-mock/ }
+        - { label: RapiDoc Portal, href: https://rapidocui.com/portal/ }
+        - { label: RapiDoc CLI, href: https://rapidocui.com/cli/ }
+    - title: Docs
       links:
-        - label: CLI options
-          href: /docs/reference/cli
-        - label: Control API
-          href: /docs/reference/control-api
-        - label: mock.config.yaml
-          href: /docs/reference/config-file
+        - { label: All documentation, href: https://rapidocui.com/docs/ }
+        - { label: RapiDoc, href: https://rapidocui.com/docs/rapidoc/ }
+        - { label: RapiFlow, href: https://flow.rapidocui.com/ }
+        - { label: RapiMock, href: /docs/getting-started/introduction/ }
+        - { label: RapiDoc Portal, href: https://portal.rapidocui.com/docs/getting-started/introduction/ }
+        - { label: Integrations, href: https://rapidocui.com/integrations/ }
+        - { label: MCP Server, href: https://rapidocui.com/docs/mcp/ }
+    - title: Resources
+      links:
+        - { label: Examples, href: https://rapidocui.com/examples/ }
+        - { label: Spec Sandbox, href: https://rapidocui.com/sandbox/ }
+        - { label: Live Configurator, href: https://rapidocui.com/examples/controller-showcase/ }
+        - { label: Migration guides, href: https://rapidocui.com/docs/rapidoc/migration/v13-to-v14/ }
+        - { label: Test Matrix, href: https://rapidocui.com/tests/ }
+        - { label: Performance, href: https://rapidocui.com/tests/performance/ }
     - title: Project
       links:
-        - label: RapiDoc
-          href: https://rapidocui.com
-        - label: GitHub
-          href: https://github.com/rapi-doc/RapiDoc
+        - { label: GitHub, href: https://github.com/rapi-doc/RapiDoc }
+        - { label: Releases, href: https://github.com/rapi-doc/RapiDoc/releases }
+        - { label: Issues, href: https://github.com/rapi-doc/RapiDoc/issues }
+        - { label: npm, href: https://www.npmjs.com/package/rapidoc }
+        - { label: Hosting by Simafri, href: https://www.simafri.com/en/managed-vps/ }
   social:
     - icon: github
       href: https://github.com/rapi-doc/RapiDoc
-  copyright: © 2026 RapiDoc. MIT licensed.
+  copyright: © 2026 Mrinmoy Majumdar. MIT licensed.
+  branding: false # RapiDoc's own sites: no "Powered by RapiDoc"

@@ -275,6 +275,7 @@ theme:
 
 # Row 1 of the header: links and menus right of the search
 header:
+  # tabs: sidebar   # list the navigation tabs above the sidebar instead of in a second header row
   links:
     - label: "Solutions"
       items:
@@ -294,6 +295,10 @@ header:
 navigation:
   - label: "Documentation"
     icon: "book"
+    # A tab can show its own logo in the header on its pages:
+    # logo:
+    #   src: { light: "/logo-light.svg", dark: "/logo-dark.svg" }
+    #   badge: "v2"
     items:
       - label: "Guides"
         items:

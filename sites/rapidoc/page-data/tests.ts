@@ -1,0 +1,17 @@
+interface TestList {
+  [key: string]: TestItem[];
+}
+
+interface TestItem {
+  title: string;
+  description?: string;
+  validates?: string[];
+  hidden?: boolean;
+}
+
+import * as yaml from "js-yaml";
+import { readDataYaml } from "../utils/readDataYaml.ts";
+
+const testListData = yaml.load(readDataYaml("tests.yaml")) as TestList;
+export { testListData };
+export type { TestList, TestItem };

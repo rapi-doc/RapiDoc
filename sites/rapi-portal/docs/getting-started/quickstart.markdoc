@@ -3,7 +3,7 @@ title: Quickstart
 description: Create a portal, see it running, add your own OpenAPI spec, and build it for production.
 ---
 
-In a few minutes you'll have a portal running on your computer with an example API, then with your own spec, and a static build ready to upload.
+You'll have a RapiDoc Portal running on your computer with an example API, then with your own spec, and a static build ready to upload.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ Already have a repository with OpenAPI files? Skip to [Add a portal to an existi
 
 {% steps %}
 {% step title="Create the project" %}
-```bash
+```bash {% frame="terminal" title="terminal" %}
 npm create rapidoc@latest my-portal
 ```
 
@@ -24,24 +24,26 @@ It asks for the site title (press Enter to keep "My Portal") and creates the fol
 {% /step %}
 
 {% step title="Install the dependencies" %}
-```bash
+```bash {% frame="terminal" title="terminal" %}
 cd my-portal
 npm install
 ```
 
-This installs the `rapidoc` command and the portal engine into `node_modules/`. It takes a minute or two.
+This installs the `rapidoc` command (RapiDoc CLI, `@rapidoc/cli`), the portal engine (`@rapidoc/portal`) and the server for `npm start` (`@rapidoc/server`, which serves a build with sign-in: see [rapidoc serve](/docs/deploy/rapidoc-serve/)) into `node_modules/`.
 {% /step %}
 
 {% step title="Start the dev server" %}
-```bash
+```bash {% frame="terminal" title="terminal" %}
 npm run dev
 ```
 
 Open `http://localhost:4321` in your browser (or run `npm run dev -- --open`). You should see:
 
 - the home page with your site title,
-- the example API under the **Core API** tab (`/apis/core/`), with a **Try** button on each operation that sends a real request,
+- the example API under the **Core API** tab (`/apis/core/`), with a **Try** button on each operation,
 - two starter guides under the **Documentation** tab.
+
+**Try** sends requests to the example's placeholder servers, so they fail.
 
 Leave the server running. A change to a guide in `docs/` shows up as soon as you save; a change to `rapidoc.config.yaml` or a spec restarts the server.
 {% /step %}
@@ -49,29 +51,29 @@ Leave the server running. A change to a guide in `docs/` shows up as soon as you
 {% step title="Add your own spec" %}
 Copy your OpenAPI file into `specs/`, then point the example API at it in `rapidoc.config.yaml`:
 
-```yaml title="rapidoc.config.yaml"
+```yaml
 apis:
   - id: core
     spec: ./specs/orders.yaml   # your file
 ```
 
-Reload `/apis/core/`: it now shows your API. The tab is still called **Core API**: change its `label` under `navigation:`. The `id` is the page's address (`/apis/<id>`); to rename it, also change `api: core` under `navigation:` and the `/apis/core` link under `header:`.
+Reload `/apis/core/`. It now shows your API.
 
-The starter guide `docs/guides/overview.markdoc` embeds the example's `GET /items` operation. Change it to one of your operations, or delete it. To add more APIs, add entries under `apis:` ([APIs](/docs/configuration/apis/)).
+The tab keeps its label, **Core API**, until you change `label` under `navigation:`. The starter guide `docs/guides/overview.markdoc` embeds the example's `GET /items` with an `{% api-operation %}` tag under **Try It**; your spec doesn't have that operation, so it now shows nothing. Change the tag's `path` and `method` to one of your operations, or delete that section. To add more APIs, see [APIs](/docs/configuration/apis/); to rename `core`, see [Changing an id](/docs/configuration/apis/#changing-an-id).
 {% /step %}
 
-{% step title="Make it yours" %}
-Change `site.title` in `rapidoc.config.yaml` and save: the header shows the new title once the server has restarted. The same file holds the logo, the theme color, the header links and the sidebar; guides are Markdown, MDX or Markdoc files in `docs/`. See [Configuration](/docs/configuration/overview/) and [Writing guides](/docs/writing/markdown/).
+{% step title="Change the title" %}
+Change `site.title` in `rapidoc.config.yaml` for the header and the browser tab, and `title` at the top of `docs/index.markdoc` for the home page. The server restarts, and the header and the home page show the new title. The config also holds the logo, the theme color, the header links and the sidebar: see [Configuration](/docs/configuration/overview/).
 {% /step %}
 
 {% step title="Build for production" %}
 Stop the dev server (Ctrl+C), then:
 
-```bash
+```bash {% frame="terminal" title="terminal" %}
 npm run build
 ```
 
-The portal is written to `dist/` as plain static files: HTML pages, your specs and the search index. To look at the build before uploading it, run `npm run preview`. Then upload `dist/` to any static host: see [Static hosting](/docs/deploy/static-hosting/).
+The portal is written to `dist/` as plain static files: HTML pages, your specs and the search index. To look at the build before uploading it, run `npm run preview` and open the address it prints (it serves `dist/` with the `serve` package, which npm may ask to download). Then upload `dist/` to any static host: see [Static hosting](/docs/deploy/static-hosting/).
 {% /step %}
 {% /steps %}
 
@@ -79,24 +81,28 @@ The portal is written to `dist/` as plain static files: HTML pages, your specs a
 
 In a repository that already has OpenAPI files, run this in its root folder:
 
-```bash
+```bash {% frame="terminal" title="terminal" %}
 npx @rapidoc/cli init
 ```
 
-It finds the OpenAPI files, asks which ones to list in the portal, the site title, and whether to install the dependencies. Then it writes `rapidoc.config.yaml` and the [starter files](#what-the-starter-contains) next to your code. Each spec becomes an API whose id comes from its file name: `specs/orders-api.yaml` is `/apis/orders-api/`.
+It finds the OpenAPI files, then asks (in a terminal) for the site title, which specs to list in the portal and, when there is no `package.json` yet, whether to install the dependencies. Then it writes `rapidoc.config.yaml` and the [starter files](#what-the-starter-contains) next to your code. Each spec becomes an API whose id comes from its file name: `specs/orders-api.yaml` is `/apis/orders-api/`.
 
-- **No `package.json` yet:** init creates one with the `dev`, `build` and `validate` scripts. Continue with `npm install` (if you didn't let init install) and `npm run dev`, as in steps 2 and 3 above.
-- **A `package.json` already exists:** init keeps it and prints what to add. Install the CLI and the engine, then start the dev server:
+`init` lists every OpenAPI file it finds, test fixtures included: untick the ones you don't want, or pass `--spec <file>`. Every Markdown, MDX and Markdoc file in `docs/` becomes a portal page, so in a repository that already keeps its own documentation in `docs/`, run `init` in a subfolder for the portal.
 
-  ```bash
+- **No `package.json` yet:** `init` creates one with the starter's scripts (`dev`, `build`, `start`, `validate` and `preview`). Continue with `npm install` (if you didn't let `init` install) and `npm run dev`, as in **Install the dependencies** and **Start the dev server** above.
+- **A `package.json` already exists:** `init` keeps it, adds no scripts and prints what to install. Install the CLI and the engine, then start the dev server:
+
+  ```bash {% frame="terminal" title="terminal" %}
   npm install -D @rapidoc/cli @rapidoc/portal
   npx rapidoc dev
   ```
 
-init never overwrites a file that exists, unless you pass `--force`. Its other options, such as `--spec <file>`, `--title` and `--yes` (no questions), are in the [CLI reference](/docs/reference/cli/).
+  Without the scripts, use `npx rapidoc dev`, `npx rapidoc build`, `npx rapidoc validate` and `npx serve dist` in place of the `npm run` commands on this page.
+
+`init` never overwrites a file that exists, unless you pass `--force`. An existing `.gitignore` is kept too: add `dist/` and `.rapidoc-temp/` (the temporary folder of the dev server and builds) to it. All options of `init` are in the [CLI reference](/docs/reference/cli/).
 
 {% callout type="note" title="npx rapidoc or npx @rapidoc/cli?" %}
-The command is `rapidoc`, from the npm package `@rapidoc/cli`. Before the CLI is installed in a project, run it as `npx @rapidoc/cli <command>`: `npx rapidoc` would look for the npm package `rapidoc`, which is the `<rapi-doc>` web component and has no command. Once `@rapidoc/cli` is installed, `npx rapidoc <command>` and the `npm run` scripts both work.
+The command is `rapidoc`, from the npm package `@rapidoc/cli`. Before the CLI is installed in a project, run it as `npx @rapidoc/cli <command>`: `npx rapidoc` would look for the npm package `rapidoc`, which is RapiDoc, the `<rapi-doc>` web component, and has no command. Once `@rapidoc/cli` is installed, `npx rapidoc <command>` and the `npm run` scripts both work.
 {% /callout %}
 
 ## What the starter contains
@@ -112,7 +118,7 @@ my-portal/
 │   └── guides/overview.markdoc
 ├── render.yaml           # one-click deploy on Render (optional)
 ├── README.md
-└── .gitignore            # node_modules/, dist/, .rapidoc-temp/, .env
+└── .gitignore            # node_modules/, dist/, .rapidoc-temp/, .env, …
 ```
 
 What each folder is for: [Project structure](/docs/getting-started/project-structure/). `render.yaml` is only for [Render](/docs/deploy/cloud-platforms/); delete it if you deploy elsewhere.
@@ -121,17 +127,17 @@ What each folder is for: [Project structure](/docs/getting-started/project-struc
 
 | What you see | What to do |
 | :--- | :--- |
-| `rapidoc: command not found` | Run `npm install` in the project folder first. |
+| `rapidoc: command not found` | Run `npm install` in the project folder first, then run it through `npm run` or `npx rapidoc`. |
 | `npm error could not determine executable to run` | You ran `npx rapidoc` before the CLI was installed. Use `npx @rapidoc/cli` instead. |
-| Port 4321 is in use | The dev server offers another port. To pick one yourself: `npm run dev -- --port 3000`. |
-| The build stops on `rapidoc.config.yaml` | The error names the key and its path, and suggests the right key for a typo. See [Configuration](/docs/configuration/overview/). |
-| Anything else | Run `npx rapidoc doctor`: it checks the Node version, the packages' versions and the config. |
+| Port 4321 is in use | In a terminal, the dev server asks to use the next free port; otherwise it picks one and prints the address. To choose one yourself: `npm run dev -- --port 3000`. |
+| `npm run dev` or `npm run build` stops with an error in `rapidoc.config.yaml` | The error names the key and its path; for a key from another portal tool (Redocly, Zudoku) it names the key to use instead. See [Configuration](/docs/configuration/overview/). |
+| Anything else | Run `npx @rapidoc/cli doctor`: it checks the Node version, the packages' versions and the config. |
 
 ## Next steps
 
 - [Add more APIs](/docs/configuration/apis/), with categories and versions.
 - [Write guides](/docs/writing/markdown/), with live operations from your APIs.
 - [Set the theme, header and sidebar](/docs/configuration/overview/).
-- Check your specs in CI with `npm run validate` ([Validate](/docs/tools/validate/)).
+- Check your specs in CI with `npm run validate`, or `npx rapidoc validate` without the starter's scripts ([Validate](/docs/tools/spec-checks/#validate)).
 - [Deploy](/docs/deploy/static-hosting/) to any static host.
 - [Put the portal behind single sign-on (SSO)](/docs/access/overview/), or only some of its pages and APIs.

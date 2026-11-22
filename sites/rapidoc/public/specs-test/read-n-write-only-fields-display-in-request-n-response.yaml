@@ -1,0 +1,77 @@
+openapi: 3.0.0
+info:
+  title: ReadOnly and WriteOnly field attributes in Request, Response, Callback and Webhook  
+  version: "1"
+
+paths:
+  /users:
+    post:
+      summary: Create a user (Regular req n response and Callback req n response)
+      requestBody:
+        description: Pass in the RFQ properties to update. Only `product` is required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      callbacks:
+        created:
+          /send-data-needed-for-creation-here:
+            post:
+              description: Called when the user is created
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/User"
+              responses:
+                "200":
+                  description: OK
+                  content:
+                    application/json:
+                      schema:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/User"
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+webhooks:
+  user-hooks:
+    post:
+      summary: Called after user Creation
+      requestBody:
+        description: Informs the client that a user is created and passes on the user data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: Return a 200 status to indicate that the data was received successfully
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Server-generated ID of the user
+          readOnly: true
+        name:
+          type: string
+          description: The name of the user
+        password:
+          type: string
+          description: Password of the user
+          format: password
+          writeOnly: true

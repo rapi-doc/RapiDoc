@@ -1,6 +1,7 @@
 ---
 title: mock.config.yaml reference
 description: Every key of mock.config.yaml.
+tableOfContents: false
 ---
 
 Your corrections to what the mock worked out. See [the guide](/docs/correcting/config-file/) for when to use it.

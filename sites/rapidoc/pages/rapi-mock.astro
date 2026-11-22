@@ -1,0 +1,254 @@
+---
+// The RapiMock feature page: what the mock server does, one command to start it, and how it differs from
+// <rapi-doc>'s in-browser mock. Its documentation is on mock.rapidocui.com (sites/rapi-mock).
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import Icon from '../components/Icon.astro';
+
+const MOCK_DOCS = 'https://mock.rapidocui.com';
+
+const startCode = `npm install -D @rapidoc/cli @rapidoc/mock
+npx rapidoc mock openapi.yaml --stateful
+
+curl -X POST localhost:4010/openapi/pets \\
+  -H "Content-Type: application/json" -d '{"name":"Biscuit"}'
+curl localhost:4010/openapi/pets        # Biscuit is in the list`;
+
+const features = [
+  {
+    icon: 'database',
+    title: 'State, worked out from the spec',
+    text: 'It reads resources, keys and links off your paths and schemas, starts with generated records, and keeps what you create, change and delete.',
+    href: '/docs/state/overview/',
+  },
+  {
+    icon: 'layout',
+    title: 'A UI to look inside',
+    text: 'See the records, what the mock does for every operation, and how sure it is. Reset the data or reseed it from the page.',
+    href: '/docs/mock-ui/tour/',
+  },
+  {
+    icon: 'test-tube',
+    title: 'Tests in any language',
+    text: 'Reset, read and load the data over HTTP, with a session per test so parallel tests never see each other\'s changes.',
+    href: '/docs/testing/any-language/',
+  },
+  {
+    icon: 'shield-check',
+    title: 'Requests and tokens checked',
+    text: 'A bad request gets a 400 with the problems listed. OAuth tokens are verified against your issuer, scopes included.',
+    href: '/docs/responses/tokens-and-scopes/',
+  },
+  {
+    icon: 'sliders-horizontal',
+    title: 'You can correct it',
+    text: 'Where a spec doesn\'t show its data model, state it in a few lines of <code>mock.config.yaml</code>. Stale entries are reported, never ignored.',
+    href: '/docs/correcting/config-file/',
+  },
+  {
+    icon: 'list-checks',
+    title: 'Check your spec first',
+    text: '<code>rapidoc lint --stateful</code> reports what the mock had to assume, at its place in the spec, before you run anything.',
+    href: '/docs/correcting/lint/',
+  },
+];
+
+const comparison = [
+  ['Runs', 'Inside the page', 'As an HTTP server'],
+  ['Who can call it', 'The page itself: Try, <code>&lt;rapi-flow&gt;</code>', 'Anything: curl, your frontend, tests'],
+  ['Request validation', 'No', 'Yes'],
+  ['Token and scope checks', 'No', 'Yes'],
+  ['Remembers what you create', 'No', 'Yes, with <code>--stateful</code>'],
+  ['Best for', 'Docs and demos', 'Development and testing'],
+];
+---
+
+<GlobalLayout
+  title="RapiMock: A Mock Server from Your OpenAPI Spec | RapiDoc"
+  description="RapiMock turns an OpenAPI spec into a mock server with request validation, token checks and state, a UI to look inside, and endpoints for tests in any language."
+  keywords="RapiMock, mock server, OpenAPI mock, Swagger mock, API mocking, stateful mock, rapidoc mock"
+>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <PortalHeader />
+
+  <main class="rd-product-main">
+    <header class="rd-hero-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">rapidoc mock • @rapidoc/mock</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Rapi<span class="text-gradient">Mock</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Your OpenAPI spec as a server that remembers. RapiMock serves every operation of your spec, validates requests,
+        checks tokens, and keeps what you create, so a <code>POST</code> shows up in the next <code>GET</code>. No code
+        to write.
+      </p>
+
+      <div class="rd-hero-actions">
+        <a href={`${MOCK_DOCS}/docs/getting-started/quickstart/`} class="rd-btn rd-btn-primary">
+          <Icon name="rocket-launch" size={18} />
+          <span>Quickstart</span>
+        </a>
+        <a href={`${MOCK_DOCS}/spec-check/index.html`} class="rd-btn rd-btn-secondary">
+          <Icon name="list-checks" size={18} />
+          <span>Check your spec</span>
+        </a>
+        <a href={`${MOCK_DOCS}/`} class="rd-btn rd-btn-secondary">
+          <span>Documentation</span>
+          <Icon name="arrow-up-right" size={16} />
+        </a>
+      </div>
+    </header>
+
+    <section class="rd-section">
+      <div class="rd-split">
+        <div class="rd-split-text">
+          <div class="rd-section-badge">One Command</div>
+          <h2 class="rd-section-title">A Mock That Keeps What You Send</h2>
+          <p>
+            Point <code>rapidoc mock</code> at a spec. Each API is served under its own path on port 4010; with
+            <code>--stateful</code>, records you create are there when you read or list them, until you reset.
+          </p>
+          <p>
+            Your frontend, your tests, <code>&lt;rapi-doc&gt;</code>'s Try and an MCP server can all call it, the way they
+            will call the real API.
+          </p>
+        </div>
+        <CodeBlock code={startCode} lang="bash" filename="terminal" />
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">What You Get</div>
+        <h2 class="rd-section-title">More Than Canned Examples</h2>
+      </div>
+      <div class="rd-feature-grid">
+        {
+          features.map((item) => (
+            <a href={`${MOCK_DOCS}${item.href}`} class="rd-feature-card">
+              <span class="rd-feature-icon">
+                <Icon name={item.icon} size={24} weight="duotone" />
+              </span>
+              <h3 class="rd-feature-title">{item.title}</h3>
+              <p class="rd-feature-text" set:html={item.text} />
+              <span class="rd-feature-more">
+                Read more <Icon name="arrow-up-right" size={14} />
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Two Mocks</div>
+        <h2 class="rd-section-title">In the Page or as a Server</h2>
+        <p class="rd-section-desc">
+          <code>&lt;rapi-doc&gt;</code> also has a mock inside the browser, for docs and demos. They are built for
+          different work.
+        </p>
+      </div>
+      <div class="rd-table-container rd-mock-compare">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th><a href="/docs/rapidoc/mocking/in-browser/">In-browser mock</a></th>
+              <th>RapiMock</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              comparison.map(([row, page, server]) => (
+                <tr>
+                  <th scope="row">{row}</th>
+                  <td set:html={page} />
+                  <td set:html={server} />
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="rd-section-desc rd-mock-note">
+        RapiMock reads the data model off the spec. It does that well for APIs with ids in the path and keys at the top
+        of a record, and needs a few lines of config for other styles:
+        <a href={`${MOCK_DOCS}/docs/state/api-styles/`}>see which, with examples</a>.
+      </p>
+    </section>
+
+    <section class="rd-next-steps">
+      <h2 class="rd-section-title">Try It on Your Spec</h2>
+      <p class="rd-section-desc">
+        The spec check shows what RapiMock makes of your spec, in your browser: the spec is not sent anywhere.
+      </p>
+      <div class="rd-hero-actions">
+        <a href={`${MOCK_DOCS}/spec-check/index.html`} class="rd-btn rd-btn-primary rd-btn-lg">
+          <span>Check a spec</span>
+          <Icon name="arrow-right" size={15} />
+        </a>
+        <a href="https://www.npmjs.com/package/@rapidoc/mock" class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
+          <span>@rapidoc/mock on npm</span>
+          <Icon name="arrow-up-right" size={15} />
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<style>
+  .rd-mock-compare {
+    max-width: 860px;
+    margin: 0 auto 24px;
+  }
+  .rd-mock-compare table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .rd-mock-compare th,
+  .rd-mock-compare td {
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--rd-border);
+    color: var(--rd-text-soft);
+  }
+  .rd-mock-compare thead th {
+    color: var(--rd-text-bright);
+    font-weight: 600;
+  }
+  .rd-mock-compare tbody th {
+    color: var(--rd-text-bright);
+    font-weight: 500;
+  }
+  .rd-mock-compare tr:last-child th,
+  .rd-mock-compare tr:last-child td {
+    border-bottom: 0;
+  }
+  .rd-mock-compare a,
+  .rd-mock-note a {
+    color: var(--rd-accent);
+  }
+  .rd-mock-compare code,
+  .rd-product-main .rd-feature-text :global(code) {
+    font-family: var(--rd-font-mono);
+    font-size: 0.92em;
+  }
+  .rd-mock-note {
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+  }
+</style>

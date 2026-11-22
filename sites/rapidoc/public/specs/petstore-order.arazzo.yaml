@@ -1,0 +1,151 @@
+arazzo: "1.0.1"
+info:
+  title: Petstore Order Workflow
+  version: "1.0.0"
+  summary: >-
+    End-to-end workflow for user authentication, pet discovery, order placement,
+    and order confirmation
+  description: >-
+    This workflow demonstrates a complete e-commerce flow in the Petstore API:
+    authenticate a user, find available pets matching criteria, place an order
+    for the best match, retrieve the ordered pet details, and return
+    consolidated order information. Designed for both human operators and AI
+    agents executing deterministic business logic.
+sourceDescriptions:
+  - name: petstoreAPI
+    url: https://petstore3.swagger.io/api/v3/openapi.json
+    type: openapi
+workflows:
+  - workflowId: authenticateAndOrderPet
+    summary: Complete pet ordering workflow with authentication
+    description: >-
+      Authenticate user, discover available pets, place order, retrieve details,
+      and return comprehensive order summary
+    inputs:
+      type: object
+      properties:
+        username:
+          type: string
+          description: User login identifier
+        password:
+          type: string
+          description: User password for authentication
+        preferredPetStatus:
+          type: string
+          description: Desired pet availability status
+          default: available
+          enum:
+            - available
+            - pending
+            - sold
+        orderQuantity:
+          type: integer
+          description: Number of pets to order
+          default: 1
+      required:
+        - username
+        - password
+    steps:
+      - stepId: loginUser
+        description: Authenticate user and obtain session token
+        operationId: loginUser
+        parameters:
+          - name: username
+            in: query
+            value: $inputs.username
+          - name: password
+            in: query
+            value: $inputs.password
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          sessionToken: $response.body
+          tokenExpiry: $response.header.X-Expires-After
+          rateLimit: $response.header.X-Rate-Limit
+      - stepId: findAvailablePets
+        description: Query pets matching the preferred status to identify ordering candidates
+        operationId: findPetsByStatus
+        parameters:
+          - name: status
+            in: query
+            value: $inputs.preferredPetStatus
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/0 != null
+        outputs:
+          availablePets: $response.body
+          bestMatchPet: $response.body#/0
+          bestMatchPetId: $response.body#/0/id
+        onFailure:
+          - name: noPetsAvailable
+            type: end
+      - stepId: placeOrder
+        description: Place order for the best matching pet from the available inventory
+        operationId: placeOrder
+        requestBody:
+          contentType: application/json
+          payload:
+            petId: $steps.findAvailablePets.outputs.bestMatchPetId
+            quantity: $inputs.orderQuantity
+            status: placed
+            complete: false
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body#/id != null
+        outputs:
+          orderId: $response.body#/id
+          orderStatus: $response.body#/status
+          orderQuantity: $response.body#/quantity
+          orderShipDate: $response.body#/shipDate
+          orderComplete: $response.body#/complete
+      - stepId: retrieveOrderedPetDetails
+        description: Fetch complete details of the ordered pet to enrich order summary
+        operationId: getPetById
+        parameters:
+          - name: petId
+            in: path
+            value: $steps.findAvailablePets.outputs.bestMatchPetId
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          petName: $response.body#/name
+          petCategory: $response.body#/category/name
+          petId: $response.body#/id
+          petStatus: $response.body#/status
+          petPhotoUrls: $response.body#/photoUrls
+          petTags: $response.body#/tags
+      - stepId: verifyOrderConfirmation
+        description: Retrieve and validate the placed order to ensure successful processing
+        operationId: getOrderById
+        parameters:
+          - name: orderId
+            in: path
+            value: $steps.placeOrder.outputs.orderId
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: "$response.body#/status == 'placed'"
+        outputs:
+          confirmedOrderId: $response.body#/id
+          confirmedOrderStatus: $response.body#/status
+          confirmedPetId: $response.body#/petId
+          confirmedQuantity: $response.body#/quantity
+    outputs:
+      petName: $steps.retrieveOrderedPetDetails.outputs.petName
+      petCategory: $steps.retrieveOrderedPetDetails.outputs.petCategory
+      petId: $steps.retrieveOrderedPetDetails.outputs.petId
+      orderId: $steps.placeOrder.outputs.orderId
+      orderStatus: $steps.verifyOrderConfirmation.outputs.confirmedOrderStatus
+      orderQuantity: $steps.placeOrder.outputs.orderQuantity
+      orderShipDate: $steps.placeOrder.outputs.orderShipDate
+      sessionToken: $steps.loginUser.outputs.sessionToken
+    failureActions:
+      - name: orderFailed
+        type: end
+        criteria:
+          - condition: $statusCode == 500
+      - name: retryOnServiceUnavailable
+        type: retry
+        retryLimit: 3
+        retryAfter: 1
+        criteria:
+          - condition: $statusCode == 503

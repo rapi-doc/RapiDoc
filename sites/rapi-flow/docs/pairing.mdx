@@ -1,0 +1,51 @@
+---
+title: Pairing with <rapi-doc>
+description: How <rapi-flow> finds the APIs an Arazzo workflow calls, pairs with one <rapi-doc> or <rapi-doc-mini> per API, and links to a step.
+---
+
+`<rapi-flow>` reads an Arazzo spec and draws its workflows. It works on its own, or takes each API's OpenAPI spec, server, credentials and mock from a `<rapi-doc>` or `<rapi-doc-mini>` on the page (see [Standalone or paired](/#standalone-or-paired)).
+
+## API sources
+
+An Arazzo spec names the APIs its steps call in `sourceDescriptions`. `<rapi-flow>` lists them in the card above the diagram, under the Arazzo spec's URL (or the box that loads one): **API sources**, with each one's name and URL (and its type when it is not `openapi`, such as another Arazzo spec). The diagram's first box then holds the workflow's **Inputs** alone. A diagram drawn without the element (the portal's `{% workflow %}` tag, `renderArazzoWorkflow`) lists them at the top of its first box instead, unless `showSources: false` is passed.
+
+A document can name several sources (Rapid Parcels' `ship-a-parcel` uses `rates`, `shipments` and `tracking`). Then:
+
+- **Loading**: `<rapi-flow>` fetches every `openapi` source, its URL taken relative to the Arazzo spec. `arazzo` sources (other Arazzo specs) are listed but not loaded. A source that fails to load is listed under the diagram, and the steps on it show their `operationId` with "(not found)".
+- **Finding a step's operation**: an `operationId` is looked up in the sources in order, and the first that has it wins. When two APIs share an id, qualify it: `$sourceDescriptions.shipments.createShipment`. An `operationPath` (`{$sourceDescriptions.<name>.url}#/paths/...`) names its source.
+- **A single paired `<rapi-doc>`** shows one API: the **first** source (or the one whose OpenAPI spec it shows). `<rapi-flow>` takes that source from it (its processed OpenAPI spec, its selected server, its credentials) and loads the others itself. Clicking a step on another source does not scroll the reference, which does not have that operation. To show every API, pair one element per source (next section).
+- **Runs**: each source's requests go to the server selected in its paired element, else the first server of its own OpenAPI spec; `server-url` replaces the first source's. Credentials apply by security scheme id, across sources. An element's in-browser mock answers the steps on its own source; steps on a source with no paired element, or whose element does not mock, go to their servers. With `server-is-mock="true"`, those requests carry `Prefer: code=`, so a mock server that serves all the APIs (`rapidoc mock` serves a portal's APIs side by side) answers them.
+- **MCP export**: one manifest source per loaded API; a workflow tool's steps call each one at its own server.
+
+## One element per API
+
+`for` takes several ids separated by spaces, one element per OpenAPI source. Each element supplies its source's OpenAPI spec, server, credentials and mock, and clicking a step shows its operation in the element of its source. `<rapi-doc-mini>` suits this best: `<rapi-flow>` sets its `filter-operations` to the shown workflow's operations of its API, in step order, and updates it when the reader picks another workflow, so each mini lists just the calls the workflow makes.
+
+```html
+<rapi-flow arazzo-url="/workflows/ship-a-parcel.arazzo.yaml" allow-arazzo-url-load="true"
+           for="rates-api shipments-api tracking-api"></rapi-flow>
+
+<rapi-doc-mini id="rates-api" arazzo-source="rates" mock-server="true"></rapi-doc-mini>
+<rapi-doc-mini id="shipments-api" arazzo-source="shipments" mock-server="true"></rapi-doc-mini>
+<rapi-doc-mini id="tracking-api" arazzo-source="tracking" mock-server="true"></rapi-doc-mini>
+```
+
+- **Which element goes with which source**: the source its `arazzo-source` attribute names; else the source whose URL it has loaded (`spec-url`, resolved against the page, equal to the source URL resolved against the Arazzo spec); else the next source not taken, in document order. An element named for a source the document does not have is left alone, so a page can list elements for several Arazzo specs in one `for`.
+- **Loading**: with `allow-arazzo-url-load="true"`, `<rapi-flow>` loads each source into its element, so the elements need no `spec-url`: a `<rapi-doc>` loads it at once, a mini once its filter is set, so it is fetched filtered from the start. `<rapi-flow>` loads a mini's source itself too, to resolve every workflow's steps; a `<rapi-doc>`'s source is fetched only by the `<rapi-doc>`. Without the box, give each element its `spec-url`.
+- **Changing `for`**: `<rapi-flow>` pairs the elements again without loading the Arazzo spec again. Elements are paired after `flow-loaded` fires, so a `flow-loaded` listener can create the elements for the document's sources and set `for`. The [multi-API example](https://rapidocui.com/examples/arazzo-multi) writes its three minis in the page instead, each with `arazzo-source` and `spec-url`, for Rapid Parcels' `ship-a-parcel`.
+
+## Links to a step
+
+With `update-route="true"`, picking a workflow or clicking a step puts them in the address as query parameters:
+
+```text
+/docs/shipping?workflow=shipParcel&step=label
+```
+
+Opening that link shows the `shipParcel` workflow, selects `label`, scrolls its box into view and shows its operation in the paired element, once that element has loaded its OpenAPI spec. Unknown ids are ignored.
+
+- **Query parameters, not the hash**: `<rapi-doc>` keeps the hash (`#get-/pets`) for its operations and rewrites it as the reader scrolls, so the two never overwrite each other. A link can carry both: `?workflow=shipParcel&step=label#get-/shipments/{shipmentId}/label`.
+- **No history entries**: the address is replaced, as `<rapi-doc>` does, so Back leaves the page instead of stepping through clicks.
+- **Routers**: `history.state` is kept, so a single-page app's router (Vue Router, React Router) keeps its data. In a router's history mode both elements work as on a plain page. A hash-mode router owns the hash: set `update-route="false"` on `<rapi-doc>` there; `<rapi-flow>`'s parameters still work.
+- **One element per page**: the parameter names are fixed, so set it on one `<rapi-flow>` only.
+- A document loaded from the URL box drops the old step and shows its first workflow.

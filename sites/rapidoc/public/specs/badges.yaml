@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: End-Point Badges (Vendor Extension)
+  version: 1.0.0
+  description: |
+    The `x-badges` vendor extension allows annotating OpenAPI operations with custom color-coded badges in RapiDoc.
+
+    ### 1. Visual Indication
+    Badges provide instant visual status indicators (e.g., `Beta`, `Deprecated`, `v2`, `Core API`, `Slow`) directly in the endpoint header alongside HTTP method badges.
+
+    Each badge in the `x-badges` array accepts:
+    - **`label`**: The text displayed on the badge.
+    - **`color`**: Allowed values are `red`, `green`, `orange`, `blue`, `primary-color`, or `none`.
+    - **`color: none`**: Attaches a badge to the operation **without showing the badge in the UI** (the operation itself is still shown). This is useful for labels that only `filter-operations` uses.
+
+    ```yaml
+    paths:
+      /users:
+        get:
+          summary: List users
+          x-badges:
+            - color: red
+              label: 'Beta'
+            - color: blue
+              label: 'Popular: true'
+            - color: none
+              label: 'internal-use-only' # Tagged but invisible in UI
+    ```
+
+    ---
+
+    ### 2. Filtering Endpoints by Badge Label
+    Apart from visual cues, badges can also be used to dynamically **filter out / remove endpoints** from the documentation.
+
+    The RapiDoc attribute `filter-operations` takes `badge:<label>` terms (labels compare without case). A `badge:` term shows only the operations with that label; with a leading `!`, it leaves them out:
+
+    ```html
+    <!-- Leaves out the operations with the badge label internal-use-only or admin-use-only -->
+    <rapi-doc
+      spec-url="specs/badges.yaml"
+      filter-operations="!badge:internal-use-only !badge:admin-use-only"
+    ></rapi-doc>
+
+    <!-- Shows only the operations with the badge label Beta -->
+    <rapi-doc
+      spec-url="specs/badges.yaml"
+      filter-operations="badge:Beta"
+    ></rapi-doc>
+    ```
+
+    See the [Filter Operations](/examples/filter-operations) example for the other kinds of terms (operationId, method and path, path globs, tags).
+
+    > **Tip**: Combine `color: none` with `!badge:` terms in `filter-operations` to maintain a single comprehensive OpenAPI specification across your team, while cleanly omitting internal or privileged routes from public customer-facing developer portals.
+paths:
+  /badge-1-path:
+    get:
+      summary: Endpoint with red and blue badge
+      x-badges:
+        - color: red
+          label: Beta
+        - color: blue
+          label: 'Popular: true'
+  /badge-2-path:
+    get:
+      summary: Endpoint with primary-color
+      x-badges:
+        - color: primary-color
+          label: CORE API
+  /badge-3-path:
+    get:
+      summary: Endpoint with green and orange badge
+      x-badges:
+        - color: green
+          label: 'Easy: Yes'
+        - color: orange
+          label: 'Slow'
+  /badge-none-1:
+    get:
+      summary: "Badge not shown: internal-use-only"
+      description: |
+        This endpoint has a **badge-label** of `internal-use-only` assigned with `color: none`, so the badge is not shown in the UI; the endpoint still is.
+
+        It can be left out by adding `filter-operations="!badge:internal-use-only"` to `<rapi-doc>`.
+      x-badges:
+        - color: none
+          label: internal-use-only
+  /badge-none-2:
+    get:
+      summary: "Badge not shown: admin-use-only"
+      description: |
+        This endpoint has a **badge-label** of `admin-use-only` assigned with `color: none`, so the badge is not shown in the UI; the endpoint still is.
+
+        It can be left out by adding `filter-operations="!badge:admin-use-only"` to `<rapi-doc>`.
+      x-badges:
+        - color: none
+          label: admin-use-only
+  /badge-none-3:
+    get:
+      summary: "Badges not shown: both labels"
+      description: |
+        This endpoint has both `internal-use-only` and `admin-use-only` badge labels assigned with `color: none`.
+
+        Either `!badge:internal-use-only` or `!badge:admin-use-only` in `filter-operations` leaves out this endpoint.
+      x-badges:
+        - color: none
+          label: admin-use-only
+        - color: none
+          label: internal-use-only
+
+  /no-badges-path:
+    get:
+      summary: Endpoint with No badges
+      description: This endpoint has no badges assigned and is never affected by badge filtering rules.

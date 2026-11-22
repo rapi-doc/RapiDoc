@@ -1,0 +1,21 @@
+---
+title: rapidoc pdf
+description: Write the API reference of an OpenAPI spec as a PDF, with your title, colors, fonts and labels.
+tableOfContents: false
+---
+
+```bash
+npm install -D rapipdf
+npx rapidoc pdf openapi.yaml
+npx rapidoc pdf openapi.yaml -o dist/reference.pdf --title "Orders API" --examples
+```
+
+`rapidoc pdf` writes the API reference of a spec as a PDF: a cover page, a table of contents, the security schemes, and every operation with its parameters, request bodies and responses. The spec can be a file or a URL, OpenAPI 3.x or Swagger 2.0, and `$ref`s to other files are followed. Without `-o` the file is named after the spec (`openapi.pdf`) and written to the current folder.
+
+- `--schema-style table` prints schemas as tables instead of indented object trees, `--examples` adds request and response examples, and `--api-list` adds a closing list of every operation.
+- `--no-info`, `--no-toc`, `--no-security` and `--no-api-details` leave a section out, and `--no-sort-tags` keeps the tags in the spec's order.
+- `--title`, `--footer`, `--primary-color` and `--alternate-color` set the cover title, the page footer and the two colors.
+- `--labels labels.json` replaces the labels printed in the PDF ("REQUEST", "RESPONSE", …), for a PDF in another language.
+- `--font file.ttf` uses your font in place of the built-in Roboto. Use it for text Roboto has no glyphs for, such as Chinese, Japanese or Korean (`--mono-font` does the same for code).
+
+The command needs the [`rapipdf`](https://www.npmjs.com/package/rapipdf) package next to the CLI, the same package whose `<rapi-pdf>` element makes this PDF in the browser.

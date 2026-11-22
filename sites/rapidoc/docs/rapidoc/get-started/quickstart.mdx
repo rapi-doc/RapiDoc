@@ -1,0 +1,105 @@
+---
+title: Quickstart
+description: Show an interactive API reference for your OpenAPI spec in one HTML file.
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@rapidoc/portal/components';
+
+Build one HTML file that shows RapiDoc's interactive reference for an OpenAPI spec. You need a browser and an internet connection. To use a spec file from your computer in step 3, you also need a local web server, such as `npx serve`, which needs Node.js.
+
+<Steps>
+
+1. **Create an HTML file** that loads RapiDoc and points `<rapi-doc>` at the sample Petstore spec:
+
+   ```html title="index.html"
+   <!doctype html>
+   <html lang="en">
+     <head>
+       <meta charset="utf-8" />
+       <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+       <style>
+         rapi-doc { height: 100vh; }
+       </style>
+     </head>
+     <body>
+       <rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml"></rapi-doc>
+     </body>
+   </html>
+   ```
+
+2. **Open it in a browser.** You get navigation, search, schemas and a **Try** console that sends requests to the Petstore's public server, `petstore3.swagger.io`.
+
+3. **Point `spec-url` at your own spec**, an OpenAPI 3.x or Swagger 2.0 file in JSON or YAML, and reload: your API's operations replace the Petstore's. For a spec on a server, use its URL. For a file, put it next to `index.html`, run `npx serve` in that folder, open the address it prints and set `spec-url="openapi.yaml"` (your file's name).
+
+</Steps>
+
+<Aside type="tip" title="Sizing">
+  `<rapi-doc>` fills the height you give it. Set a height (here `100vh`) and keep its default `display: flex`: with `display: block` the bottom of the content is cut off.
+</Aside>
+
+For production, pin a major version (`https://unpkg.com/rapidoc@14/dist/rapidoc-min.js`), so a new major version can't change attributes under you, or serve the file from your own site.
+
+## Troubleshooting
+
+| What you see | What to do |
+| :--- | :--- |
+| A spec on another domain doesn't load | That server must allow cross-origin requests: see [Loading Your Spec](/docs/rapidoc/get-started/openapi-support/#from-a-url). |
+| A spec file next to the page doesn't load | Browsers block a page opened from disk (`file://`) from reading other files. Run `npx serve` in the folder, open the address it prints, and use `spec-url="openapi.yaml"` (your file's name). |
+| **Try** fails with a network error | Your API must allow cross-origin requests from the page, including the `Authorization` header (or your API key's header). |
+
+## Install from npm
+
+With a bundler, install the package and import it once in your entry file. The import registers `<rapi-doc>`; use it in your markup as above. With server rendering (Next.js, Nuxt, SvelteKit), import it in the browser only. See [Front-End Frameworks](/docs/integrations/front-end/).
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash frame="terminal" title="terminal"
+    npm install rapidoc
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash frame="terminal" title="terminal"
+    pnpm add rapidoc
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash frame="terminal" title="terminal"
+    yarn add rapidoc
+    ```
+  </TabItem>
+</Tabs>
+
+```javascript
+import 'rapidoc';
+```
+
+## Without a CDN
+
+To serve everything yourself, on an intranet or an air-gapped network, copy the bundle out of the npm package. RapiDoc then loads nothing from a third-party host; requests go to your spec's URL and the servers it names.
+
+In `index.html`, set the script's `src` to `rapidoc-min.js` and `spec-url` to `openapi.yaml`. Then put the page, your spec and the bundle in one folder, here `public/`:
+
+```bash frame="terminal" title="terminal"
+npm install rapidoc
+mkdir -p public
+cp node_modules/rapidoc/dist/rapidoc-min.js* public/   # the bundle and its license notices
+cp index.html openapi.yaml public/                     # your page and your spec
+```
+
+Any web server can serve the folder; in a container:
+
+```dockerfile title="Dockerfile"
+FROM nginx:alpine
+COPY public/ /usr/share/nginx/html/
+```
+
+## Next steps
+
+- [Attributes](/docs/rapidoc/reference/): every attribute, such as `theme`, `color-scheme`, `render-style` and `allow-try`, with links to methods, events and slots.
+- [Front-End Frameworks](/docs/integrations/front-end/): React and Next.js, Vue and Nuxt, Angular, Svelte.
+- [Integrations](/docs/integrations/): serving the reference from your server framework or documentation site.
+- [Theming Overview](/docs/rapidoc/theming/overview/): colors, fonts, radius and scale.
+- [OAuth 2.0](/docs/rapidoc/authentication/oauth/): let readers sign in before they press **Try**.
+- [Common Tasks](/docs/rapidoc/guides/): how to do the things most sites need, and where each is explained.
+- [Examples](/examples/): every feature running, with the code behind it.
+- [Packages](/docs/#which-package-do-i-need): everything else in the RapiDoc family.

@@ -69,11 +69,11 @@ The form of version 0.1, `rapidocSidebar(spec, link, options)`, still works.
 
 **`<RapidocReference>`** props:
 
-| Prop      |                                                                                                                                                                          |
-| :-------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api`     | A name from `apis`                                                                                                                                                       |
-| `spec`    | The OpenAPI document as an object, instead of `api`                                                                                                                      |
-| `options` | [Attributes of `<rapi-doc>`](https://rapidocui.com/api/), in kebab-case or camelCase: `:options="{ allowTry: false, theme: 'jade' }"`. They win over the component's own |
+| Prop      |                                                                                                                                                                                             |
+| :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `api`     | A name from `apis`                                                                                                                                                                          |
+| `spec`    | The OpenAPI document as an object, instead of `api`                                                                                                                                         |
+| `options` | [Attributes of `<rapi-doc>`](https://rapidocui.com/docs/rapidoc/reference/), in kebab-case or camelCase: `:options="{ allowTry: false, theme: 'jade' }"`. They win over the component's own |
 
 ## Notes
 

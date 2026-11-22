@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-// Phosphor Icons, regular weight (MIT): the same set the portal and the Rapi Mock site use. Each file is read as
+// Phosphor Icons, regular weight (MIT): the same set the portal and the RapiMock site use. Each file is read as
 // text at build time, so only these icons are bundled (Vite's `?raw`); `mock-ui.LICENSE.txt` carries the notice.
 import arrowsLeftRight from "@phosphor-icons/core/assets/regular/arrows-left-right.svg?raw";
 import arrowsInLineVertical from "@phosphor-icons/core/assets/regular/arrows-in-line-vertical.svg?raw";

@@ -25,7 +25,7 @@
 ## 3. Security rules
 
 - Default deny: a protected file without a zone in the manifest is never served; an unknown zone allows nobody.
-- Signed-out readers can't tell a missing page from a protected one when the default zone isn't public.
+- Signed-out readers can't tell a missing page from a protected one when the default zone isn't public. A reader who may see the default zone gets the build's `404.html` (status 404, no-store) when a browser asks for a page that isn't there (`notFound` in `src/index.js`: an `Accept` with `text/html` and a path without a file extension); anything else, and a build without that page, gets the plain `Not found`.
 - Responses that depend on the session: `Cache-Control: private, no-store` and `Vary: Cookie`.
 - `returnTo` stays on this site (`safeReturnTo`); sign-out is same-origin only (`isSameOrigin`).
 - The ID and refresh tokens never reach the browser or a cookie. The access token does only with `auth.tryIt`: in its own encrypted cookie (`rapidoc-api-token`), and to the page only through `GET /_rapidoc/auth/token` (same-origin, no-store). Only groups named by some rule go into the session.

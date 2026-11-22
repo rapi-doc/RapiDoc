@@ -1,0 +1,172 @@
+---
+// The RapiDoc Portal feature page: what a portal is made of and how to start one. Its documentation is on
+// portal.rapidocui.com (sites/rapi-portal), which is itself built with it.
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import Icon from '../components/Icon.astro';
+
+const PORTAL_DOCS = 'https://portal.rapidocui.com';
+
+const startCode = `npm create rapidoc@latest my-portal
+cd my-portal
+npm install
+npm run dev`;
+
+const features = [
+  {
+    icon: 'code',
+    title: 'Interactive API reference',
+    text: 'Every OpenAPI 3.0, 3.1 or Swagger 2.0 spec gets a reference page rendered by RapiDoc, with Try, code samples and a sidebar that stays in view.',
+    href: '/docs/api-reference/reference-pages/',
+  },
+  {
+    icon: 'book-open',
+    title: 'Guides as code',
+    text: 'Markdown, MDX and Markdoc pages in a <code>docs/</code> folder. Callouts, tabs, steps, cards, and live API operations inside a guide.',
+    href: '/docs/writing/markdown/',
+  },
+  {
+    icon: 'sliders-horizontal',
+    title: 'One config file',
+    text: '<code>rapidoc.config.yaml</code> describes the header, tabs, sidebars, theme and footer. An unknown key fails the build with its path and a hint.',
+    href: '/docs/configuration/overview/',
+  },
+  {
+    icon: 'magnifying-glass',
+    title: 'Search built in',
+    text: 'Full-text search across guides and API operations, indexed at build time. No search service to run.',
+    href: '/docs/configuration/docs-search-redirects/',
+  },
+  {
+    icon: 'lock',
+    title: 'Single sign-on (SSO)',
+    text: 'Optional SSO with Okta, Microsoft Entra ID, Google or any OpenID Connect provider. Decide who may read which pages, APIs and files, by group or email.',
+    href: '/docs/access/overview/',
+  },
+  {
+    icon: 'test-tube',
+    title: 'A mock for every API',
+    text: 'RapiMock serves the portal\'s specs, validates requests and checks OAuth tokens and scopes, so Try works before your API is deployed.',
+    href: '/docs/tools/mock-server/',
+  },
+];
+---
+
+<GlobalLayout
+  title="RapiDoc Portal: Developer Portals from OpenAPI | RapiDoc"
+  description="RapiDoc Portal turns OpenAPI specs and Markdown guides into a developer portal: docs as code, static output, search, and optional single sign-on (SSO)."
+  keywords="RapiDoc Portal, developer portal, API portal, docs as code, OpenAPI, API catalog, SSO, static site"
+>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <PortalHeader />
+
+  <main class="rd-product-main">
+    <header class="rd-hero-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">@rapidoc/portal • npm create rapidoc</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        RapiDoc <span class="text-gradient">Portal</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        Your APIs and guides, one developer portal. Point RapiDoc Portal at your OpenAPI files, write guides in Markdown
+        or Markdoc, and get a static portal with search, an API catalog and interactive references.
+      </p>
+
+      <div class="rd-hero-actions">
+        <a href={`${PORTAL_DOCS}/docs/getting-started/quickstart/`} class="rd-btn rd-btn-primary">
+          <Icon name="rocket-launch" size={18} />
+          <span>Quickstart</span>
+        </a>
+        <a href={`${PORTAL_DOCS}/apis/bookstore/`} class="rd-btn rd-btn-secondary">
+          <Icon name="code" size={18} />
+          <span>See an API reference</span>
+        </a>
+        <a href={`${PORTAL_DOCS}/`} class="rd-btn rd-btn-secondary">
+          <span>Documentation</span>
+          <Icon name="arrow-up-right" size={16} />
+        </a>
+      </div>
+    </header>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">What You Get</div>
+        <h2 class="rd-section-title">A Portal from Files in a Repository</h2>
+      </div>
+      <div class="rd-feature-grid">
+        {
+          features.map((item) => (
+            <a href={`${PORTAL_DOCS}${item.href}`} class="rd-feature-card">
+              <span class="rd-feature-icon">
+                <Icon name={item.icon} size={24} weight="duotone" />
+              </span>
+              <h3 class="rd-feature-title">{item.title}</h3>
+              <p class="rd-feature-text" set:html={item.text} />
+              <span class="rd-feature-more">
+                Read more <Icon name="arrow-up-right" size={14} />
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-split">
+        <div class="rd-split-text">
+          <div class="rd-section-badge">From Zero to Portal</div>
+          <h2 class="rd-section-title">Four Commands</h2>
+          <p>
+            The starter is a portal with an example API, a <code>rapidoc.config.yaml</code> and two guides, running on
+            <code>http://localhost:4321</code>. Then point it at your own spec.
+          </p>
+          <p>
+            Already have a repository with OpenAPI files? Run <code>npx @rapidoc/cli init</code> there instead. Moving
+            from Zudoku or Redocly? <code>npx @rapidoc/cli migrate</code> writes the config from your project.
+          </p>
+          <p>
+            <a href={`${PORTAL_DOCS}/docs/getting-started/quickstart/`}>Read the quickstart</a>
+          </p>
+        </div>
+        <CodeBlock code={startCode} lang="bash" filename="terminal" />
+      </div>
+    </section>
+
+    <section class="rd-next-steps">
+      <h2 class="rd-section-title">Built with Itself</h2>
+      <p class="rd-section-desc">
+        The RapiDoc Portal docs are a RapiDoc Portal, and so are this site and the RapiFlow and RapiMock docs.
+      </p>
+      <div class="rd-hero-actions">
+        <a href={`${PORTAL_DOCS}/`} class="rd-btn rd-btn-primary rd-btn-lg">
+          <span>RapiDoc Portal docs</span>
+          <Icon name="arrow-up-right" size={15} />
+        </a>
+        <a href="https://www.npmjs.com/package/@rapidoc/portal" class="rd-btn rd-btn-secondary rd-btn-lg" target="_blank" rel="noopener">
+          <span>@rapidoc/portal on npm</span>
+          <Icon name="arrow-up-right" size={15} />
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<style>
+  .rd-split-text a {
+    color: var(--rd-accent);
+  }
+  .rd-product-main .rd-feature-text :global(code) {
+    font-family: var(--rd-font-mono);
+    font-size: 0.92em;
+  }
+</style>

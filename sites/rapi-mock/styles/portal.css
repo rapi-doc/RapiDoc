@@ -1,23 +1,7 @@
-/* The amber preset's surfaces (`rapidoc: theme: amber`, the API reference) on every page: the page and
-   sidebars on its background, the header rows on its darker sidebar color, its borders and cards. */
-:root,
-:root[data-theme="dark"] {
-  --portal-bg: #30333c;
-  --portal-header-bg: #2c2d35;
-  --portal-border: #3f424b;
-  --portal-card-bg: #383b43;
-}
+/* The header every RapiDoc site shares, as on rapidocui.com */
+@import "../../shared/styles/header.css";
+@import "../../shared/styles/footer.css";
+@import "../../shared/styles/content.css";
+@import "../../shared/styles/dark.css";
+@import "../../shared/styles/light.css";
 
-/* Light: amber's orange accent (`theme.primary` is the dark one). As text, the shade RapiDoc picks for it,
-   so the guides' and the API reference's sidebars match: 4.69:1 or more on white, grey and the accent tint. */
-[data-theme="light"] {
-  --portal-primary: #ff791a;
-  --portal-primary-text: #ad5212;
-  --sl-color-accent: #ff791a;
-  --sl-color-accent-low: color-mix(in srgb, #ff791a 18%, #ffffff);
-  --portal-bg: #ffffff;
-  --portal-header-bg: #ffffff;
-  --portal-border: color-mix(in srgb, #ffffff 85%, #2a2d35);
-  /* the dark card color above is set on :root, so light has to take it back */
-  --portal-card-bg: #ffffff;
-}

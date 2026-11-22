@@ -1,0 +1,51 @@
+---
+// Every CSS custom property of <rapi-doc>, by category (page-data/styling-data.yaml), as the docs' standard tables.
+import { stylingData } from '../page-data/styling-data';
+
+interface Props {
+  category?: string;
+  showHeader?: boolean;
+}
+
+const { category, showHeader = true } = Astro.props;
+
+const categories = category
+  ? stylingData.variables.filter((c) => c.category.toLowerCase() === category.toLowerCase())
+  : stylingData.variables;
+const slug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+---
+
+{
+  categories.map((cat) => (
+    <>
+      {showHeader && (
+        <>
+          <h3 id={`var-cat-${slug(cat.category)}`}>{cat.category}</h3>
+          <p set:html={cat.description} />
+        </>
+      )}
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cat.items.map((item) => (
+            <tr>
+              <td>
+                <code>{item.name}</code>
+              </td>
+              <td>
+                <code>{item.default}</code>
+              </td>
+              <td set:html={item.description} />
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  ))
+}

@@ -1,0 +1,45 @@
+---
+title: Export MCP Server
+description: The Export MCP Server button of <rapi-doc> and its JavaScript methods, which turn the spec on the page into an MCP server project for AI agents.
+---
+
+`<rapi-doc>` can turn the spec it shows into an MCP server for AI agents, in the browser: nothing is sent to a server. How operations become tools, the manifest and the project it downloads are on [MCP Server](/docs/mcp/), with [Export and run the server](/docs/mcp/server/) for running it and connecting an AI app.
+
+## The button
+
+Set the `mcp` attribute:
+
+```html
+<rapi-doc
+  spec-url="/specs/my-api.yaml"
+  mcp="true"
+  mcp-server-name="my-api"
+> </rapi-doc>
+```
+
+- **`mcp`** (default `"false"`): `"true"` shows an **Export MCP Server** button in the API overview that downloads the project as a zip. `"false"`, `"none"` or an empty value hides it.
+- **`mcp-server-name`** (optional): the server's name. Defaults to the spec's title. It is only a name, not a running service: it becomes the download's name (`my-api-mcp.zip`), the package name (`my-api`) and the key of the `mcpServers` entry (`my_api`).
+
+## From JavaScript
+
+You can build the manifest, trigger the download, or check the token budget from code. Every method accepts an `options` object with `serverName`, `includeInternal`, `includeDeprecated` and `includeOperations` (`false` keeps only the workflow tools):
+
+```javascript
+const doc = document.querySelector('rapi-doc');
+
+// 1. Build the manifest, the project files and the token diagnostics in memory
+const result = doc.generateMcpServer({ serverName: 'my-api' });
+console.log(result.manifest.tools.map((t) => t.name)); // ['place_order', 'get_order', ...]
+console.log(result.files['server.ts']);                 // every file of the zip, path → text
+console.log(result.budget);                             // { totalTools: 5, estimatedTokens: 850, ... }
+console.log(result.hostConfig);                         // the text of mcp.json
+
+// 2. Download the project as <server-name>-mcp.zip
+doc.downloadMcpServer();
+
+// 3. Inspect token budget overhead before exporting
+const budget = doc.getMcpBudget();
+console.log(`Overhead: ~${budget.estimatedTokens} tokens/turn across ${budget.totalTools} tools.`);
+```
+
+`result.files` has the keys `manifest.json`, `server.ts`, `runtime.js`, `package.json`, `README.md` and `mcp.json`, plus `workflow-runtime.js` when there are workflows. `getMcpBudget()` returns `{ totalTools, totalResources, estimatedTokens, consequentialCount, warnings }`, where `consequentialCount` is the number of tools that are not read-only.

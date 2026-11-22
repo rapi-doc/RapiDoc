@@ -1,0 +1,73 @@
+openapi: 3.0.3
+info:
+  title: Test - No Example Provided Scenarios
+  description: Specification containing operations designed to test and verify the fallback "No example provided" rendering state in RapiDoc.
+  version: 1.0.0
+paths:
+  /primitive-allof-response:
+    get:
+      summary: Response with allOf primitive without explicit example
+      description: |
+        Tests a schema with a single allOf primitive that has no explicit example.
+        When rendered, RapiDoc should display the red "No example provided" panel.
+      responses:
+        '200':
+          description: OK response with no example
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: string
+                    description: A string defined inside allOf without examples
+
+  /writeonly-fields-only-response:
+    get:
+      summary: Response schema containing only writeOnly fields
+      description: |
+        When all properties in a response schema are marked as `writeOnly: true`,
+        they are omitted from response samples, resulting in an empty example set.
+      responses:
+        '200':
+          description: All fields writeOnly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  password:
+                    type: string
+                    writeOnly: true
+                    description: This field is write-only and omitted from response examples
+                  adminSecret:
+                    type: string
+                    writeOnly: true
+                    description: Another write-only field
+
+  /binary-stream-no-example:
+    get:
+      summary: Binary stream response without example
+      description: |
+        Tests content types like `application/octet-stream` where no explicit example
+        or schema structure is provided.
+      responses:
+        '200':
+          description: Raw binary payload
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /empty-schema-response:
+    get:
+      summary: Empty schema object with no properties or examples
+      description: |
+        Tests an endpoint where the response body schema is an empty object `{}` with no properties.
+      responses:
+        '200':
+          description: Empty schema response
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Empty object definition without properties

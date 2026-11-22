@@ -1,0 +1,17 @@
+---
+import ExampleLayout from '../../layouts/ExampleLayout.astro';
+
+// Scratch page: the scratch spec lives in public/specs/, not public/specs-test/.
+const specUrl = '/specs/temp.yaml';
+---
+
+<ExampleLayout>
+  <rapi-doc 
+    id = "thedoc"
+    spec-url = {specUrl}
+    show-header = "false"
+    render-style = "view"
+    schema-style="table"
+    show-info = "true"
+  > </rapi-doc>
+</ExampleLayout>

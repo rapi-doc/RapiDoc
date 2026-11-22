@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import {
   stripMarkup,
   extractDocSections,
+  extractPageRecords,
   indexOpenApiSpec,
   buildSearchIndex,
   searchRecords,
@@ -139,6 +140,133 @@ Content under subsection.`;
           // Cleanup
         }
       }
+    }
+  });
+
+  await t.test("indexes MDX and inline code as the reader sees them", () => {
+    const text = stripMarkup(
+      [
+        "import { Tabs, TabItem } from '@rapidoc/portal/components';",
+        "import Demo from '../components/Demo.astro';",
+        "",
+        "`<rapi-doc>` is a standard <b>custom</b> element.",
+        "<Tabs><TabItem label='npm'>Install it</TabItem></Tabs>",
+        "We import the bundle from a CDN.",
+      ].join("\n"),
+    );
+    assert.equal(
+      text,
+      "<rapi-doc> is a standard custom element. Install it We import the bundle from a CDN.",
+    );
+  });
+
+  await t.test("titles a section as its heading reads, without Markdown", () => {
+    const [section] = extractDocSections(
+      "## `<rapi-doc>` or [`<rapi-doc-mini>`](/docs/mini)?\n\nWhich one.\n",
+      "/docs/pick",
+      "Pick",
+    );
+    assert.equal(section.title, "<rapi-doc> or <rapi-doc-mini>?");
+    assert.equal(section.url, "/docs/pick#rapi-doc-or-rapi-doc-mini");
+  });
+
+  await t.test(
+    "makes records from a built page: the page, then its headings that have an id",
+    () => {
+      const html = [
+        "<html><head><title>Pricing | Acme</title>",
+        '<meta name="description" content="Plans &amp; prices"></head>',
+        "<body><header>Menu</header><main><h1>Our &lt;plans&gt;</h1><p>Free for open source.</p>",
+        '<h2 id="teams">Teams</h2><p>Ten seats.</p><h2>No id</h2><p>Skipped as a section.</p>',
+        "<script>var hidden = 1;</script></main><footer>Legal</footer></body></html>",
+      ].join("");
+      const [page, section, ...rest] = extractPageRecords(html, "/pricing", { siteTitle: "Acme" });
+      assert.equal(rest.length, 0);
+      assert.deepEqual(
+        { type: page.type, title: page.title, subtitle: page.subtitle, url: page.url },
+        { type: "page", title: "Our <plans>", subtitle: "Plans & prices", url: "/pricing" },
+      );
+      assert.doesNotMatch(page.content, /Menu|Legal|hidden/);
+      assert.deepEqual(
+        { title: section.title, url: section.url, content: section.content },
+        { title: "Teams", url: "/pricing#teams", content: "Ten seats." },
+      );
+      // Without an <h1>: the <title>, less the site's name
+      const untitled = extractPageRecords(
+        "<title>Pricing | Acme</title><body><p>x</p></body>",
+        "/p",
+        {
+          siteTitle: "Acme",
+        },
+      );
+      assert.equal(untitled[0].title, "Pricing");
+    },
+  );
+
+  await t.test("leaves a page out of the search when the page asks", () => {
+    const html =
+      '<head><meta name="portal-search" content="off"></head><body><h1>Hidden</h1></body>';
+    assert.deepEqual(extractPageRecords(html, "/hidden"), []);
+  });
+
+  await t.test("finds a hyphenated name by its plain spelling, and the other way round", () => {
+    const records = [
+      {
+        type: "page",
+        title: "<rapi-doc-mini> API Reference",
+        url: "/api/rapi-doc-mini",
+        content: "",
+      },
+      { type: "doc", title: "RapiDoc Mini", url: "/docs/rapidoc-mini", content: "Embed endpoints" },
+      { type: "doc", title: "Theming", url: "/docs/theming", content: "Colors and fonts" },
+    ];
+    const urls = (query) => searchRecords(records, query).map((record) => record.url);
+    // Every word of the query must be found, in any order and any field
+    assert.deepEqual(urls("rapidoc mini reference"), ["/api/rapi-doc-mini"]);
+    assert.deepEqual(urls("mini rapidoc").sort(), ["/api/rapi-doc-mini", "/docs/rapidoc-mini"]);
+    assert.deepEqual(urls("rapi-doc").sort(), ["/api/rapi-doc-mini", "/docs/rapidoc-mini"]);
+    assert.deepEqual(urls("rapidoc theming"), []);
+  });
+
+  await t.test("labels a docs result with the navigation tab its page is in", () => {
+    const docsDir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-search-tabs-"));
+    try {
+      const write = (file, title) => {
+        fs.mkdirSync(path.dirname(path.join(docsDir, file)), { recursive: true });
+        fs.writeFileSync(
+          path.join(docsDir, file),
+          `---\ntitle: ${title}\n---\n\n## Setup\n\nText.\n`,
+        );
+        return path.join(docsDir, file);
+      };
+      const files = [
+        write("guides/start.md", "Start"),
+        write("sdk/node.md", "Node SDK"),
+        write("loose.md", "Loose page"),
+      ];
+      const config = {
+        docs: { fullPath: docsDir, home: true },
+        apis: [],
+        tabs: [
+          { label: "Guides", match: ["/docs/guides"] },
+          { label: "SDKs", match: ["/docs/sdk"] },
+        ],
+      };
+      const { records } = buildSearchIndex(config, docsDir, files);
+      const labelOf = (url) => records.find((record) => record.url === url).category;
+      assert.equal(labelOf("/docs/guides/start"), "Guides");
+      // A heading's result carries its page's label
+      assert.equal(labelOf("/docs/guides/start#setup"), "Guides");
+      assert.equal(labelOf("/docs/sdk/node"), "SDKs");
+      // A page no tab lists keeps the plain label
+      assert.equal(labelOf("/docs/loose"), "Documentation");
+      // The label is searched too: the tab's name finds its pages
+      assert.deepEqual(
+        searchRecords(records, "sdks").map((record) => record.url),
+        ["/docs/sdk/node", "/docs/sdk/node#setup"],
+      );
+    } finally {
+      fs.rmSync(docsDir, { recursive: true, force: true });
     }
   });
 });

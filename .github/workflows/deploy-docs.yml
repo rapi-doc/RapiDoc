@@ -1,13 +1,28 @@
-name: Deploy Documentation to GitHub Pages
+name: Deploy rapidocui.com to GitHub Pages
+
+# Builds sites/rapidoc (rapidocui.com, built with RapiDoc Portal from this repository's own CLI and portal) and
+# deploys it with GitHub Pages; the custom domain rapidocui.com is set in the repository's Pages settings.
+# Until the switch-over the live site was the Starlight site in docs/, which stays in the repository but is
+# no longer published. The other RapiDoc sites have their own workflows: publish-flow-site.yml,
+# publish-mock-site.yml and publish-portal-site.yml.
 
 on:
   push:
     branches:
       - master
-      - main
     paths:
-      - 'packages/rapidoc/**'
-      - 'docs/**'
+      - 'sites/rapidoc/**'
+      - 'sites/shared/**'
+      # what the site is built from
+      - 'packages/rapidoc-cli/**'
+      - 'packages/rapidoc-portal/**'
+      - 'packages/rapidoc-prerender/**'
+      - 'packages/rapidoc-mcp/**'
+      - 'packages/rapidoc/src/**'
+      # its version is the badge next to the site's logo
+      - 'packages/rapidoc/package.json'
+      - 'packages/rapipdf/src/**'
+      - 'scripts/rapidoc-api.js'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/deploy-docs.yml'
@@ -24,7 +39,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build Documentation
+    name: Build rapidocui.com
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -39,8 +54,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build RapiDoc and Docs
-        run: npm run build
+      # Builds rapidoc, @rapidoc/mcp, @rapidoc/prerender and rapipdf, which the pages load, then the site
+      - name: Build the site
+        run: npm run build:rapidoc-site
+
+      - name: Check the build
+        run: |
+          test -f sites/rapidoc/dist/index.html
+          test -f sites/rapidoc/dist/docs/index.html
+          test -f sites/rapidoc/dist/assets/rapidoc-min.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -48,7 +70,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'docs/dist'
+          path: 'sites/rapidoc/dist'
 
   deploy:
     name: Deploy to GitHub Pages

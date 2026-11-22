@@ -58,6 +58,11 @@
               "description": "Where the logo links to (default /).",
               "type": "string",
               "minLength": 1
+            },
+            "badge": {
+              "description": "Small label next to the logo in the header, e.g. a version.",
+              "type": "string",
+              "minLength": 1
             }
           },
           "additionalProperties": false
@@ -298,7 +303,7 @@
       "type": "object",
       "properties": {
         "links": {
-          "description": "Links and dropdown menus right of the search.",
+          "description": "Links and dropdown menus; right of the search unless position is start.",
           "type": "array",
           "items": {
             "type": "object",
@@ -326,8 +331,47 @@
                   "primary"
                 ]
               },
+              "badge": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      },
+                      "variant": {
+                        "type": "string",
+                        "enum": [
+                          "note",
+                          "tip",
+                          "caution",
+                          "danger",
+                          "success",
+                          "default"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text"
+                    ],
+                    "additionalProperties": false
+                  }
+                ],
+                "description": "Small label shown next to the item."
+              },
+              "position": {
+                "description": "start: after the logo, left of the search; end (default): right of the search.",
+                "type": "string",
+                "enum": [
+                  "start",
+                  "end"
+                ]
+              },
               "items": {
-                "description": "Dropdown items; an icon or description makes it a mega-menu.",
+                "description": "Dropdown items. Plain links (label and href only) are a simple list; an icon or description on any item makes them cards.",
                 "minItems": 1,
                 "type": "array",
                 "items": {
@@ -416,6 +460,147 @@
                   ],
                   "additionalProperties": false
                 }
+              },
+              "columns": {
+                "description": "How many items across in the dropdown (with items): default 1 for plain links, 2 for cards.",
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "groups": {
+                "description": "Dropdown items in columns, each with a heading; instead of items.",
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Heading of the column."
+                    },
+                    "items": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Text shown for the item."
+                          },
+                          "href": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "A path on this site (/docs/intro) or a full URL."
+                          },
+                          "icon": {
+                            "type": "string",
+                            "description": "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning."
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "badge": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "variant": {
+                                    "type": "string",
+                                    "enum": [
+                                      "note",
+                                      "tip",
+                                      "caution",
+                                      "danger",
+                                      "success",
+                                      "default"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "text"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ],
+                            "description": "Small label shown next to the item."
+                          },
+                          "items": {
+                            "description": "Shortcut links shown under the item in the mega-menu.",
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "label": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "description": "Text shown for the item."
+                                },
+                                "href": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "description": "A path on this site (/docs/intro) or a full URL."
+                                },
+                                "icon": {
+                                  "type": "string",
+                                  "description": "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning."
+                                }
+                              },
+                              "required": [
+                                "label",
+                                "href"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "href"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "footer": {
+                "description": "A link under the dropdown's items (with items or groups).",
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Text shown for the item."
+                  },
+                  "href": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "A path on this site (/docs/intro) or a full URL."
+                  },
+                  "icon": {
+                    "type": "string",
+                    "description": "Phosphor icon name (https://phosphoricons.com), e.g. book-open, code, rocket, package, lightning; an unknown name shows a question mark and a build warning."
+                  }
+                },
+                "required": [
+                  "label",
+                  "href"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
@@ -427,6 +612,15 @@
         "themeSwitcher": {
           "description": "Show the light/dark switcher (default true).",
           "type": "boolean"
+        },
+        "tabs": {
+          "description": "Where the navigation tabs are listed: header (default), a row under the header; sidebar, a list above the sidebar's pages; sidebar-select, the current tab above the sidebar's pages, opening the list of tabs.",
+          "type": "string",
+          "enum": [
+            "header",
+            "sidebar",
+            "sidebar-select"
+          ]
         }
       },
       "additionalProperties": false
@@ -476,6 +670,56 @@
               }
             ],
             "description": "Small label shown next to the item."
+          },
+          "logo": {
+            "description": "The header's logo on this tab's pages, in place of site.logo's image (and badge).",
+            "type": "object",
+            "properties": {
+              "src": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "light": {
+                        "type": "string"
+                      },
+                      "dark": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "light",
+                      "dark"
+                    ],
+                    "additionalProperties": false
+                  }
+                ],
+                "description": "Image in public/, or { light, dark }."
+              },
+              "alt": {
+                "type": "string"
+              },
+              "badge": {
+                "description": "Label next to the logo, e.g. this product's version; false for none (default: site.logo.badge).",
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "boolean",
+                    "const": false
+                  }
+                ]
+              }
+            },
+            "required": [
+              "src"
+            ],
+            "additionalProperties": false
           },
           "items": {
             "description": "Documentation tab: this tab's sidebar.",

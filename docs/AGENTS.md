@@ -5,7 +5,7 @@
 
 - **Package Name**: `docs` (private workspace)
 - **Framework**: [Astro 7](https://astro.build/) with [@astrojs/starlight](https://starlight.astro.build/)
-- **Live Site**: `https://rapidocui.com`
+- **Live Site**: none since 2026-11-22: rapidocui.com is built from `sites/rapidoc` (RapiDoc Portal). This site stays in the repository but is no longer published.
 - **Default Dev Port**: `4321` (`http://localhost:4321`)
 - **Build Output**: `docs/dist/`
 

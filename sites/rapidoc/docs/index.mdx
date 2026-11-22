@@ -1,0 +1,223 @@
+---
+title: Documentation
+description: The documentation of every RapiDoc product, tool and integration - RapiDoc, RapiDoc Mini, RapiFlow, RapiPdf, RapiMock, RapiDoc Portal, the CLI, MCP, pre-rendering - and which package you need.
+template: splash
+---
+
+import DocsCard from '../components/DocsCard.astro';
+
+The documentation of every RapiDoc product, tool and integration. RapiFlow, RapiMock and RapiDoc Portal have their docs on their own sites (↗).
+
+<div class="docs-card-grid">
+  <DocsCard
+    wide
+    title="Get started"
+    href="/docs/rapidoc/get-started/quickstart/"
+    icon="rocket-launch"
+    description="Pick a quickstart. Most sites need only RapiDoc: an interactive API reference from your OpenAPI spec, in one HTML file."
+    links={[
+      { label: 'RapiDoc quickstart', href: '/docs/rapidoc/get-started/quickstart/' },
+      { label: 'RapiFlow quickstart', href: 'https://flow.rapidocui.com/docs/quickstart/' },
+      { label: 'RapiMock quickstart', href: 'https://mock.rapidocui.com/docs/getting-started/quickstart/' },
+      { label: 'RapiDoc Portal quickstart', href: 'https://portal.rapidocui.com/docs/getting-started/quickstart/' },
+    ]}
+  /></div>
+
+## Products
+
+<div class="docs-card-grid">
+  <DocsCard
+    title="RapiDoc"
+    tag="<rapi-doc>"
+    href="/docs/rapidoc/"
+    icon="file-code"
+    description="The web component: an interactive API reference from your OpenAPI spec."
+    links={[
+      { label: 'Quickstart', href: '/docs/rapidoc/get-started/quickstart/' },
+      { label: 'API Reference', href: '/docs/rapidoc/reference/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiDoc Mini"
+    tag="<rapi-doc-mini>"
+    href="/docs/rapidoc-mini/"
+    icon="puzzle-piece"
+    description="One endpoint, or a few, with Try, inside a post or guide."
+    links={[
+      { label: 'Quickstart', href: '/docs/rapidoc-mini/#show-one-endpoint' },
+      { label: 'API Reference', href: '/docs/rapidoc-mini/reference/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiFlow"
+    tag="<rapi-flow>"
+    href="https://flow.rapidocui.com/"
+    icon="path"
+    description="Draws the workflows of an Arazzo spec next to your reference, and runs them."
+    links={[
+      { label: 'Quickstart', href: 'https://flow.rapidocui.com/docs/quickstart/' },
+      { label: 'API Reference', href: 'https://flow.rapidocui.com/docs/reference/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiPdf"
+    tag="<rapi-pdf>"
+    href="/docs/rapipdf/"
+    icon="file-pdf"
+    description="An OpenAPI spec as a PDF, in the browser or in Node."
+    links={[
+      { label: 'Quickstart', href: '/docs/rapipdf/#add-it-to-a-page' },
+      { label: 'API Reference', href: '/docs/rapipdf/reference/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiMock"
+    tag="rapidoc mock"
+    href="https://mock.rapidocui.com/"
+    icon="hard-drives"
+    description="A mock server from your OpenAPI spec that validates requests, checks tokens and remembers what you create."
+    links={[
+      { label: 'Quickstart', href: 'https://mock.rapidocui.com/docs/getting-started/quickstart/' },
+      { label: 'CLI options', href: 'https://mock.rapidocui.com/docs/reference/cli/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiDoc Portal"
+    tag="@rapidoc/portal"
+    href="https://portal.rapidocui.com/"
+    icon="layout"
+    description="API references and guides as one developer portal, with search and SSO."
+    links={[
+      { label: 'Quickstart', href: 'https://portal.rapidocui.com/docs/getting-started/quickstart/' },
+      { label: 'Configuration keys', href: 'https://portal.rapidocui.com/docs/reference/config/' },
+    ]}
+  />
+</div>
+
+## Tools
+
+<div class="docs-card-grid">
+  <DocsCard
+    title="RapiDoc CLI"
+    tag="rapidoc"
+    href="/docs/cli/"
+    icon="terminal"
+    description="Preview, validate, lint, bundle and export OpenAPI specs; run the mock and the portal."
+    links={[{ label: 'All commands & options', href: '/docs/cli/reference/' }]}
+  />
+  <DocsCard
+    title="MCP Server"
+    href="/docs/mcp/"
+    icon="robot"
+    description="Turn your OpenAPI spec, and the workflows of an Arazzo spec, into an MCP server for AI agents."
+    links={[{ label: 'Export and run the server', href: '/docs/mcp/server/' }]}
+  />
+  <DocsCard
+    title="Pre-rendering"
+    tag="@rapidoc/prerender"
+    href="/docs/prerender/"
+    icon="lightning"
+    description="The reference as HTML at build time, for search engines and a fast first paint."
+  />
+</div>
+
+## Integrations
+
+<div class="docs-card-grid">
+  <DocsCard
+    title="Front-end frameworks"
+    href="/docs/integrations/front-end/"
+    icon="browsers"
+    description="React, Vue, Angular and Svelte."
+  />
+  <DocsCard
+    title="Server frameworks"
+    href="/docs/integrations/node/"
+    icon="hard-drive"
+    description="Hono, Express and Fastify; FastAPI and Starlette; ASP.NET Core; Go."
+  />
+  <DocsCard
+    title="Documentation sites"
+    href="/docs/integrations/docs-sites/"
+    icon="books"
+    description="Starlight, VitePress and Docusaurus."
+  />
+  <DocsCard
+    title="Build an integration"
+    href="/docs/integrations/build-your-own/"
+    icon="plug"
+    description="The contract every integration implements, for a framework or tool of your own."
+  />
+</div>
+
+## More
+
+<div class="docs-card-grid">
+  <DocsCard
+    title="Examples"
+    href="/examples/"
+    icon="squares-four"
+    description="Every feature running, with the code behind it."
+  />
+  <DocsCard
+    title="Migration guides"
+    href="/docs/rapidoc/migration/v13-to-v14/"
+    icon="arrows-clockwise"
+    description="Moving to RapiDoc 14 from earlier versions."
+  />
+</div>
+
+## Which package do I need?
+
+RapiDoc is a family of packages. Most sites need only the first one, `rapidoc`, which is a browser bundle you load with a `<script>` tag. The others are Node packages for build steps, local tooling and full developer portals.
+
+### In the browser
+
+`rapidoc` has no runtime dependencies: everything it needs is bundled into its JavaScript files.
+
+| Import | Elements | What it is for |
+| :--- | :--- | :--- |
+| `rapidoc` (`dist/rapidoc-min.js`) | `<rapi-doc>` | The full interactive API reference: navigation, search, schemas, **Try**, authentication, [in-browser mocking](/docs/rapidoc/mocking/in-browser/) and [MCP export](/docs/mcp/). |
+| | `<rapi-doc-mini>` | [One endpoint or a few](/docs/rapidoc-mini/), embedded in a blog post, tutorial or changelog. |
+| | `<oauth-receiver>` | The [OAuth 2.0 callback page](/docs/rapidoc/authentication/oauth/) that hands the authorization code back to `<rapi-doc>`. |
+| `rapidoc/flow` (`dist/rapidoc-flow-min.js`) | `<rapi-flow>` | [Arazzo workflows](https://flow.rapidocui.com/) drawn as a diagram and run in the browser. A separate bundle, so pages without workflows don't download it. |
+
+```bash
+npm install rapidoc
+```
+
+### In Node
+
+| Package | What it is for |
+| :--- | :--- |
+| `@rapidoc/cli` | The `rapidoc` command: [preview, validate, lint and bundle](/docs/cli/) a spec, run a [mock server](https://mock.rapidocui.com/), turn a spec into an MCP server, and build and serve developer portals. |
+| `@rapidoc/mock` | The [mock server](https://mock.rapidocui.com/) behind `rapidoc mock`: answers every operation over HTTP from examples or generated data, validates requests and checks OAuth tokens, and with `--stateful` keeps what you create. Also usable as a library. |
+| `@rapidoc/mcp` | Turns OpenAPI and Arazzo specs into [MCP tools](/docs/mcp/server/#in-node-rapidocmcp): manifest builder, runtime and server project writer. The same code `<rapi-doc>` uses in the browser. |
+| `@rapidoc/embed` | The shared core of integrations (plugins and middleware for frameworks, docs sites and tools): renders the standard host page for `<rapi-doc>` and lists the routes to serve. See [Build an Integration](/docs/integrations/build-your-own/). |
+| `@rapidoc/hono` | Serves the API reference from a [Hono](https://hono.dev) app: `app.use(rapidoc({ specUrl }))`. See [Server frameworks](/docs/integrations/node/). |
+| `@rapidoc/express`, `@rapidoc/fastify` | The same for [Express](https://expressjs.com) and [Fastify](https://fastify.dev) apps. See [Server frameworks](/docs/integrations/node/). |
+| `@rapidoc/vitepress` | Adds API reference pages to a [VitePress](https://vitepress.dev) site, in its theme and sidebar. See [Documentation sites](/docs/integrations/docs-sites/). |
+| `@rapidoc/docusaurus` | Adds API reference pages to a [Docusaurus](https://docusaurus.io) site, in its theme and sidebar. See [Documentation sites](/docs/integrations/docs-sites/). |
+| `@rapidoc/starlight` | Adds API reference pages to a [Starlight](https://starlight.astro.build) site, in its layout and sidebar. See [Documentation sites](/docs/integrations/docs-sites/). |
+| `@rapidoc/prerender` | Renders `<rapi-doc>` to HTML at build time (Declarative Shadow DOM or light DOM), plus a static sidebar and Arazzo diagrams as SVG. Good for SEO and first paint. See [Pre-rendering](/docs/prerender/). |
+
+### Developer portals
+
+A developer portal puts your API references next to Markdown guides, with search, navigation and optional single sign-on (SSO) through Okta, Microsoft Entra ID or any OpenID Connect provider. These packages are documented in the [RapiDoc Portal docs](https://portal.rapidocui.com/); for private portals, see [SSO and access](https://portal.rapidocui.com/docs/access/overview/).
+
+| Package | What it is for |
+| :--- | :--- |
+| `create-rapidoc` | Scaffolds a new portal: `npm create rapidoc`. `rapidoc init` does the same. |
+| `@rapidoc/portal` | The portal engine behind `rapidoc dev` and `rapidoc build`: OpenAPI specs and Markdown, MDX or Markdoc guides in, a static site out. |
+| `@rapidoc/server` | Serves a built portal with single sign-on (OpenID Connect) and per-page access rules (`rapidoc serve`). |
+
+### Which do I need?
+
+- **An API reference on a page you already have**: `rapidoc`. Start with the [Quickstart](/docs/rapidoc/get-started/quickstart/).
+- **A mock API your frontend or tests can call**: `@rapidoc/cli` and `@rapidoc/mock`.
+- **An MCP server for AI agents**: the Export button in `<rapi-doc>`, `rapidoc mcp`, or `@rapidoc/mcp` in your own code.
+- **Static HTML of your reference at build time**: `@rapidoc/prerender`.
+- **An API reference served by your Hono app**: `@rapidoc/hono`.
+- **An API reference inside your Starlight docs**: `@rapidoc/starlight`.
+- **A RapiDoc plugin for another framework or tool**: `@rapidoc/embed`.
+- **A whole developer portal**: `create-rapidoc`, which installs `@rapidoc/cli` and `@rapidoc/portal`.

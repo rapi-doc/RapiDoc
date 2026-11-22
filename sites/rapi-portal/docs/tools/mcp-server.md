@@ -3,14 +3,14 @@ title: MCP server for agents
 description: Every portal build carries its APIs and workflows as MCP tools; rapidoc serve hosts them at /mcp for AI agents, with the reader's own access.
 ---
 
-AI agents can use your APIs the way readers do. `rapidoc build` turns every local spec and every workflow into [MCP](https://modelcontextprotocol.io) tool manifests, and `rapidoc serve` hosts them at `/mcp`: one endpoint for the whole portal, with the same access rules as the pages.
+AI agents can use your APIs the way readers do. `rapidoc build` turns every local OpenAPI spec and every workflow of its Arazzo specs into [MCP](https://modelcontextprotocol.io) tool manifests, and `rapidoc serve` hosts them at `/mcp`: one endpoint for the whole portal, with the same access rules as the pages.
 
 ```text
 dist/mcp/<api id>.json              the API's operations as tools, named <api id>_<operation>
 dist/mcp/workflows/<id>.json        each workflow of the file as one tool, its inputs as the arguments
 ```
 
-Nothing to configure: a build has the manifests whenever it has specs on disk (a spec that is a URL is left out).
+Nothing to configure: a build has the manifests whenever it has OpenAPI specs on disk (one given as a URL is left out).
 
 ## Connect an agent
 
@@ -70,14 +70,14 @@ The reader's access token fills `oauth2`, `openIdConnect` and HTTP `bearer` sche
 
 ## From the command line
 
-For an API that isn't in a portal, or to try its tools before building one, the CLI turns any spec into an MCP server:
+For an API that isn't in a portal, or to try its tools before building one, the CLI turns any OpenAPI spec into an MCP server:
 
 ```bash
 npx rapidoc mcp export openapi.yaml --out-dir orders-mcp   # writes the server project
 npx rapidoc mcp serve openapi.yaml                         # runs it over stdio, no files
 ```
 
-`--base-url http://localhost:4010/orders` sends the calls to [`rapidoc mock`](/docs/tools/mock-server/), and `--arazzo flows.arazzo.yaml` adds the workflows as tools. The options, the credentials it reads and the agent configuration are on the [rapidoc mcp](https://rapidocui.com/docs/cli/mcp/) and [MCP Server](https://rapidocui.com/docs/ai/mcp-server/) pages of the RapiDoc docs.
+`--base-url http://localhost:4010/orders` sends the calls to [`rapidoc mock`](/docs/tools/mock-server/), and `--arazzo flows.arazzo.yaml` adds the workflows as tools. The options, the credentials it reads and the agent configuration are on the [rapidoc mcp](https://rapidocui.com/docs/cli/mcp/) and [MCP Server](https://rapidocui.com/docs/mcp/) pages of the RapiDoc docs.
 
 ## Exported servers
 

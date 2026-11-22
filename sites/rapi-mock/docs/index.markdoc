@@ -1,71 +1,40 @@
 ---
-title: A mock API that remembers
-description: Rapi Mock turns an OpenAPI spec into a mock server with request validation, token checks and state, a UI to look inside, and endpoints for tests in any language.
-template: splash
-hero:
-  title: Your OpenAPI spec<br><mark>as a server that remembers</mark>
-  tagline: Rapi Mock serves every operation of your spec. It validates requests, checks tokens, and keeps what you create, so a POST shows up in the next GET. No code to write.
-  actions:
-    - text: Quickstart
-      link: /docs/getting-started/quickstart/
-    - text: Check your spec
-      link: /spec-check/index.html
-      variant: secondary
-    - text: How it works
-      link: /docs/getting-started/how-it-works/
-      variant: secondary
+title: RapiMock documentation
+description: How to run RapiMock, the mock server that turns an OpenAPI spec into an API with request validation, token checks and state, and how to use it in tests.
 ---
 
-## One command
+RapiMock serves every operation of your OpenAPI spec over HTTP. It validates requests, checks tokens, and with `--stateful` keeps what you create, so a frontend, a test suite or another service can call your API before it exists. What it does and how it compares with the in-browser mock of `<rapi-doc>` is on [RapiMock's page](https://rapidocui.com/rapi-mock/).
 
 ```bash
 npm install -D @rapidoc/cli @rapidoc/mock
 npx rapidoc mock openapi.yaml --stateful
 ```
 
-```bash
-curl -X POST localhost:4010/openapi/pets -H "Content-Type: application/json" -d '{"name":"Biscuit"}'
-curl localhost:4010/openapi/pets        # Biscuit is in the list
-```
-
-## What you get
+## Find your way
 
 {% card-grid %}
-{% card title="State, worked out from the spec" icon="database" href="/docs/state/overview/" %}
-It reads resources, keys and links off your paths and schemas, starts with generated records, and keeps what you create, change and delete.
+{% card title="Get started" icon="rocket-launch" href="/docs/getting-started/introduction/" %}
+What RapiMock is and is not, a quickstart, and how it reads a data model off a spec.
 {% /card %}
-{% card title="A UI to look inside" icon="layout" href="/docs/mock-ui/tour/" %}
-See the records, what the mock does for every operation, and how sure it is. Reset the data or reseed it from the page.
+{% card title="Responses" icon="arrows-left-right" href="/docs/responses/what-it-answers/" %}
+What it answers, picking a status code or example, and checking tokens and scopes.
 {% /card %}
-{% card title="Tests in any language" icon="test-tube" href="/docs/testing/any-language/" %}
-Reset, read and load the data over HTTP, with a session per test so parallel tests never see each other's changes.
+{% card title="Keeping state" icon="database" href="/docs/state/overview/" %}
+Resources worked out from the spec, seed data, a session per test, and the API styles it handles.
 {% /card %}
-{% card title="Requests and tokens checked" icon="shield-check" href="/docs/responses/tokens-and-scopes/" %}
-A bad request gets a 400 with the problems listed. OAuth tokens are verified against your issuer, scopes included.
+{% card title="Correcting the mock" icon="sliders-horizontal" href="/docs/correcting/config-file/" %}
+State the data model in `mock.config.yaml` where the spec doesn't show it, and lint the spec for the mock.
 {% /card %}
-{% card title="You can correct it" icon="sliders-horizontal" href="/docs/correcting/config-file/" %}
-Where a spec doesn't show its data model, state it in a few lines of `mock.config.yaml`. Stale entries are reported, never ignored.
+{% card title="Mock UI" icon="layout" href="/docs/mock-ui/tour/" %}
+See the records and what the mock does for every operation, and reset or reseed the data.
 {% /card %}
-{% card title="Check your spec first" icon="list-checks" href="/docs/correcting/lint/" %}
-`rapidoc lint --stateful` reports what the mock had to assume, at its place in the spec, before you run anything.
+{% card title="Testing" icon="test-tube" href="/docs/testing/any-language/" %}
+Tests in any language over HTTP, in JavaScript without a port, and with RapiDoc, RapiFlow and MCP.
 {% /card %}
 {% /card-grid %}
 
-## Two mocks, two jobs
-
-RapiDoc also has a mock inside the browser, part of `<rapi-doc>`. They are built for different work.
-
-| | In-browser mock | Rapi Mock |
-| :--- | :--- | :--- |
-| **Runs** | Inside the page | As an HTTP server |
-| **Who can call it** | The page itself: Try, `<rapi-flow>` | Anything: curl, your frontend, tests |
-| **Request validation** | No | Yes |
-| **Token and scope checks** | No | Yes |
-| **Remembers what you create** | No | Yes, with `--stateful` |
-| **Best for** | Docs and demos | Development and testing |
-
-[The in-browser mock](https://rapidocui.com/docs/mocking/in-browser/) is documented with RapiDoc.
+The [reference](/docs/reference/cli/) lists every CLI option, the control API, every key of `mock.config.yaml` and every lint rule. To see what RapiMock makes of a spec without installing anything, use the [spec check](/spec-check/index.html).
 
 {% callout type="note" title="What it handles" %}
-Rapi Mock reads the data model off the spec. It does that well for APIs with ids in the path and keys at the top of a record, and needs a few lines of config for other styles. [See which, with examples](/docs/state/api-styles/).
+RapiMock reads the data model off the spec. It does that well for APIs with ids in the path and keys at the top of a record, and needs a few lines of config for other styles. [See which, with examples](/docs/state/api-styles/).
 {% /callout %}

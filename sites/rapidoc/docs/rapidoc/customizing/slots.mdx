@@ -1,0 +1,46 @@
+---
+title: Your Own Markup
+description: Put your own HTML, such as a logo, banners, notices and a footer, inside <rapi-doc> with named slots.
+---
+
+import { Aside } from '@rapidoc/portal/components';
+
+`<rapi-doc>` renders inside a Shadow DOM, so you can't insert elements into it directly. Instead it has **slots**: named places where your own HTML appears. Put an element inside `<rapi-doc>` and give it a `slot` attribute naming the place; children without a `slot` go to the default slot. Slotted elements stay in your page's DOM, so your page's CSS styles them.
+
+```html
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml" show-header="true">
+  <img slot="logo" src="/brand/logo.svg" alt="Acme" height="28" />
+
+  <a slot="header" href="https://github.com/acme/api">GitHub</a>
+
+  <div class="banner">Welcome to the Acme API v2.4. Read the new authentication guide.</div>
+
+  <p slot="auth">Need a key? Create one in the <a href="https://console.acme.com">developer console</a>.</p>
+
+  <footer slot="footer">© 2026 Acme Corp. <a href="/terms">Terms</a></footer>
+</rapi-doc>
+```
+
+<Aside type="tip">
+  The [Slots example](/examples/slots) lets you try every slot.
+</Aside>
+
+## Every slot
+
+The [reference](/docs/rapidoc/reference/slots/) lists every slot and where it appears. Two kinds are made from the spec: `tag--<tag id>` under a tag's heading, and `<operation id>` inside one operation, both in `read` and `view` modes.
+
+## Tag and operation slots
+
+Tag and operation slots are named after the element IDs RapiDoc gives them, so they follow the same rules as links (see [Links & Navigation](/docs/rapidoc/customizing/linking/#element-ids)):
+
+- **Tags**: `tag--` and the tag name in lowercase kebab-case. The tag `Pet` is `tag--pet`; `User Management` is `tag--user-management`.
+- **Operations**: the `operationId` in kebab-case (`getPetById` is `get-pet-by-id`); without one, the summary or the method and path.
+
+```html
+<rapi-doc spec-url="https://rapidocui.com/specs/petstore.yaml">
+  <div slot="tag--pet">Pet IDs are 64-bit integers.</div>
+  <div slot="get-pet-by-id">Responses from this endpoint are cached for 60 seconds.</div>
+</rapi-doc>
+```
+
+When the spec uses `x-tagGroups`, an operation's ID starts with its tag (`pet--get-pet-by-id`). If a slot doesn't show up, find the ID in the page's address bar after clicking the operation, or in the browser's element inspector.

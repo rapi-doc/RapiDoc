@@ -32,14 +32,17 @@ rapidoc/
 │   └── rapidoc-dotnet/   # RapiDoc for ASP.NET Core (NuGet: RapiDoc.AspNetCore)
 ├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── sites/
-│   ├── rapi-mock/        # The Rapi Mock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
-│   └── rapi-portal/      # The RapiDoc Portal product and documentation site (portal.rapidocui.com), built with RapiDoc Portal
+│   ├── rapi-mock/        # The RapiMock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
+│   ├── shared/           # Code more than one site uses: the element reference component and its data
+│   ├── rapi-flow/        # The RapiFlow documentation site (flow.rapidocui.com), built with RapiDoc Portal
+│   ├── rapi-portal/      # The RapiDoc Portal product and documentation site (portal.rapidocui.com), built with RapiDoc Portal
+│   └── rapidoc/          # rapidocui.com, built with RapiDoc Portal (published by deploy-docs.yml)
 ├── tests/
 │   ├── unit/             # Node.js built-in test runner unit tests (*.test.js)
 │   ├── component/        # Component-level tests
 │   ├── e2e/              # End-to-end browser tests
 │   └── perf/             # Spec loading, parsing, and rendering benchmarks (playwright-core)
-├── brand/                # RapiDoc logo SVGs for every product (light, dark, favicon) and how to use them
+├── brand/                # RapiDoc logo SVGs for every product (light, dark, favicon), how to use them, and the product names
 ├── docker/               # Dockerfile and Nginx deployment assets
 ├── scripts/              # Monorepo build and metric utilities (e.g., capture-build-info.js, test-loader.mjs)
 ├── .github/              # GitHub Actions workflows (CI / GitHub Pages deployment)
@@ -85,6 +88,7 @@ All agents must strictly adhere to the following system boundaries:
   - Three layers: loading (`src/load-spec.js`), the headless core (`src/core/`: a resolved spec in, a pdfmake document definition out, no DOM, network or pdfmake) and rendering (`src/render-browser.js`). Keep the core headless: Node builds the same PDF from it.
   - Its output is fixed by `tests/fixtures/baseline/` (serialized document definitions, started from 2.2.1's); `npm run test:rapipdf` compares. A change that alters the PDF on purpose updates the baseline with it.
 - **Documentation Site (`docs`)**:
+  - The Starlight site that was rapidocui.com until 2026-11-22; no longer published (rapidocui.com is `sites/rapidoc`).
   - Consumes `packages/rapidoc` via npm workspaces (`"rapidoc": "*"`).
   - Aliases `rapidoc` and `~` to `../packages/rapidoc/src/` in development for instantaneous hot reloading.
   - The Astro dev server and build pipeline automatically compile `packages/rapidoc` into `rapidoc-min.js` if missing.
@@ -99,13 +103,19 @@ All agents must strictly adhere to the following system boundaries:
   - `@rapidoc/mcp` is RapiDoc's MCP code built for Node (the portal build and `@rapidoc/server` use it). Its source stays in `packages/rapidoc/src` (`utils/mcp-generator.js`, `utils/mcp/`, `utils/arazzo/`), shared with `<rapi-doc>`'s Export MCP Server button and `<rapi-flow>`; `packages/rapidoc-mcp` holds only the entry and build. That shared code is headless: `tests/unit/headless-boundary.test.js` fails if it imports Lit, elements, templates, styles or an unlisted package.
   - Internal dependency ranges are caret ranges on the current release (`rapidoc ^14.0.0` in the portal, the CLI, `@rapidoc/embed` and the docs-site integrations; the fixed group's own version between its packages; `rapipdf ^3.0.0` as the CLI's peer), never `*`. `changeset version` writes them (§6); the manifests hold the exact values.
 
-- **Rapi Mock site (`sites/rapi-mock`)**:
-  - The product and documentation site of the mock server, named **Rapi Mock**, for `mock.rapidocui.com`. Built with RapiDoc Portal from this repository's own `@rapidoc/cli` and `@rapidoc/portal` (`npm run dev:mock-site`, `npm run build:mock-site`); it is not an npm workspace and publishes nothing to npm.
+- **RapiMock site (`sites/rapi-mock`)**:
+  - The product and documentation site of the mock server, named **RapiMock**, for `mock.rapidocui.com`. Built with RapiDoc Portal from this repository's own `@rapidoc/cli` and `@rapidoc/portal` (`npm run dev:mock-site`, `npm run build:mock-site`); it is not an npm workspace and publishes nothing to npm.
   - Its source lives here so a change to the mock and its documentation land in one pull request. A separate repository, `rapi-mock-doc`, only publishes the built site with GitHub Pages: `.github/workflows/publish-mock-site.yml` here builds it and pushes the files there.
   - It is where the mock's documentation grows. The mock pages of the Starlight site (`docs/src/content/docs/mocking/mock-server.mdx`) are to become a short summary that links to it; don't add new mock documentation there. Its own rules are in `sites/rapi-mock/AGENTS.md`.
 
+- **Shared site code (`sites/shared`)**: what more than one site uses: the element reference component (`components/ElementReference.astro`) and its data (`element-api.ts`, reading the element sources with `scripts/rapidoc-api.js`), used by `sites/rapidoc` and `sites/rapi-flow`. `styles/header.css` is the header of all four sites (rapidocui.com's layout) `styles/footer.css` lines their footer up with it, `styles/content.css` widens pages without "On this page", `styles/dark.css` is the dark theme of all four (rapidocui.com's navy, also on the API reference and embedded operations and workflows) and `styles/light.css` the light one (the orange of RapiDoc's `amber` theme, on white), all imported first by each site's `styles/portal.css`; the footer's columns are the same `footer` block in each site's config. A docs page imports it by relative path; it finds the repository from the site's folder (`virtual:rapidoc-portal/project`, two levels down), never from its own location, which a build bundles away.
+
+- **RapiFlow site (`sites/rapi-flow`)**:
+  - The documentation site of RapiFlow (`<rapi-flow>`), for `flow.rapidocui.com`, and the home of RapiDoc's Arazzo support across the family. Set up like the RapiMock site: built from this repository's own CLI and portal (`npm run dev:flow-site`, `npm run build:flow-site`), not an npm workspace, and published by `.github/workflows/publish-flow-site.yml`, which pushes the built files to `rapi-flow-doc`.
+  - Docs only: RapiFlow's feature page, API reference and examples stay on rapidocui.com. A change to `<rapi-flow>` or `src/utils/arazzo/` updates its pages in the same pull request. Its own rules are in `sites/rapi-flow/AGENTS.md`.
+
 - **RapiDoc Portal site (`sites/rapi-portal`)**:
-  - The product and documentation site of RapiDoc Portal, for `portal.rapidocui.com`, set up like the Rapi Mock site: built from this repository's own CLI and portal (`npm run dev:portal-site`, `npm run build:portal-site`), not an npm workspace, and published by `.github/workflows/publish-portal-site.yml`, which pushes the built files to `rapi-portal-doc`. It moved here from that repository, which now only publishes.
+  - The product and documentation site of RapiDoc Portal, for `portal.rapidocui.com`, set up like the RapiMock site: built from this repository's own CLI and portal (`npm run dev:portal-site`, `npm run build:portal-site`), not an npm workspace, and published by `.github/workflows/publish-portal-site.yml`, which pushes the built files to `rapi-portal-doc`. It moved here from that repository, which now only publishes.
   - Portal, server and CLI documentation for portal users goes there, in the same pull request as the change. Its own rules are in `sites/rapi-portal/AGENTS.md`.
 
 ### Build Artifact Hygiene
@@ -116,7 +126,7 @@ All agents must strictly adhere to the following system boundaries:
   - `docs/.astro/`
   - `node_modules/`
   - Temporary benchmark runs
-- Keep `dist` files out of Git commits. Production bundles are generated by CI/CD (`.github/workflows/deploy-docs.yml`).
+- Keep `dist` files out of Git commits. Production bundles are generated by CI/CD (`.github/workflows/deploy-docs.yml` builds rapidocui.com from `sites/rapidoc`).
 - **CRITICAL**: `packages/rapidoc/dist/rapidoc-min.js` is tracked at an older git commit. **DO NOT** run `git checkout` or `git restore` on `packages/rapidoc/dist/rapidoc-min.js` to clear `git status`, as that reverts it to an obsolete bundle lacking `OperationSlugger` and `nav-active-change`, breaking portal navigation. Always build it using `npm run build:rapidoc`.
 
 ---
@@ -150,7 +160,9 @@ All primary scripts are runnable from the repository root via npm:
 | `npm run build:rapidoc:dev` | `packages/rapidoc`    | Builds an unminified bundle with sourcemaps and console logs intact.                                                    |
 | `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
 | `npm run build:docs`        | `docs`                | Builds the Astro Starlight documentation site to `docs/dist/`.                                                          |
-| `npm run build:mock-site`   | `sites/rapi-mock`     | Builds the Rapi Mock site to `sites/rapi-mock/dist/` with this repository's CLI and portal (`npm run dev:mock-site` previews it on port 4327). Both first run `npm run build:spec-check`: the site's spec check (`/spec-check/`), the validator, lint rules and stateful mock bundled for a browser, shown in the Mock UI. |
+| `npm run dev:sites`         | `sites/*`             | Runs the four sites' dev servers side by side (rapidocui.com 4329, RapiFlow 4330, RapiMock 4327, Portal 4328) with `RAPIDOC_DEV_LINKS` set, so links between them stay local (`scripts/dev-sites.mjs`). |
+| `npm run build:mock-site`   | `sites/rapi-mock`     | Builds the RapiMock site to `sites/rapi-mock/dist/` with this repository's CLI and portal (`npm run dev:mock-site` previews it on port 4327). Both first run `npm run build:spec-check`: the site's spec check (`/spec-check/`), the validator, lint rules and stateful mock bundled for a browser, shown in the Mock UI. |
+| `npm run build:flow-site`   | `sites/rapi-flow`     | Builds the RapiFlow site to `sites/rapi-flow/dist/` with this repository's CLI and portal (`npm run dev:flow-site` previews it on port 4330). |
 | `npm run build:portal-site` | `sites/rapi-portal`   | Builds the RapiDoc Portal site to `sites/rapi-portal/dist/` with this repository's CLI and portal (`npm run dev:portal-site` previews it on port 4328; `npm run mock:portal-site` runs the mock its example API calls). |
 | `npm run build:demo`        | `../rapi-portal-demo` | Builds `rapidoc`, then the sibling `rapi-portal-demo` checkout with the `rapidoc` CLI into `../rapi-portal-demo/dist/`. |
 | `npm run prerender:demo`    | Monorepo              | Runs `scripts/prerender-demo.mjs`.                                                                                      |
@@ -189,6 +201,10 @@ Both tools run with their defaults. oxlint has no config file; oxfmt's `.oxfmtrc
 - **Not formatted**: `.mdx` (oxfmt 0.x moves content out of JSX blocks such as `<Steps>`), `fixtures/` folders, and generated JSON (`packages/rapidoc-portal/schema.json`, `tests/layout/measurements.json`); the excludes are in the `format` scripts.
 - **Lit templates**: no static checker (the linter has no Lit rules); the unit, component and e2e tests render them.
 - **Console / Debugger**: stripped from the production bundle by the custom Vite transform.
+
+### Product Names
+
+Name the products as `brand/README.md` ("Names") sets out, in docs, pages, sites, menus, READMEs and package descriptions: **RapiDoc**, **RapiDoc Mini**, **RapiFlow**, **RapiPdf**, **RapiMock**, **RapiDoc Portal**, **RapiDoc CLI**; integrations are "RapiDoc for <host>". Never Rapidoc, Rapi Mock, RapiPDF or "Developer Portal" as a name; tags, packages and commands go in code font.
 
 ### Component Design & Lit Guidelines (`packages/rapidoc`)
 
@@ -236,7 +252,9 @@ When executing tasks in this repository, follow these rules:
      - [`integrations/rapidoc-python/AGENTS.md`](integrations/rapidoc-python/AGENTS.md)
      - [`integrations/rapidoc-dotnet/AGENTS.md`](integrations/rapidoc-dotnet/AGENTS.md)
      - [`sites/rapi-mock/AGENTS.md`](sites/rapi-mock/AGENTS.md)
+     - [`sites/rapi-flow/AGENTS.md`](sites/rapi-flow/AGENTS.md)
      - [`sites/rapi-portal/AGENTS.md`](sites/rapi-portal/AGENTS.md)
+     - [`sites/rapidoc/AGENTS.md`](sites/rapidoc/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
    - Preserve existing public specs (`docs/public/specs/`)

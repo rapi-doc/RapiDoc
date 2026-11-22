@@ -1,0 +1,271 @@
+# yaml-language-server: $schema=../../packages/rapidoc-portal/schema.json
+# rapidocui.com rebuilt with RapiDoc Portal (see AGENTS.md). The live site is still built from docs/.
+site:
+  title: RapiDoc
+  url: https://rapidocui.com
+  description: A web component for viewing OpenAPI 3.0, 3.1 and Swagger specifications, with an interactive console.
+  favicon: /favicon.svg
+  logo:
+    src:
+      light: /assets/images/rapidoc-lockup-light.svg
+      dark: /assets/images/rapidoc-lockup-dark.svg
+    alt: RapiDoc
+    badge: v14.2 # RapiDoc's version; scripts/sync-version.mjs keeps it current, don't edit it
+# Google Analytics on the docs pages, as the live site sends it: the page title as "Docs / <title>" and the
+# content group "Docs". The site's own pages (home, /api, examples) send theirs from their own layout
+# (components/GoogleAnalytics.astro), so this must stay the same property.
+head:
+  - script:
+      async: true
+      src: https://www.googletagmanager.com/gtag/js?id=G-M9TPKERDJ6
+  - script: |
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      (function() {
+        var segs = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+        var docTitle = (document.title || '').replace(/\s*\|\s*RapiDoc$/i, '').trim();
+        if (!docTitle && segs.length > 0) {
+          docTitle = segs[segs.length - 1].split('-').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+        }
+        gtag('config', 'G-M9TPKERDJ6', {
+          page_title: docTitle ? 'Docs / ' + docTitle : 'Docs',
+          content_group: 'Docs',
+        });
+      })();
+theme:
+  mode: dark # the theme a first-time visitor gets; the header's switcher changes it
+  primary: "#f6a821"
+  fonts:
+    sans: { family: Inter }
+    mono: { family: JetBrains Mono }
+  css: ./styles/portal.css
+header:
+  tabs: sidebar-select # the current product above the docs sidebar, opening the list of products
+  links:
+    - label: Products
+      position: start
+      groups:
+        - label: Products
+          items:
+            - label: RapiDoc
+              badge: <rapi-doc>
+              href: /rapidoc/
+              icon: file-code
+              description: Interactive API reference from your OpenAPI spec
+            - label: RapiDoc Mini
+              badge: <rapi-doc-mini>
+              href: /rapidoc-mini/
+              icon: puzzle-piece
+              description: A few endpoints, with Try, inside a post or guide
+            - label: RapiFlow
+              badge: <rapi-flow>
+              href: /rapi-flow/
+              icon: path
+              description: Step through and run Arazzo workflows
+            - label: RapiPdf
+              badge: <rapi-pdf>
+              href: /rapipdf/
+              icon: file-pdf
+              description: Turn an OpenAPI spec into a PDF
+            - label: RapiMock
+              badge: rapidoc mock
+              href: /rapi-mock/
+              icon: hard-drives
+              description: A mock server that validates requests and remembers
+            - label: RapiDoc Portal
+              href: /portal/
+              icon: layout
+              description: API references and guides as one site, with search and SSO
+        - label: Tools
+          items:
+            - label: RapiDoc CLI
+              badge: rapidoc
+              href: /cli/
+              icon: terminal
+              description: Preview, validate, lint, bundle and export OpenAPI specs
+            - label: MCP Server
+              href: /docs/mcp/
+              icon: robot
+              description: Turn your API into tools for AI agents
+            - label: Pre-rendering
+              href: /docs/prerender/
+              icon: lightning
+              description: Server-rendered HTML for search engines and a fast first paint
+        - label: Integrations
+          items:
+            - { label: All integrations, href: /integrations/ }
+            - { label: "React, Vue, Angular, Svelte", href: /docs/integrations/front-end/ }
+            - { label: "Hono, Express, Fastify", href: /docs/integrations/node/ }
+            - { label: "Starlight, VitePress, Docusaurus", href: /docs/integrations/docs-sites/ }
+            - { label: "Python (FastAPI, Starlette)", href: /docs/integrations/python/ }
+            - { label: ".NET (ASP.NET Core)", href: /docs/integrations/dotnet/ }
+            - { label: "Go (net/http)", href: /docs/integrations/go/ }
+            - { label: Build an integration, href: /docs/integrations/build-your-own/ }
+      footer:
+        label: Which package do I need?
+        href: "/docs/#which-package-do-i-need"
+    - { label: Docs, href: "/docs/", position: start } # every product's docs: the cards of rapidocui.com/docs
+    - { label: Examples, href: /examples, position: start }
+    - label: GitHub
+      href: https://github.com/rapi-doc/RapiDoc
+      icon: github-logo
+      style: button
+# The footer of every RapiDoc site: the same columns in sites/rapidoc, rapi-flow, rapi-mock and rapi-portal.
+# Links to this site's own pages are relative (an absolute link would open a new tab).
+footer:
+  columns:
+    - title: Products
+      links:
+        - { label: RapiDoc, href: /rapidoc/ }
+        - { label: RapiDoc Mini, href: /rapidoc-mini/ }
+        - { label: RapiFlow, href: /rapi-flow/ }
+        - { label: RapiPdf, href: /rapipdf/ }
+        - { label: RapiMock, href: /rapi-mock/ }
+        - { label: RapiDoc Portal, href: /portal/ }
+        - { label: RapiDoc CLI, href: /cli/ }
+    - title: Docs
+      links:
+        - { label: All documentation, href: /docs/ }
+        - { label: RapiDoc, href: /docs/rapidoc/ }
+        - { label: RapiFlow, href: https://flow.rapidocui.com/ }
+        - { label: RapiMock, href: https://mock.rapidocui.com/docs/getting-started/introduction/ }
+        - { label: RapiDoc Portal, href: https://portal.rapidocui.com/docs/getting-started/introduction/ }
+        - { label: Integrations, href: /integrations/ }
+        - { label: MCP Server, href: /docs/mcp/ }
+    - title: Resources
+      links:
+        - { label: Examples, href: /examples/ }
+        - { label: Spec Sandbox, href: /sandbox/ }
+        - { label: Live Configurator, href: /examples/controller-showcase/ }
+        - { label: Migration guides, href: /docs/rapidoc/migration/v13-to-v14/ }
+        - { label: Test Matrix, href: /tests/ }
+        - { label: Performance, href: /tests/performance/ }
+    - title: Project
+      links:
+        - { label: GitHub, href: https://github.com/rapi-doc/RapiDoc }
+        - { label: Releases, href: https://github.com/rapi-doc/RapiDoc/releases }
+        - { label: Issues, href: https://github.com/rapi-doc/RapiDoc/issues }
+        - { label: npm, href: https://www.npmjs.com/package/rapidoc }
+        - { label: Hosting by Simafri, href: https://www.simafri.com/en/managed-vps/ }
+  social:
+    - icon: github
+      href: https://github.com/rapi-doc/RapiDoc
+  copyright: © 2026 Mrinmoy Majumdar. MIT licensed.
+  branding: false # RapiDoc's own sites: no "Powered by RapiDoc"
+# One tab per product and tool documented on this site. RapiFlow, RapiMock and RapiDoc Portal have their docs on
+# their own sites: the Products and Get started menus and the /docs card page link there.
+navigation:
+  - label: "RapiDoc"
+    icon: file-code
+    items:
+      # In the order a reader needs them: run it, look things up, lay it out, style it, sign in for Try,
+      # mock, script, scale, extras; migration last.
+      - label: "Getting Started"
+        items:
+          - { slug: rapidoc, label: "Introduction" }
+          - { slug: rapidoc/get-started/quickstart, label: "Quickstart" }
+          - { slug: rapidoc/get-started/openapi-support, label: "Loading Your Spec" }
+          - { slug: rapidoc/guides, label: "Common Tasks" }
+      - label: "API Reference"
+        items:
+          - { slug: rapidoc/reference, label: "Attributes" }
+          - { slug: rapidoc/reference/methods, label: "Methods" }
+          - { slug: rapidoc/reference/events, label: "Events" }
+          - { slug: rapidoc/reference/slots, label: "Slots" }
+          - { slug: rapidoc/reference/extensions, label: "Spec Extensions" }
+          - { slug: rapidoc/reference/css, label: "CSS Parts & Variables" }
+      - label: "Layout & Navigation"
+        items:
+          - { slug: rapidoc/performance/render-modes, label: "Render Modes" }
+          - { slug: rapidoc/customizing/linking, label: "Links & Navigation" }
+          - { slug: rapidoc/customizing/markdown-headings, label: "Markdown Headings in the Sidebar" }
+      - label: "Look & Feel"
+        items:
+          - { slug: rapidoc/theming/overview, label: "Theming Overview" }
+          - { slug: rapidoc/theming/prebuilt-themes, label: "Built-in Themes" }
+          - { slug: rapidoc/theming/css-parts, label: "Styling with CSS" }
+          - { slug: rapidoc/customizing/slots, label: "Your Own Markup" }
+      - label: "Authentication"
+        items:
+          - { slug: rapidoc/authentication, label: "Overview" }
+          - { slug: rapidoc/authentication/oauth, label: "OAuth 2.0" }
+          - { label: "SSO in RapiDoc Portal", href: "https://portal.rapidocui.com/docs/access/overview/" }
+      - label: "Try It"
+        items:
+          - { slug: rapidoc/mocking/in-browser, label: "In-Browser Mock" }
+      - label: "Scripting"
+        items:
+          - { slug: rapidoc/programmatic-api/lifecycle-and-methods, label: "Control It from JavaScript" }
+          - { slug: rapidoc/programmatic-api/event-hooks, label: "React to Events" }
+      - label: "Large Specs"
+        items:
+          - { slug: rapidoc/performance/large-specs, label: "Large Specs" }
+          - { label: "Pre-rendering", href: /docs/prerender/ }
+      - label: "AI Agents"
+        items:
+          - { slug: rapidoc/mcp-export, label: "Export MCP Server" }
+      - label: "Migration Guides"
+        collapsed: true
+        items:
+          - { slug: rapidoc/migration/v13-to-v14, label: "v13 to v14" }
+          - { slug: rapidoc/migration/v12-to-v13, label: "v12 to v13" }
+          - { slug: rapidoc/migration/v11-to-v12, label: "v11 to v12" }
+          - { slug: rapidoc/migration/v10-to-v11, label: "v10 to v11" }
+  - label: "RapiDoc Mini"
+    icon: puzzle-piece
+    items:
+      - { slug: rapidoc-mini, label: "Overview" }
+      - { slug: rapidoc-mini/reference, label: "API Reference" }
+      - { slug: rapidoc-mini/recipes, label: "Recipes" }
+  - label: "RapiPdf"
+    icon: file-pdf
+    logo: # the header's logo on RapiPdf's pages
+      src:
+        light: /assets/images/rapi-pdf-lockup-light.svg
+        dark: /assets/images/rapi-pdf-lockup-dark.svg
+      alt: RapiPdf
+      badge: v3.0 # rapipdf's version; scripts/sync-version.mjs keeps it current, don't edit it
+    items:
+      - { slug: rapipdf, label: "Overview" }
+      - { slug: rapipdf/reference, label: "API Reference" }
+      - { slug: rapipdf/node, label: "In Node" }
+  - label: "RapiDoc CLI"
+    icon: terminal
+    items:
+      - { slug: cli, label: "Overview" }
+      - label: "Commands"
+        items:
+          - { slug: cli/preview, label: "preview" }
+          - { slug: cli/validate, label: "validate" }
+          - { slug: cli/lint, label: "lint" }
+          - { slug: cli/bundle, label: "bundle" }
+          - { slug: cli/pdf, label: "pdf" }
+          - { slug: cli/mock, label: "mock" }
+          - { slug: cli/mcp, label: "mcp" }
+      - { slug: cli/reference, label: "All Commands & Options" }
+      - { label: "Portal Commands", href: https://portal.rapidocui.com/docs/reference/cli/ }
+  - label: "MCP Server"
+    icon: robot
+    items:
+      - { slug: mcp, label: "Overview" }
+      - { slug: mcp/server, label: "Export and Run the Server" }
+      - { slug: rapidoc/mcp-export, label: "From <rapi-doc>" }
+      - { label: "Example", href: /examples/mcp-server }
+  - label: "Pre-rendering"
+    icon: lightning
+    items:
+      - { slug: prerender, label: "Pre-rendering" }
+  - label: "Integrations"
+    icon: plug
+    items:
+      - { slug: integrations, label: "Overview" }
+      - { slug: integrations/front-end, label: "Front-End Frameworks" }
+      - label: "Server Frameworks"
+        items:
+          - { slug: integrations/node, label: "Hono, Express & Fastify" }
+          - { slug: integrations/python, label: "FastAPI & Starlette" }
+          - { slug: integrations/dotnet, label: "ASP.NET Core" }
+          - { slug: integrations/go, label: "Go" }
+      - { slug: integrations/docs-sites, label: "Documentation Sites" }
+      - { slug: integrations/build-your-own, label: "Build an Integration" }

@@ -21,7 +21,8 @@
  *
  * A run killed before it could clean up leaves its folder behind; the next run removes the folders
  * of processes that are no longer running (the pid is in the folder name).
- * Pages, components and Astro config come from this package (see astro-integration.js).
+ * Pages, components and Astro config come from this package (see astro-integration.js). The project's
+ * own pages (pages/*.astro, project-pages.js) are not copied: they are routes that point at the project.
  */
 
 import fs from "node:fs";
@@ -39,6 +40,8 @@ import {
 } from "./sync-assets.js";
 import { writeLlmsFiles } from "./llms.js";
 import { renderThemeCss } from "./theme-css.js";
+import { listProjectPages } from "./project-pages.js";
+import { writePageRecords } from "../search/indexer.js";
 
 export const WORKSPACE_DIRNAME = ".rapidoc-temp";
 
@@ -116,10 +119,14 @@ export function resolveDependencyRoot() {
 export function refreshDocs(workspace) {
   syncDocs(workspace.projectDocsDir, workspace.contentDir, {
     editUrl: workspace.config.docs.editUrl,
+    home: workspace.config.docs.home,
   });
   const docFiles = listDocFiles(workspace.projectDocsDir);
   try {
     writeSearchIndex(workspace.config, workspace.projectDir, docFiles, workspace.publicDir);
+    // The dev server's records of the project's own pages (dev-server.js), which a rewrite would drop
+    if (workspace.pageRecords?.length)
+      writePageRecords(path.join(workspace.publicDir, "search-index.json"), workspace.pageRecords);
   } catch (err) {
     console.warn(`[rapidoc-portal] Search index not built: ${err.message}`);
   }
@@ -147,6 +154,8 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
   const resolvedProjectDir = path.dirname(configPath);
   const parentDir = path.join(resolvedProjectDir, WORKSPACE_DIRNAME);
   removeStaleWorkspaces(parentDir);
+  // Before anything is written: a page on a reserved route stops the run.
+  const pages = listProjectPages(resolvedProjectDir, config);
   const root = path.join(parentDir, `${kind}-${process.pid}-${++runCounter}`);
 
   const workspace = {
@@ -155,6 +164,7 @@ export async function createPortalWorkspace(projectDir = process.cwd(), { kind =
     configPath,
     projectDir: resolvedProjectDir,
     projectDocsDir: config.docs.fullPath,
+    pages,
     contentDir: path.join(root, "src", "content", "docs"),
     docsContentDir: path.join(root, "src", "content", "docs", "docs"),
     publicDir: path.join(root, "public"),

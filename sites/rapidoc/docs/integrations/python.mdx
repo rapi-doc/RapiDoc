@@ -1,0 +1,22 @@
+---
+title: FastAPI & Starlette
+description: Serve a RapiDoc API reference from a FastAPI or Starlette app with the rapidoc package from PyPI.
+tableOfContents: false
+---
+
+```bash
+pip install rapidoc
+```
+
+```python
+from fastapi import FastAPI
+from rapidoc.fastapi import setup_rapidoc
+
+app = FastAPI(docs_url=None, redoc_url=None)
+
+setup_rapidoc(app, options={"render_style": "focused"})
+```
+
+The reference is at `/docs` and reads the app's own `/openapi.json`. `docs_url=None` turns off FastAPI's Swagger UI, which uses the same path; to keep both, pass `ui_path="/reference"`. For a plain Starlette app, import it from `rapidoc.starlette` and pass `spec_url`.
+
+The package, its options and the Starlette setup are described in its [README](https://github.com/rapi-doc/RapiDoc/tree/master/integrations/rapidoc-python#readme).

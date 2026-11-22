@@ -1,0 +1,63 @@
+---
+title: Running Workflows
+description: Run an Arazzo workflow from the page with <rapi-flow>, against the real API, the in-browser mock or a mock server, and which Arazzo features run.
+---
+
+## Running a workflow
+
+The run panel under the diagram has the workflow's inputs (filled with their defaults), the credentials fields when the element is standalone, and **Run workflow**. While it runs, the step whose request is in flight is highlighted; each finished step adds a row to the **Execution Log**: its number, step, method and URL, HTTP status and ✓ or ✗, and it opens to show the failed check, the request and the response. **Single line** keeps each row on one line with the URL shortened; **Multiline** lets rows wrap. The workflow's outputs appear as a table at the end.
+
+Runs call the API from the reader's browser, as **Try** does, so a real API must allow cross-origin requests from the docs site.
+
+## Running against a mock
+
+A workflow is easiest to show and test before the API exists, or without touching real data.
+
+### The in-browser mock
+
+Turn on [`mock-server`](https://rapidocui.com/docs/rapidoc/mocking/in-browser/) on the paired elements. Every request of the run to their APIs is answered in the page from the OpenAPI spec's examples and schemas; the Execution Log's heading reads "Execution Log (mocked responses)" when every response was mocked; when only some were (a source with no mocking element), those entries say "mocked response" when opened. The mock answers 200 unless told otherwise: for APIs that answer 201 or 204, set `mock-server-status-code=""` on the element, so each operation gets its first 2xx response and the workflow's `$statusCode == 201` checks pass.
+
+```html
+<rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" for="thedoc"></rapi-flow>
+<rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" mock-server="true"></rapi-doc>
+```
+
+The run panel then has a **Mock Response Status** table: the status codes the mock answers with during that run, one row per step and an **Every step** row for the others.
+
+- Empty: the element's own setting (`mock-server-status-code`: 200 by default, the operation's first 2xx response when it is empty).
+- One code in the **Every step** row, such as `404`: every request of the run gets it. In the sample `adoptPet` workflow, a 404 on the first step takes its `onFailure` branch and ends the run.
+- A code on one step, such as `503, 200` on `placeOrder`: that step's first attempt gets 503 and its retry gets 200, while the other steps succeed. With several codes, a step takes the next code on each attempt, in turn; `random:200, 500` picks one at random for each attempt instead.
+- A step's [`x-mock-server-status-code`](/docs/extensions/#mock-status-codes-x-mock-server-status-code) in the Arazzo spec fills its row, so a workflow can ship with the failure scenario it demonstrates.
+
+The table sets each paired element's mock for that run only, per operation of its API, and puts the previous setting back afterwards. Pages can fill it from a script through the `statusCodes` property: `flow.statusCodes = { "*": "200", placeOrder: "503, 200" }`. A key set there, even to `""`, wins over the step's extension.
+
+### A mock server
+
+To run against a mock that behaves more like the real API (request validation, generated data, OAuth scope checks), start [`rapidoc mock`](https://mock.rapidocui.com/docs/getting-started/quickstart/) and point the run at it:
+
+```html
+<rapi-flow arazzo-url="/specs/petstore.arazzo.yaml" spec-url="/specs/petstore.yaml"
+           server-url="http://localhost:4010/petstore" server-is-mock="true"></rapi-flow>
+```
+
+Or list the mock as a server in the OpenAPI spec and pick it in the paired element's server list. With OAuth, sign in through **Authorize** in `<rapi-doc>`, or paste a token into the standalone credentials field; the mock checks it like the real API would.
+
+With `server-is-mock="true"`, the same **Mock Response Status** table works here: each step's codes are sent as `Prefer: code=<status>`, which `rapidoc mock` honors. Without it, and with no paired element mocking, the table is not shown, since a real API ignores the header.
+
+## What runs
+
+| Arazzo feature | Runs |
+| :--- | :--- |
+| `inputs`, `outputs`, step `outputs` | Yes |
+| `$inputs`, `$steps.<id>.outputs`, `$response.body#/pointer`, `$response.header`, `$statusCode` | Yes |
+| `successCriteria` with simple conditions (`==`, `!=`, `<`, `>`, `&&`, `||`) | Yes |
+| `onSuccess` / `onFailure`: `end`, `goto`, `retry` with `retryAfter` and `retryLimit` | Yes |
+| `requestBody` with payload and replacements | Yes |
+| `regex`, `jsonpath` and `xpath` criteria | Not yet |
+| [`x-security`](/docs/extensions/#credentials-in-the-workflow-x-security) on a workflow or step: API key, HTTP Basic, bearer | Yes |
+| `x-security` with HTTP Digest | No |
+| `x-allowReserved` on a step's query parameter, and the OpenAPI parameter's `allowReserved` | Yes |
+| [`x-operation`](/docs/extensions/#calls-outside-the-api-sources-x-operation): a step that calls a URL outside the sources | Yes |
+| Steps that call another workflow, AsyncAPI sources | Not yet |
+
+A step without `successCriteria` succeeds on a 2xx status; the first matching action runs; a run stops after 1,000 steps. A workflow that uses something not supported yet is still drawn, with a note that explains why it can't run.

@@ -7,6 +7,7 @@
 import portalConfig from 'virtual:rapidoc-portal/config';
 import Icon from './Icon.astro';
 import { withBase } from './base-path.js';
+import { externalAttrs as external } from '../config/links.js';
 
 interface Props {
   portalConfig?: any;
@@ -23,8 +24,6 @@ const logo = site.logo;
 const columns = footer.columns || [{ title: site.title, links: tabs.map((tab: any) => ({ label: tab.label, href: tab.href })) }];
 const copyright = footer.copyright || `© ${new Date().getFullYear()} ${site.title}. All rights reserved.`;
 const social = footer.social || [];
-const isExternal = (href?: string) => /^[a-z][a-z0-9+.-]*:/i.test(href || '');
-const external = (href?: string) => (isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {});
 const cta = footer.cta;
 const newsletter = footer.newsletter;
 ---

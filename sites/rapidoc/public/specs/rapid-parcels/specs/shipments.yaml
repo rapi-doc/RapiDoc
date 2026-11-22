@@ -1,0 +1,464 @@
+openapi: 3.1.0
+info:
+  title: Shipments API
+  version: 2.3.0
+  summary: Create, list and cancel shipments.
+  description: |
+    Create shipments for your shop's orders, follow their status, and print labels.
+
+    **Authorization.** Every operation needs an access token for `https://api.rapidocui.com` with the permission it lists:
+    `shipments:read` to read, `shipments:write` to create or cancel. Sign in through OAuth (`oauth2`) or paste a token (`bearerAuth`);
+    either way the permission in the token decides, and a token without it gets `403`.
+
+    **Events.** Rapid Parcels sends `shipment.status_changed` and `shipment.delivered` to your webhook endpoint (see Webhooks).
+  contact:
+    name: Rapid Parcels Developer Support
+    email: developers@rapidparcels.example
+servers:
+  - url: https://mockdemo.rapidocui.com/shipments
+    description: Live mock server (the hosted demo's)
+  - url: http://localhost:4010/shipments
+    description: Local mock server (npm run mock)
+  - url: https://api.rapidparcels.example/v1
+    description: Production (documentation only)
+tags:
+  - name: Shipments
+    description: A shipment is one or more parcels from your warehouse to one address.
+  - name: Labels
+    description: Shipping labels to print and stick on the parcels.
+paths:
+  /shipments:
+    get:
+      operationId: listShipments
+      tags: [Shipments]
+      summary: List shipments
+      description: Newest first. Page through the results with `cursor`.
+      security:
+        - oauth2: ['shipments:read']
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/ShipmentStatus' }
+        - name: created_after
+          in: query
+          schema: { type: string, format: date-time }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: A page of shipments.
+          headers:
+            Link:
+              description: '`rel="next"` link to the next page, when there is one.'
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShipmentPage' }
+              example:
+                data:
+                  - id: shp_7Q2M9K
+                    status: in_transit
+                    reference: ORDER-10482
+                    service: express
+                    to:
+                      name: Jane Doe
+                      line1: 12 Rue de Rivoli
+                      postal_code: '75001'
+                      city: Paris
+                      country: FR
+                      email: jane.doe@rapidparcels.example
+                    parcels: [{ weight_kg: 2.5 }]
+                    tracking_number: RP123456789FR
+                    created_at: '2026-11-02T08:15:00Z'
+                next_cursor: eyJpZCI6InNocF83UTJNOUsifQ
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createShipment
+      tags: [Shipments]
+      summary: Create a shipment
+      description: Books the shipment and returns its tracking number. Send the same `Idempotency-Key` to retry safely.
+      security:
+        - oauth2: ['shipments:write']
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateShipment' }
+            example:
+              reference: ORDER-10482
+              service: express
+              quote_id: quo_01HZX4M8Q2
+              from:
+                name: Rapid Parcels Demo Shop
+                line1: Invalidenstraße 117
+                postal_code: '10115'
+                city: Berlin
+                country: DE
+              to:
+                name: Jane Doe
+                line1: 12 Rue de Rivoli
+                postal_code: '75001'
+                city: Paris
+                country: FR
+                email: jane.doe@rapidparcels.example
+              parcels:
+                - { weight_kg: 2.5, length_cm: 30, width_cm: 20, height_cm: 15 }
+      responses:
+        '201':
+          description: The shipment.
+          headers:
+            Location:
+              schema: { type: string }
+              example: /shipments/shp_7Q2M9K
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Shipment' }
+              example:
+                id: shp_7Q2M9K
+                status: booked
+                reference: ORDER-10482
+                service: express
+                to:
+                  name: Jane Doe
+                  line1: 12 Rue de Rivoli
+                  postal_code: '75001'
+                  city: Paris
+                  country: FR
+                parcels: [{ weight_kg: 2.5, length_cm: 30, width_cm: 20, height_cm: 15 }]
+                tracking_number: RP123456789FR
+                price: { amount: '14.50', currency: EUR }
+                created_at: '2026-11-02T08:15:00Z'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: The `Idempotency-Key` was used for a different request.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+              example:
+                type: https://developers.rapidparcels.example/problems/idempotency-conflict
+                title: Idempotency key reused
+                status: 409
+        '422':
+          description: The address can't be served, or the quote has expired.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+              example:
+                type: https://developers.rapidparcels.example/problems/quote-expired
+                title: Quote expired
+                status: 422
+                detail: Quote quo_01HZX4M8Q2 expired at 2026-11-02T08:00:00Z.
+  /shipments/{shipmentId}:
+    get:
+      operationId: getShipment
+      tags: [Shipments]
+      summary: Get a shipment
+      security:
+        - oauth2: ['shipments:read']
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      responses:
+        '200':
+          description: The shipment.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Shipment' }
+              example:
+                id: shp_7Q2M9K
+                status: out_for_delivery
+                reference: ORDER-10482
+                service: express
+                to:
+                  name: Jane Doe
+                  line1: 12 Rue de Rivoli
+                  postal_code: '75001'
+                  city: Paris
+                  country: FR
+                parcels: [{ weight_kg: 2.5 }]
+                tracking_number: RP123456789FR
+                price: { amount: '14.50', currency: EUR }
+                created_at: '2026-11-02T08:15:00Z'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /shipments/{shipmentId}/cancel:
+    post:
+      operationId: cancelShipment
+      tags: [Shipments]
+      summary: Cancel a shipment
+      description: Only before pickup. A cancelled shipment is not charged.
+      security:
+        - oauth2: ['shipments:write']
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string, maxLength: 200 }
+            example: { reason: Customer cancelled the order }
+      responses:
+        '200':
+          description: The cancelled shipment.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Shipment' }
+              example:
+                id: shp_7Q2M9K
+                status: cancelled
+                reference: ORDER-10482
+                service: express
+                to: { name: Jane Doe, line1: 12 Rue de Rivoli, postal_code: '75001', city: Paris, country: FR }
+                parcels: [{ weight_kg: 2.5 }]
+                created_at: '2026-11-02T08:15:00Z'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: Already picked up; it can't be cancelled.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+              example:
+                type: https://developers.rapidparcels.example/problems/already-picked-up
+                title: Already picked up
+                status: 409
+  /shipments/{shipmentId}/label:
+    get:
+      operationId: getShipmentLabel
+      tags: [Labels]
+      summary: Download the shipping label
+      security:
+        - oauth2: ['shipments:read']
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ShipmentId'
+        - name: format
+          in: query
+          schema: { type: string, enum: [pdf, png, zpl], default: pdf }
+      responses:
+        '200':
+          description: The label, in the requested format.
+          content:
+            application/pdf:
+              schema: { type: string, contentMediaType: application/pdf }
+            image/png:
+              schema: { type: string, contentMediaType: image/png }
+            text/plain:
+              schema: { type: string, description: ZPL for thermal printers. }
+              example: "^XA^FO50,50^ADN,36,20^FDRP123456789FR^FS^XZ"
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+webhooks:
+  shipment.status_changed:
+    post:
+      operationId: onShipmentStatusChanged
+      summary: Shipment status changed
+      description: Sent to your webhook endpoint whenever a shipment moves to a new status. Answer `2xx` within 10 seconds.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ShipmentEvent' }
+            example:
+              id: evt_3NB82Q
+              type: shipment.status_changed
+              created_at: '2026-11-03T06:40:00Z'
+              data: { shipment_id: shp_7Q2M9K, previous_status: in_transit, status: out_for_delivery }
+      responses:
+        '200': { description: Received. }
+  shipment.delivered:
+    post:
+      operationId: onShipmentDelivered
+      summary: Shipment delivered
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ShipmentEvent' }
+            example:
+              id: evt_3NB82R
+              type: shipment.delivered
+              created_at: '2026-11-03T11:05:00Z'
+              data: { shipment_id: shp_7Q2M9K, previous_status: out_for_delivery, status: delivered }
+      responses:
+        '200': { description: Received. }
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: Sign in with your Rapid Parcels account (Auth0). Tokens are issued for `https://api.rapidocui.com`.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://rapidocui.us.auth0.com/authorize
+          tokenUrl: https://rapidocui.us.auth0.com/oauth/token
+          scopes:
+            shipments:read: Read shipments
+            shipments:write: Create and cancel shipments
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Paste an access token for `https://api.rapidocui.com`. It needs the same permission as the OAuth scope listed on the operation.
+  parameters:
+    ShipmentId:
+      name: shipmentId
+      in: path
+      required: true
+      schema: { type: string, pattern: '^shp_[A-Z0-9]{6,}$' }
+      example: shp_7Q2M9K
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    Cursor:
+      name: cursor
+      in: query
+      description: '`next_cursor` from the previous page.'
+      schema: { type: string }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: A unique key per shipment you create, e.g. a UUID. Retries with the same key return the first result.
+      schema: { type: string, maxLength: 64 }
+      example: 6f0f1e3a-63b1-4d1b-9a43-2bde6c1a3f10
+  schemas:
+    ShipmentStatus:
+      type: string
+      enum: [booked, picked_up, in_transit, out_for_delivery, delivered, returned, cancelled]
+    Address:
+      type: object
+      required: [name, line1, postal_code, city, country]
+      properties:
+        name: { type: string }
+        company: { type: string }
+        line1: { type: string }
+        line2: { type: string }
+        postal_code: { type: string }
+        city: { type: string }
+        country: { type: string, pattern: '^[A-Z]{2}$' }
+        email: { type: string, format: email }
+        phone: { type: string }
+    Parcel:
+      type: object
+      required: [weight_kg]
+      properties:
+        weight_kg: { type: number, minimum: 0.01, maximum: 70 }
+        length_cm: { type: number }
+        width_cm: { type: number }
+        height_cm: { type: number }
+    Money:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount: { type: string, pattern: '^-?\d+\.\d{2}$' }
+        currency: { type: string, pattern: '^[A-Z]{3}$' }
+    CreateShipment:
+      type: object
+      required: [service, from, to, parcels]
+      properties:
+        reference: { type: string, description: Your order number. }
+        service: { type: string, enum: [economy, express, freight] }
+        quote_id: { type: string, description: A quote from the Rates API, to lock its price. }
+        from: { $ref: '#/components/schemas/Address' }
+        to: { $ref: '#/components/schemas/Address' }
+        parcels:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/Parcel' }
+    Shipment:
+      type: object
+      required: [id, status, service, to, parcels, created_at]
+      properties:
+        id: { type: string }
+        status: { $ref: '#/components/schemas/ShipmentStatus' }
+        reference: { type: string }
+        service: { type: string, enum: [economy, express, freight] }
+        to: { $ref: '#/components/schemas/Address' }
+        parcels:
+          type: array
+          items: { $ref: '#/components/schemas/Parcel' }
+        tracking_number: { type: [string, 'null'] }
+        price: { $ref: '#/components/schemas/Money' }
+        created_at: { type: string, format: date-time }
+    ShipmentPage:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Shipment' }
+        next_cursor: { type: [string, 'null'] }
+    ShipmentEvent:
+      type: object
+      required: [id, type, created_at, data]
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [shipment.status_changed, shipment.delivered] }
+        created_at: { type: string, format: date-time }
+        data:
+          type: object
+          properties:
+            shipment_id: { type: string }
+            previous_status: { $ref: '#/components/schemas/ShipmentStatus' }
+            status: { $ref: '#/components/schemas/ShipmentStatus' }
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+  responses:
+    BadRequest:
+      description: The request is invalid.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://developers.rapidparcels.example/problems/invalid-request
+            title: Invalid request
+            status: 400
+            detail: to.country must be a two-letter ISO code.
+    Unauthorized:
+      description: No access token, or it is invalid or expired.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://developers.rapidparcels.example/problems/unauthorized
+            title: Unauthorized
+            status: 401
+    Forbidden:
+      description: The token lacks the permission this operation needs.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://developers.rapidparcels.example/problems/forbidden
+            title: Missing permission
+            status: 403
+            detail: This operation needs shipments:write.
+    NotFound:
+      description: No shipment with that id.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://developers.rapidparcels.example/problems/not-found
+            title: Not found
+            status: 404

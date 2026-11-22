@@ -1,5 +1,5 @@
 /**
- * The spec check page (`/spec-check/` of the Rapi Mock site): takes a spec as text, runs `checkSpec` on it, and
+ * The spec check page (`/spec-check/` of the RapiMock site): takes a spec as text, runs `checkSpec` on it, and
  * shows the result in the Mock UI (`<rapidoc-mock-ui>`, the same file the mock server serves, here with the
  * in-page mock as its `source`, which also answers with the lint result: the UI's Lint section and the Lint card
  * of its Dashboard). The spec is kept in this browser's storage, so

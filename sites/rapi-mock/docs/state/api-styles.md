@@ -1,9 +1,9 @@
 ---
 title: API styles
-description: Which kinds of API Rapi Mock keeps state for with no configuration, and which need a few lines.
+description: Which kinds of API RapiMock keeps state for with no configuration, and which need a few lines.
 ---
 
-Rapi Mock reads the data model off your spec. How much it finds depends on how the API is written. This page says plainly where it works and where it needs help.
+RapiMock reads the data model off your spec. How much it finds depends on how the API is written. This page says plainly where it works and where it needs help.
 
 ## Works with no configuration
 

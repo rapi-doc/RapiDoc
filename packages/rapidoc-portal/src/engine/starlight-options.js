@@ -78,7 +78,8 @@ export function createStarlightOptions(portalConfig) {
     expressiveCode: {
       themes: ["github-dark", "github-light"],
       // Same corners and border as the callouts. Shell code too gets the code frame, so a header (lightly
-      // tinted) shows only for a block with a title, never as an empty terminal title bar.
+      // tinted) shows only for a block with a title, never as an empty terminal title bar. A block asks for
+      // the terminal window with `frame="terminal"` (its dots are colored in styles/portal-theme.css).
       defaultProps: { frame: "code" },
       // Shiki has no Markdoc grammar; Markdown highlighting fits ```markdoc examples best.
       shiki: { langAlias: { markdoc: "md", mdoc: "md" } },
@@ -95,7 +96,7 @@ export function createStarlightOptions(portalConfig) {
           editorActiveTabIndicatorBottomColor: "transparent",
           terminalTitlebarBackground: "color-mix(in oklab, var(--portal-fg) 5%, var(--portal-bg))",
           terminalTitlebarBorderBottomColor: "var(--portal-border)",
-          terminalTitlebarDotsOpacity: "0",
+          terminalTitlebarDotsOpacity: "1",
         },
       },
     },

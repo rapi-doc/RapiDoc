@@ -1,0 +1,161 @@
+---
+/**
+ * One group of the header's links and dropdown menus (`header.links`): the links with `position: start`
+ * after the logo, the others right of the search. PortalHeader renders it once for each; its styles and
+ * the menus' script are there. A dropdown is a list of plain links (`items` with no icon or description),
+ * a grid of cards (`items`; `columns` sets how many across, default 2), cards with shortcut links under
+ * them (items that have `items`), or columns with headings (`groups`), with an optional link under it
+ * (`footer`).
+ */
+import Icon from './Icon.astro';
+import PortalMenuCard from './PortalMenuCard.astro';
+import { withBase } from './base-path.js';
+import { isExternal } from '../config/links.js';
+
+interface Props {
+  /** The links of this group, in order */
+  links: any[];
+  /** Every header link: a menu's id is its link's place in this list, so ids stay unique across groups */
+  allLinks: any[];
+  position: 'start' | 'end';
+  currentPath: string;
+}
+
+const { links, allLinks, position, currentPath } = Astro.props;
+const label = position === 'start' ? 'Main' : allLinks.some((link) => link.position === 'start') ? 'More' : 'Main';
+const badgeText = (badge: any) => (typeof badge === 'string' ? badge : badge.text);
+
+// The link of the section the page is in: the one whose address the page's address starts with. When
+// several do (/docs and /docs/quickstart on the quickstart page), the longest, so one link is marked.
+const pathOf = (href: string) => href.replace(/[?#].*$/, '').replace(/\/+$/, '');
+const coversPage = (link: any) => {
+  if (!link.href || isExternal(link.href) || link.href === '/') return false;
+  const path = pathOf(link.href);
+  return pathOf(currentPath) === path || currentPath.startsWith(`${path}/`);
+};
+const activeLink = allLinks.filter(coversPage).sort((a, b) => pathOf(b.href).length - pathOf(a.href).length)[0];
+---
+
+<nav class:list={['portal-nav-menu', `portal-nav-menu-${position}`]} aria-label={label}>
+  {
+    links.map((link) => {
+      const linkIndex = allLinks.indexOf(link);
+      const hasSubmenu = Array.isArray(link.items) && link.items.length > 0;
+      const anyHasFeatures = hasSubmenu && link.items.some((it) => it.items?.length > 0);
+      // Plain links only: a simple list. Otherwise cards, in `columns` columns (default 2).
+      const isSimple = hasSubmenu && !link.groups && link.items.every((it) => !it.icon && !it.description && !it.items?.length);
+      const columns = hasSubmenu && !link.groups && !anyHasFeatures ? (link.columns ?? (isSimple ? 1 : 2)) : undefined;
+
+      if (hasSubmenu) {
+        return (
+          <div class="portal-dropdown-wrapper">
+            <button type="button" class="portal-nav-button portal-dropdown-trigger" aria-expanded="false" aria-controls={`portal-menu-${linkIndex}`}>
+              <span>{link.label}</span>
+              {link.badge && <span class="portal-nav-badge">{badgeText(link.badge)}</span>}
+              <Icon name="caret-down" size={16} class="portal-chevron" />
+            </button>
+
+            <div
+              class:list={['portal-megamenu-panel', { 'portal-menu-simple': isSimple }]}
+              id={`portal-menu-${linkIndex}`}
+              style={columns ? `--portal-menu-columns: ${columns}` : undefined}
+            >
+              {link.groups ? (
+                /* Columns: a heading, then its items; an item without icon or description is one line */
+                <div class="portal-megamenu-groups">
+                  {link.groups.map((group, groupIndex) => (
+                    <section class="portal-megamenu-group" aria-labelledby={`portal-menu-${linkIndex}-group-${groupIndex}`}>
+                      <h2 class="portal-megamenu-group-title" id={`portal-menu-${linkIndex}-group-${groupIndex}`}>{group.label}</h2>
+                      <ul class="portal-megamenu-group-list">
+                        {group.items.map((item) => (
+                          <li>
+                            <PortalMenuCard item={item} class="portal-megamenu-card" grouped />
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+              ) : anyHasFeatures ? (
+                /* Cypress.io Sectioned Mode: Hero card + 2-column feature links below it */
+                <div class="portal-megamenu-sections">
+                  {link.items.map((item, idx) => {
+                    const hasFeats = item.items?.length > 0;
+                    return (
+                      <div class:list={['portal-megamenu-section', { 'with-divider': idx < link.items.length - 1 }]}>
+                        <PortalMenuCard item={item} class="portal-megamenu-hero-card" />
+
+                        {hasFeats && (
+                          <div class="portal-features-grid">
+                            {item.items.map((feat) => (
+                              <a href={withBase(feat.href)} class="portal-feature-item">
+                                <Icon name={feat.icon || 'check-circle'} size={16} class="portal-feature-icon" />
+                                <span class="portal-feature-label">{feat.label}</span>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                isSimple ? (
+                  /* Plain links (no item has an icon or a description): a list, one column unless `columns` says more */
+                  <ul class="portal-menu-list">
+                    {link.items.map((item) => (
+                      <li>
+                        <a
+                          href={withBase(item.href)}
+                          class="portal-menu-link"
+                          target={isExternal(item.href) ? '_blank' : undefined}
+                          rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
+                        >
+                          <span>{item.label}</span>
+                          {item.badge && <span class="portal-card-badge">{badgeText(item.badge)}</span>}
+                          {isExternal(item.href) && <Icon name="arrow-up-right" size={16} class="portal-card-external" />}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                /* Cards side by side: two columns unless `columns` says otherwise */
+                <div class="portal-megamenu-grid">
+                  {link.items.map((item) => (
+                    <PortalMenuCard item={item} class="portal-megamenu-card" />
+                  ))}
+                </div>
+                )
+              )}
+              {link.footer && (
+                <div class="portal-megamenu-footer">
+                  <a href={withBase(link.footer.href)} class="portal-megamenu-footer-link">
+                    {link.footer.icon && <Icon name={link.footer.icon} size={16} />}
+                    <span>{link.footer.label}</span>
+                    <Icon name="arrow-right" size={16} />
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      const external = isExternal(link.href);
+      const isActive = link === activeLink;
+      return (
+        <a
+          href={withBase(link.href)}
+          class:list={['portal-nav-link', link.style && link.style !== 'link' && `portal-nav-${link.style}`, { active: isActive }]}
+          aria-current={isActive ? 'page' : undefined}
+          target={external ? '_blank' : undefined}
+          rel={external ? 'noopener noreferrer' : undefined}
+        >
+          {link.icon && <Icon name={link.icon} size={16} class="portal-nav-link-icon" />}
+          {link.label}
+          {link.badge && <span class="portal-nav-badge">{badgeText(link.badge)}</span>}
+        </a>
+      );
+    })
+  }
+</nav>

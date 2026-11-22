@@ -23,8 +23,10 @@ And, when you need them:
 - **A mock server** that answers from your specs' examples and checks OAuth tokens and scopes, so you can use Try before your API is deployed ([Mock server](/docs/tools/mock-server/)).
 - **MCP tools for AI agents** (Model Context Protocol): your APIs and workflows as tools, exported or hosted at `/mcp` under the same access rules ([MCP server](/docs/tools/mcp-server/)).
 - **`llms.txt`**, an index of the site for AI assistants, and **Markdown copies** of every page ([LLM output](/docs/configuration/llms/)).
-- **Spec checks in CI**: [validate](/docs/tools/validate/), [lint](/docs/tools/lint/) and [bundle](/docs/tools/bundle/) your OpenAPI files.
+- **Spec checks in CI**: [validate](/docs/tools/spec-checks/#validate), [lint](/docs/tools/spec-checks/#lint) and [bundle](/docs/tools/spec-checks/#bundle) your OpenAPI files.
 - **Migration** from Zudoku or Redocly with one command ([Migrate](/docs/tools/migrate/)).
+
+**See it live:** [demo.rapidocui.com](https://demo.rapidocui.com/) has three example portals. [Bookstore](https://demo.rapidocui.com/bookstore/) is what `npm create rapidoc` makes, in the portal's default look; Cosmo Cargo is a larger portal; [Rapid Parcels](https://parcels.rapidocui.com/) has sign-in, access rules and a mock API that checks tokens. This site itself wears the RapiDoc sites' own colors.
 
 The output is plain HTML, CSS and JavaScript. Host it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, S3 or any web server ([Static hosting](/docs/deploy/static-hosting/)).
 

@@ -1,9 +1,9 @@
 ---
 title: Introduction
-description: What Rapi Mock is, what it is for, and how it differs from the in-browser mock.
+description: What RapiMock is, what it is for, and how it differs from the in-browser mock.
 ---
 
-Rapi Mock is a mock server for the APIs you describe with OpenAPI. Give it a spec and it answers every operation over HTTP, so a frontend, a test suite or another service can call your API before it exists.
+RapiMock is a mock server for the APIs you describe with OpenAPI. Give it a spec and it answers every operation over HTTP, so a frontend, a test suite or another service can call your API before it exists.
 
 It is the `rapidoc mock` command of the RapiDoc CLI, backed by the `@rapidoc/mock` package.
 

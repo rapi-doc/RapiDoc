@@ -80,9 +80,9 @@ Official packages that add a RapiDoc reference to your app or docs site. Each on
 | [VitePress](packages/rapidoc-vitepress) | `npm i @rapidoc/vitepress` |
 | [Docusaurus](packages/rapidoc-docusaurus) | `npm i @rapidoc/docusaurus` |
 
-React, Next.js, Vue, Nuxt, Angular and Svelte need no package: `<rapi-doc>` is a standard custom element. Setup for all of the above is in the [framework integration guide](https://rapidocui.com/docs/get-started/frameworks/).
+React, Next.js, Vue, Nuxt, Angular and Svelte need no package: `<rapi-doc>` is a standard custom element. Setup for all of the above is in the [framework integration guide](https://rapidocui.com/docs/integrations/front-end/).
 
-Building one for another framework or language? Start from [`@rapidoc/embed`](packages/rapidoc-embed) and the [integration guide](https://rapidocui.com/docs/get-started/build-an-integration/): it defines the options, routes and HTML every integration shares, with fixtures to test a port against.
+Building one for another framework or language? Start from [`@rapidoc/embed`](packages/rapidoc-embed) and the [integration guide](https://rapidocui.com/docs/integrations/build-your-own/): it defines the options, routes and HTML every integration shares, with fixtures to test a port against.
 
 ---
 

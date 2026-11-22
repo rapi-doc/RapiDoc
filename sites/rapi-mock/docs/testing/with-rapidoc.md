@@ -1,11 +1,11 @@
 ---
 title: With RapiDoc, RapiFlow and MCP
-description: Point Try in <rapi-doc>, Arazzo workflows and an MCP server at Rapi Mock.
+description: Point Try in <rapi-doc>, Arazzo workflows and an MCP server at RapiMock.
 ---
 
 ## Try, in `<rapi-doc>`
 
-List the mock first in the spec's `servers`, so **Try** sends requests to it:
+List the mock first in the OpenAPI spec's `servers`, so **Try** sends requests to it:
 
 ```yaml
 servers:

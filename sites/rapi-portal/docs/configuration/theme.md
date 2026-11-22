@@ -67,7 +67,7 @@ Other selectors work too, but the portal's markup can change between releases.
 
 The API reference pages follow the portal theme: the same accent color, and light or dark with the rest of the page.
 
-To give them one of RapiDoc's [built-in themes](https://rapidocui.com/docs/theming/prebuilt-themes/) instead, with its own accent, surfaces and headings, name it under `rapidoc:`:
+To give them one of RapiDoc's [built-in themes](https://rapidocui.com/docs/rapidoc/theming/prebuilt-themes/) instead, with its own accent, surfaces and headings, name it under `rapidoc:`:
 
 ```yaml title="rapidoc.config.yaml"
 rapidoc:

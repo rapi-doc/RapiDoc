@@ -2,7 +2,7 @@
 
 The shared core of RapiDoc integrations: plugins and middleware that add a [`<rapi-doc>`](https://rapidocui.com) API reference to a web framework, a documentation site or another tool. It renders the standard host page, lists the routes to serve and finds the files of the installed `rapidoc` build, so every integration takes the same options and sends the same HTML.
 
-If you only want `<rapi-doc>` on a page, you don't need this package: see the [Quickstart](https://rapidocui.com/docs/get-started/quickstart/).
+If you only want `<rapi-doc>` on a page, you don't need this package: see the [Quickstart](https://rapidocui.com/docs/rapidoc/get-started/quickstart/).
 
 ```bash
 npm install @rapidoc/embed

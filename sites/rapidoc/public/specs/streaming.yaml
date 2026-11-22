@@ -1,0 +1,223 @@
+openapi: 3.2.0
+info:
+  title: Streaming API (OpenAPI 3.2)
+  version: 1.0.0
+  description: |-
+    Shows the OpenAPI 3.2 features RapiDoc renders beyond tag nesting and the new methods:
+
+    - **Streams** (`itemSchema`): Server-Sent Events from `POST /chat/completions` and JSON Lines from
+      `GET /events/export`; the schema tab describes one item, and **Try** shows the stream as it arrives.
+      `POST /events/import` takes a JSON Lines request body.
+    - A **response `summary`**, a **server `name`**, a **deprecated security scheme** and XML
+      **`nodeType`**.
+
+    No server answers these paths: turn on the mock to try them.
+servers:
+  - url: https://api.example.com/v1
+    name: production
+    description: The live API
+  - url: https://sandbox.example.com/v1
+    name: sandbox
+    description: Test data, reset nightly
+tags:
+  - name: chat
+    summary: Chat
+    description: Completions streamed as Server-Sent Events
+  - name: events
+    summary: Events
+    description: Bulk import and export as JSON Lines
+  - name: reports
+    summary: Reports
+    description: XML output
+security:
+  - bearerAuth: []
+  - legacyKey: []
+paths:
+  /chat/completions:
+    post:
+      tags: [chat]
+      operationId: createChatCompletion
+      summary: Stream a chat completion
+      description: Returns the reply token by token as Server-Sent Events, ending with a `done` event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messages]
+              properties:
+                model:
+                  type: string
+                  examples: [rapid-1]
+                messages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        enum: [system, user, assistant]
+                      content:
+                        type: string
+                  examples:
+                    - - role: user
+                        content: Say hello
+      responses:
+        "200":
+          summary: A stream of completion events
+          description: One `delta` event per token, then a `done` event.
+          content:
+            text/event-stream:
+              itemSchema:
+                type: object
+                required: [data]
+                properties:
+                  event:
+                    type: string
+                    enum: [delta, done]
+                    description: The event type
+                  id:
+                    type: string
+                    description: Event id, for resuming with `Last-Event-ID`
+                  data:
+                    type: string
+                    description: The event's payload, a JSON object
+                    contentMediaType: application/json
+                    contentSchema:
+                      $ref: "#/components/schemas/CompletionDelta"
+              examples:
+                hello:
+                  summary: A two-token reply
+                  dataValue:
+                    - event: delta
+                      id: "1"
+                      data: '{"index":0,"content":"Hel"}'
+                    - event: delta
+                      id: "2"
+                      data: '{"index":1,"content":"lo!"}'
+                    - event: done
+                      id: "3"
+                      data: '{"finish_reason":"stop"}'
+        "429":
+          summary: Rate limited
+          description: Too many requests; retry after the time in `Retry-After`.
+  /events/export:
+    get:
+      tags: [events]
+      operationId: exportEvents
+      summary: Export events as JSON Lines
+      parameters:
+        - name: since
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          summary: One event per line
+          description: Events in the order they happened, one JSON object per line.
+          content:
+            application/jsonl:
+              itemSchema:
+                $ref: "#/components/schemas/Event"
+  /events/import:
+    post:
+      tags: [events]
+      operationId: importEvents
+      summary: Import events from JSON Lines
+      requestBody:
+        required: true
+        content:
+          application/jsonl:
+            itemSchema:
+              $ref: "#/components/schemas/Event"
+            examples:
+              two:
+                summary: Two events
+                dataValue:
+                  - id: evt_1
+                    type: signup
+                    at: "2026-11-17T09:00:00Z"
+                  - id: evt_2
+                    type: purchase
+                    at: "2026-11-17T09:05:00Z"
+      responses:
+        "202":
+          summary: Accepted
+          description: The events are queued for import.
+  /reports/daily:
+    get:
+      tags: [reports]
+      operationId: getDailyReport
+      summary: Daily report as XML
+      responses:
+        "200":
+          summary: The report
+          description: Totals for the day, with the event types in a wrapper element.
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/Report"
+components:
+  schemas:
+    CompletionDelta:
+      type: object
+      properties:
+        index:
+          type: integer
+          examples: [0]
+        content:
+          type: string
+          examples: [Hel]
+        finish_reason:
+          type: string
+          enum: [stop, length]
+    Event:
+      type: object
+      required: [id, type, at]
+      properties:
+        id:
+          type: string
+          examples: [evt_1]
+        type:
+          type: string
+          examples: [signup]
+        at:
+          type: string
+          format: date-time
+          examples: ["2026-11-17T09:00:00Z"]
+    Report:
+      type: object
+      xml:
+        name: report
+      properties:
+        date:
+          type: string
+          format: date
+          examples: ["2026-11-17"]
+        total:
+          type: integer
+          examples: [42]
+        types:
+          type: array
+          # OpenAPI 3.2: a wrapper element around the items (was wrapped: true)
+          xml:
+            name: types
+            nodeType: element
+          items:
+            type: string
+            examples: [signup]
+            xml:
+              name: type
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: A token from the dashboard.
+    legacyKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: The old API key. Use a bearer token instead.
+      deprecated: true

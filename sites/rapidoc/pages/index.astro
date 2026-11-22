@@ -1,0 +1,178 @@
+---
+// The home page: the RapiDoc family. Each product has its own feature page (RapiDoc's is /rapidoc/); this page
+// says what each one is for and leads there. The products and tools come from page-data/products.ts.
+import GlobalLayout from '../layouts/GlobalLayout.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import ProductFamily from '../components/ProductFamily.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import Icon from '../components/Icon.astro';
+import { RAPIDOC_SNIPPET } from '../page-data/snippets';
+
+// "Which one do I need?": a job, and the product that does it
+const jobs = [
+  {
+    icon: 'book-open',
+    job: 'An API reference on your site',
+    product: 'RapiDoc',
+    href: '/rapidoc/',
+    text: 'One HTML element: navigation, search, schemas and a Try console, in any page or framework.',
+  },
+  {
+    icon: 'puzzle-piece',
+    job: 'An endpoint inside a blog post or guide',
+    product: 'RapiDoc Mini',
+    href: '/rapidoc-mini/',
+    text: 'Only the operations you pick, with Try, in the middle of your own text.',
+  },
+  {
+    icon: 'path',
+    job: 'A multi-step workflow readers can run',
+    product: 'RapiFlow',
+    href: '/rapi-flow/',
+    text: 'Arazzo workflows drawn next to the reference, and run in the browser against the API or a mock.',
+  },
+  {
+    icon: 'file-pdf',
+    job: 'The reference as a PDF',
+    product: 'RapiPdf',
+    href: '/rapipdf/',
+    text: 'The same document from the browser, from Node or from CI.',
+  },
+  {
+    icon: 'hard-drives',
+    job: 'A mock API your frontend and tests can call',
+    product: 'RapiMock',
+    href: '/rapi-mock/',
+    text: 'Request validation, token checks and state, worked out from the spec. No code to write.',
+  },
+  {
+    icon: 'layout',
+    job: 'A whole developer portal',
+    product: 'RapiDoc Portal',
+    href: '/portal/',
+    text: 'API references next to Markdown guides, with search and optional single sign-on.',
+  },
+];
+
+const startCode = RAPIDOC_SNIPPET;
+---
+
+<GlobalLayout
+  title="RapiDoc: API Documentation Tools for OpenAPI"
+  description="The RapiDoc family turns an OpenAPI spec into an interactive API reference, embedded endpoints, a PDF, a mock server and a developer portal, and draws and runs the workflows of an Arazzo spec."
+  keywords="RapiDoc, OpenAPI, Swagger, API documentation, API reference, web component, mock server, developer portal, Arazzo, OpenAPI PDF"
+>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="ambient-glow glow-indigo"></div>
+
+  <PortalHeader />
+
+  <main class="rd-product-main">
+    <header class="rd-hero-header">
+      <div class="rd-badge-pill">
+        <span class="rd-badge-pulse"></span>
+        <span class="rd-badge-text">OpenAPI 3.2, 3.1, 3.0 • Swagger 2.0 • Arazzo</span>
+      </div>
+
+      <h1 class="rd-page-title">
+        Your Specs, <span class="text-gradient">Everywhere They're Read</span>
+      </h1>
+
+      <p class="rd-page-subtitle">
+        RapiDoc turns your OpenAPI spec into an interactive API reference, embedded endpoints, a PDF, a mock
+        server and a whole developer portal, and draws and runs the workflows of an Arazzo spec. Open source, MIT
+        licensed.
+      </p>
+
+      <div class="rd-hero-actions">
+        <a href="/rapidoc/" class="rd-btn rd-btn-primary">
+          <Icon name="file-code" size={18} />
+          <span>Start with RapiDoc</span>
+        </a>
+        <a href="/docs/" class="rd-btn rd-btn-secondary">
+          <Icon name="book-open" size={18} />
+          <span>Documentation</span>
+        </a>
+        <a href="https://github.com/rapi-doc/RapiDoc" class="rd-btn rd-btn-secondary" target="_blank" rel="noopener">
+          <span>GitHub</span>
+          <Icon name="arrow-up-right" size={16} />
+        </a>
+      </div>
+    </header>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Which One?</div>
+        <h2 class="rd-section-title">Start From What You Need</h2>
+        <p class="rd-section-desc">
+          Most sites need only RapiDoc. The others do one job each, from the same OpenAPI spec; RapiFlow adds an Arazzo spec for the workflows.
+        </p>
+      </div>
+      <div class="rd-feature-grid">
+        {
+          jobs.map((item) => (
+            <a href={item.href} class="rd-feature-card">
+              <span class="rd-feature-icon">
+                <Icon name={item.icon} size={24} weight="duotone" />
+              </span>
+              <h3 class="rd-feature-title">{item.job}</h3>
+              <p class="rd-feature-text">{item.text}</p>
+              <span class="rd-feature-more">
+                {item.product}
+                <Icon name="arrow-right" size={14} />
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <ProductFamily />
+
+    <section class="rd-section">
+      <div class="rd-split">
+        <div class="rd-split-text">
+          <div class="rd-section-badge">Start in a Minute</div>
+          <h2 class="rd-section-title">One Script Tag, One Element</h2>
+          <p>
+            <code>&lt;rapi-doc&gt;</code> has no runtime dependencies and needs no build step: load the script and point
+            the element at your spec. It works the same in React, Vue, Angular, Svelte or a plain HTML page.
+          </p>
+          <div class="rd-hero-actions rd-home-start-actions">
+            <a href="/docs/rapidoc/get-started/quickstart/" class="rd-btn rd-btn-primary">
+              <span>Quickstart</span>
+              <Icon name="arrow-right" size={15} />
+            </a>
+            <a href="/examples" class="rd-btn rd-btn-secondary">
+              <span>Examples</span>
+            </a>
+          </div>
+        </div>
+        <CodeBlock code={startCode} lang="html" filename="index.html" />
+      </div>
+    </section>
+
+    <section class="rd-next-steps">
+      <h2 class="rd-section-title">Not Sure Which Package?</h2>
+      <p class="rd-section-desc">
+        Every package in the family, what it is for, and which ones a site like yours needs.
+      </p>
+      <div class="rd-hero-actions">
+        <a href="/docs/#which-package-do-i-need" class="rd-btn rd-btn-primary rd-btn-lg">
+          <span>Which package do I need?</span>
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</GlobalLayout>
+
+<style>
+  .rd-home-start-actions {
+    justify-content: flex-start;
+    margin-top: 20px;
+  }
+</style>

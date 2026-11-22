@@ -3,6 +3,7 @@ title: CLI
 description: Every rapidoc command and option.
 sidebar:
   order: 1
+tableOfContents: false
 ---
 
 ```bash
@@ -19,9 +20,9 @@ The command comes from the npm package `@rapidoc/cli`. In a project that has it 
 | `serve [dist]` | Serves a built portal, with sign-in and access rules. Default folder `dist`. |
 | `preview <spec>` | Shows one spec (a file or URL) in `<rapi-doc>` on `http://localhost:4000`, reloading when a file in its folder changes. No portal needed. |
 | `mock [dir \| spec...]` | Mock server for a portal's APIs, a folder of specs, or spec files (paths or URLs), each under `/<api id>`. |
-| `validate [spec \| dir]` | Validates one spec (a file or URL), or every spec and workflow file in a portal ([Validate](/docs/tools/validate/), [every option](https://rapidocui.com/docs/cli/validate/)). |
-| `lint [spec \| dir]` | Checks what a spec needs to make a good portal: operationIds, summaries, examples, security, declared tags ([Lint](/docs/tools/lint/), [every option](https://rapidocui.com/docs/cli/lint/)). |
-| `bundle <spec>` | Writes a spec split over several files as one: other-file `$ref`s become components ([Bundle](/docs/tools/bundle/), [every option](https://rapidocui.com/docs/cli/bundle/)). |
+| `validate [spec \| dir]` | Validates one OpenAPI spec (a file or URL), or every OpenAPI spec and Arazzo spec in a portal ([Validate](/docs/tools/spec-checks/#validate), [every option](https://rapidocui.com/docs/cli/validate/)). |
+| `lint [spec \| dir]` | Checks what a spec needs to make a good portal: operationIds, summaries, examples, security, declared tags ([Lint](/docs/tools/spec-checks/#lint), [every option](https://rapidocui.com/docs/cli/lint/)). |
+| `bundle <spec>` | Writes a spec split over several files as one: other-file `$ref`s become components ([Bundle](/docs/tools/spec-checks/#bundle), [every option](https://rapidocui.com/docs/cli/bundle/)). |
 | `pdf <spec>` | Writes the API reference of a spec as a PDF; `--api <id>` takes an API of the portal ([every option](https://rapidocui.com/docs/cli/pdf/)). Needs `rapipdf`. |
 | `mcp export <spec>` | Writes an MCP server project for the spec ([MCP server](/docs/tools/mcp-server/#from-the-command-line), [every option](https://rapidocui.com/docs/cli/mcp/)). |
 | `mcp serve <spec>` | Runs that MCP server over stdio, without writing files. |
@@ -54,6 +55,16 @@ Options and arguments can come in any order (`rapidoc build --out-dir public ./p
 | `--help`, `-h` | all | Show the command's help instead of running it. |
 | `--quiet`, `-q` | all | Print errors and warnings only. |
 | `--yes`, `-y` | all | Don't ask anything: take the default answer to every question. |
+
+### Links to other sites, during `rapidoc dev`
+
+A portal that links to other sites, such as a product site and its docs on two domains, writes those links as full addresses, so under `rapidoc dev` a click leaves for the live site. To test the sites together, run each one's dev server and set `RAPIDOC_DEV_LINKS` to map their addresses to the local servers, comma-separated:
+
+```bash
+RAPIDOC_DEV_LINKS="https://example.com=http://localhost:4321,https://docs.example.com=http://localhost:4322" npx rapidoc dev
+```
+
+The dev server then rewrites links (`href` attributes) that start with a mapped address in every page it serves, keeping their path, query and hash. Nothing else changes: a spec URL, an image or the text of a code sample keeps the address it was written with, and `rapidoc build` ignores the variable. A part that is not two addresses (`https://…=http://…`) is reported and left out.
 
 The options of `preview`, `validate`, `lint`, `bundle`, `pdf` and `mcp`, which work on any spec, are in the RapiDoc docs: [All Commands & Options](https://rapidocui.com/docs/cli/reference/).
 

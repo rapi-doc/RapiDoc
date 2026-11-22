@@ -89,6 +89,19 @@ describe("rapidoc serve: sign-in and access rules", () => {
     assert.equal((await browser.send("/specs/billing.json")).status, 401);
   });
 
+  it("answers a browser's request for a missing page with the site's 404 page", async () => {
+    const browser = createBrowser(app);
+    const asPage = { headers: { accept: "text/html,application/xhtml+xml" } };
+    const missing = await browser.send("/docs/no-such-page/", asPage);
+    assert.equal(missing.status, 404);
+    assert.match(await missing.text(), /Page not found/);
+    assert.match(missing.headers.get("content-type"), /html/);
+    assert.equal(missing.headers.get("cache-control"), "private, no-store");
+    // A script, an image or a request that does not ask for a page gets no page
+    assert.equal(await (await browser.send("/no-such.js", asPage)).text(), "Not found");
+    assert.equal(await (await browser.send("/docs/no-such-page/")).text(), "Not found");
+  });
+
   it("never serves the manifest, zone search folders or paths outside the build", async () => {
     const browser = createBrowser(app);
     assert.equal((await browser.send("/rapidoc-server.json")).status, 404);
@@ -454,6 +467,23 @@ describe("rapidoc serve: startup", () => {
       const browser = createBrowser(app);
       assert.equal((await browser.send("/docs/intro/")).status, 200);
       assert.equal((await browser.send("/_rapidoc/auth/me")).status, 404);
+    } finally {
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("answers a missing page with the site's 404 page in a build without sign-in too", async () => {
+    const distDir = writeFixtureBuild();
+    try {
+      fs.rmSync(`${distDir}/rapidoc-server.json`);
+      const { app } = await createApp({ distDir: `${distDir}/public`, env: {}, log: quiet });
+      const asPage = { headers: { accept: "text/html,application/xhtml+xml" } };
+      const reply = await createBrowser(app).send("/nope", asPage);
+      assert.equal(reply.status, 404);
+      assert.match(await reply.text(), /Page not found/);
+      // A build without the page keeps the plain answer
+      fs.rmSync(`${distDir}/public/404.html`);
+      assert.equal(await (await createBrowser(app).send("/nope", asPage)).text(), "Not found");
     } finally {
       fs.rmSync(distDir, { recursive: true, force: true });
     }
