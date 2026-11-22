@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="760" height="440" role="img" aria-labelledby="t d">
+<title id="t">Where RapiDoc Mini fits</title>
+<desc id="d">One OpenAPI spec feeds the full reference on the docs site, rendered by rapi-doc, and single operations embedded with rapi-doc-mini in a blog post, a tutorial step, a changelog entry and a dashboard.</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+<rect x="8" y="8" width="744" height="424" rx="18" fill="url(#panelFade)" stroke="rgba(255,255,255,0.08)"/>
+<rect x="8" y="8" width="744" height="424" rx="18" fill="url(#dots)"/>
+
+<text x="40" y="44" font-size="17" font-weight="700" fill="#e2e8f0">Where it fits</text>
+<text x="40" y="65" font-size="12.5" fill="#94a3b8">The full reference lives on the docs site; the one operation a page talks about goes in that page.</text>
+<path d="M212 152L296 152" fill="none" stroke="#94a3b8" stroke-opacity=".9" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#ah)"/>
+<path d="M119 214L119 267" fill="none" stroke="#f6a821" stroke-opacity=".9" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#ahAmber)"/>
+<path d="M119 238L635 238Q641 238 641 244L641 267" fill="none" stroke="#f6a821" stroke-opacity=".9" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#ahAmber)"/>
+<path d="M293 238L293 267" fill="none" stroke="#f6a821" stroke-opacity=".9" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#ahAmber)"/>
+<path d="M467 238L467 267" fill="none" stroke="#f6a821" stroke-opacity=".9" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#ahAmber)"/>
+<rect x="40" y="92" width="170" height="120" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<text x="56" y="116" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">ONE OPENAPI SPEC</text>
+<text x="56" y="142" font-size="12" fill="#a78bfa" class="mono">paths:</text>
+<text x="68" y="162" font-size="11.5" fill="#e2e8f0" class="mono">/users</text><text x="68" y="179" font-size="11.5" fill="#e2e8f0" class="mono">/users/{id}</text><text x="68" y="196" font-size="11.5" fill="#e2e8f0" class="mono">/orders</text>
+<rect x="300" y="92" width="420" height="120" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<text x="316" y="116" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">THE FULL REFERENCE · &lt;RAPI-DOC&gt;</text>
+<rect x="316" y="128" width="88" height="70" rx="5" fill="#0b1426"/><rect x="324" y="138" width="72" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="324" y="147" width="54" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="324" y="156" width="36" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="324" y="165" width="72" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="324" y="174" width="54" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="324" y="183" width="36" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<rect x="418" y="130" width="38" height="16" rx="4" fill="#34d399" fill-opacity=".16" stroke="#34d399" stroke-opacity=".5"/><text x="437" y="141.5" font-size="9" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">POST</text><rect x="464" y="136" width="220" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="418" y="154" width="31" height="16" rx="4" fill="#60a5fa" fill-opacity=".16" stroke="#60a5fa" stroke-opacity=".5"/><text x="433.5" y="165.5" font-size="9" font-weight="700" fill="#60a5fa" text-anchor="middle" class="mono">GET</text><rect x="457" y="160" width="220" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="418" y="178" width="45" height="16" rx="4" fill="#a78bfa" fill-opacity=".16" stroke="#a78bfa" stroke-opacity=".5"/><text x="440.5" y="189.5" font-size="9" font-weight="700" fill="#a78bfa" text-anchor="middle" class="mono">PATCH</text><rect x="471" y="184" width="220" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<text x="704" y="203" font-size="10" fill="#64748b" text-anchor="end">every operation, on the docs site</text>
+<text x="380" y="228" font-size="11" fill="#f6a821" text-anchor="middle" class="mono">&lt;rapi-doc-mini filter-operations="…"&gt;</text>
+<rect x="40" y="270" width="158" height="132" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<text x="52" y="292" font-size="12" font-weight="650" fill="#e2e8f0">Blog post</text>
+<rect x="52" y="302" width="134" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="52" y="311" width="116" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<rect x="50" y="324" width="138" height="40" rx="6" fill="#0b1426" stroke="#f6a821" stroke-opacity=".7"/>
+<rect x="58" y="336" width="38" height="16" rx="4" fill="#34d399" fill-opacity=".16" stroke="#34d399" stroke-opacity=".5"/><text x="77" y="347.5" font-size="9" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">POST</text>
+<text x="104" y="348" font-size="10" fill="#e2e8f0" class="mono">/users</text>
+<rect x="52" y="374" width="134" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<text x="52" y="394" font-size="10" fill="#64748b">a call in the story</text>
+<rect x="214" y="270" width="158" height="132" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<text x="226" y="292" font-size="12" font-weight="650" fill="#e2e8f0">Tutorial step</text>
+<rect x="226" y="302" width="134" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="226" y="311" width="116" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<rect x="224" y="324" width="138" height="40" rx="6" fill="#0b1426" stroke="#f6a821" stroke-opacity=".7"/>
+<rect x="232" y="336" width="31" height="16" rx="4" fill="#60a5fa" fill-opacity=".16" stroke="#60a5fa" stroke-opacity=".5"/><text x="247.5" y="347.5" font-size="9" font-weight="700" fill="#60a5fa" text-anchor="middle" class="mono">GET</text>
+<text x="271" y="348" font-size="10" fill="#e2e8f0" class="mono">/users/{id}</text>
+<rect x="226" y="374" width="134" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<text x="226" y="394" font-size="10" fill="#64748b">step 2 of 4</text>
+<rect x="388" y="270" width="158" height="132" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<text x="400" y="292" font-size="12" font-weight="650" fill="#e2e8f0">Changelog</text>
+<rect x="400" y="302" width="134" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="400" y="311" width="116" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<rect x="398" y="324" width="138" height="40" rx="6" fill="#0b1426" stroke="#f6a821" stroke-opacity=".7"/>
+<rect x="406" y="336" width="45" height="16" rx="4" fill="#a78bfa" fill-opacity=".16" stroke="#a78bfa" stroke-opacity=".5"/><text x="428.5" y="347.5" font-size="9" font-weight="700" fill="#a78bfa" text-anchor="middle" class="mono">PATCH</text>
+<text x="459" y="348" font-size="10" fill="#e2e8f0" class="mono">/users/{id}</text>
+<rect x="400" y="374" width="134" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<text x="400" y="394" font-size="10" fill="#64748b">new in v2.3</text>
+<rect x="562" y="270" width="158" height="132" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<text x="574" y="292" font-size="12" font-weight="650" fill="#e2e8f0">Dashboard</text>
+<rect x="574" y="302" width="134" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="574" y="311" width="116" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<rect x="572" y="324" width="138" height="40" rx="6" fill="#0b1426" stroke="#f6a821" stroke-opacity=".7"/>
+<rect x="580" y="336" width="52" height="16" rx="4" fill="#f87171" fill-opacity=".16" stroke="#f87171" stroke-opacity=".5"/><text x="606" y="347.5" font-size="9" font-weight="700" fill="#f87171" text-anchor="middle" class="mono">DELETE</text>
+<text x="640" y="348" font-size="10" fill="#e2e8f0" class="mono">/users/{id}</text>
+<rect x="574" y="374" width="134" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<text x="574" y="394" font-size="10" fill="#64748b">next to the setting</text>
+<text x="40" y="424" font-size="11.5" fill="#94a3b8">Same spec, same Try. No iframe: the page's own styles and layout around it.</text>
+
+</svg>

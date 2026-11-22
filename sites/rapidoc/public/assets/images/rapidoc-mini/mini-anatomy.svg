@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 620" width="760" height="620" role="img" aria-labelledby="t d">
+<title id="t">RapiDoc Mini in an article</title>
+<desc id="d">A blueprint of a web page: the article drawn as bars, and in it an amber rapi-doc-mini card showing one operation. Labels with right-angled leaders: your page and your styles; the rapi-doc-mini element; filter-operations set to POST /users; the request body and schema from the spec; Try sends a real request from the page; no iframe, the page's own layout.</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+
+
+<rect width="760" height="620" fill="url(#dots)"/>
+
+<rect x="40" y="150" width="520" height="490" rx="14" fill="#0a0f1c" stroke="rgba(226,232,240,0.55)" stroke-width="1.4"/>
+<line x1="40" y1="186" x2="560" y2="186" stroke="rgba(255,255,255,0.10)"/>
+<circle cx="62" cy="168" r="6" fill="none" stroke="rgba(226,232,240,0.55)" stroke-width="1.4"/>
+<rect x="76" y="165" width="90" height="7" rx="3.5" fill="rgba(226,232,240,0.45)"/>
+<rect x="400" y="166" width="40" height="6" rx="3" fill="rgba(148,163,184,0.22)"/><rect x="452" y="166" width="40" height="6" rx="3" fill="rgba(148,163,184,0.22)"/><rect x="504" y="166" width="34" height="6" rx="3" fill="rgba(148,163,184,0.22)"/>
+<rect x="90" y="206" width="70" height="5" rx="2.5" fill="rgba(148,163,184,0.22)"/>
+<rect x="90" y="220" width="230" height="13" rx="6.5" fill="rgba(226,232,240,0.55)"/>
+<rect x="90" y="246" width="400" height="6" rx="3" fill="rgba(148,163,184,0.22)"/><rect x="90" y="259" width="330" height="6" rx="3" fill="rgba(148,163,184,0.22)"/>
+<rect x="90" y="282" width="150" height="9" rx="4.5" fill="rgba(226,232,240,0.40)"/>
+<rect x="90" y="302" width="380" height="6" rx="3" fill="rgba(148,163,184,0.22)"/>
+<rect x="90" y="546" width="300" height="6" rx="3" fill="rgba(148,163,184,0.22)"/><rect x="90" y="559" width="220" height="6" rx="3" fill="rgba(148,163,184,0.22)"/><rect x="90" y="582" width="360" height="6" rx="3" fill="rgba(148,163,184,0.22)"/>
+
+<rect x="90" y="322" width="420" height="206" rx="8" fill="rgba(246,168,33,0.03)" stroke="#f6a821" stroke-width="1.6"/>
+<line x1="90" y1="350" x2="510" y2="350" stroke="rgba(246,168,33,0.35)"/>
+<rect x="102" y="329" width="34" height="14" rx="3" fill="none" stroke="#34d399" stroke-width="1.4"/>
+<rect x="144" y="333" width="70" height="6" rx="3" fill="rgba(226,232,240,0.45)"/>
+<rect x="102" y="362" width="120" height="9" rx="4.5" fill="rgba(226,232,240,0.45)"/>
+<rect x="102" y="378" width="80" height="5" rx="2.5" fill="rgba(148,163,184,0.22)"/>
+<line x1="90" y1="392" x2="510" y2="392" stroke="rgba(255,255,255,0.08)"/>
+<rect x="102" y="404" width="60" height="6" rx="3" fill="rgba(226,232,240,0.35)"/>
+<rect x="102" y="418" width="40" height="5" rx="2.5" fill="#f6a821"/><rect x="102" y="427" width="40" height="1.6" fill="#f6a821"/>
+<rect x="150" y="418" width="40" height="5" rx="2.5" fill="rgba(148,163,184,0.22)"/>
+<rect x="102" y="435" width="396" height="58" rx="5" fill="rgba(0,0,0,0.25)" stroke="rgba(255,255,255,0.12)"/>
+<rect x="112" y="446" width="8" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="122" y="457" width="80" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="122" y="468" width="64" height="4" rx="2" fill="rgba(148,163,184,0.22)"/><rect x="112" y="479" width="8" height="4" rx="2" fill="rgba(148,163,184,0.22)"/>
+<rect x="378" y="502" width="44" height="16" rx="3" fill="none" stroke="rgba(255,255,255,0.25)"/>
+<rect x="428" y="502" width="34" height="16" rx="3" fill="none" stroke="rgba(255,255,255,0.25)"/>
+<rect x="468" y="502" width="30" height="16" rx="3" fill="#f6a821"/>
+
+<line x1="68" y1="322" x2="68" y2="528" stroke="#fcd9a0" stroke-opacity=".8"/>
+<line x1="62" y1="322" x2="74" y2="322" stroke="#fcd9a0" stroke-opacity=".8"/>
+<line x1="62" y1="528" x2="74" y2="528" stroke="#fcd9a0" stroke-opacity=".8"/>
+<text transform="translate(58 425) rotate(-90)" font-size="10" fill="#fcd9a0" text-anchor="middle" class="mono">one operation, in place</text>
+
+<circle cx="320" cy="226" r="3" fill="rgba(226,232,240,0.55)"/><path d="M320 226 V98 H330" fill="none" stroke="rgba(226,232,240,0.55)" stroke-width="1"/><text x="335" y="102" font-size="11.5" fill="#e2e8f0" class="mono">your page, your styles</text>
+<circle cx="510" cy="322" r="3" fill="#fcd9a0"/><path d="M510 322 V62 H520" fill="none" stroke="#fcd9a0" stroke-width="1"/><text x="525" y="66" font-size="11.5" fill="#fcd9a0" class="mono">&lt;rapi-doc-mini&gt;</text>
+<circle cx="214" cy="336" r="3" fill="#fcd9a0"/><path d="M214 336 H590" fill="none" stroke="#fcd9a0" stroke-width="1"/><path d="M590 330 V342" stroke="#fcd9a0" stroke-width="1"/><text x="598" y="340" font-size="11.5" fill="#fcd9a0" class="mono">filter-operations=</text><text x="598" y="355" font-size="11.5" fill="#fcd9a0" class="mono">"POST /users"</text>
+<circle cx="498" cy="464" r="3" fill="#fcd9a0"/><path d="M498 464 H590" fill="none" stroke="#fcd9a0" stroke-width="1"/><path d="M590 458 V470" stroke="#fcd9a0" stroke-width="1"/><text x="598" y="468" font-size="11.5" fill="#fcd9a0" class="mono">request body and</text><text x="598" y="483" font-size="11.5" fill="#fcd9a0" class="mono">schema, from the spec</text>
+<circle cx="498" cy="510" r="3" fill="#fcd9a0"/><path d="M498 510 H590" fill="none" stroke="#fcd9a0" stroke-width="1"/><path d="M590 504 V516" stroke="#fcd9a0" stroke-width="1"/><text x="598" y="514" font-size="11.5" fill="#fcd9a0" class="mono">Try: a real request,</text><text x="598" y="529" font-size="11.5" fill="#fcd9a0" class="mono">from this page</text>
+<circle cx="560" cy="170" r="3" fill="rgba(226,232,240,0.55)"/><path d="M560 170 H590" fill="none" stroke="rgba(226,232,240,0.55)" stroke-width="1"/><path d="M590 164 V176" stroke="rgba(226,232,240,0.55)" stroke-width="1"/><text x="598" y="174" font-size="11.5" fill="rgba(226,232,240,0.55)" class="mono">no iframe: the</text><text x="598" y="189" font-size="11.5" fill="rgba(226,232,240,0.55)" class="mono">page's own layout</text>
+</svg>

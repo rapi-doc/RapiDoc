@@ -221,7 +221,9 @@ const attributes = [
 
   <main class="rd-mini-main">
     <!-- Hero Header -->
-    <header class="rd-hero-header">
+    <header class="rd-hero-header rd-hero-split">
+      <div class="rd-hero-grid">
+      <div class="rd-hero-copy">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
         <span class="rd-badge-text">Standalone Endpoint Web Component</span>
@@ -249,6 +251,19 @@ const attributes = [
           <span>API Reference</span>
           <Icon name="arrow-right" size={16} />
         </a>
+      </div>
+      </div>
+
+      <figure class="rd-hero-visual">
+        <img
+          src="/assets/images/rapidoc-mini/mini-anatomy.svg"
+          alt="A blueprint of a web page: the article drawn as bars, and in it an amber rapi-doc-mini card showing one operation. Labels: your page and your styles; the rapi-doc-mini element; filter-operations set to POST /users; the request body and schema from the spec; Try sends a real request from the page; no iframe, the page's own layout"
+          width="760"
+          height="620"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
       </div>
 
       <!-- Key Metrics / Feature Badges -->
@@ -324,6 +339,26 @@ const attributes = [
           </p>
         </div>
       </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Where It Fits</div>
+        <h2 class="rd-section-title">One Spec: the Full Reference, and an Operation Where It's Needed</h2>
+        <p class="rd-section-desc">
+          <code>&lt;rapi-doc&gt;</code> renders every operation on your docs site. <code>&lt;rapi-doc-mini&gt;</code> takes
+          the same spec and shows only what <code>filter-operations</code> picks, in the page that talks about it.
+        </p>
+      </div>
+      <figure class="rd-illustration">
+        <img
+          src="/assets/images/rapidoc-mini/mini-where-it-fits.svg"
+          alt="One OpenAPI spec feeds the full reference on the docs site, rendered by rapi-doc, and single operations embedded with rapi-doc-mini in a blog post, a tutorial step, a changelog entry and a dashboard"
+          width="760"
+          height="440"
+          loading="lazy"
+        />
+      </figure>
     </section>
 
     <!-- ================= DEMO 1: ESSENTIAL EMBED ================= -->
@@ -812,12 +847,24 @@ const attributes = [
     box-shadow: 0 0 8px var(--rd-accent);
   }
 
-  /* The element itself: 100% width, no card wrap, blends naturally with the page */
+  /* Every <rapi-doc-mini> on the page takes the site's colors through RapiDoc's variables: the page's
+     navy behind it, the site's card navy for cards, its borders and text (as sites/shared/styles/dark.css
+     does for the operations embedded in docs) */
+  main :global(rapi-doc-mini) {
+    --background: var(--rd-bg);
+    --sidebar: var(--rd-bg);
+    --card: #0f1626;
+    --muted: #162035;
+    --border: rgba(255, 255, 255, 0.08);
+    --foreground: #cbd5e1;
+  }
+
+  /* The element itself: 100% width, no card wrap, no background of its own: it blends with the page */
   .rd-mini-element {
     display: block;
     width: 100%;
     margin: 0 0 24px 0;
-    background: #1a1a1a;
+    background: transparent;
     border-radius: 0;
   }
 

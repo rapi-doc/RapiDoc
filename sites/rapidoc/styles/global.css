@@ -714,11 +714,12 @@ a.rd-feature-card:hover .rd-feature-icon {
   padding: 0;
 }
 .rd-hero-grid {
-  /* The text stays on the content column; the illustration reaches into the right margin, up to
-     the viewport less a 24px gutter (a row at most 1360px wide, were it centred) */
-  --rd-hero-extra: calc((max(100%, min(100vw - 48px, 1360px)) - 100%) / 2);
-  width: calc(100% + var(--rd-hero-extra));
-  margin-right: calc(-1 * var(--rd-hero-extra));
+  /* Wider than the content column, for a bigger illustration, and centred, so the margins on the
+     left and the right match: the viewport less 48px on each side, at most 1240px, never narrower
+     than the column */
+  --rd-hero-width: max(100%, min(100vw - 96px, 1240px));
+  width: var(--rd-hero-width);
+  margin-inline: calc((100% - var(--rd-hero-width)) / 2);
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   gap: 48px;
@@ -754,7 +755,7 @@ a.rd-feature-card:hover .rd-feature-icon {
 @media (max-width: 900px) {
   .rd-hero-grid {
     width: 100%;
-    margin-right: 0;
+    margin-inline: 0;
     grid-template-columns: 1fr;
     text-align: center;
   }
