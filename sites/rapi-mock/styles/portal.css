@@ -3,16 +3,5 @@
 @import "../../shared/styles/footer.css";
 @import "../../shared/styles/content.css";
 @import "../../shared/styles/dark.css";
+@import "../../shared/styles/light.css";
 
-/* Light: amber's orange accent (`theme.primary` is the dark one). As text, the shade RapiDoc picks for it,
-   so the guides' and the API reference's sidebars match: 4.69:1 or more on white, grey and the accent tint. */
-[data-theme="light"] {
-  --portal-primary: #ff791a;
-  --portal-primary-text: #ad5212;
-  --sl-color-accent: #ff791a;
-  --sl-color-accent-low: color-mix(in srgb, #ff791a 18%, #ffffff);
-  --portal-bg: #ffffff;
-  --portal-header-bg: #ffffff;
-  --portal-border: color-mix(in srgb, #ffffff 85%, #2a2d35);
-  --portal-card-bg: #ffffff;
-}

@@ -9,6 +9,7 @@
 @import "../../shared/styles/footer.css";
 @import "../../shared/styles/content.css";
 @import "../../shared/styles/dark.css";
+@import "../../shared/styles/light.css";
 
 /* ---- Docs sidebar: 300px, the products above the pages ---- */
 :root {
