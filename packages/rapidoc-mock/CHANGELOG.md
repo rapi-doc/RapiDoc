@@ -1,5 +1,11 @@
 # @rapidoc/mock
 
+## 0.2.6
+
+### Patch Changes
+
+- c7e7a4a: The Mock UI says RapiMock, the mock server's product name; `create-rapidoc`'s description names RapiDoc Portal.
+
 ## 0.2.5
 
 ### Patch Changes

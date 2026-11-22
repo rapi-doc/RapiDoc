@@ -1,5 +1,34 @@
 # @rapidoc/portal
 
+## 0.2.6
+
+### Patch Changes
+
+- 085fd99: On API reference pages, the tabs above the sidebar (`header.tabs: sidebar` or `sidebar-select`) sit inside the sidebar with the same spacing as in the guides' sidebar, instead of against its left edge, and the `sidebar-select` list opens over the endpoint filter instead of under it.
+  The tab rows have their own line height, so they are the same size on docs pages and API reference pages.
+- c140a01: `rapidoc dev` can point links to other sites at local dev servers: set `RAPIDOC_DEV_LINKS="https://example.com=http://localhost:4321,..."` and links to those addresses in the pages it serves go to the local servers, so sites that link to each other can be tested together. Builds are not affected.
+- 384844c: With `header.tabs: sidebar` or `sidebar-select`, a portal with one navigation tab shows no tab list or switcher above the sidebar: there is nothing to switch between.
+- daa38ee: A project's own page that brings its own document can now take the portal's footer, as it takes the header: `import PortalFooter from '@rapidoc/portal/components/PortalFooter.astro'`.
+- dff1c76: A portal can have its own pages: every `.astro` file in a `pages/` folder next to `rapidoc.config.yaml` becomes a page at its path (`pages/pricing.astro` is `/pricing`, `pages/index.astro` the home page, with `docs/index.*` then the page at `/docs`, `pages/items/[id].astro` a page per item). A page takes the portal's header, footer and theme from `PortalLayout`, or writes its own document and takes only the title, favicon and `head:` entries from `@rapidoc/portal/components/PortalHead.astro`. A page with its own document can also take the portal's header alone, from `@rapidoc/portal/components/PortalHeader.astro`, so a site has one header on every page. Pages and components can read the project's files through `projectDir` of `virtual:rapidoc-portal/project`. The search index now lists a folder's `index` page at the folder's address (`/docs/guides`, not `/docs/guides/index`). A page on one of the portal's own routes stops the build, and `rapidoc dev` restarts when a page is added or removed.
+
+  The header has new options. A dropdown whose items are plain links (a label and an href only) is now a simple one-column list, as documented, not a grid of cards with a default icon. `columns` (1 to 4) sets how many items sit side by side. A dropdown can be columns with headings (`groups` instead of `items`) and can end with a link (`footer`). Any link can have a `badge` and can sit after the logo, left of the search (`position: start`). `site.logo.badge` puts a small label next to the logo. `header.tabs: sidebar` lists the navigation tabs above the sidebar's pages instead of in a second header row. A header link's `icon` is now shown, as the documentation said. When two header links cover the page's address (`/docs` and `/docs/quickstart` on the quickstart page), only the closer one is marked as current, not both.
+
+  A navigation tab with `autogenerate` whose first page is a folder's `index` file now links to that folder's page, not to an address ending in `/index/`.
+
+  Every portal has a 404 page: the build writes `404.html`, in the portal's frame, with links to the home page, the search and the navigation tabs. Static hosts show it for an address that has no page, and `rapidoc serve` now answers a browser's request for a missing page with it (other requests still get a plain "Not found"). A project replaces it with its own `pages/404.astro`.
+
+  Search: a project's own pages are in the search, under a Pages filter, read from the pages as built, or in `rapidoc dev` from the running server just after it starts (a page opts out with `<meta name="portal-search" content="off">`). The search dialog offers a filter only for a kind of result the site has, so a portal without APIs no longer shows "API Operations". Results from MDX pages no longer show their `import` lines, and a name written as code, such as `<rapi-doc>`, is kept in titles and text where it was dropped as if it were an HTML tag. A search for more than one word now works: the dialog looked for the whole query as one phrase, so "payments webhook" found nothing unless those words stood together. A name is found with or without its hyphens ("rapidoc" finds `<rapi-doc>`), and a word with special characters, such as "c++", no longer breaks the search. Each documentation result says which navigation tab its page is in ("Guides", "Reference") where it said "Documentation" for all of them, and a search for a tab's name finds that tab's pages.
+
+- 420a5ad: A sidebar link to another site opens in a new tab and shows an arrow after its label, as the header's menus do.
+- 5389026: `header.tabs: sidebar-select` shows the current navigation tab in one row above the sidebar's pages, opening the list of every tab, so a portal with many tabs keeps its pages near the top.
+- 23aad8f: A navigation tab can set the header's logo for its pages (`logo: { src, alt, badge }`), for a portal whose tabs are products with logos and versions of their own.
+- 05c59b1: A code block with `frame="terminal"` is drawn as a terminal window: red, yellow and green window dots, then its title. Other code blocks keep the plain code frame.
+- e18c68f: A page's frontmatter `title` keeps tag names as written: `title: Pairing with <rapi-doc>` no longer shows as "Pairing with". A title taken from the page's `# heading` still drops its HTML.
+- Updated dependencies [e18c68f]
+  - rapidoc@14.2.1
+  - @rapidoc/mcp@0.2.6
+  - @rapidoc/prerender@0.2.6
+
 ## 0.2.5
 
 ### Patch Changes
