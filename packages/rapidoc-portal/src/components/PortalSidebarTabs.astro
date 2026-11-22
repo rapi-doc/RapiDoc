@@ -113,6 +113,9 @@ const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
     .portal-sidebar-tabs-select {
       display: block;
       position: relative;
+      /* Above what follows it in the sidebar, so the open list covers it: the API reference's filter
+         sits in a sticky header of its own at z-index 10 */
+      z-index: 20;
       margin-bottom: 1rem;
     }
   }
@@ -123,6 +126,8 @@ const currentTab = activeTab(tabs, withoutBase(Astro.url?.pathname || '/'));
     padding: 0.375rem 0.5rem;
     border-radius: var(--portal-radius);
     font-size: 0.875rem;
+    /* Its own line height: the docs pages' (Starlight's) and the API reference's differ */
+    line-height: 1.4;
     font-weight: 500;
     color: var(--portal-muted);
     text-decoration: none;

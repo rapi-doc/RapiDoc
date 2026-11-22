@@ -24,6 +24,7 @@
 :root .portal-sidebar-tab {
   gap: 8px;
   padding: 4.2px 8px;
+  line-height: 1.85;
   border-radius: 6px;
   font-weight: 400;
 }

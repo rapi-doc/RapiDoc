@@ -26,6 +26,8 @@ And, when you need them:
 - **Spec checks in CI**: [validate](/docs/tools/spec-checks/#validate), [lint](/docs/tools/spec-checks/#lint) and [bundle](/docs/tools/spec-checks/#bundle) your OpenAPI files.
 - **Migration** from Zudoku or Redocly with one command ([Migrate](/docs/tools/migrate/)).
 
+**See it live:** [demo.rapidocui.com](https://demo.rapidocui.com/) has three example portals. [Bookstore](https://demo.rapidocui.com/bookstore/) is what `npm create rapidoc` makes, in the portal's default look; Cosmo Cargo is a larger portal; [Rapid Parcels](https://parcels.rapidocui.com/) has sign-in, access rules and a mock API that checks tokens. This site itself wears the RapiDoc sites' own colors.
+
 The output is plain HTML, CSS and JavaScript. Host it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, S3 or any web server ([Static hosting](/docs/deploy/static-hosting/)).
 
 ## The packages

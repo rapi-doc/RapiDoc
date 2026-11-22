@@ -238,6 +238,11 @@ const rapidocAttributes = {
   }
 
   /* Version picker, above the endpoint filter. */
+  /* The tabs above the API's pages (PortalSidebarTabs) sit inside the sidebar as in the guides' sidebar,
+     whose content has Starlight's padding; this sidebar has none (the RapiDoc navigation brings its own). */
+  #portal-api-sidebar > :is(.portal-sidebar-tabs, .portal-sidebar-tabs-select) {
+    margin: var(--sl-sidebar-pad-x, 1rem) var(--sl-sidebar-pad-x, 1rem) 1rem;
+  }
   .portal-api-version {
     display: flex;
     align-items: center;

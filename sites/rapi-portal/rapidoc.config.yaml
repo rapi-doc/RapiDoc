@@ -30,7 +30,7 @@ theme:
 # The header every RapiDoc site shares (sites/rapidoc is the source): the Products menu, with absolute
 # rapidocui.com links, and the Docs menu (Get started, API Reference, Browse). Keep it the same in sites/rapi-flow, sites/rapi-mock and sites/rapi-portal.
 header:
-  tabs: sidebar-select # the sections above the docs sidebar, as on rapidocui.com
+  tabs: sidebar # two tabs (Documentation, Example API), both listed above the sidebar; the dropdown is for sites with many
   links:
     - label: Products
       position: start
@@ -171,6 +171,9 @@ navigation:
   - label: Example API
     icon: code
     api: bookstore
+  - label: Live demos # example portals on demo.rapidocui.com: Bookstore (the default look), Cosmo Cargo, Rapid Parcels (sign-in)
+    icon: monitor-play
+    href: https://demo.rapidocui.com/
 apis:
   - id: bookstore
     spec: ./specs/bookstore.yaml
