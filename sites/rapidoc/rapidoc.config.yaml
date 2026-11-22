@@ -106,38 +106,7 @@ header:
       footer:
         label: Which package do I need?
         href: "/docs/#which-package-do-i-need"
-    - label: Docs
-      position: start
-      groups:
-        - label: Get Started
-          items:
-            - { label: RapiDoc, badge: <rapi-doc>, href: /docs/rapidoc/get-started/quickstart/, icon: file-code }
-            - { label: RapiFlow, badge: <rapi-flow>, href: https://flow.rapidocui.com/docs/quickstart/, icon: path }
-            - { label: RapiMock, badge: rapidoc mock, href: https://mock.rapidocui.com/docs/getting-started/quickstart/, icon: hard-drives }
-            - { label: RapiDoc Portal, href: https://portal.rapidocui.com/docs/getting-started/quickstart/, icon: layout }
-            - { label: RapiDoc Mini, badge: <rapi-doc-mini>, href: "/docs/rapidoc-mini/#show-one-endpoint", icon: puzzle-piece }
-            - { label: RapiPdf, badge: <rapi-pdf>, href: "/docs/rapipdf/#add-it-to-a-page", icon: file-pdf }
-            - { label: RapiDoc CLI, badge: rapidoc, href: /docs/cli/, icon: terminal }
-        - label: API Reference
-          items:
-            - { label: RapiDoc, badge: <rapi-doc>, href: /docs/rapidoc/reference/, icon: file-code }
-            - { label: RapiDoc Mini, badge: <rapi-doc-mini>, href: /docs/rapidoc-mini/reference/, icon: puzzle-piece }
-            - { label: RapiFlow, badge: <rapi-flow>, href: https://flow.rapidocui.com/docs/reference/, icon: path }
-            - { label: RapiPdf, badge: <rapi-pdf>, href: /docs/rapipdf/reference/, icon: file-pdf }
-            - { label: RapiDoc CLI, badge: rapidoc, href: /docs/cli/reference/, icon: terminal }
-            - { label: RapiMock, badge: rapidoc mock, href: https://mock.rapidocui.com/docs/reference/cli/, icon: hard-drives }
-            - { label: RapiDoc Portal, badge: rapidoc.config.yaml, href: https://portal.rapidocui.com/docs/reference/config/, icon: layout }
-        - label: Browse
-          items:
-            - { label: All documentation, href: /docs/, icon: books }
-            - { label: Integrations, href: /docs/integrations/, icon: plug }
-            - { label: MCP Server, href: /docs/mcp/, icon: robot }
-            - { label: Pre-rendering, href: /docs/prerender/, icon: lightning }
-            - { label: Examples, href: /examples/, icon: squares-four }
-            - { label: Migration guides, href: /docs/rapidoc/migration/v13-to-v14/, icon: arrows-clockwise }
-      footer:
-        label: Which package do I need?
-        href: "/docs/#which-package-do-i-need"
+    - { label: Docs, href: "/docs/", position: start } # every product's docs: the cards of rapidocui.com/docs
     - { label: Examples, href: /examples, position: start }
     - label: GitHub
       href: https://github.com/rapi-doc/RapiDoc

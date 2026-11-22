@@ -4,37 +4,168 @@ description: The documentation of every RapiDoc product, tool and integration - 
 template: splash
 ---
 
-import { CardGrid, LinkCard } from '@rapidoc/portal/components';
+import DocsCard from '../components/DocsCard.astro';
 
-Pick a product, tool or integration. RapiFlow, RapiMock and RapiDoc Portal have their docs on their own sites (↗).
+The documentation of every RapiDoc product, tool and integration. RapiFlow, RapiMock and RapiDoc Portal have their docs on their own sites (↗).
+
+<div class="docs-card-grid">
+  <DocsCard
+    wide
+    title="Get started"
+    href="/docs/rapidoc/get-started/quickstart/"
+    icon="rocket-launch"
+    description="Pick a quickstart. Most sites need only RapiDoc: an interactive API reference from your OpenAPI spec, in one HTML file."
+    links={[
+      { label: 'RapiDoc quickstart', href: '/docs/rapidoc/get-started/quickstart/' },
+      { label: 'RapiFlow quickstart', href: 'https://flow.rapidocui.com/docs/quickstart/' },
+      { label: 'RapiMock quickstart', href: 'https://mock.rapidocui.com/docs/getting-started/quickstart/' },
+      { label: 'RapiDoc Portal quickstart', href: 'https://portal.rapidocui.com/docs/getting-started/quickstart/' },
+    ]}
+  /></div>
 
 ## Products
 
-<CardGrid>
-  <LinkCard title="RapiDoc" href="/docs/rapidoc/" description="The web component: an interactive API reference from your OpenAPI spec. Start here." />
-  <LinkCard title="RapiDoc Mini" href="/docs/rapidoc-mini/" description="One endpoint, or a few, with Try, inside a post or guide." />
-  <LinkCard title="RapiFlow ↗" href="https://flow.rapidocui.com/" description="Draw Arazzo workflows next to your reference and run them." />
-  <LinkCard title="RapiPdf" href="/docs/rapipdf/" description="An OpenAPI spec as a PDF, in the browser or in Node." />
-  <LinkCard title="RapiMock ↗" href="https://mock.rapidocui.com/" description="A mock server from your spec that validates requests, checks tokens and remembers what you create." />
-  <LinkCard title="RapiDoc Portal ↗" href="https://portal.rapidocui.com/" description="API references and guides as one developer portal, with search and SSO." />
-</CardGrid>
+<div class="docs-card-grid">
+  <DocsCard
+    title="RapiDoc"
+    tag="<rapi-doc>"
+    href="/docs/rapidoc/"
+    icon="file-code"
+    description="The web component: an interactive API reference from your OpenAPI spec."
+    links={[
+      { label: 'Quickstart', href: '/docs/rapidoc/get-started/quickstart/' },
+      { label: 'API Reference', href: '/docs/rapidoc/reference/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiDoc Mini"
+    tag="<rapi-doc-mini>"
+    href="/docs/rapidoc-mini/"
+    icon="puzzle-piece"
+    description="One endpoint, or a few, with Try, inside a post or guide."
+    links={[
+      { label: 'Quickstart', href: '/docs/rapidoc-mini/#show-one-endpoint' },
+      { label: 'API Reference', href: '/docs/rapidoc-mini/reference/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiFlow"
+    tag="<rapi-flow>"
+    href="https://flow.rapidocui.com/"
+    icon="path"
+    description="Draws the workflows of an Arazzo spec next to your reference, and runs them."
+    links={[
+      { label: 'Quickstart', href: 'https://flow.rapidocui.com/docs/quickstart/' },
+      { label: 'API Reference', href: 'https://flow.rapidocui.com/docs/reference/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiPdf"
+    tag="<rapi-pdf>"
+    href="/docs/rapipdf/"
+    icon="file-pdf"
+    description="An OpenAPI spec as a PDF, in the browser or in Node."
+    links={[
+      { label: 'Quickstart', href: '/docs/rapipdf/#add-it-to-a-page' },
+      { label: 'API Reference', href: '/docs/rapipdf/reference/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiMock"
+    tag="rapidoc mock"
+    href="https://mock.rapidocui.com/"
+    icon="hard-drives"
+    description="A mock server from your OpenAPI spec that validates requests, checks tokens and remembers what you create."
+    links={[
+      { label: 'Quickstart', href: 'https://mock.rapidocui.com/docs/getting-started/quickstart/' },
+      { label: 'CLI options', href: 'https://mock.rapidocui.com/docs/reference/cli/' },
+    ]}
+  />
+  <DocsCard
+    title="RapiDoc Portal"
+    tag="@rapidoc/portal"
+    href="https://portal.rapidocui.com/"
+    icon="layout"
+    description="API references and guides as one developer portal, with search and SSO."
+    links={[
+      { label: 'Quickstart', href: 'https://portal.rapidocui.com/docs/getting-started/quickstart/' },
+      { label: 'Configuration keys', href: 'https://portal.rapidocui.com/docs/reference/config/' },
+    ]}
+  />
+</div>
 
 ## Tools
 
-<CardGrid>
-  <LinkCard title="RapiDoc CLI" href="/docs/cli/" description="The rapidoc command: preview, validate, lint, bundle, pdf, mock and mcp." />
-  <LinkCard title="MCP Server" href="/docs/mcp/" description="Turn your spec into a curated MCP server for AI agents." />
-  <LinkCard title="Pre-rendering" href="/docs/prerender/" description="@rapidoc/prerender: the reference as HTML at build time, for search engines and a fast first paint." />
-</CardGrid>
+<div class="docs-card-grid">
+  <DocsCard
+    title="RapiDoc CLI"
+    tag="rapidoc"
+    href="/docs/cli/"
+    icon="terminal"
+    description="Preview, validate, lint, bundle and export OpenAPI specs; run the mock and the portal."
+    links={[{ label: 'All commands & options', href: '/docs/cli/reference/' }]}
+  />
+  <DocsCard
+    title="MCP Server"
+    href="/docs/mcp/"
+    icon="robot"
+    description="Turn your OpenAPI spec, and the workflows of an Arazzo spec, into an MCP server for AI agents."
+    links={[{ label: 'Export and run the server', href: '/docs/mcp/server/' }]}
+  />
+  <DocsCard
+    title="Pre-rendering"
+    tag="@rapidoc/prerender"
+    href="/docs/prerender/"
+    icon="lightning"
+    description="The reference as HTML at build time, for search engines and a fast first paint."
+  />
+</div>
 
 ## Integrations
 
-<CardGrid>
-  <LinkCard title="Front-end frameworks" href="/docs/integrations/front-end/" description="React, Vue, Angular and Svelte." />
-  <LinkCard title="Server frameworks" href="/docs/integrations/node/" description="Hono, Express and Fastify; FastAPI and Starlette; ASP.NET Core; Go." />
-  <LinkCard title="Documentation sites" href="/docs/integrations/docs-sites/" description="Starlight, VitePress and Docusaurus." />
-  <LinkCard title="Build an integration" href="/docs/integrations/build-your-own/" description="The contract every integration implements, for a framework or tool of your own." />
-</CardGrid>
+<div class="docs-card-grid">
+  <DocsCard
+    title="Front-end frameworks"
+    href="/docs/integrations/front-end/"
+    icon="browsers"
+    description="React, Vue, Angular and Svelte."
+  />
+  <DocsCard
+    title="Server frameworks"
+    href="/docs/integrations/node/"
+    icon="hard-drive"
+    description="Hono, Express and Fastify; FastAPI and Starlette; ASP.NET Core; Go."
+  />
+  <DocsCard
+    title="Documentation sites"
+    href="/docs/integrations/docs-sites/"
+    icon="books"
+    description="Starlight, VitePress and Docusaurus."
+  />
+  <DocsCard
+    title="Build an integration"
+    href="/docs/integrations/build-your-own/"
+    icon="plug"
+    description="The contract every integration implements, for a framework or tool of your own."
+  />
+</div>
+
+## More
+
+<div class="docs-card-grid">
+  <DocsCard
+    title="Examples"
+    href="/examples/"
+    icon="squares-four"
+    description="Every feature running, with the code behind it."
+  />
+  <DocsCard
+    title="Migration guides"
+    href="/docs/rapidoc/migration/v13-to-v14/"
+    icon="arrows-clockwise"
+    description="Moving to RapiDoc 14 from earlier versions."
+  />
+</div>
 
 ## Which package do I need?
 
