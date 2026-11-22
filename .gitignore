@@ -2,7 +2,6 @@
 node_modules
 .astro/
 dist/
-docs/dist/
 .test-tmp/
 stats.html
 prerender-demo.html

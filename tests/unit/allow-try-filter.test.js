@@ -18,7 +18,7 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const petstore = fs.readFileSync(
-  path.resolve(__dirname, "../../docs/public/specs/petstore-3.2.yaml"),
+  path.resolve(__dirname, "../../sites/rapidoc/public/specs/petstore-3.2.yaml"),
   "utf8",
 );
 

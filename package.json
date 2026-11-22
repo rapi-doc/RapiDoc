@@ -2,14 +2,12 @@
   "name": "rapidoc-monorepo",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "docs"
+    "packages/*"
   ],
   "type": "module",
   "scripts": {
-    "dev": "npm run dev --workspace=docs",
-    "stop": "npm run stop --workspace=docs",
-    "build": "npm run build --workspace=rapidoc && npm run build:mcp && npm run build:prerender && npm run build --workspace=docs",
+    "dev": "npm run dev:sites",
+    "build": "npm run build:rapidoc-site",
     "build:rapidoc": "npm run build --workspace=rapidoc",
     "build:mcp": "npm run build --workspace=@rapidoc/mcp",
     "build:prerender": "npm run build --workspace=@rapidoc/prerender",
@@ -29,12 +27,10 @@
     "build:flow-site": "npm run build:rapidoc && npm run build:mcp && npm run build:prerender && node packages/rapidoc-cli/src/index.js build sites/rapi-flow",
     "build:rapidoc:dev": "npm run build:dev --workspace=rapidoc",
     "build:size": "npm run build:size --workspace=rapidoc",
-    "build:docs": "npm run build --workspace=docs",
     "build:demo": "npm run build --workspace=rapidoc && npm run build:mcp && npm run build:prerender && node packages/rapidoc-cli/src/index.js build ../rapi-portal-demo/rapid-parcels",
-    "preview": "npm run preview --workspace=docs",
-    "lint": "oxlint --deny-warnings packages docs/src tests scripts docs/astro.config.mjs",
-    "format": "oxfmt --check packages docs/src tests scripts '!**/fixtures/**' '!**/*.mdx' '!packages/rapidoc-portal/schema.json' '!packages/rapidoc-portal/tests/layout/measurements.json'",
-    "format-fix": "oxfmt packages docs/src tests scripts '!**/fixtures/**' '!**/*.mdx' '!packages/rapidoc-portal/schema.json' '!packages/rapidoc-portal/tests/layout/measurements.json'",
+    "lint": "oxlint --deny-warnings packages tests scripts",
+    "format": "oxfmt --check packages tests scripts '!**/fixtures/**' '!**/*.mdx' '!packages/rapidoc-portal/schema.json' '!packages/rapidoc-portal/tests/layout/measurements.json'",
+    "format-fix": "oxfmt packages tests scripts '!**/fixtures/**' '!**/*.mdx' '!packages/rapidoc-portal/schema.json' '!packages/rapidoc-portal/tests/layout/measurements.json'",
     "publish:rapidoc": "npm publish --workspace=rapidoc",
     "publish:mcp": "npm publish --workspace=@rapidoc/mcp",
     "publish:prerender": "npm publish --workspace=@rapidoc/prerender",
@@ -56,6 +52,7 @@
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
     "@modelcontextprotocol/sdk": "^1.32.2",
+    "js-yaml": "^5.5.0",
     "oxfmt": "^0.75.0",
     "oxlint": "^1.90.0",
     "playwright-core": "^1.64.1",

@@ -7,7 +7,7 @@ import { stringify } from "yaml";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const packagesDir = path.join(rootDir, "packages");
-const targetDir = path.join(rootDir, "docs/src/page-data");
+const targetDir = path.join(rootDir, "sites/rapidoc/page-data");
 
 export function formatSize(bytes) {
   if (!bytes) return "0 KB";
@@ -80,7 +80,7 @@ function npmPackSizes(names) {
 }
 
 /**
- * Writes docs/src/page-data/rapidoc-build-info.{json,yaml}: rapidoc's version, the size of
+ * Writes sites/rapidoc/page-data/rapidoc-build-info.{json,yaml}: rapidoc's version, the size of
  * rapidoc-min.js (`bundle`, which the docs pages print), and for every publishable package its
  * built bundles (`dist/*.js`, raw and gzip) and what npm would publish (packed, unpacked, files).
  * Run after the production builds (the build scripts of rapidoc, @rapidoc/prerender and

@@ -16,8 +16,8 @@ import { generateMcpServer } from "@rapidoc/mcp";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../..");
-const specPath = path.join(root, "docs/public/specs/petstore.yaml");
-const arazzoPath = path.join(root, "docs/public/specs/petstore.arazzo.yaml");
+const specPath = path.join(root, "sites/rapidoc/public/specs/petstore.yaml");
+const arazzoPath = path.join(root, "sites/rapidoc/public/specs/petstore.arazzo.yaml");
 const loader = path.join(root, "scripts/test-loader.mjs");
 
 describe("mcp: the exported project runs against @rapidoc/mock", () => {

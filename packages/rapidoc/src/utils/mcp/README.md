@@ -172,9 +172,9 @@ methods, and the network calls themselves (the runtime only builds and sends req
 ## Verification
 
 - `npm run test:unit` from the repo root. `tests/unit/mcp-generator.test.js` covers the manifest
-  (from `docs/public/specs/petstore.yaml` and small documents), the schema converter, the runtime
+  (from `sites/rapidoc/public/specs/petstore.yaml` and small documents), the schema converter, the runtime
   with a fake `fetch`, credentials from the environment, the project files and the zip.
-  `tests/unit/mcp-workflows.test.js` covers compiling `docs/public/specs/petstore.arazzo.yaml`,
+  `tests/unit/mcp-workflows.test.js` covers compiling `sites/rapidoc/public/specs/petstore.arazzo.yaml`,
   expressions, conditions, and runs (outputs between steps, retry, goto, failure) with a fake
   `fetch`. `tests/unit/mcp-project.test.js` runs the exported project for real: it starts `server.ts`
   (through `scripts/test-loader.mjs` instead of `tsx`) under `.test-tmp/`, drives it with the MCP

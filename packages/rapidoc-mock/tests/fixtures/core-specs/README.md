@@ -74,7 +74,7 @@ references a Markdown file the loader cannot find.
 Stripe was tried and left out as too large for this set (Jira was at first, for the same reason, and was added
 later for the patterns above). The Apideck HRIS
 API was left out because it follows the same conventions as the Apideck CRM API here. The Swagger Petstore 3.0 was
-left out because `tests/classify.test.js` already checks the Petstore in full, from `docs/public/specs/petstore-3.2.yaml`.
+left out because `tests/classify.test.js` already checks the Petstore in full, from `sites/rapidoc/public/specs/petstore-3.2.yaml`.
 
 ## Updating
 

@@ -30,7 +30,6 @@ rapidoc/
 ├── integrations/         # RapiDoc integrations in other languages, each with its own toolchain; not npm workspaces
 │   ├── rapidoc-python/   # RapiDoc for Python web frameworks: FastAPI and Starlette (PyPI: rapidoc)
 │   └── rapidoc-dotnet/   # RapiDoc for ASP.NET Core (NuGet: RapiDoc.AspNetCore)
-├── docs/                 # Documentation & interactive showcase site (Astro 7 + Starlight)
 ├── sites/
 │   ├── rapi-mock/        # The RapiMock product and documentation site (mock.rapidocui.com), built with RapiDoc Portal
 │   ├── shared/           # Code more than one site uses: the element reference component and its data
@@ -68,7 +67,7 @@ All agents must strictly adhere to the following system boundaries:
 - **Core Library Independence (`packages/rapidoc`)**:
   - `rapidoc` is published to npm as standalone browser bundles (`dist/rapidoc-min.js`, `dist/rapidoc-flow-min.js`) with an empty `dependencies` list: its libraries are `devDependencies`, bundled by Vite. Which ones are bundled: `dist/<bundle>.LICENSE.txt`, written by every build with each bundled package's version, license and notice. Copies of a bundle (the portal's `public/assets/`, the docs site's `dist/rapidoc/`) take that file along. Never add a runtime dependency or a Node-only export to it; Node entry points are separate packages (`@rapidoc/prerender`, `@rapidoc/mcp`).
   - Third-party runtime dependencies (e.g., `lit`, `@scalar/openapi-parser`, `marked`, `microlighter`, `github-slugger`) are bundled directly into `dist/rapidoc-min.js` via Vite.
-  - Never import code from `docs/` or other sub-packages into `packages/rapidoc`.
+  - Never import code from `sites/` or other sub-packages into `packages/rapidoc`.
   - Its public API reference is written once, in the element sources (`src/rapidoc.ts`, and likewise `src/rapidoc-mini.ts` and `src/rapi-flow.ts`, listed in `ELEMENTS` of `scripts/rapidoc-api.js`). In `rapidoc.ts`: each attribute is a `@property` declaration with a union type for its allowed values, its initial value as the default, and a doc comment (`@group`, and optionally `@default`, `@example`, `@hidden`); public methods have a doc comment with `@public`; events, slots and removed attributes are `@fires`, `@slot` and `@deprecatedAttr` tags on the class. `scripts/rapidoc-api.js` reads that with the TypeScript parser. The docs `/api` page renders the result, and every build turns it into `dist/` metadata (`scripts/rapidoc-metadata.js`): `rapidoc-options.schema.json` (of `<rapi-doc>`), `custom-elements.json` and the types `rapidoc.d.ts`, `flow.d.ts`, `react.d.ts`, `vue.d.ts` (all three elements), `oauth-receiver.html` and `integration.json` (version, files, SRI hashes). An attribute without a description and `@group` (or `@internal`) fails the build and `tests/unit/api-manifest.test.js`.
 - **Integrations (`packages/rapidoc-embed` [@rapidoc/embed])**:
   - The contract every RapiDoc integration (framework middleware, docs-site plugin, tool extension) implements: options, routes and the host page's HTML. `src/core.js` has no imports; its output is fixed by `conformance/fixtures/`, which ports in other languages also run. Changing that output needs a new contract version.
@@ -87,11 +86,6 @@ All agents must strictly adhere to the following system boundaries:
   - Specs are loaded with `@scalar/openapi-parser`, like `<rapi-doc>`: and schemas are read through RapiDoc's `schemaToAST`: it bundles `packages/rapidoc/src/utils/spec-loader.js` and `schema-utils.js` by relative path, and imports nothing else from other packages.
   - Three layers: loading (`src/load-spec.js`), the headless core (`src/core/`: a resolved spec in, a pdfmake document definition out, no DOM, network or pdfmake) and rendering (`src/render-browser.js`). Keep the core headless: Node builds the same PDF from it.
   - Its output is fixed by `tests/fixtures/baseline/` (serialized document definitions, started from 2.2.1's); `npm run test:rapipdf` compares. A change that alters the PDF on purpose updates the baseline with it.
-- **Documentation Site (`docs`)**:
-  - The Starlight site that was rapidocui.com until 2026-11-22; no longer published (rapidocui.com is `sites/rapidoc`).
-  - Consumes `packages/rapidoc` via npm workspaces (`"rapidoc": "*"`).
-  - Aliases `rapidoc` and `~` to `../packages/rapidoc/src/` in development for instantaneous hot reloading.
-  - The Astro dev server and build pipeline automatically compile `packages/rapidoc` into `rapidoc-min.js` if missing.
 - **CLI & Portal (`packages/rapidoc-cli` [@rapidoc/cli], `packages/rapidoc-portal` [@rapidoc/portal])**:
   - Maintain clean boundaries. `@rapidoc/cli` (bin `rapidoc`) is the single command users run: `init`, `dev`, `build`, `serve`, `preview`, `mock`, `validate`, `lint`, `bundle`, `pdf`, `mcp`, `migrate`, `doctor`, `completion`. `@rapidoc/portal` is the docs-as-code developer portal engine and library.
   - `@rapidoc/portal` is an **optional peer** of the CLI, imported lazily: only `dev`, `build`, `migrate` and folder-wide `validate` load it, so `rapidoc init` and `rapidoc validate <spec>` work without Astro installed. Never import it at the top of the CLI.
@@ -106,7 +100,7 @@ All agents must strictly adhere to the following system boundaries:
 - **RapiMock site (`sites/rapi-mock`)**:
   - The product and documentation site of the mock server, named **RapiMock**, for `mock.rapidocui.com`. Built with RapiDoc Portal from this repository's own `@rapidoc/cli` and `@rapidoc/portal` (`npm run dev:mock-site`, `npm run build:mock-site`); it is not an npm workspace and publishes nothing to npm.
   - Its source lives here so a change to the mock and its documentation land in one pull request. A separate repository, `rapi-mock-doc`, only publishes the built site with GitHub Pages: `.github/workflows/publish-mock-site.yml` here builds it and pushes the files there.
-  - It is where the mock's documentation grows. The mock pages of the Starlight site (`docs/src/content/docs/mocking/mock-server.mdx`) are to become a short summary that links to it; don't add new mock documentation there. Its own rules are in `sites/rapi-mock/AGENTS.md`.
+  - It is where the mock's documentation grows. rapidocui.com has only the mock's feature page (`sites/rapidoc/pages/rapi-mock.astro`), which links to it. Its own rules are in `sites/rapi-mock/AGENTS.md`.
 
 - **Shared site code (`sites/shared`)**: what more than one site uses: the element reference component (`components/ElementReference.astro`) and its data (`element-api.ts`, reading the element sources with `scripts/rapidoc-api.js`), used by `sites/rapidoc` and `sites/rapi-flow`. `styles/header.css` is the header of all four sites (rapidocui.com's layout) `styles/footer.css` lines their footer up with it, `styles/content.css` widens pages without "On this page", `styles/dark.css` is the dark theme of all four (rapidocui.com's navy, also on the API reference and embedded operations and workflows) and `styles/light.css` the light one (the orange of RapiDoc's `amber` theme, on white), all imported first by each site's `styles/portal.css`; the footer's columns are the same `footer` block in each site's config. A docs page imports it by relative path; it finds the repository from the site's folder (`virtual:rapidoc-portal/project`, two levels down), never from its own location, which a build bundles away.
 
@@ -122,8 +116,7 @@ All agents must strictly adhere to the following system boundaries:
 
 - **Never commit generated build output**:
   - `packages/rapidoc/dist/`
-  - `docs/dist/`
-  - `docs/.astro/`
+  - `sites/*/dist/`
   - `node_modules/`
   - Temporary benchmark runs
 - Keep `dist` files out of Git commits. Production bundles are generated by CI/CD (`.github/workflows/deploy-docs.yml` builds rapidocui.com from `sites/rapidoc`).
@@ -139,27 +132,24 @@ All primary scripts are runnable from the repository root via npm:
 
 | Command           | Workspace | Description                                                                                                                         |
 | :---------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`     | `docs`    | Launches Astro documentation & showcase dev server (default: `http://localhost:4321`) with live watcher on `packages/rapidoc/src/`. |
-| `npm run stop`    | `docs`    | Stops the running Astro dev server or terminates background dev processes.                                                          |
-| `npm run preview` | `docs`    | Previews the production build of the documentation site.                                                                            |
+| `npm run dev`     | `sites/*` | Same as `npm run dev:sites`: the four sites' dev servers side by side (below). |
 
 ### Build Commands
 
 | Command                     | Scope                 | Description                                                                                                             |
 | :-------------------------- | :-------------------- | :---------------------------------------------------------------------------------------------------------------------- |
-| `npm run build`             | Monorepo              | Sequentially builds `rapidoc` (via Vite) and `docs` (via Astro).                                                        |
+| `npm run build`             | `sites/rapidoc`       | Same as `npm run build:rapidoc-site`: builds the packages rapidocui.com loads, then the site to `sites/rapidoc/dist/`. |
 | `npm run build:rapidoc`     | `packages/rapidoc`    | Builds `dist/rapidoc-min.js` and `dist/rapidoc-flow-min.js` (`rapidoc/flow`) with Vite. |
-| `npm run build:prerender`      | `packages/rapidoc-prerender` | Builds `@rapidoc/prerender` (`dist/index.js`); the portal, the docs guide's build and `prerender:demo` use it. |
+| `npm run build:prerender`      | `packages/rapidoc-prerender` | Builds `@rapidoc/prerender` (`dist/index.js`); the portal and `prerender:demo` use it. |
 | `npm run build:mcp`         | `packages/rapidoc-mcp` | Builds `@rapidoc/mcp` (`dist/index.js`); the portal and server import it, so `pretest:portal` and `build:demo` run it. |
 | `npm run build:rapipdf`     | `packages/rapipdf`    | Builds `dist/rapipdf-min.js` and `dist/rapipdf.js` (`<rapi-pdf>`, classic script and ES module) and `dist/node.js` (`rapipdf/node`) with Vite. |
 | `npm run build:mock`        | `packages/rapidoc-mock` | Builds the Mock UI (`dist/ui/mock-ui.js`, Lit elements with Lit and TanStack Table bundled in), which `rapidoc mock --stateful` serves at `/__mock/ui`. The server itself is published as source. |
 | `npm run dev:mock-ui`       | `packages/rapidoc-mock` | Builds the Mock UI, then runs `rapidoc mock --stateful` on three test specs (PetClinic, Nylas, RealWorld) at `http://localhost:4411/__mock/ui`. After a change under `ui/`, `npm run build:mock` and reload; after one under `src/`, restart it. |
 | `npm run build:packages`   | Monorepo              | Builds everything the packages publish: `rapidoc`, `@rapidoc/mcp`, `@rapidoc/prerender`, `rapipdf`, the Mock UI of `@rapidoc/mock` and the portal's `schema.json` (the release workflow runs it). |
 | `npm run changeset`        | Monorepo              | Adds a changeset for the packages a pull request changes (§6). `npm run version-packages` applies them; the release workflow runs it. |
-| `npm run build-info`       | Monorepo              | Rewrites `docs/src/page-data/rapidoc-build-info.{json,yaml}`: version, bundle sizes and npm package sizes of every package (the package builds run it last). |
+| `npm run build-info`       | Monorepo              | Rewrites `sites/rapidoc/page-data/rapidoc-build-info.{json,yaml}`: version, bundle sizes and npm package sizes of every package (the package builds run it last). |
 | `npm run build:rapidoc:dev` | `packages/rapidoc`    | Builds an unminified bundle with sourcemaps and console logs intact.                                                    |
 | `npm run build:size`        | `packages/rapidoc`    | Builds RapiDoc with `ANALYZE=true` generating visualizer treemap in `dist/stats.html`.                                  |
-| `npm run build:docs`        | `docs`                | Builds the Astro Starlight documentation site to `docs/dist/`.                                                          |
 | `npm run dev:sites`         | `sites/*`             | Runs the four sites' dev servers side by side (rapidocui.com 4329, RapiFlow 4330, RapiMock 4327, Portal 4328) with `RAPIDOC_DEV_LINKS` set, so links between them stay local (`scripts/dev-sites.mjs`). |
 | `npm run build:mock-site`   | `sites/rapi-mock`     | Builds the RapiMock site to `sites/rapi-mock/dist/` with this repository's CLI and portal (`npm run dev:mock-site` previews it on port 4327). Both first run `npm run build:spec-check`: the site's spec check (`/spec-check/`), the validator, lint rules and stateful mock bundled for a browser, shown in the Mock UI. |
 | `npm run build:flow-site`   | `sites/rapi-flow`     | Builds the RapiFlow site to `sites/rapi-flow/dist/` with this repository's CLI and portal (`npm run dev:flow-site` previews it on port 4330). |
@@ -184,7 +174,7 @@ All primary scripts are runnable from the repository root via npm:
 
 | Command              | Scope    | Description                                                                          |
 | :------------------- | :------- | :----------------------------------------------------------------------------------- |
-| `npm run lint`       | Monorepo | Runs oxlint on `packages/`, `docs/src/`, `tests/` and `scripts/`; any warning fails. |
+| `npm run lint`       | Monorepo | Runs oxlint on `packages/`, `tests/` and `scripts/`; any warning fails. |
 | `npm run format`     | Monorepo | Checks oxfmt formatting of the same folders (fixtures and generated JSON excluded).  |
 | `npm run format-fix` | Monorepo | Formats the same folders with oxfmt.                                                 |
 
@@ -213,14 +203,6 @@ Name the products as `brand/README.md` ("Names") sets out, in docs, pages, sites
 - Expose styling extension points via **CSS Shadow Parts** (`::part(...)`) and **CSS Custom Properties** (e.g. `--bg`, `--fg`, `--primary-color`).
 - Keep components responsive, accessible, and fast with large OpenAPI schemas. Avoid unnecessary DOM allocations.
 
-### Documentation & Astro Guidelines (`docs`)
-
-- Built with **Astro 7** and **Starlight**.
-- Documentation content resides in `src/content/docs/`.
-- Dynamic and interactive demo pages reside in `src/pages/` and `src/pages/examples/`.
-- YAML page data lives in `src/page-data/`. The attribute, method, event and slot reference is not there: it is read from the doc comments of `packages/rapidoc/src/rapidoc.ts`.
-- Ensure redirects in `docs/astro.config.mjs` are maintained when reorganizing routes.
-
 ---
 
 ## 5. Agent Workflow Rules
@@ -233,7 +215,6 @@ When executing tasks in this repository, follow these rules:
 2. **Respect Package Boundaries**:
    - Refer to nested `AGENTS.md` files in subdirectories for package-specific context:
      - [`packages/rapidoc/AGENTS.md`](packages/rapidoc/AGENTS.md)
-     - [`docs/AGENTS.md`](docs/AGENTS.md)
      - [`packages/rapidoc-cli/AGENTS.md`](packages/rapidoc-cli/AGENTS.md)
      - [`packages/rapidoc-server/AGENTS.md`](packages/rapidoc-server/AGENTS.md)
      - [`packages/rapidoc-mock/AGENTS.md`](packages/rapidoc-mock/AGENTS.md)
@@ -257,7 +238,7 @@ When executing tasks in this repository, follow these rules:
      - [`sites/rapidoc/AGENTS.md`](sites/rapidoc/AGENTS.md)
    - After changing portal, CLI, server or mock code, run `npm run test:portal`.
 3. **No Unsolicited File Deletions**:
-   - Preserve existing public specs (`docs/public/specs/`)
+   - Preserve existing public specs (`sites/rapidoc/public/specs/`, `specs-test/`): the examples load them and the unit, mock and perf tests read them
 4. **Commits and Git State**:
    - **Never run `git commit` unless explicitly instructed by the user.** Keep all working tree changes uncommitted for user review.
    - Never commit `dist/` or other build artifacts to Git.
@@ -273,7 +254,7 @@ Versions and npm publishing go through [Changesets](https://changesets.dev) (`.c
   - `@rapidoc/cli`, `portal`, `server`, `mock`, `prerender`, `mcp` and `create-rapidoc` are one `fixed` group: every release bumps all seven to the same version. While they are 0.x, a minor (0.2.0) is breaking and a patch is a fix or an addition; they go to 1.0.0 together.
   - `rapipdf` (the `<rapi-pdf>` web component) has its own semver too, continuing from 2.2.1.
   - `@rapidoc/embed` and each integration (`@rapidoc/hono`, `@rapidoc/express`, `@rapidoc/fastify`, `@rapidoc/starlight`, `@rapidoc/vitepress`, `@rapidoc/docusaurus`) have their own semver, outside the group: integrations should not re-release with every portal release. A change to the output of its `src/core.js` is a new contract version and a breaking release.
-- **Every pull request that changes a published package adds a changeset**: `npm run changeset`, pick the packages and the bump, write one changelog line in the user's terms. Changes that release nothing (docs site, tests, tooling) need none.
+- **Every pull request that changes a published package adds a changeset**: `npm run changeset`, pick the packages and the bump, write one changelog line in the user's terms. Changes that release nothing (the sites, tests, tooling) need none.
 - **`rapidoc` source is also in `@rapidoc/prerender` and `@rapidoc/mcp`**: both bundle `packages/rapidoc/src` at build time, which Changesets can't see. A change to its templates, components or styles (prerender) or to `utils/mcp/` and `utils/arazzo/` (mcp) needs those packages in its changeset too, so the portal's pre-rendered HTML and the `rapidoc-min.js` that takes it over come from the same source. `rapipdf` bundles `utils/spec-loader.js` and `utils/schema-utils.js` the same way, so a change to either needs `rapipdf` in its changeset.
 - **The flow**: changesets merged to `master` → the workflow opens or updates the "chore: release packages" pull request (`npm run version-packages`: versions, changelogs, internal ranges, lockfile). Merging it → the workflow builds (`npm run build:packages`), runs `test:unit`, packs, publishes with npm trusted publishing (no token), and creates git tags and GitHub releases.
 - **Internal ranges** are updated by `changeset version` (`updateInternalDependencies: patch`); don't edit them by hand.

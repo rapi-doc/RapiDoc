@@ -29,11 +29,11 @@
 | `integrations/rapidoc-dotnet` | `RapiDoc.AspNetCore` (NuGet) | `src/RapiDoc.AspNetCore/RapiDocEndpointRouteBuilderExtensions.cs` (`MapRapiDoc`), `RapiDocContract.cs` (the contract in C#); own toolchain (.NET SDK, xunit), not an npm workspace |
 | `packages/rapidoc-mock` | `@rapidoc/mock` | `src/index.js` (`createMockApp`, `startMockServer`): mocks the portal's APIs under `/<api id>` (default port 4010); examples, generated data, request validation, JWT scope checks; libraries behind `src/engine/` |
 | `packages/create-rapidoc` | `create-rapidoc` | `src/index.js` (bin `create-rapidoc`); `src/scaffold.js` (`scaffoldProject`, `findOpenApiSpecs`, also used by `rapidoc init`) |
-| `docs` | `docs` (private) | `astro.config.mjs`; content in `src/content/docs/`, pages in `src/pages/` |
+| `sites/rapidoc` | (not a workspace) | `rapidoc.config.yaml`; docs in `docs/`, pages in `pages/`; rapidocui.com, built with RapiDoc Portal (also `sites/rapi-flow`, `sites/rapi-mock`, `sites/rapi-portal`) |
 
 ### Most-Used Commands (from repo root)
 
-- `npm run dev` / `npm run stop` — docs dev server on `http://localhost:4321`, live-reloading `packages/rapidoc/src/`
+- `npm run dev` — the four sites' dev servers (rapidocui.com on `http://localhost:4329`); `npm run dev:rapidoc-site` for rapidocui.com alone
 - `npm run build:rapidoc` — rebuild `rapidoc` bundles (never `git checkout`/`git restore` `dist/rapidoc-min.js`)
 - `npm run build:prerender` — rebuild `@rapidoc/prerender` after changing templates, components, styles or the renderer
 - `npm run build:mcp` — rebuild `@rapidoc/mcp` after changing MCP or Arazzo code the portal or server uses
@@ -55,7 +55,7 @@ The full command tables are in `AGENTS.md` §3.
 - **Package context**: each workspace has a `CLAUDE.md` that imports its own `AGENTS.md`; Claude Code loads it when working on files in that package.
 - **Subagents** (`.claude/agents/`):
   - `rapidoc-core` — `packages/rapidoc` (component, parser, schema, bundle)
-  - `docs-maintainer` — `docs/` (Astro + Starlight site, examples, redirects)
+  - `docs-maintainer` — `sites/` (rapidocui.com and the RapiFlow, RapiMock and RapiDoc Portal sites: docs pages, examples, page data, specs)
   - `cli-portal` — `packages/rapidoc-cli`, `packages/rapidoc-portal`, `packages/rapidoc-server`, `packages/rapidoc-mock`, `packages/create-rapidoc`
 - **Skills**:
   - `rapidoc-prerender-navigation` (`packages/rapidoc-portal/.claude/skills/`) — static `getNavBarHtml` sidebar + headless `<rapi-doc>` with independent scrolling. Loads once Claude touches files under `packages/rapidoc-portal/`.

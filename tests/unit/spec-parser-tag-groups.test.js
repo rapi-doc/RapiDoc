@@ -712,7 +712,7 @@ describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
     const navbarTemplate = (await import("../../packages/rapidoc/src/templates/navbar-template.js"))
       .default;
 
-    const shipmentSpecPath = path.resolve("docs/public/specs-test/shipment.json");
+    const shipmentSpecPath = path.resolve("sites/rapidoc/public/specs-test/shipment.json");
     const specRaw = await fs.readFile(shipmentSpecPath, "utf8");
     const specObj = JSON.parse(specRaw);
 

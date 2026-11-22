@@ -21,7 +21,7 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const specText = fs.readFileSync(
-  path.resolve(__dirname, "../../docs/public/specs/streaming.yaml"),
+  path.resolve(__dirname, "../../sites/rapidoc/public/specs/streaming.yaml"),
   "utf8",
 );
 

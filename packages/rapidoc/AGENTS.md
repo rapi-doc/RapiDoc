@@ -23,7 +23,7 @@
   - `vite-plugin-banner` (license & version header injection)
   - Custom esbuild transformer (strips `console.*` and `debugger` calls in production)
   - `rollup-plugin-visualizer` (activated via `ANALYZE=true` for bundle treemap)
-  - `scripts/capture-build-info.js` (run last by `npm run build`, not a Vite plugin: records the version and the sizes of every package's bundles and npm package in `docs/src/page-data/rapidoc-build-info.{json,yaml}`)
+  - `scripts/capture-build-info.js` (run last by `npm run build`, not a Vite plugin: records the version and the sizes of every package's bundles and npm package in `sites/rapidoc/page-data/rapidoc-build-info.{json,yaml}`)
   - `scripts/rapidoc-api.js` and `scripts/rapidoc-metadata.js` (`rapidocMetadata()` Vite plugin, after each bundle is written: reads the attributes, methods, events and slots from the declarations and doc comments of `src/rapidoc.ts`, `src/rapidoc-mini.ts` and `src/rapi-flow.ts`, and writes `dist/rapidoc-options.schema.json`, `custom-elements.json`, `rapidoc.d.ts`, `flow.d.ts`, `react.d.ts`, `vue.d.ts`, `oauth-receiver.html` and `integration.json`; `tests/unit/api-manifest.test.js`). A new attribute needs a doc comment with a description and `@group`, and a union type when it takes a fixed list of values: that comment is its documentation on the docs site and in the published types, and the build fails without it. The tags are listed in the class comment of `rapidoc.ts`
   - `scripts/third-party-licenses.js` (writes `<bundle>.LICENSE.txt` with the license notices of the bundled npm packages, which minification strips; the banner names the file; `tests/unit/third-party-licenses.test.js`)
 - **Path Aliases**:
@@ -95,7 +95,7 @@ packages/rapidoc/src/
 6. **CSS Variables (Theming API)**:
    - Use shadcn/ui names for anything shadcn/ui has a token for (`--background`, `--foreground`, `--card`, `--muted`, `--primary`, `--border`, `--input` = form-field border, `--ring`, `--radius`, `--destructive`, `--font-sans`, `--font-mono`); navigation uses `--sidebar-*` for colors and sizes.
    - Every variable RapiDoc reads is defined with a default in `styles/theme-tokens.js` and read without a fallback (`var(--x)`). No fallback-only override hooks, no aliases, and nothing portal-specific in the core. `tests/unit/css-variables.test.js` enforces this.
-   - When adding, renaming, or removing a variable, update `docs/src/page-data/styling-data.yaml` (the documented list must match the defined list) and the current migration guide.
+   - When adding, renaming, or removing a variable, update `sites/rapidoc/page-data/styling-data.yaml` (the documented list must match the defined list) and the current migration guide.
 7. **No Direct `console.log` in Production**:
    - Strip debug logging before finalizing changes; `vite.config.mjs` removes `console` in production bundles, but keeping the source clean avoids unintended warning noise.
 8. **Declarative Shadow DOM (DSD) Hydration Hygiene**:

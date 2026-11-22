@@ -1,5 +1,0 @@
-properties:
-  id:
-    type: number
-required:
-  - id

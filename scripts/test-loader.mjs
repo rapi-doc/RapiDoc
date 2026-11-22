@@ -10,6 +10,12 @@ registerHooks({
       const resolved = nextResolve(specifier.slice(0, -4), context);
       return { ...resolved, url: `${resolved.url}?raw` };
     }
+    // The portal's module with the site's folder, for the tests of rapidocui.com's own code (sites/rapidoc)
+    if (specifier === "virtual:rapidoc-portal/project") {
+      const projectDir = fileURLToPath(new URL("../sites/rapidoc", import.meta.url));
+      const source = `export const projectDir = ${JSON.stringify(projectDir)};`;
+      return { url: `data:text/javascript,${encodeURIComponent(source)}`, shortCircuit: true };
+    }
     let target = specifier;
     if (specifier === "~") {
       target = fileURLToPath(new URL("../packages/rapidoc/src/index.js", import.meta.url));

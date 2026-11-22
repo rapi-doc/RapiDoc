@@ -29,4 +29,4 @@
 | `npm run build:prerender` (root) | Same, from the monorepo root                                                                             |
 | `npm run test:unit` (root)       | `static-renderer`, `semantic-markup`, `unused-tags` and the other tests that import `@rapidoc/prerender` |
 
-When the exported names or options change, update `src/index.d.ts`, `src/README.md` and the docs page (`docs/src/content/docs/performance/prerender.mdx`).
+When the exported names or options change, update `src/index.d.ts`, `src/README.md` and the docs page (`sites/rapidoc/docs/prerender/index.mdx`).

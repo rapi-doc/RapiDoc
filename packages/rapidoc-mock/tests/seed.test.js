@@ -10,7 +10,9 @@ import { entityDomain, generatorFor } from "../src/stateful/generators.js";
 import { valuesFor } from "../src/engine/values.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const petstore = await loadSpec(path.resolve(here, "../../../docs/public/specs/petstore-3.2.yaml"));
+const petstore = await loadSpec(
+  path.resolve(here, "../../../sites/rapidoc/public/specs/petstore-3.2.yaml"),
+);
 const model = classifySpec(petstore);
 
 describe("generateSeed on the Petstore", async () => {

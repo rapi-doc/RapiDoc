@@ -25,7 +25,7 @@ import runtimeSource from "../../packages/rapidoc/src/utils/mcp/runtime.js?raw";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const petstore = parseYaml(
-  fs.readFileSync(path.join(here, "../../docs/public/specs/petstore.yaml"), "utf8"),
+  fs.readFileSync(path.join(here, "../../sites/rapidoc/public/specs/petstore.yaml"), "utf8"),
 );
 
 /** A fetch stand-in that records the request and answers with it. */

@@ -360,7 +360,7 @@ describe("Static Document Pre-Rendering (renderRapiDoc)", () => {
 
   it("should load and render spec from a local file path", async () => {
     const htmlOutput = await renderRapiDoc({
-      spec: "./docs/public/specs/petstore.json",
+      spec: "./sites/rapidoc/public/specs/petstore.json",
       renderStyle: "read",
       theme: "jade",
     });

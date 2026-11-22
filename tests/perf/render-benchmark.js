@@ -97,9 +97,9 @@ function createStaticServer() {
 
     if (url.startsWith("/specs/") || url.startsWith("/specs-test/")) {
       const filename = path.basename(url);
-      let filePath = path.join(rootDir, "docs/public/specs-test", filename);
+      let filePath = path.join(rootDir, "sites/rapidoc/public/specs-test", filename);
       if (!fs.existsSync(filePath)) {
-        filePath = path.join(rootDir, "docs/public/specs", filename);
+        filePath = path.join(rootDir, "sites/rapidoc/public/specs", filename);
       }
       if (fs.existsSync(filePath)) {
         const ext = path.extname(filePath);
@@ -289,7 +289,7 @@ function formatNodes(count) {
 }
 
 function saveRenderBenchmarkResults(specResults) {
-  const yamlPath = path.join(rootDir, "docs/src/page-data/performance-benchmarks.yaml");
+  const yamlPath = path.join(rootDir, "sites/rapidoc/page-data/performance-benchmarks.yaml");
   const rapidocPkg = JSON.parse(
     fs.readFileSync(path.join(rootDir, "packages/rapidoc/package.json"), "utf-8"),
   );

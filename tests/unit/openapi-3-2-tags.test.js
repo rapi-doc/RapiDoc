@@ -184,7 +184,7 @@ describe("OpenAPI 3.2 Example Objects: dataValue and serializedValue", () => {
   });
 
   const readSpec = (name) =>
-    fs.readFileSync(path.resolve(__dirname, `../../docs/public/specs/${name}`), "utf8");
+    fs.readFileSync(path.resolve(__dirname, `../../sites/rapidoc/public/specs/${name}`), "utf8");
 
   it("parses the 3.2 Petstore with nested tags: groups, names and dataValue examples", async () => {
     const spec = await parse(readSpec("petstore-with-tag-nesting-3.2.yaml"));

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { cleanRawTitle, computePageTitleInfo } from "../../docs/src/utils/pageTitle.ts";
+import { cleanRawTitle, computePageTitleInfo } from "../../sites/rapidoc/utils/pageTitle.ts";
 
 describe("cleanRawTitle", () => {
   it("strips legacy prefixes and suffixes from test titles", () => {
@@ -95,7 +95,7 @@ describe("computePageTitleInfo", () => {
   });
 });
 
-import { findTestBySlug, findExampleBySlug } from "../../docs/src/utils/pageMeta.ts";
+import { findTestBySlug, findExampleBySlug } from "../../sites/rapidoc/utils/pageMeta.ts";
 
 describe("pageMeta auto-lookup from page-data", () => {
   it("automatically looks up test title and description from tests.yaml", () => {
@@ -142,7 +142,7 @@ describe("product pages", () => {
   });
 
   it("are listed for every top-level product link of the Products menu", async () => {
-    const { PRODUCT_GROUPS } = await import("../../docs/src/page-data/products.ts");
+    const { PRODUCT_GROUPS } = await import("../../sites/rapidoc/page-data/products.ts");
     for (const group of PRODUCT_GROUPS) {
       for (const item of group.items) {
         const segments = item.href.split("#")[0].split("/").filter(Boolean);

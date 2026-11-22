@@ -14,7 +14,7 @@ import {
   controlLayout,
   barWidth,
   TUNER_ROW_WIDTH,
-} from "../../docs/src/components/controller-registry.ts";
+} from "../../sites/rapidoc/components/controller-registry.ts";
 import { readApiManifest, listAttributes } from "../../scripts/rapidoc-metadata.js";
 
 const attributes = Object.fromEntries(listAttributes(readApiManifest()).map((a) => [a.name, a]));

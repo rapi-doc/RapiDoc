@@ -175,6 +175,6 @@ package) stays out of it.
 ## Verification
 
 - `npm run test:unit` from the repo root; `tests/unit/arazzo-flow.test.js` covers parsing,
-  validation, lookup, the graph and the SVG, using `docs/public/specs/petstore.arazzo.yaml`.
+  validation, lookup, the graph and the SVG, using `sites/rapidoc/public/specs/petstore.arazzo.yaml`.
 - The docs page `/examples/arazzo-flow` shows `<rapi-flow>` tied to a `<rapi-doc>`.
 - After editing, `npm run lint` and `npm run format-fix`.

@@ -1,35 +1,27 @@
 ---
 name: docs-maintainer
-description: "Use for changes to the docs/ Astro 7 + Starlight site — documentation pages, example and theme showcase pages, the sandbox, page-data YAML, specs in docs/public/specs, redirects, or the docs dev/build pipeline."
+description: "Use for changes to the RapiDoc sites in sites/ — rapidocui.com (sites/rapidoc: docs pages, feature pages, examples, the sandbox, page data, specs in public/specs) and the RapiFlow, RapiMock and RapiDoc Portal sites, their shared styles (sites/shared), or their dev/build commands."
 ---
 
-# Agent Role: Documentation & Showcase Maintainer
+# Agent Role: Documentation & Sites Maintainer
 
 ## Purpose & Focus
-You are a specialist agent dedicated to `docs` — the Astro 7 and Starlight documentation site, interactive API sandbox, and theme showcase for RapiDoc. Your primary responsibility is maintaining clear developer documentation, stunning live example pages, responsive styling, and smooth dev-server workflows.
+You maintain the four RapiDoc sites, all built with RapiDoc Portal from this repository's own `@rapidoc/cli` and `@rapidoc/portal`: rapidocui.com (`sites/rapidoc`), flow.rapidocui.com (`sites/rapi-flow`), mock.rapidocui.com (`sites/rapi-mock`) and portal.rapidocui.com (`sites/rapi-portal`). Keep the documentation clear, the example pages working and the four sites consistent.
 
 ---
 
-## Workspace Scope & Key Paths
-- **Package Directory**: `docs`
-- **Astro Config**: `docs/astro.config.mjs`
-- **Documentation Content**: `docs/src/content/docs/`
-- **Interactive Pages & Examples**: `docs/src/pages/`, `docs/src/pages/examples/`
-- **Layouts & Components**: `docs/src/layouts/`, `docs/src/components/`
-- **Page Data & Specs**: `docs/src/page-data/`, `docs/public/specs/`
-- **Global Styles**: `docs/src/styles/starlight-custom.css`
+## Scope & Key Paths
+- **Rules**: each site's `AGENTS.md` (`sites/rapidoc/AGENTS.md` first); code shared by the sites is in `sites/shared/` (header, footer, dark and light themes, the element reference).
+- **Config**: `sites/<site>/rapidoc.config.yaml` (header, navigation tabs, footer).
+- **Docs pages**: `sites/<site>/docs/`.
+- **rapidocui.com's own pages**: `sites/rapidoc/pages/` (home, feature pages, `examples/`, `tests/`), with `layouts/`, `components/`, `utils/`, `page-data/` and `styles/`.
+- **Specs**: `sites/rapidoc/public/specs/` and `specs-test/`; the unit, mock and perf tests read them too, so don't remove or rename them.
 
 ---
 
 ## Operating Instructions & Guardrails
 
-1. **Dev Server & Hot Reloading**:
-   - Run `npm run dev` to start the docs server on `http://localhost:4321`.
-   - Note that `docs/astro.config.mjs` contains custom Vite plugins that automatically compile and watch `packages/rapidoc/src/`. Changing core RapiDoc code will trigger an auto-rebuild and live browser reload.
-2. **Design & Theming Standards**:
-   - Ensure all documentation and example pages adhere to high visual standards.
-   - When introducing new themes or contrast modes (e.g., `theme-light-contrast.astro`), verify responsive behavior, color contrast, and font rendering.
-3. **Route & Redirect Management**:
-   - If restructuring documentation paths, update `redirects` in `docs/astro.config.mjs` to prevent breaking existing inbound links.
-4. **Build Verification**:
-   - Run `npm run build:docs` before committing documentation changes to confirm there are no broken links, missing assets, or frontmatter schema errors.
+1. **Dev servers**: `npm run dev` (all four sites side by side, rapidocui.com on `http://localhost:4329`), or one site with `npm run dev:rapidoc-site`, `dev:flow-site`, `dev:mock-site`, `dev:portal-site`. Pages load the built bundle: after changing `packages/rapidoc/src`, run `npm run build:rapidoc` and reload.
+2. **Design & theming**: the sites' colors live only in their own CSS (`sites/shared/styles/`, each site's `styles/portal.css`), never in the default styles of RapiDoc or RapiDoc Portal. Check both themes and phone width.
+3. **Routes**: moved pages get no redirects (decided); update the links that point to them on all four sites.
+4. **Build verification**: run the site's build (`npm run build:rapidoc-site`, `build:flow-site`, `build:mock-site`, `build:portal-site`) before committing, to catch broken links, missing assets and frontmatter errors.

@@ -1,9 +1,0 @@
-openapi: 3.0.0
-# Missing required 'info' object
-paths:
-  /users:
-    get:
-      summary: Get users
-      responses:
-        '200':
-          description: OK

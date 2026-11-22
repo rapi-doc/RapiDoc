@@ -14,7 +14,7 @@ properties, and string transforms that reuse the same CSS outside a shadow root.
   Light DOM use.
 
 Not owned here: which attributes exist (`src/rapidoc.ts`), the documented token list
-(`docs/src/page-data/styling-data.yaml`), and the portal's own layout CSS.
+(`sites/rapidoc/page-data/styling-data.yaml`), and the portal's own layout CSS.
 
 Dependents: `src/rapidoc.ts`, `src/rapidoc-mini.ts` and the shadow-root components in
 `src/components/` list the stylesheets they need in `static get styles()`; `packages/rapidoc-prerender/src/index.js`
@@ -64,7 +64,7 @@ the surface behind them, a `--rf-kind` border, and text mixing 60% `--rf-kind` w
 `--foreground`, which keeps 4.5:1 on every theme and scheme.
 
 The custom properties themselves are not listed here: `theme-tokens.js` is the source of truth and
-`docs/src/page-data/styling-data.yaml` is the documented list (`packages/rapidoc/AGENTS.md` §5,
+`sites/rapidoc/page-data/styling-data.yaml` is the documented list (`packages/rapidoc/AGENTS.md` §5,
 rule 6).
 
 ## Invariants
@@ -75,7 +75,7 @@ rule 6).
 - Tokens are read as plain `var(--x)`, without a fallback. The one exception is the local
   `--method-color` in `endpoint-styles.js`, which `.m-endpoint` and the verb classes set and which
   is read with a fallback to `--method-default` or `--primary`.
-- Adding, renaming or removing a token also updates `docs/src/page-data/styling-data.yaml` and the
+- Adding, renaming or removing a token also updates `sites/rapidoc/page-data/styling-data.yaml` and the
   current migration guide.
 - Dark is the default scheme: the dark block matches `:host`, `[color-scheme='dark']`,
   `[color-scheme='system']` and no `color-scheme`; `system` turns light only under

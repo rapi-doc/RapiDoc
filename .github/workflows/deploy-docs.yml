@@ -2,8 +2,7 @@ name: Deploy rapidocui.com to GitHub Pages
 
 # Builds sites/rapidoc (rapidocui.com, built with RapiDoc Portal from this repository's own CLI and portal) and
 # deploys it with GitHub Pages; the custom domain rapidocui.com is set in the repository's Pages settings.
-# Until the switch-over the live site was the Starlight site in docs/, which stays in the repository but is
-# no longer published. The other RapiDoc sites have their own workflows: publish-flow-site.yml,
+# Until the switch-over (2026-11-22) the live site was the Starlight site in docs/, since removed. The other RapiDoc sites have their own workflows: publish-flow-site.yml,
 # publish-mock-site.yml and publish-portal-site.yml.
 
 on:

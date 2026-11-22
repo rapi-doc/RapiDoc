@@ -27,19 +27,19 @@ const SPECS = [
   {
     id: "petstore-3-2",
     name: "Petstore 3.2 (Baseline)",
-    path: path.join(rootDir, "docs/public/specs-test/petstore-3.2.yaml"),
+    path: path.join(rootDir, "sites/rapidoc/public/specs-test/petstore-3.2.yaml"),
     maxExpectedMs: 80,
   },
   {
     id: "stripe",
     name: "Stripe (Deep Schemas)",
-    path: path.join(rootDir, "docs/public/specs-test/stripe-deep-schema.yaml"),
+    path: path.join(rootDir, "sites/rapidoc/public/specs-test/stripe-deep-schema.yaml"),
     maxExpectedMs: 1400,
   },
   {
     id: "github",
     name: "GitHub (Large Spec)",
-    path: path.join(rootDir, "docs/public/specs-test/github-large.yaml"),
+    path: path.join(rootDir, "sites/rapidoc/public/specs-test/github-large.yaml"),
     maxExpectedMs: 2000,
   },
 ];
@@ -164,7 +164,7 @@ async function runBenchmark() {
 }
 
 function saveParserBenchmarkResults(rawResults) {
-  const yamlPath = path.join(rootDir, "docs/src/page-data/performance-benchmarks.yaml");
+  const yamlPath = path.join(rootDir, "sites/rapidoc/page-data/performance-benchmarks.yaml");
   const rapidocPkg = JSON.parse(
     fs.readFileSync(path.join(rootDir, "packages/rapidoc/package.json"), "utf-8"),
   );

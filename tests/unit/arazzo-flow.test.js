@@ -24,7 +24,7 @@ import { getFlowCss } from "@rapidoc/prerender";
 
 const specsDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "../../docs/public/specs",
+  "../../sites/rapidoc/public/specs",
 );
 const arazzoText = fs.readFileSync(path.join(specsDir, "petstore.arazzo.yaml"), "utf8");
 const petstoreText = fs.readFileSync(path.join(specsDir, "petstore.yaml"), "utf8");

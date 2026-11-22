@@ -17,7 +17,8 @@ import {
 import { indexOperations } from "../../packages/rapidoc/src/utils/arazzo/operations.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const read = (name) => fs.readFileSync(path.join(here, "../../docs/public/specs", name), "utf8");
+const read = (name) =>
+  fs.readFileSync(path.join(here, "../../sites/rapidoc/public/specs", name), "utf8");
 const petstore = parseYaml(read("petstore.yaml"));
 const arazzo = parseYaml(read("petstore.arazzo.yaml"));
 
