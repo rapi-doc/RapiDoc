@@ -1,6 +1,6 @@
 // Captures Rapid Parcels, the RapiDoc Portal demo (https://parcels.rapidocui.com, its source in the
 // rapi-portal-demo repository), for the RapiDoc Portal feature page (pages/portal.astro) as
-// public/assets/images/rapi-portal/portal-demo.png, at twice the pixels for sharp screens: the page
+// public/assets/images/rapi-portal/portal-demo.webp, at twice the pixels for sharp screens: the page
 // the feature page's demo section links to.
 //
 //   node sites/rapidoc/scripts/capture-portal.mjs [address]
@@ -12,6 +12,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
+import sharp from "sharp";
 
 const URL = process.argv[2] || "https://parcels.rapidocui.com/";
 const OUT = join(dirname(fileURLToPath(import.meta.url)), "../public/assets/images/rapi-portal");
@@ -37,8 +38,11 @@ try {
   // the hero animates in
   await page.waitForTimeout(3500);
   mkdirSync(OUT, { recursive: true });
-  const file = join(OUT, "portal-demo.png");
-  await page.screenshot({ path: file });
+  // WebP at quality 82: a seventh of the PNG's size, with no visible loss at this size
+  const file = join(OUT, "portal-demo.webp");
+  await sharp(await page.screenshot())
+    .webp({ quality: 82, effort: 6 })
+    .toFile(file);
   console.log(file);
 } finally {
   await browser.close();
