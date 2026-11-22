@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img" aria-labelledby="t d">
+<title id="t">Who sees what</title>
+<desc id="d">Five requests: a signed-out visitor reads a public page and is sent to sign in for a partner page; a signed-in partner reads it but is denied the billing API; staff in the billing-team group read the billing API. The matching access rule lights up for each.</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+@keyframes k1{0%{opacity:0}6.2%{opacity:0}7%{opacity:1}18%{opacity:1}18.8%{opacity:0}100%{opacity:0}}
+.k1{animation:k1 16s linear infinite}
+@keyframes k2{0%{opacity:0}23.2%{opacity:0}24%{opacity:1}35%{opacity:1}35.8%{opacity:0}40.2%{opacity:0}41%{opacity:1}52%{opacity:1}52.8%{opacity:0}100%{opacity:0}}
+.k2{animation:k2 16s linear infinite}
+@keyframes k3{0%{opacity:0}23.2%{opacity:0}24%{opacity:1}35%{opacity:1}35.8%{opacity:0}40.2%{opacity:0}41%{opacity:1}52%{opacity:1}52.8%{opacity:0}100%{opacity:0}}
+.k3{animation:k3 16s linear infinite}
+@keyframes k4{0%{opacity:0}57.2%{opacity:0}58%{opacity:1}69%{opacity:1}69.8%{opacity:0}74.2%{opacity:0}75%{opacity:1}86%{opacity:1}86.8%{opacity:0}100%{opacity:0}}
+.k4{animation:k4 16s linear infinite}
+@keyframes k5{0%{opacity:0}57.2%{opacity:0}58%{opacity:1}69%{opacity:1}69.8%{opacity:0}74.2%{opacity:0}75%{opacity:1}86%{opacity:1}86.8%{opacity:0}100%{opacity:0}}
+.k5{animation:k5 16s linear infinite}
+@keyframes k6{0%{opacity:0}2.8%{opacity:0}4%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k6{animation:k6 16s linear infinite}
+@keyframes k7{0%{opacity:0}2.8%{opacity:0}4%{opacity:1}18%{opacity:1}19.2%{opacity:0}100%{opacity:0}}
+.k7{animation:k7 16s linear infinite}
+@keyframes k8{0%{opacity:0}9.8%{opacity:0}11%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k8{animation:k8 16s linear infinite}
+@keyframes k9{0%{opacity:0}2.8%{opacity:0}4%{opacity:1}9.6%{opacity:1}10.8%{opacity:0}100%{opacity:0}}
+.k9{animation:k9 16s linear infinite}
+@keyframes k10{0%{opacity:0}19.8%{opacity:0}21%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k10{animation:k10 16s linear infinite}
+@keyframes k11{0%{opacity:0}19.8%{opacity:0}21%{opacity:1}35%{opacity:1}36.2%{opacity:0}100%{opacity:0}}
+.k11{animation:k11 16s linear infinite}
+@keyframes k12{0%{opacity:0}26.8%{opacity:0}28%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k12{animation:k12 16s linear infinite}
+@keyframes k13{0%{opacity:0}19.8%{opacity:0}21%{opacity:1}26.6%{opacity:1}27.8%{opacity:0}100%{opacity:0}}
+.k13{animation:k13 16s linear infinite}
+@keyframes k14{0%{opacity:0}36.8%{opacity:0}38%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k14{animation:k14 16s linear infinite}
+@keyframes k15{0%{opacity:0}36.8%{opacity:0}38%{opacity:1}52%{opacity:1}53.2%{opacity:0}100%{opacity:0}}
+.k15{animation:k15 16s linear infinite}
+@keyframes k16{0%{opacity:0}43.8%{opacity:0}45%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k16{animation:k16 16s linear infinite}
+@keyframes k17{0%{opacity:0}36.8%{opacity:0}38%{opacity:1}43.6%{opacity:1}44.8%{opacity:0}100%{opacity:0}}
+.k17{animation:k17 16s linear infinite}
+@keyframes k18{0%{opacity:0}53.8%{opacity:0}55%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k18{animation:k18 16s linear infinite}
+@keyframes k19{0%{opacity:0}53.8%{opacity:0}55%{opacity:1}69%{opacity:1}70.2%{opacity:0}100%{opacity:0}}
+.k19{animation:k19 16s linear infinite}
+@keyframes k20{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k20{animation:k20 16s linear infinite}
+@keyframes k21{0%{opacity:0}53.8%{opacity:0}55%{opacity:1}60.6%{opacity:1}61.8%{opacity:0}100%{opacity:0}}
+.k21{animation:k21 16s linear infinite}
+@keyframes k22{0%{opacity:0}70.8%{opacity:0}72%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k22{animation:k22 16s linear infinite}
+@keyframes k23{0%{opacity:0}70.8%{opacity:0}72%{opacity:1}86%{opacity:1}87.2%{opacity:0}100%{opacity:0}}
+.k23{animation:k23 16s linear infinite}
+@keyframes k24{0%{opacity:0}77.8%{opacity:0}79%{opacity:1}92%{opacity:1}93.2%{opacity:0}100%{opacity:0}}
+.k24{animation:k24 16s linear infinite}
+@keyframes k25{0%{opacity:0}70.8%{opacity:0}72%{opacity:1}77.6%{opacity:1}78.8%{opacity:0}100%{opacity:0}}
+.k25{animation:k25 16s linear infinite}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+<rect x="8" y="8" width="744" height="464" rx="18" fill="url(#panelFade)" stroke="rgba(255,255,255,0.08)"/>
+<rect x="8" y="8" width="744" height="464" rx="18" fill="url(#dots)"/>
+
+<text x="40" y="44" font-size="17" font-weight="700" fill="#e2e8f0">Who sees what</text>
+<text x="40" y="65" font-size="12.5" fill="#94a3b8">rapidoc serve checks each reader's session against the rules before it sends anything protected.</text>
+<rect x="40" y="96" width="300" height="250" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+
+<text x="56" y="118" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">RAPIDOC.CONFIG.YAML</text>
+
+<text x="56" y="140" font-size="11.5" class="mono" xml:space="preserve"><tspan fill="#a78bfa">access</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"></tspan></text>
+<rect x="46" y="149" width="288" height="21" rx="4" fill="#f6a821" fill-opacity=".12" class="k1 rm0"/>
+<text x="56" y="164" font-size="11.5" class="mono" xml:space="preserve"><tspan fill="#a78bfa">  default</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> public</tspan></text>
+
+<text x="56" y="188" font-size="11.5" class="mono" xml:space="preserve"><tspan fill="#a78bfa">  rules</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"></tspan></text>
+<rect x="46" y="197" width="288" height="21" rx="4" fill="#f6a821" fill-opacity=".12" class="k2 rm0"/>
+<text x="56" y="212" font-size="11.5" class="mono" xml:space="preserve"><tspan fill="#a78bfa">    - path</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> /docs/partners/**</tspan></text>
+<rect x="46" y="221" width="288" height="21" rx="4" fill="#f6a821" fill-opacity=".12" class="k3 rm0"/>
+<text x="56" y="236" font-size="11.5" class="mono" xml:space="preserve"><tspan fill="#a78bfa">      allow</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> signed-in</tspan></text>
+<rect x="46" y="245" width="288" height="21" rx="4" fill="#f6a821" fill-opacity=".12" class="k4 rm0"/>
+<text x="56" y="260" font-size="11.5" class="mono" xml:space="preserve"><tspan fill="#a78bfa">    - path</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> /apis/billing/**</tspan></text>
+<rect x="46" y="269" width="288" height="21" rx="4" fill="#f6a821" fill-opacity=".12" class="k5 rm0"/>
+<text x="56" y="284" font-size="11.5" class="mono" xml:space="preserve"><tspan fill="#a78bfa">      allow</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> { groups: [billing-team] }</tspan></text>
+<text x="56" y="328" font-size="11" fill="#64748b">Sign-in: Okta, Entra ID, Google or any OIDC</text>
+<g class="k6">
+<rect x="370" y="96" width="350" height="48" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="370" y="96" width="350" height="48" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k7 rm0"/>
+<circle cx="392" cy="120" r="11" fill="#64748b" fill-opacity=".18" stroke="#64748b" stroke-opacity=".6"/>
+<circle cx="392" cy="116.5" r="3.6" fill="#64748b"/><path d="M385 127 a7 6 0 0 1 14 0" fill="#64748b"/>
+<text x="412" y="117" font-size="12" font-weight="650" fill="#e2e8f0">Visitor <tspan font-weight="400" fill="#64748b" font-size="10.5">· signed out</tspan></text>
+<text x="412" y="133" font-size="11" fill="#94a3b8" class="mono"><tspan fill="#60a5fa">GET</tspan> /docs/quickstart/</text>
+<g class="k8"><rect x="644" y="109" width="64" height="22" rx="11" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".55"/>
+<text x="676" y="124" font-size="11" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">public</text></g>
+<text x="698" y="124" font-size="11" fill="#64748b" text-anchor="end" class="mono k9 rm0">checking…</text>
+</g>
+<g class="k10">
+<rect x="370" y="152" width="350" height="48" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="370" y="152" width="350" height="48" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k11 rm0"/>
+<circle cx="392" cy="176" r="11" fill="#64748b" fill-opacity=".18" stroke="#64748b" stroke-opacity=".6"/>
+<circle cx="392" cy="172.5" r="3.6" fill="#64748b"/><path d="M385 183 a7 6 0 0 1 14 0" fill="#64748b"/>
+<text x="412" y="173" font-size="12" font-weight="650" fill="#e2e8f0">Visitor <tspan font-weight="400" fill="#64748b" font-size="10.5">· signed out</tspan></text>
+<text x="412" y="189" font-size="11" fill="#94a3b8" class="mono"><tspan fill="#60a5fa">GET</tspan> /docs/partners/</text>
+<g class="k12"><rect x="623" y="165" width="85" height="22" rx="11" fill="#f6a821" fill-opacity=".12" stroke="#f6a821" stroke-opacity=".55"/>
+<text x="665.5" y="180" font-size="11" font-weight="700" fill="#f6a821" text-anchor="middle" class="mono">sign in →</text></g>
+<text x="698" y="180" font-size="11" fill="#64748b" text-anchor="end" class="mono k13 rm0">checking…</text>
+</g>
+<g class="k14">
+<rect x="370" y="208" width="350" height="48" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="370" y="208" width="350" height="48" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k15 rm0"/>
+<circle cx="392" cy="232" r="11" fill="#38bdf8" fill-opacity=".18" stroke="#38bdf8" stroke-opacity=".6"/>
+<circle cx="392" cy="228.5" r="3.6" fill="#38bdf8"/><path d="M385 239 a7 6 0 0 1 14 0" fill="#38bdf8"/>
+<text x="412" y="229" font-size="12" font-weight="650" fill="#e2e8f0">Partner <tspan font-weight="400" fill="#64748b" font-size="10.5">· signed in</tspan></text>
+<text x="412" y="245" font-size="11" fill="#94a3b8" class="mono"><tspan fill="#60a5fa">GET</tspan> /docs/partners/</text>
+<g class="k16"><rect x="665" y="221" width="43" height="22" rx="11" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".55"/>
+<text x="686.5" y="236" font-size="11" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">200</text></g>
+<text x="698" y="236" font-size="11" fill="#64748b" text-anchor="end" class="mono k17 rm0">checking…</text>
+</g>
+<g class="k18">
+<rect x="370" y="264" width="350" height="48" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="370" y="264" width="350" height="48" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k19 rm0"/>
+<circle cx="392" cy="288" r="11" fill="#38bdf8" fill-opacity=".18" stroke="#38bdf8" stroke-opacity=".6"/>
+<circle cx="392" cy="284.5" r="3.6" fill="#38bdf8"/><path d="M385 295 a7 6 0 0 1 14 0" fill="#38bdf8"/>
+<text x="412" y="285" font-size="12" font-weight="650" fill="#e2e8f0">Partner <tspan font-weight="400" fill="#64748b" font-size="10.5">· signed in</tspan></text>
+<text x="412" y="301" font-size="11" fill="#94a3b8" class="mono"><tspan fill="#60a5fa">GET</tspan> /apis/billing/</text>
+<g class="k20"><rect x="595" y="277" width="113" height="22" rx="11" fill="#f87171" fill-opacity=".12" stroke="#f87171" stroke-opacity=".55"/>
+<text x="651.5" y="292" font-size="11" font-weight="700" fill="#f87171" text-anchor="middle" class="mono">access denied</text></g>
+<text x="698" y="292" font-size="11" fill="#64748b" text-anchor="end" class="mono k21 rm0">checking…</text>
+</g>
+<g class="k22">
+<rect x="370" y="320" width="350" height="48" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="370" y="320" width="350" height="48" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k23 rm0"/>
+<circle cx="392" cy="344" r="11" fill="#a78bfa" fill-opacity=".18" stroke="#a78bfa" stroke-opacity=".6"/>
+<circle cx="392" cy="340.5" r="3.6" fill="#a78bfa"/><path d="M385 351 a7 6 0 0 1 14 0" fill="#a78bfa"/>
+<text x="412" y="341" font-size="12" font-weight="650" fill="#e2e8f0">Staff <tspan font-weight="400" fill="#64748b" font-size="10.5">· billing-team</tspan></text>
+<text x="412" y="357" font-size="11" fill="#94a3b8" class="mono"><tspan fill="#60a5fa">GET</tspan> /apis/billing/</text>
+<g class="k24"><rect x="665" y="333" width="43" height="22" rx="11" fill="#34d399" fill-opacity=".12" stroke="#34d399" stroke-opacity=".55"/>
+<text x="686.5" y="348" font-size="11" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">200</text></g>
+<text x="698" y="348" font-size="11" fill="#64748b" text-anchor="end" class="mono k25 rm0">checking…</text>
+</g>
+<rect x="40" y="388" width="680" height="64" rx="8" fill="#070b16" stroke="rgba(255,255,255,0.06)"/>
+<text x="56" y="414" font-size="11.5" fill="#34d399" class="mono">dist/public/</text><text x="168" y="414" font-size="11.5" fill="#94a3b8">plain static files, for any host or CDN</text>
+<g><rect x="56" y="432" width="11" height="8" rx="2" fill="#f6a821"/><path d="M58.5 432.5 v-2 a3 3 0 0 1 6 0 v2" fill="none" stroke="#f6a821" stroke-width="1.6"/></g><text x="74" y="438" font-size="11.5" fill="#f6a821" class="mono">dist/protected/</text><text x="196" y="438" font-size="11.5" fill="#94a3b8">only through rapidoc serve, per reader; search filtered too</text>
+
+</svg>

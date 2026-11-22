@@ -441,6 +441,14 @@ code {
   font-size: 15px;
 }
 
+/* A smaller button, for two side by side in a narrow column */
+.rd-btn-sm {
+  gap: 6px;
+  padding: 7px 13px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 .rd-btn-primary {
   background: var(--rd-accent-dim);
   border: 1px solid var(--rd-accent-border);

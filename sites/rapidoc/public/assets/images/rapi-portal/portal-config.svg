@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 430" width="760" height="430" role="img" aria-labelledby="t d">
+<title id="t">One config file</title>
+<desc id="d">Lines of rapidoc.config.yaml light up in turn and the portal takes shape: the site title in the header, the header links, the API catalog and sidebar from two specs, and the theme's amber on the accents.</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+@keyframes k1{0%{opacity:0}7.2%{opacity:0}8%{opacity:1}22%{opacity:1}22.8%{opacity:0}100%{opacity:0}}
+.k1{animation:k1 12s linear infinite}
+@keyframes k2{0%{opacity:0}7.2%{opacity:0}8%{opacity:1}22%{opacity:1}22.8%{opacity:0}100%{opacity:0}}
+.k2{animation:k2 12s linear infinite}
+@keyframes k3{0%{opacity:0}25.2%{opacity:0}26%{opacity:1}40%{opacity:1}40.8%{opacity:0}100%{opacity:0}}
+.k3{animation:k3 12s linear infinite}
+@keyframes k4{0%{opacity:0}25.2%{opacity:0}26%{opacity:1}40%{opacity:1}40.8%{opacity:0}100%{opacity:0}}
+.k4{animation:k4 12s linear infinite}
+@keyframes k5{0%{opacity:0}25.2%{opacity:0}26%{opacity:1}40%{opacity:1}40.8%{opacity:0}100%{opacity:0}}
+.k5{animation:k5 12s linear infinite}
+@keyframes k6{0%{opacity:0}43.2%{opacity:0}44%{opacity:1}58%{opacity:1}58.8%{opacity:0}100%{opacity:0}}
+.k6{animation:k6 12s linear infinite}
+@keyframes k7{0%{opacity:0}43.2%{opacity:0}44%{opacity:1}58%{opacity:1}58.8%{opacity:0}100%{opacity:0}}
+.k7{animation:k7 12s linear infinite}
+@keyframes k8{0%{opacity:0}43.2%{opacity:0}44%{opacity:1}58%{opacity:1}58.8%{opacity:0}100%{opacity:0}}
+.k8{animation:k8 12s linear infinite}
+@keyframes k9{0%{opacity:0}61.2%{opacity:0}62%{opacity:1}76%{opacity:1}76.8%{opacity:0}100%{opacity:0}}
+.k9{animation:k9 12s linear infinite}
+@keyframes k10{0%{opacity:0}61.2%{opacity:0}62%{opacity:1}76%{opacity:1}76.8%{opacity:0}100%{opacity:0}}
+.k10{animation:k10 12s linear infinite}
+@keyframes k11{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k11{animation:k11 12s linear infinite}
+@keyframes k12{0%{opacity:0}9.8%{opacity:0}11%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k12{animation:k12 12s linear infinite}
+@keyframes k13{0%{opacity:0}27.8%{opacity:0}29%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k13{animation:k13 12s linear infinite}
+@keyframes k14{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k14{animation:k14 12s linear infinite}
+@keyframes k15{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k15{animation:k15 12s linear infinite}
+@keyframes k16{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k16{animation:k16 12s linear infinite}
+@keyframes k17{0%{opacity:0}45.8%{opacity:0}47%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k17{animation:k17 12s linear infinite}
+@keyframes k18{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k18{animation:k18 12s linear infinite}
+@keyframes k19{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k19{animation:k19 12s linear infinite}
+@keyframes k20{0%{opacity:0}6.8%{opacity:0}8%{opacity:1}22%{opacity:1}23.2%{opacity:0}100%{opacity:0}}
+.k20{animation:k20 12s linear infinite}
+@keyframes k21{0%{opacity:0}24.8%{opacity:0}26%{opacity:1}40%{opacity:1}41.2%{opacity:0}100%{opacity:0}}
+.k21{animation:k21 12s linear infinite}
+@keyframes k22{0%{opacity:0}42.8%{opacity:0}44%{opacity:1}58%{opacity:1}59.2%{opacity:0}100%{opacity:0}}
+.k22{animation:k22 12s linear infinite}
+@keyframes k23{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}76%{opacity:1}77.2%{opacity:0}100%{opacity:0}}
+.k23{animation:k23 12s linear infinite}
+@keyframes k24{0%{opacity:0}66.8%{opacity:0}68%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k24{animation:k24 12s linear infinite}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+<rect x="8" y="8" width="744" height="414" rx="18" fill="url(#panelFade)" stroke="rgba(255,255,255,0.08)"/>
+<rect x="8" y="8" width="744" height="414" rx="18" fill="url(#dots)"/>
+
+<text x="40" y="44" font-size="17" font-weight="700" fill="#e2e8f0">One config file</text>
+<text x="40" y="65" font-size="12.5" fill="#94a3b8">rapidoc.config.yaml lays out the header, the APIs, the sidebars and the theme.</text>
+<rect x="40" y="92" width="330" height="260" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+
+<text x="56" y="114" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">RAPIDOC.CONFIG.YAML</text>
+<rect x="46" y="123" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k1 rm0"/>
+<text x="56" y="138" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">site</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"></tspan></text>
+<rect x="46" y="146" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k2 rm0"/>
+<text x="56" y="161" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">  title</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> Acme Developers</tspan></text>
+<rect x="46" y="169" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k3 rm0"/>
+<text x="56" y="184" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">header</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"></tspan></text>
+<rect x="46" y="192" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k4 rm0"/>
+<text x="56" y="207" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">  links</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"></tspan></text>
+<rect x="46" y="215" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k5 rm0"/>
+<text x="56" y="230" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">    - { label</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> Guides, href: /docs/ }</tspan></text>
+<rect x="46" y="238" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k6 rm0"/>
+<text x="56" y="253" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">apis</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"></tspan></text>
+<rect x="46" y="261" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k7 rm0"/>
+<text x="56" y="276" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">  - { id</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> orders, spec: specs/orders.yaml }</tspan></text>
+<rect x="46" y="284" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k8 rm0"/>
+<text x="56" y="299" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">  - { id</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> billing, spec: specs/billing.yaml }</tspan></text>
+<rect x="46" y="307" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k9 rm0"/>
+<text x="56" y="322" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">theme</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"></tspan></text>
+<rect x="46" y="330" width="318" height="21" rx="4" fill="#f6a821" fill-opacity=".10" class="k10 rm0"/>
+<text x="56" y="345" font-size="10.8" class="mono" xml:space="preserve"><tspan fill="#a78bfa">  primary</tspan><tspan fill="#64748b">:</tspan><tspan fill="#e2e8f0"> "#f6a821"</tspan></text>
+<path d="M370 157 C390 157 390 112 440 112" fill="none" stroke="#f6a821" stroke-opacity=".6" stroke-width="1.4" stroke-dasharray="3 4" class="k20 rm0"/>
+<path d="M370 226 C390 226 390 112 566 112" fill="none" stroke="#f6a821" stroke-opacity=".6" stroke-width="1.4" stroke-dasharray="3 4" class="k21 rm0"/>
+<path d="M370 272 C390 272 390 172 424 172" fill="none" stroke="#f6a821" stroke-opacity=".6" stroke-width="1.4" stroke-dasharray="3 4" class="k22 rm0"/>
+<path d="M370 341 C390 341 390 264 516 264" fill="none" stroke="#f6a821" stroke-opacity=".6" stroke-width="1.4" stroke-dasharray="3 4" class="k23 rm0"/>
+
+<rect x="410" y="92" width="310" height="300" rx="8" fill="#0b1222" stroke="rgba(148,163,184,0.20)"/>
+
+<rect x="410" y="92" width="310" height="40" rx="8" fill="#111a2e"/><rect x="410" y="122" width="310" height="10" fill="#111a2e"/>
+<rect x="424" y="106" width="12" height="12" rx="3" fill="#2a3550"/>
+<g class="k12"><rect x="424" y="106" width="12" height="12" rx="3" fill="#5b6475"/><g class="k11"><rect x="424" y="106" width="12" height="12" rx="3" fill="#f6a821"/></g><text x="444" y="117" font-size="12" font-weight="700" fill="#e2e8f0">Acme Developers</text></g>
+<g class="k13"><text x="570" y="117" font-size="11" fill="#94a3b8">Guides</text><text x="616" y="117" font-size="11" fill="#94a3b8">APIs</text></g>
+<rect x="424" y="146" width="78" height="232" rx="6" fill="#0f1729"/>
+<g class="k17"><text x="434" y="168" font-size="10" fill="#94a3b8">Orders API</text><text x="434" y="190" font-size="10" fill="#94a3b8">Billing API</text>
+<rect x="424" y="156" width="2" height="16" fill="#5b6475"/><g class="k14"><rect x="424" y="156" width="2" height="16" fill="#f6a821"/></g>
+<text x="516" y="166" font-size="13" font-weight="700" fill="#e2e8f0">APIs</text>
+<rect x="516" y="178" width="90" height="62" rx="6" fill="#0f1729" stroke="rgba(255,255,255,0.08)"/>
+<text x="524" y="196" font-size="10.5" font-weight="650" fill="#e2e8f0">Orders API</text>
+<text x="524" y="212" font-size="9" fill="#64748b" class="mono">orders.yaml</text>
+<rect x="524" y="220" width="34" height="12" rx="3" fill="#5b6475" fill-opacity=".9"/><g class="k15"><rect x="524" y="220" width="34" height="12" rx="3" fill="#f6a821" fill-opacity=".9"/></g>
+<text x="541" y="229" font-size="7.5" font-weight="700" fill="#0b1222" text-anchor="middle">VIEW</text><rect x="614" y="178" width="90" height="62" rx="6" fill="#0f1729" stroke="rgba(255,255,255,0.08)"/>
+<text x="622" y="196" font-size="10.5" font-weight="650" fill="#e2e8f0">Billing API</text>
+<text x="622" y="212" font-size="9" fill="#64748b" class="mono">billing.yaml</text>
+<rect x="622" y="220" width="34" height="12" rx="3" fill="#5b6475" fill-opacity=".9"/><g class="k16"><rect x="622" y="220" width="34" height="12" rx="3" fill="#f6a821" fill-opacity=".9"/></g>
+<text x="639" y="229" font-size="7.5" font-weight="700" fill="#0b1222" text-anchor="middle">VIEW</text></g>
+<rect x="516" y="260" width="190" height="8" rx="4" fill="#5b6475" fill-opacity=".35"/><g class="k18"><rect x="516" y="260" width="190" height="8" rx="4" fill="#f6a821" fill-opacity=".35"/></g>
+<rect x="516" y="280" width="160" height="6" rx="3" fill="rgba(148,163,184,0.2)"/>
+<rect x="516" y="294" width="176" height="6" rx="3" fill="rgba(148,163,184,0.2)"/>
+<rect x="516" y="308" width="120" height="6" rx="3" fill="rgba(148,163,184,0.2)"/>
+<rect x="516" y="332" width="84" height="24" rx="6" fill="#5b6475"/><g class="k19"><rect x="516" y="332" width="84" height="24" rx="6" fill="#f6a821"/></g>
+<text x="558" y="348" font-size="10" font-weight="700" fill="#0b1222" text-anchor="middle">Get started</text>
+<text x="40" y="378" font-size="11.5" fill="#94a3b8" class="k24">An unknown key fails the build, with its path and a hint.</text>
+
+</svg>

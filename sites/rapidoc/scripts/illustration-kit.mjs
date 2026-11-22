@@ -288,3 +288,102 @@ ${body}
 </svg>
 `;
 }
+
+/* ------------------------------------------------------------------------------------------ */
+/* Isometric scenes: a slab with boxes, labels and packets travelling between them             */
+/* ------------------------------------------------------------------------------------------ */
+
+// Isometric projection: world x runs to the lower right, y to the lower left, z up
+export const K = 0.78;
+export const COS = 0.866;
+export const SIN = 0.5;
+export const ORIGIN = [380, 178];
+export const iso = (x, y, z = 0) => [
+  ORIGIN[0] + (x - y) * COS * K,
+  ORIGIN[1] + (x + y) * SIN * K - z * K,
+];
+export const pts = (...ps) =>
+  ps
+    .map((p) =>
+      iso(...p)
+        .map((n) => +n.toFixed(2))
+        .join(","),
+    )
+    .join(" ");
+export const round2 = (n) => +n.toFixed(2);
+
+/** A box seen from above: its top, its front-left face (y = y + d) and its front-right face (x = x + w). */
+export function isoBox(
+  x,
+  y,
+  z,
+  w,
+  d,
+  h,
+  { top, left, right, stroke = "rgba(255,255,255,0.08)", cls = "" },
+) {
+  return `<g${cls ? ` class="${cls}"` : ""}>
+<polygon points="${pts([x, y + d, z], [x + w, y + d, z], [x + w, y + d, z + h], [x, y + d, z + h])}" fill="${left}" stroke="${stroke}"/>
+<polygon points="${pts([x + w, y, z], [x + w, y + d, z], [x + w, y + d, z + h], [x + w, y, z + h])}" fill="${right}" stroke="${stroke}"/>
+<polygon points="${pts([x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h])}" fill="${top}" stroke="${stroke}"/>
+</g>`;
+}
+
+/** The matrix that lays flat content onto a face: "top" (x right, y down), "left" (y = const), "right" (x = const). */
+export function faceMatrix(face, x, y, z) {
+  const [X, Y] = iso(x, y, z);
+  const a = COS * K;
+  const b = SIN * K;
+  if (face === "top")
+    return `matrix(${round2(a)},${round2(b)},${round2(-a)},${round2(b)},${round2(X)},${round2(Y)})`;
+  if (face === "left")
+    return `matrix(${round2(a)},${round2(b)},0,${round2(K)},${round2(X)},${round2(Y)})`;
+  return `matrix(${round2(a)},${round2(-b)},0,${round2(K)},${round2(X)},${round2(Y)})`;
+}
+
+/** A floating label above a point, in screen space. */
+export function isoTag(
+  [X, Y],
+  text,
+  {
+    color = C.text,
+    fill = "#0d1528",
+    border = "rgba(148,163,184,0.35)",
+    mono = true,
+    cls = "",
+  } = {},
+) {
+  const w = text.length * (mono ? 7 : 6.6) + 22;
+  return `<g${cls ? ` class="${cls}"` : ""}><rect x="${round2(X - w / 2)}" y="${round2(Y - 13)}" width="${round2(w)}" height="26" rx="6" fill="${fill}" stroke="${border}"/>
+<text x="${round2(X)}" y="${round2(Y + 4.5)}" font-size="12" fill="${color}" text-anchor="middle"${mono ? ' class="mono"' : ""}>${esc(text)}</text></g>`;
+}
+
+/** Keyframes that carry a packet along screen points between a and b, by distance, hidden outside. */
+export function travel(t, points, a, b) {
+  const lens = points.slice(1).map((p, i) => Math.hypot(p[0] - points[i][0], p[1] - points[i][1]));
+  const total = lens.reduce((x, y) => x + y, 0);
+  const at = (p) => `transform:translate(${round2(p[0])}px,${round2(p[1])}px)`;
+  const frames = [
+    [0, `${at(points[0])};opacity:0`],
+    [a - 0.01, `${at(points[0])};opacity:0`],
+    [a, `${at(points[0])};opacity:1`],
+  ];
+  let done = 0;
+  lens.forEach((len, i) => {
+    done += len;
+    frames.push([a + ((b - a) * done) / total, `${at(points[i + 1])};opacity:1`]);
+  });
+  frames.push([b + 0.6, `${at(points.at(-1))};opacity:0`], [100, `${at(points.at(-1))};opacity:0`]);
+  return t.add(frames);
+}
+
+/** A small glowing cube, drawn around (0, 0): a request or a response on its way. */
+export function packet(color) {
+  const a = COS * K * 9;
+  const b = SIN * K * 9;
+  const h = 10 * K;
+  return `<g opacity=".55"><ellipse cx="0" cy="${round2(b)}" rx="${round2(a + 6)}" ry="${round2(b + 4)}" fill="${color}" filter="url(#soft)"/></g>
+<polygon points="${round2(-a)},${round2(-h)} 0,${round2(b - h)} 0,${round2(b)} ${round2(-a)},0" fill="${color}" fill-opacity=".75"/>
+<polygon points="0,${round2(b - h)} ${round2(a)},${round2(-h)} ${round2(a)},0 0,${round2(b)}" fill="${color}" fill-opacity=".55"/>
+<polygon points="0,${round2(-b - h)} ${round2(a)},${round2(-h)} 0,${round2(b - h)} ${round2(-a)},${round2(-h)}" fill="#fff4dc"/>`;
+}

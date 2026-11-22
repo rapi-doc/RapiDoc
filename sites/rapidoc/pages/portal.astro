@@ -8,6 +8,8 @@ import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
 
 const PORTAL_DOCS = 'https://portal.rapidocui.com';
+// Rapid Parcels, the RapiDoc Portal demo with sign-in (the rapi-portal-demo repository)
+const DEMO = 'https://parcels.rapidocui.com/';
 
 const startCode = `npm create rapidoc@latest my-portal
 cd my-portal
@@ -65,7 +67,9 @@ const features = [
   <PortalHeader />
 
   <main class="rd-product-main">
-    <header class="rd-hero-header">
+    <header class="rd-hero-header rd-hero-split">
+      <div class="rd-hero-grid">
+      <div class="rd-hero-copy">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
         <span class="rd-badge-text">@rapidoc/portal • npm create rapidoc</span>
@@ -94,7 +98,85 @@ const features = [
           <Icon name="arrow-up-right" size={16} />
         </a>
       </div>
+      </div>
+
+      <figure class="rd-hero-visual">
+        <img
+          src="/assets/images/rapi-portal/portal-build.svg"
+          alt="OpenAPI specs, Markdown guides and rapidoc.config.yaml go from your repository into rapidoc build; a developer portal rises from the static files, with Sign in, search and an API catalog where one API is for partners only"
+          width="700"
+          height="520"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+      </div>
     </header>
+
+    <section class="rd-section">
+      <div class="rd-split rd-split--visual">
+        <div class="rd-split-text">
+          <div class="rd-section-badge">One Config File</div>
+          <h2 class="rd-section-title">The Whole Portal in rapidoc.config.yaml</h2>
+          <p>
+            The site's title, the header links, the APIs and their specs, the sidebars and the theme: one YAML file,
+            next to your specs and guides, reviewed like the rest of your code.
+          </p>
+          <p>
+            Your editor completes it from the published schema, and an unknown key fails the build with its path and
+            a hint.{' '}
+            <a href={`${PORTAL_DOCS}/docs/configuration/overview/`}>Configuration →</a>
+          </p>
+        </div>
+        <figure class="rd-illustration rd-illustration--inline">
+          <img
+            src="/assets/images/rapi-portal/portal-config.svg"
+            alt="Lines of rapidoc.config.yaml light up in turn and the portal takes shape: the title, the header links, the API catalog from two specs, and the theme's amber"
+            width="760"
+            height="430"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Live Demo</div>
+        <h2 class="rd-section-title">A Real Portal: Rapid Parcels</h2>
+      </div>
+      <div class="rd-showcase rd-showcase--wide">
+        <a class="rd-showcase-image rd-showcase-image--shot" href={DEMO} target="_blank" rel="noopener" aria-label="Open the Rapid Parcels demo portal (opens in a new tab)">
+          <img
+            src="/assets/images/rapi-portal/portal-demo.png"
+            alt="The Rapid Parcels demo portal: its own logo and home page, search, a Sign in button, and a lock on the Shipments tab"
+            width="1360"
+            height="820"
+            loading="lazy"
+          />
+        </a>
+        <div class="rd-showcase-notes">
+          <h3>A parcel company's developer portal, built with RapiDoc Portal</h3>
+          <ul>
+            <li><strong>Its own brand.</strong> Logo, colors and home page, from the config and a stylesheet.</li>
+            <li><strong>Six APIs, one catalog.</strong> Rates is public; Shipments, Tracking, Carriers, Billing and Admin open by group, with a lock until then.</li>
+            <li><strong>Sign-in with Auth0.</strong> The groups in the reader's token decide what they read, and Try sends that token.</li>
+            <li><strong>A live mock.</strong> Try calls RapiMock, which checks the token's scopes the way the real API would.</li>
+          </ul>
+          <div class="rd-showcase-actions">
+            <a href={DEMO} class="rd-btn rd-btn-primary rd-btn-sm" target="_blank" rel="noopener">
+              <Icon name="rocket-launch" size={16} />
+              <span>Open the Demo Portal</span>
+            </a>
+            <a href={`${PORTAL_DOCS}/apis/bookstore/`} class="rd-btn rd-btn-secondary rd-btn-sm" target="_blank" rel="noopener">
+              <Icon name="code" size={16} />
+              <span>See an API Reference</span>
+            </a>
+          </div>
+          <p class="rd-showcase-caveat">Rapid Parcels is a fictional company. Sign in with a test user to see the protected APIs.</p>
+        </div>
+      </div>
+    </section>
 
     <section class="rd-section">
       <div class="rd-section-header rd-section-header--center">
@@ -117,6 +199,28 @@ const features = [
           ))
         }
       </div>
+    </section>
+
+    <section class="rd-section">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Single Sign-On</div>
+        <h2 class="rd-section-title">Public, Partner and Internal in One Portal</h2>
+        <p class="rd-section-desc">
+          Readers sign in with Okta, Microsoft Entra ID, Google or any OpenID Connect provider, and rules decide who
+          may read which pages, APIs and files. <code>rapidoc serve</code> checks each request before it sends anything
+          protected; the public part stays plain static files.{' '}
+          <a href={`${PORTAL_DOCS}/docs/access/overview/`}>Single sign-on →</a>
+        </p>
+      </div>
+      <figure class="rd-illustration">
+        <img
+          src="/assets/images/rapi-portal/portal-access.svg"
+          alt="A signed-out visitor reads a public page and is sent to sign in for a partner page; a signed-in partner reads it but is denied the billing API; staff in the billing-team group read the billing API"
+          width="760"
+          height="480"
+          loading="lazy"
+        />
+      </figure>
     </section>
 
     <section class="rd-section">
@@ -162,8 +266,16 @@ const features = [
 </GlobalLayout>
 
 <style>
-  .rd-split-text a {
+  .rd-split-text a,
+  .rd-section-desc a {
     color: var(--rd-accent);
+  }
+  /* Text beside an illustration, centered on it */
+  .rd-split--visual {
+    align-items: center;
+  }
+  .rd-illustration--inline {
+    margin: 0;
   }
   .rd-product-main .rd-feature-text :global(code) {
     font-family: var(--rd-font-mono);
