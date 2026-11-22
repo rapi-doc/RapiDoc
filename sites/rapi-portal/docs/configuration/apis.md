@@ -59,3 +59,10 @@ A remote spec (a URL) is loaded by the reader's browser from where it is hosted.
 ## Changing an id
 
 The id is in every URL of the API. To keep old links working after you rename one, add a [redirect](/docs/configuration/docs-search-redirects/#redirects).
+
+The id is also used wherever the portal points at the API, so change it there too. In a project made by `npm create rapidoc`, the starter API `core` (labelled "Core API") appears in:
+
+- `navigation:` in `rapidoc.config.yaml`: the tab's `api: core` and its `label`;
+- `header:` in `rapidoc.config.yaml`: the `/apis/core` link and its label;
+- `docs/index.markdoc`: the home page's **API reference** button (`link: /apis/core`);
+- `docs/guides/overview.markdoc`: the embedded operation (`spec="core"`).

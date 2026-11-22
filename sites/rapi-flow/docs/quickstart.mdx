@@ -1,16 +1,15 @@
 ---
 title: Quickstart
-description: Run an Arazzo workflow in the browser in one HTML file - RapiFlow draws it next to a RapiDoc API reference and runs each step against the in-browser mock.
-tableOfContents: false
+description: "Run an Arazzo workflow in the browser in one HTML file: RapiFlow draws it above a RapiDoc API reference and runs each step against the in-browser mock."
 ---
 
 import { Aside, Steps } from '@rapidoc/portal/components';
 
-In a few minutes you will have a workflow drawn next to its API reference, and run it step by step against a mock that answers from the spec, with no server of your own.
+At the end, a workflow is drawn above its API reference, and you run it against a mock that answers from the spec. You need a browser and an internet connection: the page loads RapiDoc and RapiFlow from unpkg and the sample files from rapidocui.com, so you can open it directly from disk.
 
 <Steps>
 
-1. **Create an HTML file** that loads RapiDoc and RapiFlow, and points them at the Petstore spec and its Arazzo file:
+1. **Create an HTML file** that loads RapiDoc and RapiFlow, and points them at the Petstore spec and its Arazzo file (the [OpenAPI Initiative's format](https://spec.openapis.org/arazzo/latest.html) for multi-step API workflows):
 
    ```html title="index.html"
    <!doctype html>
@@ -41,23 +40,36 @@ In a few minutes you will have a workflow drawn next to its API reference, and r
    </html>
    ```
 
-   `for="petstore"` pairs the two: RapiFlow takes the spec, the server and the credentials from the `<rapi-doc>` with that id, and `mock-server="true"` there makes the in-browser mock answer the workflow's requests.
+   `for="petstore"` pairs the two: RapiFlow takes the spec, the server and the credentials from the `<rapi-doc>` with that id. `mock-server="true"` on that element makes the in-browser mock answer the workflow's requests.
 
-2. **Open it in a browser.** The `adoptPet` workflow is drawn as one box per step: find an available pet, check it, order it, read the order back. Each box shows the operation it calls, the values it passes on and where it goes on success or failure. Click a step and the reference below scrolls to its operation.
+2. **Open it in a browser.** The `adoptPet` workflow is drawn as one box per step: find an available pet, check it, order it, read the order back. Each box shows the operation it calls, the values it passes on and where it goes on success or failure. The picker at the top of `<rapi-flow>` switches between the file's four workflows; `workflow-id` picks the one shown first. Click a step, then scroll down: the reference below shows its operation.
 
-3. **Press Run workflow (Mock).** Each step lights up while its request is in flight, and the **Execution Log** adds a row for it, with its method, URL, status and ✓. Open a row to see the request and the response. The workflow's outputs, the pet's name and the order's id and status, appear at the end.
+3. **Press Run workflow (Mock).** Leave the inputs as they are. The **Execution Log** adds a row for each step: the step, its method and URL, `HTTP 200` and ✓. Open a row to see the response (and, for `placeOrder`, the request body). At the end, the workflow's outputs appear: the pet's name, and the order's id and status.
 
-4. **Make a step fail.** In **Mock Response Status**, type `503, 200` in the `placeOrder` row and run again. The first attempt at `placeOrder` gets a 503, the workflow's `retry` action waits two seconds, and the second attempt gets a 200: the log shows both. Then clear that row, type `404` in the default row and run once more: `findAvailable` fails, and its `onFailure` action ends the workflow there.
+4. **Make a step retry.** Open **Mock Response Status**, type `503, 200` in the `placeOrder` row and run again. The first attempt at `placeOrder` gets a 503, and its row shows ✗ and `→ retry`. The step's `retry` action waits two seconds, and the second attempt gets a 200: its row shows ✓, and opening it shows `attempt 2`.
 
-5. **Use your own files.** Set `spec-url` to your OpenAPI spec and `arazzo-url` to an Arazzo file whose `sourceDescriptions` name it, and remove `workflow-id` to start at the first workflow. Both files must be readable from the page: on another domain, their server has to allow cross-origin requests.
+5. **End the workflow early.** Clear the `placeOrder` row, type `404` in the **Every step** row and run once more: `findAvailable` fails, and its `onFailure` action ends the workflow there. Its row shows ✗ and opens to show the failed check and `→ end`, and an error saying the workflow failed at `findAvailable` takes the place of the outputs.
 
 </Steps>
 
+## Your own files
+
+- Set `spec-url` on `<rapi-doc>` to your OpenAPI spec.
+- Set `arazzo-url` on `<rapi-flow>` to an Arazzo file that lists that spec in its `sourceDescriptions`, the OpenAPI files the workflow calls. See [Pairing](/docs/pairing/).
+- Remove `workflow-id` to show the first workflow.
+- Serve the page and both files from a local web server: a page opened from disk can't read files next to it. Files on another domain need a server that allows cross-origin requests.
+
 <Aside type="tip" title="Against the real API">
-  Remove `mock-server="true"` and the same run calls the API at the spec's server, from the reader's browser, with the credentials entered in the reference's Authentication section. That API must allow cross-origin requests from your page.
+  Remove `mock-server="true"` and the same run calls the API at the spec's server, from the browser, with the credentials entered in the reference's Authentication section. That API must allow cross-origin requests from your page.
 </Aside>
 
-With a bundler, install `rapidoc` and import both elements instead of the script tags:
+## With a bundler
+
+Install `rapidoc` and replace the two script tags with these imports:
+
+```bash
+npm install rapidoc
+```
 
 ```javascript
 import 'rapidoc';
@@ -67,8 +79,8 @@ import 'rapidoc/flow';
 ## Next steps
 
 - [Pairing with `<rapi-doc>`](/docs/pairing/): workflows that call several APIs, one element per API, and links to a step.
-- [Running workflows](/docs/running/): what runs, the mock's status codes, and running against [RapiMock](https://mock.rapidocui.com/).
-- [Arazzo extensions](/docs/extensions/): credentials in the workflow, calls outside the API sources.
-- [Slots & styling](/docs/styling/): your own header and footer, CSS parts and properties.
-- [Reference](/docs/reference/): every attribute, method, event and slot of `<rapi-flow>`.
-- [The RapiFlow page](https://rapidocui.com/rapi-flow/): a live demo.
+- [Running Workflows](/docs/running/): what runs, the mock's status codes, and running against [RapiMock](https://mock.rapidocui.com/).
+- [Arazzo Extensions](/docs/extensions/): credentials in the workflow, calls outside the API sources.
+- [Slots & Styling](/docs/styling/): your own header and footer, CSS parts and properties.
+- [API Reference](/docs/reference/): every attribute, method, event and slot of `<rapi-flow>`.
+- [RapiFlow feature page](https://rapidocui.com/rapi-flow/): a live demo.

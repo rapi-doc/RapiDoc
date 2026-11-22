@@ -22,10 +22,10 @@ Turn on [`mock-server`](https://rapidocui.com/docs/mocking/in-browser/) on the p
 <rapi-doc id="thedoc" spec-url="/specs/petstore.yaml" mock-server="true"></rapi-doc>
 ```
 
-The run panel then has a **Mock Response Status** table: the status codes the mock answers with during that run, one row per step and a default row for every other step.
+The run panel then has a **Mock Response Status** table: the status codes the mock answers with during that run, one row per step and an **Every step** row for the others.
 
 - Empty: the element's own setting (`mock-server-status-code`: 200 by default, the operation's first 2xx response when it is empty).
-- One code in the default row, such as `404`: every request of the run gets it. In the sample `adoptPet` workflow, a 404 on the first step takes its `onFailure` branch and ends the run.
+- One code in the **Every step** row, such as `404`: every request of the run gets it. In the sample `adoptPet` workflow, a 404 on the first step takes its `onFailure` branch and ends the run.
 - A code on one step, such as `503, 200` on `placeOrder`: that step's first attempt gets 503 and its retry gets 200, while the other steps succeed. With several codes, a step takes the next code on each attempt, in turn; `random:200, 500` picks one at random for each attempt instead.
 - A step's [`x-mock-server-status-code`](/docs/extensions/#mock-status-codes-x-mock-server-status-code) in the Arazzo file fills its row, so a workflow can ship with the failure scenario it demonstrates.
 
