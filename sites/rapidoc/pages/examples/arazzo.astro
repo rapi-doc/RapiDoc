@@ -4,7 +4,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 
 <ExampleLayout
   title="Arazzo workflows with rapi-flow"
-  description="Draw the workflows of an Arazzo document next to the API reference with the rapi-flow element, and run them against the real Petstore API or the in-browser mock."
+  description="Draw the workflows of an Arazzo spec next to the API reference with the rapi-flow element, and run them against the real Petstore API or the in-browser mock."
 >
   <script>
     import 'rapidoc/flow';
@@ -50,13 +50,13 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
           </p>
           <p class="server-note" data-server="mock" hidden>
             RapiDoc's in-browser mock answers every request in the page; nothing reaches the server.
-            Responses come from the spec's examples and schemas.
+            Responses come from the OpenAPI spec's examples and schemas.
           </p>
         </div>
       </rapi-flow>
     </div>
 
-    <!-- No spec-url: <rapi-flow> (it has the URL box) loads the Arazzo file's API into it -->
+    <!-- No spec-url: <rapi-flow> (it has the URL box) loads the Arazzo spec's API into it -->
     <rapi-doc
       id="thedoc"
       class="doc-pane"

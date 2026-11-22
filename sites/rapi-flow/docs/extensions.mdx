@@ -14,7 +14,7 @@ description: The Arazzo vendor extensions <rapi-flow> supports - x-security, x-o
 
 ## Credentials in the workflow (`x-security`)
 
-`<rapi-flow>` supports the `x-security` extension of [Redocly Respect](https://redocly.com/docs/respect/extensions/x-security), so an Arazzo file can say which credentials each request sends instead of relying on what the reader typed into the Authentication section. Put it on a step, or on the workflow for every step:
+`<rapi-flow>` supports the `x-security` extension of [Redocly Respect](https://redocly.com/docs/respect/extensions/x-security), so an Arazzo spec can say which credentials each request sends instead of relying on what the reader typed into the Authentication section. Put it on a step, or on the workflow for every step:
 
 ```yaml
 workflows:
@@ -67,7 +67,7 @@ steps:
 - The diagram draws the step with a dashed border, its method and URL, and an **external** tag. A URL computed from an earlier step lists that step under **URL**, like any value passed between steps. The step does not open anything in the reference.
 - Runs call the URL from the reader's browser, so that server must allow cross-origin requests from the docs site; the log says so when the request fails. A mock does not answer these steps.
 
-In an [MCP export](https://rapidocui.com/docs/ai/mcp-server/#workflows-as-tools), the server makes the request. A URL written into the Arazzo file is always called; a URL computed at run time (from an input or a response) is called only on a host the workflow names (its API sources' servers, or another step's written-out URL), so an agent or an API can't send the server to an address of its choosing. List more hosts in `EXTERNAL_HOSTS` (comma-separated, `*` for any), which the exported server, `rapidoc mcp serve` and `rapidoc serve` all read, or with the runtime's `externalHosts` option.
+In an [MCP export](https://rapidocui.com/docs/ai/mcp-server/#workflows-as-tools), the server makes the request. A URL written into the Arazzo spec is always called; a URL computed at run time (from an input or a response) is called only on a host the workflow names (its API sources' servers, or another step's written-out URL), so an agent or an API can't send the server to an address of its choosing. List more hosts in `EXTERNAL_HOSTS` (comma-separated, `*` for any), which the exported server, `rapidoc mcp serve` and `rapidoc serve` all read, or with the runtime's `externalHosts` option.
 
 ## Reserved characters in query values (`x-allowReserved`)
 

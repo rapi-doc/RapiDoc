@@ -114,3 +114,31 @@ describe("MDX imports of project files", () => {
     }
   });
 });
+
+describe("page titles", () => {
+  it("keeps a frontmatter title as written, tag names included, and still drops a matching # heading", () => {
+    const project = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-sync-"));
+    try {
+      const docs = path.join(project, "docs");
+      const dest = path.join(project, "content");
+      fs.mkdirSync(docs);
+      fs.writeFileSync(
+        path.join(docs, "pairing.mdx"),
+        "---\ntitle: Pairing with <rapi-doc>\n---\n\n# Pairing with <rapi-doc>\n\nText.\n",
+      );
+      fs.writeFileSync(
+        path.join(docs, "heading.md"),
+        "# The <code>rapidoc</code> command\n\nText.\n",
+      );
+      syncDocs(docs, dest);
+      const pairing = fs.readFileSync(path.join(dest, "docs", "pairing.mdx"), "utf8");
+      assert.match(pairing, /\ntitle: Pairing with <rapi-doc>\n/);
+      assert.doesNotMatch(pairing, /# Pairing with/);
+      // A title taken from a # heading still loses its HTML
+      const heading = fs.readFileSync(path.join(dest, "docs", "heading.md"), "utf8");
+      assert.match(heading, /title: "The rapidoc command"/);
+    } finally {
+      fs.rmSync(project, { recursive: true, force: true });
+    }
+  });
+});

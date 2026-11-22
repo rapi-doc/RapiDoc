@@ -16,7 +16,7 @@ You can create it three ways:
 - **In Node**: `@rapidoc/mcp`, for build scripts and your own servers.
 
 <Aside type="tip">
-  The [MCP Server example](/examples/mcp-server) shows the manifest, server and runtime for a real spec.
+  The [MCP Server example](/examples/mcp-server) shows the manifest, server and runtime for a real OpenAPI spec.
 
   The export runs in the browser and sends nothing anywhere. You unzip and install the project on your machine, and your AI app starts it as a child process that talks over stdin and stdout, on no port.
 </Aside>
@@ -115,10 +115,10 @@ components:
 The export is data, not generated code. `manifest.json` describes the whole server:
 
 - **`server`**: `name` (snake_case of the `mcp-server-name` attribute or the API title), `version` and `description` from `info`.
-- **`sources`**: the API, named `api`, with the `baseUrl` from `servers[0]` (server variables filled with their defaults) and the spec's `securitySchemes` copied as they are. An Arazzo document can add more sources.
+- **`sources`**: the API, named `api`, with the `baseUrl` from `servers[0]` (server variables filled with their defaults) and the OpenAPI spec's `securitySchemes` copied as they are. An Arazzo spec can add more sources.
 - **`tools`**: one per operation that survives the exclusions above.
 - **`resources`**: the reference-data lookups, with a `reference://` URI.
-- **`workflows`**: one entry per Arazzo workflow when an Arazzo document is given (see [Workflows as tools](#workflows-as-tools)); otherwise empty.
+- **`workflows`**: one entry per Arazzo workflow when an Arazzo spec is given (see [Workflows as tools](#workflows-as-tools)); otherwise empty.
 
 Each tool has a `name`, a `description`, an `inputSchema`, MCP `annotations` and an `operation` block that tells the runtime how to make the HTTP call. The `inputSchema` is real JSON Schema: path, query, header and cookie parameters become properties by name, and the request body becomes a `body` property holding the full body schema, with nested objects, arrays, enums and `required` intact. `$ref`s are inlined, cycles are cut, and read-only properties are dropped because they never go in a request.
 
@@ -154,7 +154,7 @@ The `place_order` tool from the example above:
 }
 ```
 
-`operation.params` records where each argument goes (`path`, `query`, `header`, `cookie` or `body`), and `operation.security` is the operation's security requirement, else the spec's. Only a TypeScript server is exported today. Because the manifest holds everything a server needs, a server in another language would only have to read the same `manifest.json`; nothing would need to be regenerated.
+`operation.params` records where each argument goes (`path`, `query`, `header`, `cookie` or `body`), and `operation.security` is the operation's security requirement, else the OpenAPI spec's. Only a TypeScript server is exported today. Because the manifest holds everything a server needs, a server in another language would only have to read the same `manifest.json`; nothing would need to be regenerated.
 
 ## Next
 

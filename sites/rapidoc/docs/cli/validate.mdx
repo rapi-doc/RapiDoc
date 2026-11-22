@@ -6,10 +6,10 @@ description: Check an OpenAPI spec strictly against the specification, with file
 ```bash
 npx rapidoc validate openapi.yaml
 npx rapidoc validate https://example.com/openapi.json
-npx rapidoc validate                       # in a portal: every local spec in apis:, and the workflow files
+npx rapidoc validate                       # in a portal: every local OpenAPI spec in apis:, and the Arazzo specs
 ```
 
-`rapidoc validate` checks a spec strictly against the OpenAPI Specification (2.0, 3.0, 3.1 and 3.2):
+`rapidoc validate` checks an OpenAPI spec strictly against the OpenAPI Specification (2.0, 3.0, 3.1 and 3.2):
 
 - **Required fields and types**, as the specification's schema for that version defines them: `info.version`, a response's `description`, `type` values, and so on.
 - **Path parameters**: every `{name}` in a path must be defined as a `path` parameter, on the path or on each operation (a `$ref` to a parameter counts).
@@ -55,7 +55,7 @@ permissions:
 
 ## In a portal
 
-Run without a file in a [RapiDoc Portal](https://portal.rapidocui.com/) folder, it validates every local spec in `apis:` and the workflow files. With `@rapidoc/portal` installed it also warns about operations without an `operationId` (their page URLs change when their summary is edited), and checks that each workflow's steps resolve against your APIs.
+Run without a file in a [RapiDoc Portal](https://portal.rapidocui.com/) folder, it validates every local OpenAPI spec in `apis:` and the Arazzo specs. With `@rapidoc/portal` installed it also warns about operations without an `operationId` (their page URLs change when their summary is edited), and checks that each workflow's steps resolve against your APIs.
 
 Validating one file needs only `@rapidoc/cli`; validating a whole portal reads its config, so it needs `@rapidoc/portal`.
 

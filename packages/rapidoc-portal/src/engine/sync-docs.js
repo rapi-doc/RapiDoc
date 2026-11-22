@@ -66,16 +66,19 @@ function normalizeDocFrontmatter(rawContent, fileName = "") {
       const frontmatterText = content.slice(3, endMatch);
       const titleMatch = frontmatterText.match(/(?:^|\n)title:\s*["']?([^"'\n]+)["']?/);
       if (titleMatch) {
-        const cleanTitle = titleMatch[1].replace(/<[^>]+>/g, "").trim();
-        if (cleanTitle !== titleMatch[1]) {
-          content = content.replace(titleMatch[0], `\ntitle: "${cleanTitle.replace(/"/g, '\\"')}"`);
-        }
-        // Strip duplicate # Heading in the body if it matches cleanTitle
+        // A frontmatter title is plain text, kept as written: Starlight escapes it, so a tag name
+        // such as `Pairing with <rapi-doc>` shows as written. Tags are ignored only to match it
+        // against a duplicate # Heading in the body.
+        const titleText = titleMatch[1].replace(/<[^>]+>/g, "").trim();
+        // Strip duplicate # Heading in the body if it matches the title
         const bodyContent = content.slice(frontmatterEndIndex);
         const dupHeadingMatch = bodyContent.match(/(?:^|\n)#\s+([^\n#]+)/);
         if (dupHeadingMatch) {
-          const bodyHeadingText = dupHeadingMatch[1].trim().replace(/<[^>]+>/g, "");
-          if (bodyHeadingText.toLowerCase() === cleanTitle.toLowerCase()) {
+          const bodyHeadingText = dupHeadingMatch[1]
+            .trim()
+            .replace(/<[^>]+>/g, "")
+            .trim();
+          if (bodyHeadingText.toLowerCase() === titleText.toLowerCase()) {
             const bodyHeadingIdx = bodyContent.indexOf(dupHeadingMatch[0]);
             const newBody =
               bodyContent.slice(0, bodyHeadingIdx) +

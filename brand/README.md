@@ -38,6 +38,20 @@ How the products are named in documentation, pages, sites, menus and READMEs.
 - **Sites**: each site's `site.title` is its product's name. Logo lockups show the tag (`<rapi-doc>`, `<rapi-flow>`); the text around them uses the name.
 - **Changelogs** are history: entries written before a rename keep the old name.
 
+### The two kinds of spec
+
+RapiDoc's tools read two kinds of file, and the docs name them so a reader always knows which one is meant:
+
+| The file | Name | Not |
+| :--- | :--- | :--- |
+| An OpenAPI (or Swagger 2.0) file: an API's operations, schemas, servers | **OpenAPI spec** | "API spec", "OpenAPI file", "OpenAPI document" |
+| An Arazzo file: workflows that call the operations of one or more OpenAPI specs | **Arazzo spec** | "Arazzo file", "Arazzo document", "workflow file" |
+
+- **A bare "spec"** is the OpenAPI spec, and only where Arazzo specs don't come up. Wherever they do (all of RapiFlow's docs, workflows in RapiDoc Portal, the MCP export, `rapidoc validate`), say "OpenAPI spec" or "Arazzo spec" every time. Placeholders in code (`<spec>`, a `spec` variable) stay as they are.
+- **A workflow** is one workflow inside an Arazzo spec, never the file.
+- **The standards** are the OpenAPI Specification and the Arazzo Specification, capitalized.
+- Attribute, key and tag names stay as they are (`spec-url`, `arazzo-url`, `workflows:`, `{% workflow file= %}`).
+
 ## Using it
 
 - **Light and dark**: use the file for the background it sits on. In a RapiDoc portal:

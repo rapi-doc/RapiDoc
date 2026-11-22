@@ -20,7 +20,7 @@ head:        # extra tags in every page's <head> (analytics, fonts)
 header:      # row 1: links and menus right of the search
 navigation:  # row 2: one tab per entry; documentation tabs have a sidebar
 apis:        # your OpenAPI specs
-workflows:   # Arazzo workflow files
+workflows:   # Arazzo specs
 docs:        # docs folder, table of contents, edit links
 footer:      # call to action, columns, social links, newsletter
 rapidoc:     # <rapi-doc> attributes for API reference pages
@@ -80,7 +80,7 @@ The engine also reads `rapidoc.config.yml`, `.json`, `.js`, `.mjs` and `.ts`. A 
 - [Header](/docs/configuration/header/): links, dropdowns, mega-menus
 - [Navigation](/docs/configuration/navigation/): tabs and sidebars
 - [APIs](/docs/configuration/apis/): specs, ids, categories
-- [Workflows](/docs/configuration/workflows/): Arazzo files, drawn and runnable in the docs
+- [Workflows](/docs/configuration/workflows/): Arazzo specs, drawn and runnable in the docs
 - [Footer](/docs/configuration/footer/): call to action, columns, social links, newsletter
 - [Docs, search and redirects](/docs/configuration/docs-search-redirects/): the docs folder, edit links, search, old URLs
 - [LLM output](/docs/configuration/llms/): `llms.txt` and Markdown copies of every page

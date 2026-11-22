@@ -52,7 +52,7 @@ workflows:
       orderId: $steps.placeOrder.outputs.orderId`;
 
 const mockServerSnippet = `# A mock that validates requests, generates data and checks OAuth scopes
-npx rapidoc mock            # serves every spec under http://localhost:4010/<api id>`;
+npx rapidoc mock            # serves every OpenAPI spec under http://localhost:4010/<api id>`;
 
 const mockServerHtmlSnippet = `<rapi-flow
   arazzo-url="/specs/petstore.arazzo.yaml"
@@ -63,7 +63,7 @@ const mockServerHtmlSnippet = `<rapi-flow
 
 <GlobalLayout
   title="RapiFlow: Draw and Run Arazzo Workflows | RapiDoc"
-  description="Draw the multi-step journeys through your API from an Arazzo document, run them in the browser against a mock or the real API, and reuse them as MCP tools."
+  description="Draw the multi-step journeys through your API from an Arazzo spec, run them in the browser against a mock or the real API, and reuse them as MCP tools."
   keywords="Arazzo, API workflows, rapi-flow, OpenAPI workflows, workflow diagram, API mock, MCP tools, RapiDoc"
 >
   <script slot="script" is:inline type="module" src="/assets/rapidoc-min.js"></script>
@@ -86,7 +86,7 @@ const mockServerHtmlSnippet = `<rapi-flow
       </h1>
 
       <p class="rd-page-subtitle">
-        Show the sequence, not just the endpoints. <code>&lt;rapi-flow&gt;</code> draws the journeys an Arazzo document describes (find a pet, order it, read the order
+        Show the sequence, not just the endpoints. <code>&lt;rapi-flow&gt;</code> draws the journeys an Arazzo spec describes (find a pet, order it, read the order
         back) right next to your API reference, and lets readers run them against a mock or the real API, one lit-up step
         at a time.
       </p>
@@ -133,7 +133,7 @@ const mockServerHtmlSnippet = `<rapi-flow
         <p class="rd-section-desc">
           An API reference answers "what does this endpoint take?". The first question a new integrator asks is different:
           "which calls do I make, in which order, and what do I pass from one to the next?". That knowledge usually lives in
-          a tutorial that drifts from the API. Arazzo puts it in a file next to the spec, and <code>&lt;rapi-flow&gt;</code>
+          a tutorial that drifts from the API. Arazzo puts it in an Arazzo spec next to the OpenAPI spec, and <code>&lt;rapi-flow&gt;</code>
           draws it from that file, so the diagram changes when the workflow does.
         </p>
 
@@ -151,7 +151,7 @@ const mockServerHtmlSnippet = `<rapi-flow
 
           <div class="comparison-card after">
             <div class="card-status-badge badge-success">With a Workflow</div>
-            <h3 class="card-title">The journey, drawn from the Arazzo file</h3>
+            <h3 class="card-title">The journey, drawn from the Arazzo spec</h3>
             <ul class="comparison-list">
               <li>One box per step, in order, each linked to its operation in the reference.</li>
               <li>Dashed lines show each value a step passes on, labelled with its name.</li>
@@ -176,7 +176,7 @@ const mockServerHtmlSnippet = `<rapi-flow
             <span class="wf-scenario-code ok">200</span>
             <span>
               <strong>Everything succeeds</strong>
-              <small>Every step answers from the spec's examples; the outputs table fills in.</small>
+              <small>Every step answers from the OpenAPI spec's examples; the outputs table fills in.</small>
             </span>
           </button>
           <button type="button" class="wf-scenario" data-codes='{"*":"404"}' data-note="The mock answers every step with 404.">
@@ -323,7 +323,7 @@ const mockServerHtmlSnippet = `<rapi-flow
         <div class="rd-section-badge">Integration</div>
         <h2 class="rd-section-title">Add It to Your Docs</h2>
         <p class="rd-section-desc">
-          Load the flow bundle next to RapiDoc, point the element at your Arazzo file and tie it to the reference. Its
+          Load the flow bundle next to RapiDoc, point the element at your Arazzo spec and tie it to the reference. Its
           attributes and events are in the <a href="https://flow.rapidocui.com/docs/reference/">API reference</a>, and its slots and CSS parts in
           <a href="https://flow.rapidocui.com/docs/styling/">Slots &amp; Styling</a>.
         </p>
@@ -335,7 +335,7 @@ const mockServerHtmlSnippet = `<rapi-flow
           <h3>Against a mock server, or the real API</h3>
           <p>
             For a mock that validates requests, generates data and checks OAuth scopes, run <code>rapidoc mock</code> and send
-            the run there with <code>server-url</code> (or list it as a server in the spec and pick it in
+            the run there with <code>server-url</code> (or list it as a server in the OpenAPI spec and pick it in
             <code>&lt;rapi-doc&gt;</code>). Against the real API, the browser makes the calls, so the API must allow
             cross-origin requests from your docs site.
           </p>
@@ -347,7 +347,7 @@ const mockServerHtmlSnippet = `<rapi-flow
       <section class="wf-cta-box">
         <div class="wf-cta-content">
           <h3>See it next to a full API reference</h3>
-          <p>The example page ties two Arazzo files to the Petstore reference, with branches, retries and the MCP export.</p>
+          <p>The example page ties two Arazzo specs to the Petstore reference, with branches, retries and the MCP export.</p>
           <div class="cta-actions">
             <a href="/examples/arazzo" class="rd-btn rd-btn-primary">
               <span>Open the rapi-flow Example</span>

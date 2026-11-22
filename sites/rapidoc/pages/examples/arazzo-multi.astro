@@ -4,7 +4,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 
 <ExampleLayout
   title="Arazzo workflow across several APIs"
-  description="One Arazzo workflow using three different OpenAPI specs: rapi-flow draws Rapid Parcels' ship-a-parcel workflow, pairs each spec with its own rapi-doc-mini, and runs it against the in-browser mock."
+  description="One Arazzo workflow using three different OpenAPI specs: rapi-flow draws Rapid Parcels' ship-a-parcel workflow, pairs each OpenAPI spec with its own rapi-doc-mini, and runs it against the in-browser mock."
 >
   <script>
     import 'rapidoc/flow';
@@ -12,7 +12,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
 
   <div class="flow-example">
     <div class="flow-pane">
-      <!-- for: one element per API of the Arazzo file; each is paired by its arazzo-source -->
+      <!-- for: one element per API of the Arazzo spec; each is paired by its arazzo-source -->
       <rapi-flow
         arazzo-url="/specs/rapid-parcels/workflows/ship-a-parcel.arazzo.yaml"
         for="rates-api shipments-api tracking-api"
@@ -29,12 +29,12 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
             ship a parcel, it gets a
             quote from <code>rates.yaml</code>, a shipment and its label from
             <code>shipments.yaml</code>, and a tracking subscription from <code>tracking.yaml</code>.
-            Each step's outputs feed the next, from one spec to another.
+            Each step's outputs feed the next, from one OpenAPI spec to another.
           </p>
           <p class="note">
-            On the right, each spec has its own <code>&lt;rapi-doc-mini&gt;</code>, showing only the
+            On the right, each OpenAPI spec has its own <code>&lt;rapi-doc-mini&gt;</code>, showing only the
             operations the workflow calls in it. Click a step to open its operation there, or run the
-            workflow: RapiDoc's in-browser mock answers every request from the specs' examples and
+            workflow: RapiDoc's in-browser mock answers every request from the OpenAPI specs' examples and
             schemas, so nothing leaves the page.
           </p>
         </div>

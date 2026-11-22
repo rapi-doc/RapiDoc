@@ -61,7 +61,7 @@ npm install rapidoc
 | :--- | :--- |
 | `@rapidoc/cli` | The `rapidoc` command: [preview, validate, lint and bundle](/docs/cli/) a spec, run a [mock server](https://mock.rapidocui.com/), turn a spec into an MCP server, and build and serve developer portals. |
 | `@rapidoc/mock` | The [mock server](https://mock.rapidocui.com/) behind `rapidoc mock`: answers every operation over HTTP from examples or generated data, validates requests and checks OAuth tokens, and with `--stateful` keeps what you create. Also usable as a library. |
-| `@rapidoc/mcp` | Turns OpenAPI and Arazzo documents into [MCP tools](/docs/mcp/server/#in-node-rapidocmcp): manifest builder, runtime and server project writer. The same code `<rapi-doc>` uses in the browser. |
+| `@rapidoc/mcp` | Turns OpenAPI and Arazzo specs into [MCP tools](/docs/mcp/server/#in-node-rapidocmcp): manifest builder, runtime and server project writer. The same code `<rapi-doc>` uses in the browser. |
 | `@rapidoc/embed` | The shared core of integrations (plugins and middleware for frameworks, docs sites and tools): renders the standard host page for `<rapi-doc>` and lists the routes to serve. See [Build an Integration](/docs/integrations/build-your-own/). |
 | `@rapidoc/hono` | Serves the API reference from a [Hono](https://hono.dev) app: `app.use(rapidoc({ specUrl }))`. See [Server frameworks](/docs/integrations/node/). |
 | `@rapidoc/express`, `@rapidoc/fastify` | The same for [Express](https://expressjs.com) and [Fastify](https://fastify.dev) apps. See [Server frameworks](/docs/integrations/node/). |

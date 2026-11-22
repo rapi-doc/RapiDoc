@@ -1,12 +1,12 @@
 ---
 title: Validate, lint and bundle
-description: Check your portal's OpenAPI specs and workflow files, lint what they need for good API pages, and bundle a spec split over several files, locally and in CI.
+description: Check your portal's OpenAPI specs and Arazzo specs, lint what they need for good API pages, and bundle a spec split over several files, locally and in CI.
 ---
 
 The RapiDoc CLI's spec commands work on a whole portal: run in a portal folder, they take the APIs from `rapidoc.config.*`. Every option, the output formats and the lint rules are in the [RapiDoc CLI docs](https://rapidocui.com/docs/cli/); this page covers what is particular to a portal.
 
 ```bash
-npx rapidoc validate                       # every local spec in apis:, and the workflow files
+npx rapidoc validate                       # every local OpenAPI spec in apis:, and the Arazzo specs
 npx rapidoc lint                           # every API in rapidoc.config.*
 npx rapidoc bundle --api orders -o dist/orders.yaml
 ```
@@ -15,7 +15,7 @@ A portal folder needs `@rapidoc/portal` installed, to read the `apis:` list; one
 
 ## Validate
 
-`rapidoc validate` checks every local spec in `apis:` strictly against the OpenAPI Specification (required fields and types, path parameters, `$ref`s), with file, line and column for each error. It also warns about operations without an `operationId` (their page URLs change when their summary is edited), and checks that the steps of each workflow file resolve against your APIs. [Every option](https://rapidocui.com/docs/cli/validate/).
+`rapidoc validate` checks every local OpenAPI spec in `apis:` strictly against the OpenAPI Specification (required fields and types, path parameters, `$ref`s), with file, line and column for each error. It also warns about operations without an `operationId` (their page URLs change when their summary is edited), and checks that the steps of each Arazzo spec resolve against your APIs. [Every option](https://rapidocui.com/docs/cli/validate/).
 
 ## Lint
 
