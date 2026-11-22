@@ -1,0 +1,240 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 600" width="760" height="600" role="img" aria-labelledby="t d">
+<title id="t">A RapiFlow workflow run</title>
+<desc id="d">The adoptPet workflow runs step by step: findAvailable returns a pet id, placeOrder fails with 503 and retries, getOrder reads the order back, and the outputs fill in.</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+@keyframes k1{0%{transform:scale(1)}2%{transform:scale(1)}3%{transform:scale(.94)}4.5%{transform:scale(1)}100%{transform:scale(1)}}
+.k1{animation:k1 11s linear infinite}
+@keyframes k2{0%{opacity:0}1.5%{opacity:0}2.5%{opacity:1}5%{opacity:1}6%{opacity:0}100%{opacity:0}}
+.k2{animation:k2 11s linear infinite}
+@keyframes k3{0%{transform:scaleX(0)}3%{transform:scaleX(0)}80%{transform:scaleX(1)}91%{transform:scaleX(1)}94%{transform:scaleX(0)}100%{transform:scaleX(0)}}
+.k3{animation:k3 11s linear infinite}
+@keyframes k4{0%{opacity:0}1.8%{opacity:0}3%{opacity:1}7%{opacity:1}8.2%{opacity:0}100%{opacity:0}}
+.k4{animation:k4 11s linear infinite}
+@keyframes k5{0%{opacity:0}5%{opacity:0}11%{opacity:1}91%{opacity:1}94%{opacity:0}100%{opacity:0}}
+.k5{animation:k5 11s linear infinite}
+@keyframes k6{0%{stroke-dashoffset:16}5%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}11%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k6{animation:k6 11s linear infinite}
+@keyframes k7{0%{stroke-dashoffset:16}5%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}11%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k7{animation:k7 11s linear infinite}
+@keyframes k8{0%{opacity:0}22%{opacity:0}30%{opacity:1}91%{opacity:1}94%{opacity:0}100%{opacity:0}}
+.k8{animation:k8 11s linear infinite}
+@keyframes k9{0%{stroke-dashoffset:16}22%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}30%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k9{animation:k9 11s linear infinite}
+@keyframes k10{0%{stroke-dashoffset:16}22%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}30%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k10{animation:k10 11s linear infinite}
+@keyframes k11{0%{opacity:0}57%{opacity:0}64%{opacity:1}91%{opacity:1}94%{opacity:0}100%{opacity:0}}
+.k11{animation:k11 11s linear infinite}
+@keyframes k12{0%{stroke-dashoffset:16}57%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}64%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k12{animation:k12 11s linear infinite}
+@keyframes k13{0%{stroke-dashoffset:16}57%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}64%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k13{animation:k13 11s linear infinite}
+@keyframes k14{0%{opacity:0}73%{opacity:0}80%{opacity:1}91%{opacity:1}94%{opacity:0}100%{opacity:0}}
+.k14{animation:k14 11s linear infinite}
+@keyframes k15{0%{stroke-dashoffset:16}73%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}80%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k15{animation:k15 11s linear infinite}
+@keyframes k16{0%{stroke-dashoffset:16}73%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}80%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k16{animation:k16 11s linear infinite}
+@keyframes k17{0%{stroke-dashoffset:16}40%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}47%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k17{animation:k17 11s linear infinite}
+@keyframes k18{0%{opacity:0}22.8%{opacity:0}24%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k18{animation:k18 11s linear infinite}
+@keyframes k19{0%{opacity:0}56.8%{opacity:0}58%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k19{animation:k19 11s linear infinite}
+@keyframes k20{0%{opacity:0}23.8%{opacity:0}25%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k20{animation:k20 11s linear infinite}
+@keyframes k21{0%{opacity:0}57.8%{opacity:0}59%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k21{animation:k21 11s linear infinite}
+@keyframes k22{0%{opacity:0}10.8%{opacity:0}12%{opacity:1}22%{opacity:1}23.2%{opacity:0}100%{opacity:0}}
+.k22{animation:k22 11s linear infinite}
+@keyframes k23{0%{opacity:0}10.8%{opacity:0}12%{opacity:1}22%{opacity:1}23.2%{opacity:0}100%{opacity:0}}
+.k23{animation:k23 11s linear infinite}
+@keyframes k24{0%{opacity:0}20.8%{opacity:0}22%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k24{animation:k24 11s linear infinite}
+@keyframes k25{0%{opacity:1}11%{opacity:1}12.2%{opacity:0}91.8%{opacity:0}93%{opacity:1}100%{opacity:1}}
+.k25{animation:k25 11s linear infinite}
+@keyframes k26{0%{opacity:0}10.8%{opacity:0}12%{opacity:1}22%{opacity:1}23.2%{opacity:0}100%{opacity:0}}
+.k26{animation:k26 11s linear infinite}
+@keyframes k27{0%{opacity:0}20.8%{opacity:0}22%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k27{animation:k27 11s linear infinite}
+@keyframes k28{0%{opacity:0}29.8%{opacity:0}31%{opacity:1}39%{opacity:1}40.2%{opacity:0}46.8%{opacity:0}48%{opacity:1}57%{opacity:1}58.2%{opacity:0}100%{opacity:0}}
+.k28{animation:k28 11s linear infinite}
+@keyframes k29{0%{opacity:0}29.8%{opacity:0}31%{opacity:1}39%{opacity:1}40.2%{opacity:0}46.8%{opacity:0}48%{opacity:1}57%{opacity:1}58.2%{opacity:0}100%{opacity:0}}
+.k29{animation:k29 11s linear infinite}
+@keyframes k30{0%{opacity:0}55.8%{opacity:0}57%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k30{animation:k30 11s linear infinite}
+@keyframes k31{0%{opacity:1}30%{opacity:1}31.2%{opacity:0}91.8%{opacity:0}93%{opacity:1}100%{opacity:1}}
+.k31{animation:k31 11s linear infinite}
+@keyframes k32{0%{opacity:0}29.8%{opacity:0}31%{opacity:1}39%{opacity:1}40.2%{opacity:0}100%{opacity:0}}
+.k32{animation:k32 11s linear infinite}
+@keyframes k33{0%{opacity:0}46.8%{opacity:0}48%{opacity:1}57%{opacity:1}58.2%{opacity:0}100%{opacity:0}}
+.k33{animation:k33 11s linear infinite}
+@keyframes k34{0%{opacity:0}37.8%{opacity:0}39%{opacity:1}47%{opacity:1}48.2%{opacity:0}100%{opacity:0}}
+.k34{animation:k34 11s linear infinite}
+@keyframes k35{0%{opacity:0}55.8%{opacity:0}57%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k35{animation:k35 11s linear infinite}
+@keyframes k36{0%{opacity:0}63.8%{opacity:0}65%{opacity:1}73%{opacity:1}74.2%{opacity:0}100%{opacity:0}}
+.k36{animation:k36 11s linear infinite}
+@keyframes k37{0%{opacity:0}63.8%{opacity:0}65%{opacity:1}73%{opacity:1}74.2%{opacity:0}100%{opacity:0}}
+.k37{animation:k37 11s linear infinite}
+@keyframes k38{0%{opacity:0}71.8%{opacity:0}73%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k38{animation:k38 11s linear infinite}
+@keyframes k39{0%{opacity:1}64%{opacity:1}65.2%{opacity:0}91.8%{opacity:0}93%{opacity:1}100%{opacity:1}}
+.k39{animation:k39 11s linear infinite}
+@keyframes k40{0%{opacity:0}63.8%{opacity:0}65%{opacity:1}73%{opacity:1}74.2%{opacity:0}100%{opacity:0}}
+.k40{animation:k40 11s linear infinite}
+@keyframes k41{0%{opacity:0}71.8%{opacity:0}73%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k41{animation:k41 11s linear infinite}
+@keyframes k42{0%{opacity:0}78.8%{opacity:0}80%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k42{animation:k42 11s linear infinite}
+@keyframes k43{0%{opacity:1}79%{opacity:1}80.2%{opacity:0}91.8%{opacity:0}93%{opacity:1}100%{opacity:1}}
+.k43{animation:k43 11s linear infinite}
+@keyframes k44{0%{opacity:0}78.8%{opacity:0}80%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k44{animation:k44 11s linear infinite}
+@keyframes k45{0%{opacity:0}20.8%{opacity:0}22%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k45{animation:k45 11s linear infinite}
+@keyframes k46{0%{opacity:0}37.8%{opacity:0}39%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k46{animation:k46 11s linear infinite}
+@keyframes k47{0%{opacity:0}55.8%{opacity:0}57%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k47{animation:k47 11s linear infinite}
+@keyframes k48{0%{opacity:0}71.8%{opacity:0}73%{opacity:1}91%{opacity:1}92.2%{opacity:0}100%{opacity:0}}
+.k48{animation:k48 11s linear infinite}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+<rect x="8" y="8" width="744" height="584" rx="18" fill="url(#panelFade)" stroke="rgba(255,255,255,0.08)"/>
+<rect x="8" y="8" width="744" height="584" rx="18" fill="url(#dots)"/>
+
+<!-- header -->
+<text x="40" y="44" font-size="19" font-weight="700" fill="#e2e8f0" class="mono">adoptPet</text>
+<text x="40" y="66" font-size="12.5" fill="#94a3b8">Adopt an available pet · petstore.arazzo.yaml</text>
+<g class="fb k1">
+  <rect x="548" y="26" width="172" height="38" rx="8" fill="#f6a821"/>
+  <g opacity=".3"><rect x="548" y="26" width="172" height="38" rx="8" fill="#fff" class="k2 rm0"/></g>
+  <path d="M573 38 L585 45 L573 52 Z" fill="#1a1204"/>
+  <text x="595" y="50" font-size="14" font-weight="700" fill="#1a1204">Run workflow</text>
+</g>
+<rect x="40" y="80" width="680" height="2" rx="1" fill="rgba(148,163,184,0.12)"/>
+<rect x="40" y="80" width="680" height="2" rx="1" fill="#f6a821" class="fl k3"/>
+
+<!-- inputs -->
+<rect x="40" y="94" width="196" height="34" rx="17" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="40" y="94" width="196" height="34" rx="17" fill="none" stroke="#f6a821" class="k4 rm0"/>
+<text x="58" y="115.5" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">INPUTS</text>
+<text x="112" y="116" font-size="12" fill="#e2e8f0" class="mono">quantity: <tspan fill="#f6a821">1</tspan></text>
+
+<!-- edges -->
+<path d="M130 128L130 137Q130 143 136 143L159 143Q165 143 165 149L165 158" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M130 128L130 137Q130 143 136 143L159 143Q165 143 165 149L165 158" class="k5" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M130 128L130 137Q130 143 136 143L159 143Q165 143 165 149L165 158" pathLength="100" class="k6 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M130 128L130 137Q130 143 136 143L159 143Q165 143 165 149L165 158" pathLength="100" class="k7 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M290 186L386 186Q392 186 392 192L392 252Q392 258 398 258L448 258" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M290 186L386 186Q392 186 392 192L392 252Q392 258 398 258L448 258" class="k8" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M290 186L386 186Q392 186 392 192L392 252Q392 258 398 258L448 258" pathLength="100" class="k9 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M290 186L386 186Q392 186 392 192L392 252Q392 258 398 258L448 258" pathLength="100" class="k10 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M545 310L545 354Q545 360 539 360L292 360" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M545 310L545 354Q545 360 539 360L292 360" class="k11" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M545 310L545 354Q545 360 539 360L292 360" pathLength="100" class="k12 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M545 310L545 354Q545 360 539 360L292 360" pathLength="100" class="k13 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<path d="M165 412L165 446Q165 452 171 452L448 452" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M165 412L165 446Q165 452 171 452L448 452" class="k14" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M165 412L165 446Q165 452 171 452L448 452" pathLength="100" class="k15 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M165 412L165 446Q165 452 171 452L448 452" pathLength="100" class="k16 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+
+<!-- retry loop on placeOrder -->
+<path d="M700 254L726 254Q732 254 732 260L732 286Q732 292 726 292L702 292" fill="none" stroke="rgba(246,168,33,0.28)" stroke-width="1.6" stroke-dasharray="3 4" marker-end="url(#ahAmber)"/>
+<path d="M700 254L726 254Q732 254 732 260L732 286Q732 292 726 292L702 292" pathLength="100" class="k17 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<text x="738" y="330" font-size="10.5" fill="#f6a821" fill-opacity=".8" text-anchor="end" class="mono">retry · 503 · 2s</text>
+
+<!-- values passed between steps -->
+<path d="M290 216L324 216Q330 216 330 222L330 282Q330 288 336 288L448 288" fill="none" stroke="#38bdf8" stroke-opacity=".18" stroke-width="1.4" stroke-dasharray="4 6"/>
+<path d="M290 216L324 216Q330 216 330 222L330 282Q330 288 336 288L448 288" class="k18" fill="none" stroke="#38bdf8" stroke-opacity=".85" stroke-width="1.6" stroke-dasharray="4 6" marker-end="url(#ahCyan)"/>
+<path d="M625 310L625 386Q625 392 619 392L292 392" fill="none" stroke="#38bdf8" stroke-opacity=".18" stroke-width="1.4" stroke-dasharray="4 6"/>
+<path d="M625 310L625 386Q625 392 619 392L292 392" class="k19" fill="none" stroke="#38bdf8" stroke-opacity=".85" stroke-width="1.6" stroke-dasharray="4 6" marker-end="url(#ahCyan)"/>
+<g class="k20"><rect x="277" y="243" width="106" height="22" rx="11" fill="#0a1426" stroke="#38bdf8" stroke-opacity=".6"/><text x="330" y="258" font-size="11" fill="#38bdf8" text-anchor="middle" class="mono">petId = 1042</text></g>
+<g class="k21"><rect x="420.5" y="381" width="99" height="22" rx="11" fill="#0a1426" stroke="#38bdf8" stroke-opacity=".6"/><text x="470" y="396" font-size="11" fill="#38bdf8" text-anchor="middle" class="mono">orderId = 7</text></g>
+
+<!-- steps -->
+<g>
+<g opacity=".22"><rect x="40" y="160" width="250" height="78" rx="8" fill="#f6a821" class="k22 rm0" filter="url(#soft)"/></g>
+<rect x="40" y="160" width="250" height="78" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="40" y="160" width="250" height="78" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k23 rm0"/>
+<rect x="40" y="160" width="250" height="78" rx="8" fill="rgba(52,211,153,0.04)" stroke="#34d399" stroke-opacity=".55" stroke-width="1.4" class="k24"/>
+<circle cx="66" cy="186" r="11" fill="rgba(148,163,184,0.10)" stroke="rgba(148,163,184,0.25)"/>
+<text x="66" y="190" font-size="11" font-weight="700" fill="#94a3b8" text-anchor="middle">1</text>
+<text x="86" y="191" font-size="14.5" font-weight="650" fill="#e2e8f0" class="mono">findAvailable</text>
+<rect x="56" y="206" width="36.5" height="19" rx="5" fill="#60a5fa" fill-opacity=".14" stroke="#60a5fa" stroke-opacity=".45"/>
+<text x="74.25" y="219.5" font-size="10" font-weight="700" fill="#60a5fa" text-anchor="middle" class="mono">GET</text>
+<text x="100.5" y="220" font-size="12" fill="#94a3b8" class="mono">/pet/findByStatus</text>
+</g>
+<g class="k25 rm0"><rect x="224" y="174" width="52" height="22" rx="11" fill="rgba(148,163,184,0.08)" stroke="rgba(148,163,184,0.25)"/><circle cx="237" cy="185" r="3" fill="#64748b"/><text x="245" y="189" font-size="10" font-weight="600" fill="#94a3b8" letter-spacing=".04em">IDLE</text></g>
+<g class="k26 rm0"><rect x="212" y="174" width="64" height="22" rx="11" fill="rgba(246,168,33,0.12)" stroke="rgba(246,168,33,0.55)"/><g class="fb spin" style="transform-origin:225px 185px;transform-box:view-box"><circle cx="225" cy="185" r="5" fill="none" stroke="#f6a821" stroke-width="2" stroke-dasharray="20 12" stroke-linecap="round"/></g><text x="235" y="189" font-size="10" font-weight="700" fill="#f6a821" letter-spacing=".04em">RUN</text></g>
+<g class="k27"><rect x="220" y="174" width="56" height="22" rx="11" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.55)"/><path d="M229 185 l4 4 l7 -8" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="244" y="189" font-size="11" font-weight="700" fill="#34d399" class="mono">200</text></g>
+<g>
+<g opacity=".22"><rect x="450" y="232" width="250" height="78" rx="8" fill="#f6a821" class="k28 rm0" filter="url(#soft)"/></g>
+<rect x="450" y="232" width="250" height="78" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="450" y="232" width="250" height="78" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k29 rm0"/>
+<rect x="450" y="232" width="250" height="78" rx="8" fill="rgba(52,211,153,0.04)" stroke="#34d399" stroke-opacity=".55" stroke-width="1.4" class="k30"/>
+<circle cx="476" cy="258" r="11" fill="rgba(148,163,184,0.10)" stroke="rgba(148,163,184,0.25)"/>
+<text x="476" y="262" font-size="11" font-weight="700" fill="#94a3b8" text-anchor="middle">2</text>
+<text x="496" y="263" font-size="14.5" font-weight="650" fill="#e2e8f0" class="mono">placeOrder</text>
+<rect x="466" y="278" width="44" height="19" rx="5" fill="#34d399" fill-opacity=".14" stroke="#34d399" stroke-opacity=".45"/>
+<text x="488" y="291.5" font-size="10" font-weight="700" fill="#34d399" text-anchor="middle" class="mono">POST</text>
+<text x="518" y="292" font-size="12" fill="#94a3b8" class="mono">/store/order</text>
+</g>
+<g class="k31 rm0"><rect x="634" y="246" width="52" height="22" rx="11" fill="rgba(148,163,184,0.08)" stroke="rgba(148,163,184,0.25)"/><circle cx="647" cy="257" r="3" fill="#64748b"/><text x="655" y="261" font-size="10" font-weight="600" fill="#94a3b8" letter-spacing=".04em">IDLE</text></g>
+<g class="k32 rm0"><rect x="622" y="246" width="64" height="22" rx="11" fill="rgba(246,168,33,0.12)" stroke="rgba(246,168,33,0.55)"/><g class="fb spin" style="transform-origin:635px 257px;transform-box:view-box"><circle cx="635" cy="257" r="5" fill="none" stroke="#f6a821" stroke-width="2" stroke-dasharray="20 12" stroke-linecap="round"/></g><text x="645" y="261" font-size="10" font-weight="700" fill="#f6a821" letter-spacing=".04em">RUN</text></g>
+<g class="k33 rm0"><rect x="622" y="246" width="64" height="22" rx="11" fill="rgba(246,168,33,0.12)" stroke="rgba(246,168,33,0.55)"/><g class="fb spin" style="transform-origin:635px 257px;transform-box:view-box"><circle cx="635" cy="257" r="5" fill="none" stroke="#f6a821" stroke-width="2" stroke-dasharray="20 12" stroke-linecap="round"/></g><text x="645" y="261" font-size="10" font-weight="700" fill="#f6a821" letter-spacing=".04em">RUN</text></g>
+<g class="k34 rm0"><rect x="630" y="246" width="56" height="22" rx="11" fill="rgba(248,113,113,0.12)" stroke="rgba(248,113,113,0.55)"/><path d="M640 253 l8 8 M648 253 l-8 8" stroke="#f87171" stroke-width="2" stroke-linecap="round"/><text x="654" y="261" font-size="11" font-weight="700" fill="#f87171" class="mono">503</text></g>
+<g class="k35"><rect x="630" y="246" width="56" height="22" rx="11" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.55)"/><path d="M639 257 l4 4 l7 -8" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="654" y="261" font-size="11" font-weight="700" fill="#34d399" class="mono">200</text></g>
+<g>
+<g opacity=".22"><rect x="40" y="334" width="250" height="78" rx="8" fill="#f6a821" class="k36 rm0" filter="url(#soft)"/></g>
+<rect x="40" y="334" width="250" height="78" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="40" y="334" width="250" height="78" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k37 rm0"/>
+<rect x="40" y="334" width="250" height="78" rx="8" fill="rgba(52,211,153,0.04)" stroke="#34d399" stroke-opacity=".55" stroke-width="1.4" class="k38"/>
+<circle cx="66" cy="360" r="11" fill="rgba(148,163,184,0.10)" stroke="rgba(148,163,184,0.25)"/>
+<text x="66" y="364" font-size="11" font-weight="700" fill="#94a3b8" text-anchor="middle">3</text>
+<text x="86" y="365" font-size="14.5" font-weight="650" fill="#e2e8f0" class="mono">getOrder</text>
+<rect x="56" y="380" width="36.5" height="19" rx="5" fill="#60a5fa" fill-opacity=".14" stroke="#60a5fa" stroke-opacity=".45"/>
+<text x="74.25" y="393.5" font-size="10" font-weight="700" fill="#60a5fa" text-anchor="middle" class="mono">GET</text>
+<text x="100.5" y="394" font-size="12" fill="#94a3b8" class="mono">/store/order/{id}</text>
+</g>
+<g class="k39 rm0"><rect x="224" y="348" width="52" height="22" rx="11" fill="rgba(148,163,184,0.08)" stroke="rgba(148,163,184,0.25)"/><circle cx="237" cy="359" r="3" fill="#64748b"/><text x="245" y="363" font-size="10" font-weight="600" fill="#94a3b8" letter-spacing=".04em">IDLE</text></g>
+<g class="k40 rm0"><rect x="212" y="348" width="64" height="22" rx="11" fill="rgba(246,168,33,0.12)" stroke="rgba(246,168,33,0.55)"/><g class="fb spin" style="transform-origin:225px 359px;transform-box:view-box"><circle cx="225" cy="359" r="5" fill="none" stroke="#f6a821" stroke-width="2" stroke-dasharray="20 12" stroke-linecap="round"/></g><text x="235" y="363" font-size="10" font-weight="700" fill="#f6a821" letter-spacing=".04em">RUN</text></g>
+<g class="k41"><rect x="220" y="348" width="56" height="22" rx="11" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.55)"/><path d="M229 359 l4 4 l7 -8" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="244" y="363" font-size="11" font-weight="700" fill="#34d399" class="mono">200</text></g>
+
+<!-- outputs -->
+<rect x="450" y="420" width="250" height="64" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="450" y="420" width="250" height="64" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k42"/>
+<text x="466" y="442" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">OUTPUTS</text>
+<text x="466" y="468" font-size="13" fill="#e2e8f0" class="mono">orderId</text>
+<text x="530" y="468" font-size="11" fill="#64748b" class="mono">← getOrder</text>
+<text x="684" y="468" font-size="13" fill="#64748b" text-anchor="end" class="mono k43 rm0">—</text>
+<text x="684" y="468" font-size="15" font-weight="700" fill="#f6a821" text-anchor="end" class="mono k44">7</text>
+
+<!-- run log -->
+<rect x="40" y="504" width="680" height="76" rx="8" fill="#070b16" stroke="rgba(255,255,255,0.06)"/>
+<g class="k45"><text x="56" y="523" font-size="11" class="mono" fill="#64748b">›</text><text x="70" y="523" font-size="11" class="mono" fill="#60a5fa">GET </text><text x="108" y="523" font-size="11" class="mono" fill="#94a3b8">/pet/findByStatus?status=available</text><text x="600" y="523" font-size="11" font-weight="700" class="mono" fill="#34d399" text-anchor="end">200</text><text x="704" y="523" font-size="11" class="mono" fill="#64748b" text-anchor="end">84 ms</text></g>
+<g class="k46"><text x="56" y="538.5" font-size="11" class="mono" fill="#64748b">›</text><text x="70" y="538.5" font-size="11" class="mono" fill="#34d399">POST</text><text x="108" y="538.5" font-size="11" class="mono" fill="#94a3b8">/store/order</text><text x="600" y="538.5" font-size="11" font-weight="700" class="mono" fill="#f87171" text-anchor="end">503</text><text x="704" y="538.5" font-size="11" class="mono" fill="#64748b" text-anchor="end">retry in 2 s</text></g>
+<g class="k47"><text x="56" y="554" font-size="11" class="mono" fill="#64748b">›</text><text x="70" y="554" font-size="11" class="mono" fill="#34d399">POST</text><text x="108" y="554" font-size="11" class="mono" fill="#94a3b8">/store/order</text><text x="600" y="554" font-size="11" font-weight="700" class="mono" fill="#34d399" text-anchor="end">200</text><text x="704" y="554" font-size="11" class="mono" fill="#64748b" text-anchor="end">attempt 2</text></g>
+<g class="k48"><text x="56" y="569.5" font-size="11" class="mono" fill="#64748b">›</text><text x="70" y="569.5" font-size="11" class="mono" fill="#60a5fa">GET </text><text x="108" y="569.5" font-size="11" class="mono" fill="#94a3b8">/store/order/7</text><text x="600" y="569.5" font-size="11" font-weight="700" class="mono" fill="#34d399" text-anchor="end">200</text><text x="704" y="569.5" font-size="11" class="mono" fill="#64748b" text-anchor="end">61 ms</text></g>
+
+</svg>

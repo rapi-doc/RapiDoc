@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" width="760" height="420" role="img" aria-labelledby="t d">
+<title id="t">One workflow runtime, three places</title>
+<desc id="d">One Arazzo spec feeds RapiFlow's workflow runtime, which runs the workflow in the browser, serves it to AI agents as an MCP tool and draws it in the developer portal.</desc>
+<defs>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="10"/></filter>
+<pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="rgba(148,163,184,0.10)"/></pattern>
+<linearGradient id="panelFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1528"/><stop offset="1" stop-color="#080d1a"/></linearGradient>
+<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="rgba(148,163,184,0.45)"/></marker>
+<marker id="ahAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f6a821"/></marker>
+<marker id="ahGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#34d399"/></marker>
+<marker id="ahRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#f87171"/></marker>
+<marker id="ahCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9 Z" fill="#38bdf8"/></marker>
+</defs>
+<style>
+text{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif}
+.mono{font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+.fb{transform-box:fill-box;transform-origin:center}
+.fl{transform-box:fill-box;transform-origin:left center}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flow{animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+@keyframes k1{0%{opacity:0}1.8%{opacity:0}3%{opacity:1}12%{opacity:1}13.2%{opacity:0}100%{opacity:0}}
+.k1{animation:k1 10s linear infinite}
+@keyframes k2{0%{opacity:0}2.2%{opacity:0}3%{opacity:1}5%{opacity:1}5.8%{opacity:0}100%{opacity:0}}
+.k2{animation:k2 10s linear infinite}
+@keyframes k3{0%{opacity:0}3.2%{opacity:0}4%{opacity:1}6%{opacity:1}6.8%{opacity:0}100%{opacity:0}}
+.k3{animation:k3 10s linear infinite}
+@keyframes k4{0%{opacity:0}4.2%{opacity:0}5%{opacity:1}7%{opacity:1}7.8%{opacity:0}100%{opacity:0}}
+.k4{animation:k4 10s linear infinite}
+@keyframes k5{0%{opacity:0}5.2%{opacity:0}6%{opacity:1}8%{opacity:1}8.8%{opacity:0}100%{opacity:0}}
+.k5{animation:k5 10s linear infinite}
+@keyframes k6{0%{opacity:0}6.2%{opacity:0}7%{opacity:1}9%{opacity:1}9.8%{opacity:0}100%{opacity:0}}
+.k6{animation:k6 10s linear infinite}
+@keyframes k7{0%{opacity:0}7.2%{opacity:0}8%{opacity:1}10%{opacity:1}10.8%{opacity:0}100%{opacity:0}}
+.k7{animation:k7 10s linear infinite}
+@keyframes k8{0%{opacity:0}8.2%{opacity:0}9%{opacity:1}11%{opacity:1}11.8%{opacity:0}100%{opacity:0}}
+.k8{animation:k8 10s linear infinite}
+@keyframes k9{0%{opacity:0}11%{opacity:0}15%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k9{animation:k9 10s linear infinite}
+@keyframes k10{0%{stroke-dashoffset:16}11%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}15%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k10{animation:k10 10s linear infinite}
+@keyframes k11{0%{stroke-dashoffset:16}11%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}15%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k11{animation:k11 10s linear infinite}
+@keyframes k12{0%{opacity:0}13.8%{opacity:0}15%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k12{animation:k12 10s linear infinite}
+@keyframes k13{0%{opacity:0}13.8%{opacity:0}15%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k13{animation:k13 10s linear infinite}
+@keyframes k14{0%{opacity:0}13.8%{opacity:0}15%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k14{animation:k14 10s linear infinite}
+@keyframes k15{0%{opacity:0}16%{opacity:0}22%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k15{animation:k15 10s linear infinite}
+@keyframes k16{0%{stroke-dashoffset:16}16%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}22%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k16{animation:k16 10s linear infinite}
+@keyframes k17{0%{stroke-dashoffset:16}16%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}22%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k17{animation:k17 10s linear infinite}
+@keyframes k18{0%{opacity:0}20.8%{opacity:0}22%{opacity:1}30%{opacity:1}31.2%{opacity:0}100%{opacity:0}}
+.k18{animation:k18 10s linear infinite}
+@keyframes k19{0%{opacity:1}22%{opacity:1}23.2%{opacity:0}90.8%{opacity:0}92%{opacity:1}100%{opacity:1}}
+.k19{animation:k19 10s linear infinite}
+@keyframes k20{0%{opacity:0}21.8%{opacity:0}23%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k20{animation:k20 10s linear infinite}
+@keyframes k21{0%{opacity:0}36%{opacity:0}42%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k21{animation:k21 10s linear infinite}
+@keyframes k22{0%{stroke-dashoffset:16}36%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k22{animation:k22 10s linear infinite}
+@keyframes k23{0%{stroke-dashoffset:16}36%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}42%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k23{animation:k23 10s linear infinite}
+@keyframes k24{0%{opacity:0}40.8%{opacity:0}42%{opacity:1}50%{opacity:1}51.2%{opacity:0}100%{opacity:0}}
+.k24{animation:k24 10s linear infinite}
+@keyframes k25{0%{opacity:1}42%{opacity:1}43.2%{opacity:0}90.8%{opacity:0}92%{opacity:1}100%{opacity:1}}
+.k25{animation:k25 10s linear infinite}
+@keyframes k26{0%{opacity:0}41.8%{opacity:0}43%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k26{animation:k26 10s linear infinite}
+@keyframes k27{0%{opacity:0}56%{opacity:0}62%{opacity:1}90%{opacity:1}93%{opacity:0}100%{opacity:0}}
+.k27{animation:k27 10s linear infinite}
+@keyframes k28{0%{stroke-dashoffset:16}56%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}62%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k28{animation:k28 10s linear infinite}
+@keyframes k29{0%{stroke-dashoffset:16}56%{stroke-dashoffset:16;animation-timing-function:cubic-bezier(.45,0,.3,1)}62%{stroke-dashoffset:-100}100%{stroke-dashoffset:-100}}
+.k29{animation:k29 10s linear infinite}
+@keyframes k30{0%{opacity:0}60.8%{opacity:0}62%{opacity:1}70%{opacity:1}71.2%{opacity:0}100%{opacity:0}}
+.k30{animation:k30 10s linear infinite}
+@keyframes k31{0%{opacity:1}62%{opacity:1}63.2%{opacity:0}90.8%{opacity:0}92%{opacity:1}100%{opacity:1}}
+.k31{animation:k31 10s linear infinite}
+@keyframes k32{0%{opacity:0}61.8%{opacity:0}63%{opacity:1}90%{opacity:1}91.2%{opacity:0}100%{opacity:0}}
+.k32{animation:k32 10s linear infinite}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.rm0{opacity:0}}
+</style>
+<rect x="8" y="8" width="744" height="404" rx="18" fill="url(#panelFade)" stroke="rgba(255,255,255,0.08)"/>
+<rect x="8" y="8" width="744" height="404" rx="18" fill="url(#dots)"/>
+
+<!-- the Arazzo spec -->
+<rect x="40" y="112" width="196" height="196" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="40" y="112" width="196" height="196" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k1 rm0"/>
+<text x="56" y="138" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing=".08em">ARAZZO SPEC</text>
+<text x="56" y="166" font-size="11.5" class="mono" fill="#a78bfa">arazzo<tspan fill="#64748b">:</tspan> <tspan fill="#e2e8f0">1.0.1</tspan></text>
+<rect x="48" y="153" width="180" height="18" rx="4" fill="#f6a821" fill-opacity=".10" class="k2 rm0"/>
+<text x="56" y="185" font-size="11.5" class="mono" fill="#a78bfa">workflows<tspan fill="#64748b">:</tspan></text>
+<rect x="48" y="172" width="180" height="18" rx="4" fill="#f6a821" fill-opacity=".10" class="k3 rm0"/>
+<text x="66" y="204" font-size="11.5" class="mono" fill="#a78bfa">- workflowId<tspan fill="#64748b">:</tspan> <tspan fill="#e2e8f0">adoptPet</tspan></text>
+<rect x="48" y="191" width="180" height="18" rx="4" fill="#f6a821" fill-opacity=".10" class="k4 rm0"/>
+<text x="76" y="223" font-size="11.5" class="mono" fill="#a78bfa">steps<tspan fill="#64748b">:</tspan></text>
+<rect x="48" y="210" width="180" height="18" rx="4" fill="#f6a821" fill-opacity=".10" class="k5 rm0"/>
+<text x="86" y="242" font-size="11.5" class="mono" fill="#a78bfa">- stepId<tspan fill="#64748b">:</tspan> <tspan fill="#e2e8f0">findAvailable</tspan></text>
+<rect x="48" y="229" width="180" height="18" rx="4" fill="#f6a821" fill-opacity=".10" class="k6 rm0"/>
+<text x="86" y="261" font-size="11.5" class="mono" fill="#a78bfa">- stepId<tspan fill="#64748b">:</tspan> <tspan fill="#e2e8f0">placeOrder</tspan></text>
+<rect x="48" y="248" width="180" height="18" rx="4" fill="#f6a821" fill-opacity=".10" class="k7 rm0"/>
+<text x="86" y="280" font-size="11.5" class="mono" fill="#a78bfa">- stepId<tspan fill="#64748b">:</tspan> <tspan fill="#e2e8f0">getOrder</tspan></text>
+<rect x="48" y="267" width="180" height="18" rx="4" fill="#f6a821" fill-opacity=".10" class="k8 rm0"/>
+
+<path d="M238 210 L296 210" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M238 210 L296 210" class="k9" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M238 210 L296 210" pathLength="100" class="k10 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M238 210 L296 210" pathLength="100" class="k11 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+
+<!-- the runtime -->
+<g opacity=".2"><rect x="300" y="168" width="170" height="84" rx="8" fill="#f6a821" class="k12 rm0" filter="url(#soft)"/></g>
+<rect x="300" y="168" width="170" height="84" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="300" y="168" width="170" height="84" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k13 rm0"/>
+<text x="385" y="202" font-size="14" font-weight="700" fill="#e2e8f0" text-anchor="middle">Workflow runtime</text>
+<text x="385" y="224" font-size="11" fill="#94a3b8" text-anchor="middle" class="mono">RapiDoc MCP manifest</text>
+<g class="k14 rm0">
+  <circle cx="385" cy="238" r="2.5" fill="#f6a821"><animate attributeName="opacity" values="1;.2;1" dur="1.2s" repeatCount="indefinite"/></circle>
+</g>
+
+<path d="M472 210L494 210Q500 210 500 204L500 88Q500 82 506 82L526 82" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M472 210L494 210Q500 210 500 204L500 88Q500 82 506 82L526 82" class="k15" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M472 210L494 210Q500 210 500 204L500 88Q500 82 506 82L526 82" pathLength="100" class="k16 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M472 210L494 210Q500 210 500 204L500 88Q500 82 506 82L526 82" pathLength="100" class="k17 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<rect x="528" y="40" width="192" height="84" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="528" y="40" width="192" height="84" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k18 rm0"/>
+<rect x="544" y="54" width="22" height="18" rx="3" fill="none" stroke="#94a3b8" stroke-width="1.5"/><path d="M544 59 h22" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="576" y="69" font-size="13.5" font-weight="650" fill="#e2e8f0">Browser</text>
+<text x="544" y="102" font-size="11.5" fill="#64748b" class="mono k19 rm0">waiting…</text>
+<text x="544" y="102" font-size="11.5" fill="#34d399" class="mono k20">Run workflow ▸ 3 steps ✓</text>
+<path d="M472 210L494 210Q500 210 506 210L526 210" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M472 210L494 210Q500 210 506 210L526 210" class="k21" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M472 210L494 210Q500 210 506 210L526 210" pathLength="100" class="k22 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M472 210L494 210Q500 210 506 210L526 210" pathLength="100" class="k23 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<rect x="528" y="168" width="192" height="84" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="528" y="168" width="192" height="84" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k24 rm0"/>
+<rect x="545" y="185" width="20" height="15" rx="5" fill="none" stroke="#94a3b8" stroke-width="1.5"/><circle cx="551.5" cy="192.5" r="1.8" fill="#94a3b8"/><circle cx="558.5" cy="192.5" r="1.8" fill="#94a3b8"/><path d="M555 185 v-3" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="576" y="197" font-size="13.5" font-weight="650" fill="#e2e8f0">AI agent · MCP</text>
+<text x="544" y="230" font-size="11.5" fill="#64748b" class="mono k25 rm0">waiting…</text>
+<text x="544" y="230" font-size="11.5" fill="#f6a821" class="mono k26">tools/call adoptPet</text>
+<path d="M472 210L494 210Q500 210 500 216L500 332Q500 338 506 338L526 338" fill="none" stroke="rgba(148,163,184,0.28)" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M472 210L494 210Q500 210 500 216L500 332Q500 338 506 338L526 338" class="k27" fill="none" stroke="#f6a821" stroke-opacity=".75" stroke-width="1.8" marker-end="url(#ahAmber)"/>
+<g opacity=".4"><path d="M472 210L494 210Q500 210 500 216L500 332Q500 338 506 338L526 338" pathLength="100" class="k28 rm0" fill="none" stroke="#f6a821" stroke-width="8" stroke-linecap="round" stroke-dasharray="16 200" filter="url(#soft)"/></g>
+<path d="M472 210L494 210Q500 210 500 216L500 332Q500 338 506 338L526 338" pathLength="100" class="k29 rm0" fill="none" stroke="#fff4dc" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="16 200"/>
+<rect x="528" y="296" width="192" height="84" rx="8" fill="#101a2e" stroke="rgba(148,163,184,0.20)"/>
+<rect x="528" y="296" width="192" height="84" rx="8" fill="none" stroke="#f6a821" stroke-width="1.6" class="k30 rm0"/>
+<path d="M546 312 h7 a4 4 0 0 1 2 1 a4 4 0 0 1 2 -1 h7 v15 h-7 a3 3 0 0 0 -2 1 a3 3 0 0 0 -2 -1 h-7 z" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linejoin="round"/>
+<text x="576" y="325" font-size="13.5" font-weight="650" fill="#e2e8f0">Developer portal</text>
+<text x="544" y="358" font-size="11.5" fill="#64748b" class="mono k31 rm0">waiting…</text>
+<text x="544" y="358" font-size="11.5" fill="#f6a821" class="mono k32">{% workflow %} → SVG</text>
+
+</svg>

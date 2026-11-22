@@ -1,0 +1,838 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="rf-svg rf-compact" viewBox="0 0 545.8 1108" width="545.8" height="1108" role="group" aria-label="Workflow orderOrReserve" data-theme="dark"><style><![CDATA[
+  /* =========================================================================
+     1. ROOT DESIGN TOKEN DEFAULTS (:root)
+     ========================================================================= */
+  :root {
+    /* --- Fonts (shadcn/ui) --- */
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Roboto Mono', monospace;
+
+    /* --- Headings & Prose (RapiDoc headings and markdown descriptions) --- */
+    --heading-font: var(--font-sans);
+    --heading-weight: 600;
+    --heading-line-height: 1.25;
+    --heading-letter-spacing: normal;
+    --heading-color: var(--foreground);
+    --heading-margin-top: 1.5em;
+    --heading-margin-bottom: 0.5em;
+    --h1-font-size: 2rem;
+    --h2-font-size: 1.5rem;
+    --h3-font-size: 1.25rem;
+    --h4-font-size: 1rem;
+    --h5-font-size: 0.875rem;
+    --h6-font-size: 0.8125rem;
+    --label-heading-font-size: var(--font-size-small);
+    --line-height: 1.6;
+    --paragraph-spacing: 1em;
+
+    /* --- Corner Radius (shadcn/ui) --- */
+    --radius: 0.25rem;
+
+    /* --- Sizes & Layout --- */
+    /* xs is the floor: badges, chips and tiny buttons never go below it. description is for
+       short prose next to data (parameter and property descriptions). */
+    --font-size-xs: 11px;
+    --font-size-small: 12px;
+    --font-size-description: 13px;
+    --font-size-mono: 13px;
+    --font-size-regular: 14px;
+    --resp-area-height: 400px;
+    --table-schema-key-width: 240px;
+    --table-schema-key-text-overflow: ellipsis;
+    --table-schema-key-whitespace: nowrap;
+    --scroll-margin-top: 120px;
+
+    /* --- Parameter lists (request parameters, form fields, response headers) --- */
+    --param-label-width: 12rem;
+    --param-gap: 0.5rem;
+    --param-row-gap: 0.25rem;
+    --param-padding: 0.5rem;
+    --auth-scheme-padding: 0.75rem;
+    --value-list-gap: 0.375rem;
+    --value-list-row-gap: 0.125rem;
+    --value-list-label-gap: 0.25rem;
+
+    /* --- Accent as text (links, clickable values) ---
+       Every preset sets both, computed by readableAccent(); a hex theme sets them inline (applyCustomTheme).
+       The color-scheme rules (section 3) pick one as --primary-text. */
+    --primary-text-dark: var(--primary);
+    --primary-text-light: var(--primary);
+
+    /* --- Focus Ring & Selection --- */
+    --ring: var(--primary);
+    --focus-shadow: 0 0 0 1px transparent, 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
+    --selection-bg: color-mix(in srgb, var(--primary) 25%, transparent);
+    --selection-fg: var(--foreground);
+
+    /* --- Navigation Sidebar (shadcn/ui sidebar tokens) --- */
+    --sidebar-width: 18.75rem;
+    --sidebar-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
+    --sidebar-logo-max-height: 60px;
+    --sidebar: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+  }
+
+  /* =========================================================================
+     2. SCALE & GEOMETRY TOKENS (radius, scale, nav-item-spacing)
+     ========================================================================= */
+
+  /* --- 2A. Corner Radius Scale (radius) --- */
+  :root([radius='none']) {
+    --radius: 0px;
+  }
+  :root([radius='sm']),
+  :root(:not([radius])) {
+    --radius: 0.25rem;
+  }
+  :root([radius='md']) {
+    --radius: 0.375rem;
+  }
+  :root([radius='lg']) {
+    --radius: 0.5rem;
+  }
+  :root([radius='full']) {
+    --radius: 9999px;
+  }
+
+  /* --- 2B. UI Scale & Typography (scale) --- */
+  :root([scale='sm']) {
+    --font-size-xs: 11px;
+    --font-size-small: 11px;
+    --font-size-description: 12px;
+    --font-size-mono: 12px;
+    --font-size-regular: 13px;
+    --sidebar-width: 17rem;
+  }
+  :root([scale='default']),
+  :root(:not([scale])) {
+    --font-size-xs: 11px;
+    --font-size-small: 12px;
+    --font-size-description: 13px;
+    --font-size-mono: 13px;
+    --font-size-regular: 14px;
+    --sidebar-width: 18.75rem;
+  }
+  :root([scale='lg']) {
+    --font-size-xs: 12px;
+    --font-size-small: 14px;
+    --font-size-description: 15px;
+    --font-size-mono: 15px;
+    --font-size-regular: 16px;
+    --sidebar-width: 21rem;
+  }
+
+  /* --- 2C. Navigation Density (nav-item-spacing) --- */
+  :root([nav-item-spacing='compact']) {
+    --sidebar-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;
+  }
+  :root([nav-item-spacing='default']),
+  :root(:not([nav-item-spacing])) {
+    --sidebar-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
+  }
+  :root([nav-item-spacing='relaxed']) {
+    --sidebar-item-padding: 0.625rem 1rem 0.625rem 0.625rem;
+  }
+
+  /* =========================================================================
+     3. SURFACE & COLOR SCHEME (color-scheme)
+     ========================================================================= */
+
+  /* --------- 3A. DARK (Default) --------- */
+  :root,
+  [data-theme='dark'],
+  [data-theme='system'],
+  :root, [data-theme='dark'] {
+    /* Surfaces: neutral charcoal. Tinted themes override these two; everything below is derived from them. */
+    --background: #1f1f23;
+    --foreground: #d4d4d8;
+
+    /* Card Vars:
+      card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
+      card-foreground : Text & icon color on elevated surfaces (dialog content, table header labels, tooltip text, schema type badges)
+    */
+    --card: color-mix(in srgb, var(--background) 92%, var(--foreground));
+    --card-foreground: color-mix(in srgb, var(--foreground) 90%, #ffffff);
+
+    /* Muted Vars:
+      muted (bg)       : input tags, secondary buttons, table footers, and code backgrounds
+      muted-foreground : inactive tabs, parameter descriptions, schema constraints, and timestamps
+    */
+    --muted: color-mix(in srgb, var(--background) 86%, var(--foreground));
+    --muted-foreground: color-mix(in srgb, var(--foreground) 65%, var(--background));
+    --primary-text: var(--primary-text-dark);
+
+    /* Border Vars:
+      border: dividing lines for tables, cards, sections, and panels
+    */
+    --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+
+    --sidebar-accent: color-mix(in srgb, var(--background) 88%, var(--foreground));
+
+    --input: oklch(from var(--border) calc(l + 0.05) c h);
+    --input-background: color-mix(in srgb, var(--background) 80%, #000000);
+
+    /* HTTP Method Badges (Dark Mode: High Vibrancy) */
+    --method-get: #5c98f9ff;
+    --method-post: #68cc97;
+    --method-put: #f59e0b;
+    --method-delete: #f75252ff;
+    --method-patch: #a78bfa; /* violet-400: 4.5:1 or more as text on the dark background */
+    --method-head: #eab308;
+    --method-options: #06b6d4;
+    --method-trace: #ec4899;
+    --method-query: #818cf8;
+    --method-default: #64748b;
+    --method-badge-fg: #000000;
+
+    /* Errors (dark): 4.5:1 or more on the default, carbon, jade and indigo backgrounds; cobalt and amber,
+       whose surfaces are lighter, set a lighter red of their own */
+    --destructive: #f05050;
+
+    /* Named colours (also used by x-badges: color: blue | green | ...) */
+    --blue: #3b82f6;
+    --green: #68cc97; /* as --method-post */
+    --orange: #f59e0b;
+    --red: #f98080;
+    --purple: #8b5cf6;
+    --yellow: #eab308;
+    --pink: #ec4899;
+    --brown: #d97706;
+
+    /* Syntax Highlighting */
+    --syntax-comment: #8b949e;
+    --syntax-keyword: #ff7b72;
+    --syntax-operator: #c9d1d9;
+    --syntax-string: #a5d6ff;
+    --syntax-constant: #79c0ff;
+    --syntax-function: #d2a8ff;
+    --syntax-type: #d2a8ff;
+    --syntax-variable: #ffa657;
+    --syntax-property: #79c0ff;
+    --syntax-tag: #7ee787;
+    --syntax-selector: #d2a8ff;
+    --syntax-inserted: #7ee787;
+    --syntax-deleted: #ff7b72;
+
+    /* Code Blocks */
+
+    --code-bg: var(--input-background);
+  }
+
+  /* --------- 3B. LIGHT  --------- */
+  [data-theme='light'] {
+    /* Surfaces */
+    --background: #ffffff;
+    --foreground: #27272a;
+
+    /* Card Vars:
+      card (bg)       : dialog/modal popups, table headers (th), floating tooltips, and catalog cards
+      card-foreground : Text & icon color on elevated surfaces
+    */
+    --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+    --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+
+    /* Muted Vars:
+      muted (bg)       : input tags, secondary buttons, table footers, and code backgrounds
+      muted-foreground : inactive tabs, parameter descriptions, schema constraints, and timestamps
+    */
+    --muted: color-mix(in srgb, var(--background) 94%, var(--foreground));
+    --muted-foreground: color-mix(in srgb, var(--foreground) 60%, var(--background));
+    --primary-text: var(--primary-text-light);
+
+    /* Border Vars:
+      border: dividing lines for tables, cards, sections, and panels
+    */
+    --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+
+    --sidebar-accent: color-mix(in srgb, var(--background) 92%, var(--foreground));
+
+    --input: color-mix(in srgb, var(--border) 75%, var(--foreground));
+    /* Light: fields are white, so they stand out on the tinted card surface */
+    --input-background: var(--background);
+
+    /* HTTP Method Badges (Light Mode: High Contrast). White badge text, and the colors used as text on
+       the tinted card surface, keep WCAG AA contrast (4.5:1). */
+    --method-get: #2563eb;
+    --method-post: #047857;
+    --method-put: #c2410c;
+    --method-delete: #b91c1c;
+    --method-patch: #7c3aed;
+    --method-head: #b45309;
+    --method-options: #0e7490;
+    --method-trace: #be185d;
+    --method-query: #4f46e5;
+    --method-default: #475569;
+    --method-badge-fg: #ffffff;
+
+    /* Errors: 4.5:1 or more on white and on the light presets' tinted cards */
+    --destructive: #c81e1e;
+
+    /* Named colours (also used by x-badges: color: blue | green | ...) */
+    --blue: #2768f4ff;
+    --green: #047857; /* as --method-post */
+    --orange: #d97706;
+    --red: #c81e1e;
+    --purple: #7c3aed;
+    --yellow: #b45309;
+    --pink: #db2777;
+    --brown: #92400e;
+
+    /* Syntax Highlighting */
+    --syntax-comment: #6e7781;
+    --syntax-keyword: #cf222e;
+    --syntax-operator: #24292f;
+    --syntax-string: #0a3069;
+    --syntax-constant: #0550ae;
+    --syntax-function: #8250df;
+    --syntax-type: #8250df;
+    --syntax-variable: #953800;
+    --syntax-property: #0550ae;
+    --syntax-tag: #116329;
+    --syntax-selector: #8250df;
+    --syntax-inserted: #116329;
+    --syntax-deleted: #cf222e;
+
+    /* Code Blocks */
+
+    --code-bg: color-mix(in srgb, var(--background) 96%, var(--foreground));
+  }
+
+  /* --------- 3C. SYSTEM --------- */
+  @media (prefers-color-scheme: light) {
+    [data-theme='system'] {
+      --background: #ffffff;
+      --foreground: #27272a;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+      --muted: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --muted-foreground: color-mix(in srgb, var(--foreground) 60%, var(--background));
+      --primary-text: var(--primary-text-light);
+      --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+      --sidebar-accent: color-mix(in srgb, var(--background) 92%, var(--foreground));
+      --input: color-mix(in srgb, var(--border) 75%, var(--foreground));
+      --input-background: var(--background);
+
+      --method-get: #2563eb;
+      --method-post: #047857;
+      --method-put: #c2410c;
+      --method-delete: #b91c1c;
+      --method-patch: #7c3aed;
+      --method-head: #b45309;
+      --method-options: #0e7490;
+      --method-trace: #be185d;
+      --method-query: #4f46e5;
+      --method-default: #475569;
+      --method-badge-fg: #ffffff;
+
+      --destructive: #c81e1e;
+
+      --blue: #2768f4ff;
+      --green: #047857; /* as --method-post */
+      --orange: #d97706;
+      --red: #c81e1e;
+      --purple: #7c3aed;
+      --yellow: #b45309;
+      --pink: #db2777;
+      --brown: #92400e;
+
+      --syntax-comment: #6e7781;
+      --syntax-keyword: #cf222e;
+      --syntax-operator: #24292f;
+      --syntax-string: #0a3069;
+      --syntax-constant: #0550ae;
+      --syntax-function: #8250df;
+      --syntax-type: #8250df;
+      --syntax-variable: #953800;
+      --syntax-property: #0550ae;
+      --syntax-tag: #116329;
+      --syntax-selector: #8250df;
+      --syntax-inserted: #116329;
+      --syntax-deleted: #cf222e;
+
+      --code-bg: color-mix(in srgb, var(--background) 96%, var(--foreground));
+    }
+  }
+
+  /* =========================================================================
+     4. BRAND THEME PRESETS (theme), generated from THEMES above
+     ========================================================================= */
+  
+  /* --------- EMBER --------- */
+  :root, [data-theme='dark'] {
+      --primary: #f76b39;
+      --primary-foreground: #000000;
+      --primary-text-dark: #f76b39;
+    }
+  [data-theme='light'] {
+      --primary: #f76b39;
+      --primary-foreground: #000000;
+      --primary-text-light: #b24d29;
+    }
+  @media (prefers-color-scheme: light) {
+    [data-theme='system'] {
+      --primary: #f76b39;
+      --primary-foreground: #000000;
+      --primary-text-light: #b24d29;
+    }
+  }
+
+  /* --------- CARBON --------- */
+  [data-theme='dark'][data-theme-preset='carbon'] {
+      --primary: #fafafa;
+      --primary-foreground: #18181b;
+      --ring: #a1a1aa;
+      --background: #121214;
+      --foreground: #e4e4e7;
+      --primary-text-dark: #fafafa;
+    }
+  [data-theme='light'][data-theme-preset='carbon'] {
+      --primary: #18181b;
+      --primary-foreground: #fafafa;
+      --ring: #52525b;
+      --background: #ffffff;
+      --foreground: #18181b;
+      --primary-text-light: #18181b;
+    }
+  @media (prefers-color-scheme: light) {
+    [data-theme='system'][data-theme-preset='carbon'] {
+      --primary: #18181b;
+      --primary-foreground: #fafafa;
+      --ring: #52525b;
+      --background: #ffffff;
+      --foreground: #18181b;
+      --primary-text-light: #18181b;
+    }
+  }
+
+  /* --------- COBALT --------- */
+  [data-theme='dark'][data-theme-preset='cobalt'] {
+      --primary: #7aa2d6;
+      --primary-foreground: #0f1a2a;
+      --background: #1e2530;
+      --foreground: #b4bcc8;
+      --card: #181e27;
+      --card-foreground: #ced5df;
+      /* A touch lighter than the default #f05050, for 4.5:1 on this background */
+      --destructive: #f25a5a;
+      --primary-text-dark: #7aa2d6;
+    }
+  [data-theme='light'][data-theme-preset='cobalt'] {
+      --primary: #3a6cb0;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #243244;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+      /* The light value again: the dark block's --destructive would otherwise apply here too */
+      --destructive: #c81e1e;
+      --primary-text-light: #3a6cb0;
+    }
+  @media (prefers-color-scheme: light) {
+    [data-theme='system'][data-theme-preset='cobalt'] {
+      --primary: #3a6cb0;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #243244;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+      /* The light value again: the dark block's --destructive would otherwise apply here too */
+      --destructive: #c81e1e;
+      --primary-text-light: #3a6cb0;
+    }
+  }
+
+  /* --------- JADE --------- */
+  [data-theme='dark'][data-theme-preset='jade'] {
+      --primary: #00d390;
+      --primary-foreground: #0b1f17;
+      --background: #1d232a;
+      --foreground: #a6adbb;
+      --card: #181e25;
+      --card-foreground: #c8cfd9;
+      --primary-text-dark: #00d390;
+    }
+  [data-theme='light'][data-theme-preset='jade'] {
+      --primary: #047857;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #1a2e26;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+      --primary-text-light: #047857;
+    }
+  @media (prefers-color-scheme: light) {
+    [data-theme='system'][data-theme-preset='jade'] {
+      --primary: #047857;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #1a2e26;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --card-foreground: color-mix(in srgb, var(--foreground) 90%, #000000);
+      --primary-text-light: #047857;
+    }
+  }
+
+  /* --------- INDIGO --------- */
+  [data-theme='dark'][data-theme-preset='indigo'] {
+      --primary: #818cf8;
+      --primary-foreground: #1e1b4b;
+      --background: #0f0e1c;
+      --foreground: #e4e2f5;
+      --primary-text-dark: #818cf8;
+    }
+  [data-theme='light'][data-theme-preset='indigo'] {
+      --primary: #4f46e5;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #1e1b3a;
+      --primary-text-light: #4f46e5;
+    }
+  @media (prefers-color-scheme: light) {
+    [data-theme='system'][data-theme-preset='indigo'] {
+      --primary: #4f46e5;
+      --primary-foreground: #ffffff;
+      --background: #ffffff;
+      --foreground: #1e1b3a;
+      --primary-text-light: #4f46e5;
+    }
+  }
+
+  /* --------- AMBER (default) --------- */
+  [data-theme='dark'][data-theme-preset='amber'],
+  :root, [data-theme='dark'] {
+      --primary: #f6a821;
+      --primary-foreground: #000000;
+      --background: #30333c;
+      --foreground: #dfe2e7;
+      --card: #383b43;
+      /* The lightest dark surface: a lighter red keeps errors at 4.5:1 on it and its cards */
+      --destructive: #f98080;
+      --border: #3f424b;
+      --sidebar: #2c2d35;
+      --heading-color: #ffffff;
+      --primary-text-dark: #f6a821;
+    }
+  [data-theme='light'][data-theme-preset='amber'],
+  [data-theme='light'] {
+      --primary: #ff791a;
+      --primary-foreground: #000000;
+      --background: #ffffff;
+      --foreground: #2a2d35;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+      --sidebar: var(--background);
+      --heading-color: var(--foreground);
+      /* The light value again: the dark block's --destructive would otherwise apply here too */
+      --destructive: #c81e1e;
+      --primary-text-light: #ad5212;
+    }
+  @media (prefers-color-scheme: light) {
+    [data-theme='system'][data-theme-preset='amber'],
+  [data-theme='system'] {
+      --primary: #ff791a;
+      --primary-foreground: #000000;
+      --background: #ffffff;
+      --foreground: #2a2d35;
+      --card: color-mix(in srgb, var(--background) 94%, var(--foreground));
+      --border: color-mix(in srgb, var(--background) 85%, var(--foreground));
+      --sidebar: var(--background);
+      --heading-color: var(--foreground);
+      /* The light value again: the dark block's --destructive would otherwise apply here too */
+      --destructive: #c81e1e;
+      --primary-text-light: #ad5212;
+    }
+  }
+
+
+  /* Private: the step color, and the color of each kind of action line with the text that sits on
+     it. A kind class (rf-success, rf-failure, rf-retry) sets them on lines, arrowheads, line
+     labels and END pills alike */
+  .rf-svg {
+    --rf-step: color-mix(in srgb, var(--primary) 65%, var(--foreground));
+    display: block;
+    max-width: 100%;
+    height: auto;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-description);
+    overflow: visible;
+  }
+  .rf-node rect {
+    fill: var(--card);
+    stroke: var(--border);
+    stroke-width: 1.25;
+  }
+  .rf-io rect {
+    fill: var(--muted);
+  }
+  .rf-title {
+    fill: var(--rf-step);
+    font-weight: 600;
+    font-size: var(--font-size-regular);
+  }
+  .rf-sub {
+    fill: var(--muted-foreground);
+  }
+  .rf-io-title,
+  .rf-criteria {
+    fill: var(--muted-foreground);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .rf-criteria {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .rf-path,
+  .rf-method,
+  .rf-unresolved {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-small);
+  }
+  .rf-path {
+    fill: var(--foreground);
+  }
+  .rf-method {
+    font-weight: 700;
+    fill: var(--method-default);
+  }
+  .rf-method-get { fill: var(--method-get); }
+  .rf-method-post { fill: var(--method-post); }
+  .rf-method-put { fill: var(--method-put); }
+  .rf-method-delete { fill: var(--method-delete); }
+  .rf-method-patch { fill: var(--method-patch); }
+  .rf-method-head { fill: var(--method-head); }
+  .rf-method-options { fill: var(--method-options); }
+  .rf-method-trace { fill: var(--method-trace); }
+  .rf-method-query { fill: var(--method-query); }
+  .rf-unresolved {
+    fill: var(--muted-foreground);
+    font-style: italic;
+  }
+  .rf-jump,
+  .rf-clickable {
+    cursor: pointer;
+    outline: none;
+  }
+  .rf-jump:hover .rf-step-name,
+  .rf-jump:focus-visible .rf-step-name {
+    text-decoration: underline;
+  }
+  /* A step box under the pointer or focus, or linked by hover (<rapi-flow>: a step with its rows in
+     the outputs box): a grey border, so it is not mistaken for the selected step */
+  .rf-clickable:hover rect,
+  .rf-clickable:focus-visible rect,
+  .rf-step.rf-linked rect {
+    stroke: var(--muted-foreground);
+    stroke-width: 2;
+  }
+  /* The selected step, and a running one (<rapi-flow>: its request is in flight, dashed and
+     moving): the accent border. After the hover rule, so a selected step under the pointer keeps it */
+  .rf-step.rf-selected rect,
+  .rf-clickable.rf-selected:hover rect,
+  .rf-clickable.rf-selected:focus-visible rect,
+  .rf-step.rf-running rect {
+    stroke: var(--primary);
+    stroke-width: 2;
+  }
+  .rf-step.rf-running rect {
+    stroke-dasharray: 6 4;
+    animation: rf-march 1s linear infinite;
+  }
+  @keyframes rf-march {
+    to {
+      stroke-dashoffset: -20;
+    }
+  }
+  /* Next step: green, as success; the lines of actions are green, red or orange too, so the
+     colors explain themselves and the diagram needs no legend */
+  .rf-seq {
+    fill: none;
+    stroke: var(--green);
+    stroke-width: 1.5;
+  }
+  .rf-head-seq {
+    fill: var(--green);
+  }
+  .rf-sep {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+  .rf-row {
+    font-size: var(--font-size-small);
+  }
+  .rf-in-name,
+  .rf-out-name,
+  .rf-bind-name,
+  .rf-bind-val,
+  .rf-act-when,
+  .rf-act-then {
+    fill: var(--foreground);
+  }
+  .rf-bind-name,
+  .rf-bind-val,
+  .rf-src-type,
+  .rf-src-url,
+  .rf-kw,
+  .rf-in-type,
+  .rf-in-default,
+  .rf-in-enum {
+    font-family: var(--font-mono);
+  }
+  .rf-in-type,
+  .rf-in-default,
+  .rf-in-enum,
+  .rf-src-type,
+  .rf-src-url,
+  .rf-out-from,
+  .rf-act-name,
+  .rf-more,
+  .rf-tag,
+  .rf-sec-title {
+    fill: var(--muted-foreground);
+  }
+  .rf-kw {
+    font-weight: 600;
+  }
+  /* Step names are the step color wherever they appear (box titles, value lines, outputs), and
+     so is the "←" before a value from a step */
+  /* --primary mixed toward the text color keeps the hue and reads at 4.5:1 on light cards */
+  .rf-step-name,
+  .rf-kw-step,
+  .rf-from-arrow,
+  .rf-row.rf-linked .rf-out-name {
+    fill: var(--rf-step);
+  }
+  .rf-io .rf-sep {
+    stroke: var(--muted-foreground);
+    stroke-opacity: 0.35;
+  }
+  .rf-out-from {
+    font-family: var(--font-mono);
+  }
+  .rf-kw-input {
+    fill: var(--blue);
+  }
+  .rf-kw-value,
+  .rf-kw-expression {
+    fill: var(--muted-foreground);
+  }
+  .rf-req {
+    fill: var(--destructive);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+  }
+  .rf-more,
+  .rf-tag,
+  .rf-sec-title {
+    font-size: var(--font-size-xs);
+  }
+  .rf-tag.rf-inherited {
+    fill: color-mix(in srgb, var(--purple) 65%, var(--foreground));
+    font-weight: 600;
+  }
+  /* An x-operation step calls an endpoint outside the API sources: dashed box, "external" tag */
+  .rf-tag.rf-external {
+    font-weight: 600;
+  }
+  .rf-step-external > rect:first-of-type {
+    stroke-dasharray: 5 3;
+  }
+  .rf-sec-title {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .rf-check-type {
+    fill: var(--muted-foreground);
+  }
+  .rf-check-type,
+  .rf-check {
+    font-family: var(--font-mono);
+  }
+  .rf-check {
+    fill: var(--foreground);
+  }
+  /* An action's colour: lines, arrowheads and the borders of its labels. Label text mixes in 40% of
+     --foreground, which reads at 4.5:1 or more on every theme, dark or light (lighter on dark,
+     darker on light), where white or dark text on a filled pill did not. */
+  .rf-success {
+    --rf-kind: var(--green);
+  }
+  .rf-failure {
+    --rf-kind: var(--destructive);
+  }
+  .rf-retry {
+    --rf-kind: var(--orange);
+  }
+  .rf-goto {
+    fill: none;
+    stroke: var(--rf-kind);
+    stroke-width: 1.5;
+  }
+  .rf-goto.rf-retry {
+    stroke-dasharray: 5 4;
+  }
+  .rf-head,
+  .rf-act-arrow,
+  .rf-line-start {
+    fill: var(--rf-kind);
+  }
+  /* The dot where an action line leaves its box: ringed in the card color so it stands off the
+     box's border */
+  .rf-line-start {
+    stroke: var(--card);
+    stroke-width: 1.5;
+  }
+  /* An action line's name, on the line: outlined like a badge, over the canvas colour so the line
+     stops at it */
+  .rf-goto-label rect {
+    fill: var(--background);
+    stroke: var(--rf-kind);
+    stroke-width: 1;
+  }
+  .rf-goto-label text {
+    fill: color-mix(in srgb, var(--rf-kind) 60%, var(--foreground));
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+  }
+  /* An end action in a step box: an outlined END pill, red on failure and green on success, as the
+     goto lines. After the box's rect rules (hover, focus, a run), with the same specificity, so they
+     do not restyle it */
+  .rf-node rect.rf-end-pill {
+    fill: var(--card);
+    stroke: var(--rf-kind);
+    stroke-width: 1;
+  }
+  .rf-end {
+    fill: color-mix(in srgb, var(--rf-kind) 60%, var(--foreground));
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  /* The default end of a step with no failure action: the same pill with a dashed border */
+  .rf-node rect.rf-end-pill.rf-default {
+    stroke-dasharray: 3 2;
+  }
+  .rf-sec-note {
+    fill: var(--muted-foreground);
+    font-size: var(--font-size-xs);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+:root[data-theme="dark"]{--background:#060913;--foreground:#cbd5e1;--card:#0f1626;--muted:#162035;--muted-foreground:#94a3b8;--border:rgba(255,255,255,0.1);--primary:#f6a821}]]></style><defs><marker id="rf-page-seq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="rf-head-seq"/></marker><marker id="rf-page-success" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="rf-head rf-success"/></marker><marker id="rf-page-failure" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="rf-head rf-failure"/></marker><marker id="rf-page-retry" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="rf-head rf-retry"/></marker></defs><path class="rf-seq" d="M337.9 122V160" marker-end="url(#rf-page-seq)"/><path class="rf-seq" d="M337.9 436V474" marker-end="url(#rf-page-seq)"/><path class="rf-seq" d="M337.9 798V836" marker-end="url(#rf-page-seq)"/><path class="rf-seq" d="M337.9 964V1002" marker-end="url(#rf-page-seq)"/><path class="rf-goto rf-success" data-from-step="checkInventory" d="M146 252L91 252Q85 252 85 258L85 331Q85 337 91 337L144 337" marker-end="url(#rf-page-success)"/><g class="rf-goto-label rf-success"><title>$response.body#/available &gt; 0 → goto readPet (inStock)</title><rect x="55.5" y="285.5" width="59" height="18" rx="3"/><text x="85" y="298.5" text-anchor="middle">inStock</text></g><path class="rf-goto rf-success" data-from-step="checkInventory" d="M146 270L71 270Q65 270 65 276L65 711Q65 717 71 717L144 717" marker-end="url(#rf-page-success)"/><g class="rf-goto-label rf-success"><title>otherwise → goto findPending (soldOut)</title><rect x="35.5" y="484.5" width="59" height="18" rx="3"/><text x="65" y="497.5" text-anchor="middle">soldOut</text></g><path class="rf-goto rf-retry" data-from-step="placeOrder" d="M146 650L91 650Q85 650 85 644L85 491Q85 485 91 485L144 485" marker-end="url(#rf-page-retry)"/><g class="rf-goto-label rf-retry"><title>check fails → retry 2×, 1s apart (tryAgain)</title><rect x="36" y="558.5" width="98" height="18" rx="3"/><text x="85" y="571.5" text-anchor="middle">retry 2× @ 1s</text></g><g class="rf-node rf-io rf-inputs"><rect x="146" y="16" width="383.8" height="106" rx="8"/><text class="rf-io-title" x="162" y="36">API sources</text><text class="rf-row" y="56"><title>petstore: openapi source at ./petstore.yaml</title><tspan class="rf-in-name" x="162">petstore</tspan><tspan class="rf-src-type" x="235.6">openapi</tspan><tspan class="rf-src-url" dx="8">./petstore.yaml</tspan></text><path class="rf-sep" d="M146 61H529.8"/><text class="rf-row" y="74"><tspan class="rf-io-title" x="162">Inputs</tspan></text><text class="rf-row" y="92"><tspan class="rf-in-name" x="162">petId</tspan><tspan class="rf-in-type" x="235.6">integer</tspan></text><text class="rf-row" y="110"><tspan class="rf-in-name" x="162">quantity</tspan><tspan class="rf-in-type" x="235.6">integer</tspan><tspan class="rf-in-default" dx="8">= 1</tspan></text></g><g class="rf-node rf-step" data-step-id="checkInventory"><title>Count the pets in each status.
+Returns pet inventories by status
+Outputs: available</title><rect x="146" y="162" width="383.8" height="126" rx="8"/><text class="rf-title" x="162" y="186">checkInventory</text><text class="rf-method rf-method-get" x="162" y="206">GET</text><text class="rf-path" x="193" y="206">/store/inventory</text><text class="rf-criteria" x="517.8" y="186" text-anchor="end">1 check</text><path class="rf-sep" d="M146 220H529.8"/><text class="rf-row" y="238"><tspan class="rf-sec-title" x="162">On success</tspan><tspan class="rf-sec-note" dx="6">· if the check passes · first match runs</tspan></text><text class="rf-row" y="256"><tspan class="rf-act-when" x="162">$response.body#/available &gt; 0</tspan><tspan class="rf-act-arrow rf-success" x="382.8">→ </tspan><tspan class="rf-act-then">goto </tspan><tspan class="rf-step-name">readPet</tspan></text><text class="rf-row" y="274"><tspan class="rf-act-when" x="162">otherwise</tspan><tspan class="rf-act-arrow rf-success" x="382.8">→ </tspan><tspan class="rf-act-then">goto </tspan><tspan class="rf-step-name">findPending</tspan></text></g><g class="rf-node rf-step" data-step-id="readPet"><title>Read the pet the caller asked for.
+Find pet by ID
+Inputs: petId
+Outputs: name</title><rect x="146" y="328" width="383.8" height="108" rx="8"/><text class="rf-title" x="162" y="352">readPet</text><text class="rf-method rf-method-get" x="162" y="372">GET</text><text class="rf-path" x="193" y="372">/pet/{petId}</text><path class="rf-sep" d="M146 386H529.8"/><text class="rf-row" y="404"><tspan class="rf-sec-title" x="162">Path params</tspan></text><text class="rf-row" y="422"><tspan class="rf-bind-name" x="162">petId</tspan><tspan class="rf-kw rf-kw-input" x="225.8">input</tspan><tspan class="rf-bind-val" x="270.2">petId</tspan></text></g><g class="rf-node rf-step" data-step-id="placeOrder"><title>Order the pet.
+Place an order for a pet
+Inputs: petId, quantity
+Outputs: orderId</title><rect x="146" y="476" width="383.8" height="192" rx="8"/><text class="rf-title" x="162" y="500">placeOrder</text><text class="rf-method rf-method-post" x="162" y="520">POST</text><text class="rf-path" x="200" y="520">/store/order</text><text class="rf-criteria" x="517.8" y="500" text-anchor="end">1 check</text><path class="rf-sep" d="M146 534H529.8"/><path class="rf-sep" d="M146 618H529.8"/><text class="rf-row" y="552"><tspan class="rf-sec-title" x="162">Request body</tspan><tspan class="rf-sec-note" dx="6">(application/json)</tspan></text><text class="rf-row" y="570"><tspan class="rf-bind-name" x="162">petId</tspan><tspan class="rf-kw rf-kw-input" x="248">input</tspan><tspan class="rf-bind-val" x="292.4">petId</tspan></text><text class="rf-row" y="588"><tspan class="rf-bind-name" x="162">quantity</tspan><tspan class="rf-kw rf-kw-input" x="248">input</tspan><tspan class="rf-bind-val" x="292.4">quantity</tspan></text><text class="rf-row" y="606"><tspan class="rf-more" x="162">+1 const value in the expanded view</tspan></text><text class="rf-row" y="636"><tspan class="rf-sec-title" x="162">On failure</tspan><tspan class="rf-sec-note" dx="6">· if the check fails</tspan></text><text class="rf-row" y="654"><tspan class="rf-act-then" x="162">retry 2×, 1s apart</tspan><tspan class="rf-act-name" dx="8">(tryAgain)</tspan></text></g><g class="rf-node rf-step" data-step-id="findPending"><title>Find a pet that is pending.
+Finds Pets by status
+Outputs: pendingPetId</title><rect x="146" y="708" width="383.8" height="90" rx="8"/><text class="rf-title" x="162" y="732">findPending</text><text class="rf-method rf-method-get" x="162" y="752">GET</text><text class="rf-path" x="193" y="752">/pet/findByStatus</text><text class="rf-criteria" x="517.8" y="732" text-anchor="end">2 checks</text><path class="rf-sep" d="M146 766H529.8"/><text class="rf-row" y="784"><tspan class="rf-more" x="162">+1 const value in the expanded view</tspan></text></g><g class="rf-node rf-step" data-step-id="markWanted"><title>Mark the pending pet as wanted.
+Updates a pet in the store with form data</title><rect x="146" y="838" width="383.8" height="126" rx="8"/><text class="rf-title" x="162" y="862">markWanted</text><text class="rf-method rf-method-post" x="162" y="882">POST</text><text class="rf-path" x="200" y="882">/pet/{petId}</text><text class="rf-criteria" x="517.8" y="862" text-anchor="end">1 check</text><path class="rf-sep" d="M146 896H529.8"/><text class="rf-row" y="914"><tspan class="rf-sec-title" x="162">Path params</tspan></text><text class="rf-row" y="932" data-from-step="findPending"><tspan class="rf-bind-name" x="162">petId</tspan><tspan class="rf-from-arrow" x="211">←</tspan><tspan class="rf-kw rf-kw-step" x="225.8">from</tspan><tspan class="rf-step-name" x="270.2">findPending</tspan><tspan class="rf-bind-val">.pendingPetId</tspan></text><text class="rf-row" y="950"><tspan class="rf-more" x="162">+1 const value in the expanded view</tspan></text></g><g class="rf-node rf-io rf-outputs"><rect x="146" y="1004" width="383.8" height="88" rx="8"/><text class="rf-io-title" x="162" y="1024">Outputs</text><text class="rf-row" y="1044" data-from-step="readPet"><tspan class="rf-out-name" x="162">petName</tspan><tspan class="rf-from-arrow" x="267.6">←</tspan><tspan class="rf-step-name" x="282.4">readPet</tspan><tspan class="rf-bind-val">.name</tspan></text><path class="rf-sep" d="M146 1049H529.8"/><text class="rf-row" y="1062" data-from-step="placeOrder"><tspan class="rf-out-name" x="162">orderId</tspan><tspan class="rf-from-arrow" x="267.6">←</tspan><tspan class="rf-step-name" x="282.4">placeOrder</tspan><tspan class="rf-bind-val">.orderId</tspan></text><path class="rf-sep" d="M146 1067H529.8"/><text class="rf-row" y="1080" data-from-step="findPending"><tspan class="rf-out-name" x="162">reservedPetId</tspan><tspan class="rf-from-arrow" x="267.6">←</tspan><tspan class="rf-step-name" x="282.4">findPending</tspan><tspan class="rf-bind-val">.pendingPetId</tspan></text></g><circle class="rf-line-start rf-success" data-from-step="checkInventory" cx="152" cy="252" r="4"/><circle class="rf-line-start rf-success" data-from-step="checkInventory" cx="152" cy="270" r="4"/><circle class="rf-line-start rf-retry" data-from-step="placeOrder" cx="152" cy="650" r="4"/></svg>

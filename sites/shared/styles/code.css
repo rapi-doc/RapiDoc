@@ -1,0 +1,14 @@
+/*
+ * Code blocks on the docs pages of every RapiDoc site (Expressive Code): 4px corners, like the code cards of
+ * rapidocui.com's feature pages (sites/rapidoc/components/CodeBlock.astro), and a slimmer title bar on
+ * terminal blocks (```bash frame="terminal" title="terminal"). Expressive Code adds the border width to
+ * --ec-brdRad, so 3px draws a 4px corner.
+ */
+:root .expressive-code {
+  --ec-brdRad: 3px;
+}
+:root .expressive-code .frame.is-terminal .header {
+  padding-block: 0.3rem;
+  line-height: 1.3;
+  font-size: 0.8125rem;
+}

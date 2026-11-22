@@ -66,8 +66,6 @@ const mockServerHtmlSnippet = `<rapi-flow
   description="Draw the multi-step journeys through your API from an Arazzo spec, run them in the browser against a mock or the real API, and reuse them as MCP tools."
   keywords="Arazzo, API workflows, rapi-flow, OpenAPI workflows, workflow diagram, API mock, MCP tools, RapiDoc"
 >
-  <script slot="script" is:inline type="module" src="/assets/rapidoc-min.js"></script>
-
   <div class="ambient-glow glow-emerald"></div>
   <div class="ambient-glow glow-indigo"></div>
   <div class="ambient-glow glow-cyan"></div>
@@ -75,7 +73,9 @@ const mockServerHtmlSnippet = `<rapi-flow
   <PortalHeader />
 
   <main class="wf-guide-main">
-    <header class="rd-hero-header">
+    <header class="rd-hero-header wf-hero">
+      <div class="wf-hero-grid">
+      <div class="wf-hero-copy">
       <div class="rd-badge-pill">
         <span class="rd-badge-pulse"></span>
         <span class="rd-badge-text">&lt;rapi-flow&gt; • Arazzo</span>
@@ -92,9 +92,9 @@ const mockServerHtmlSnippet = `<rapi-flow
       </p>
 
       <div class="wf-cta-row">
-        <a href="#live-demo" class="rd-btn rd-btn-primary">
+        <a href="/examples/arazzo" class="rd-btn rd-btn-primary">
           <Icon name="play" size={18} />
-          <span>Run the Live Demo</span>
+          <span>Run the Live Example</span>
         </a>
         <a href="https://flow.rapidocui.com/docs/quickstart/" class="rd-btn rd-btn-secondary">
           <Icon name="rocket-launch" size={18} />
@@ -104,6 +104,19 @@ const mockServerHtmlSnippet = `<rapi-flow
           <span>API Reference</span>
           <Icon name="arrow-up-right" size={16} />
         </a>
+      </div>
+      </div>
+
+      <figure class="wf-hero-visual">
+        <img
+          src="/assets/images/rapi-flow/workflow-run.svg"
+          alt="A RapiFlow workflow run: each step lights up in turn, a failed order is retried, values pass from step to step and the outputs fill in"
+          width="760"
+          height="600"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
       </div>
 
       <div class="rd-stats-bar">
@@ -162,69 +175,48 @@ const mockServerHtmlSnippet = `<rapi-flow
         </div>
       </section>
 
-      <section class="rd-section" id="live-demo">
-        <div class="rd-section-badge">Live Demo</div>
-        <h2 class="rd-section-title">Run a Workflow Against the In-Browser Mock</h2>
+      <section class="rd-section" id="example">
+        <div class="rd-section-badge">Example</div>
+        <h2 class="rd-section-title">A Workflow, Drawn from Its Arazzo Spec</h2>
         <p class="rd-section-desc">
-          The diagram below is tied to the Petstore reference beside it, which has <code>mock-server="true"</code>: no
-          backend answers, the page does. Pick what the mock should answer, then press <strong>Run workflow</strong> under
-          the diagram and watch each step light up. Click a step to open its operation in the reference.
+          <code>orderOrReserve</code> from the Petstore example: check the inventory, then order the pet when it is in
+          stock, or reserve a pending one when it is sold out. This is the diagram exactly as <code>&lt;rapi-flow&gt;</code>
+          draws it; the example page puts it next to the Petstore reference, where you can run it.
         </p>
 
-        <div class="wf-scenarios" role="group" aria-label="What the mock answers">
-          <button type="button" class="wf-scenario is-active" data-codes="{}" data-note="The mock answers every step with its success response.">
-            <span class="wf-scenario-code ok">200</span>
-            <span>
-              <strong>Everything succeeds</strong>
-              <small>Every step answers from the OpenAPI spec's examples; the outputs table fills in.</small>
-            </span>
-          </button>
-          <button type="button" class="wf-scenario" data-codes='{"*":"404"}' data-note="The mock answers every step with 404.">
-            <span class="wf-scenario-code fail">404</span>
-            <span>
-              <strong>No pets available</strong>
-              <small>The first step fails; its <code>noPets</code> action ends the run, which reports the failure.</small>
-            </span>
-          </button>
-          <button type="button" class="wf-scenario" data-codes='{"placeOrder":"503, 200"}' data-note="The order step answers 503 first, then 200; the other steps succeed.">
-            <span class="wf-scenario-code warn">503 → 200</span>
-            <span>
-              <strong>Store busy, then free</strong>
-              <small>Only <code>placeOrder</code> fails, once; its <code>retry</code> action waits 2 s and the second attempt succeeds.</small>
-            </span>
-          </button>
-        </div>
-        <p class="wf-scenario-note" aria-live="polite">The mock answers every step with its success response. Press Run workflow.</p>
-
-        <div class="wf-demo">
-          <div class="wf-demo-flow">
-            <rapi-flow
-              arazzo-url="/specs/petstore.arazzo.yaml"
-              workflow-id="adoptPet"
-              for="workflow-guide-doc"
-              theme="ember"
-              color-scheme="dark"></rapi-flow>
-          </div>
-          <div class="wf-demo-doc">
-            <rapi-doc
-              id="workflow-guide-doc"
-              spec-url="/specs/petstore.yaml"
-              mock-server="true"
-              mock-server-status-code="200"
-              mock-server-delay="250"
-              color-scheme="dark"
-              theme="ember"
-              render-style="focused"
-              show-header="false"
-              show-info="false"
-              allow-authentication="false"
-              style="height: 100%; width: 100%;"></rapi-doc>
+        <div class="wf-example">
+          <a class="wf-example-diagram" href="/examples/arazzo?workflow=orderOrReserve#overview" aria-label="Open the live example">
+            <img
+              src="/assets/images/rapi-flow/workflow-diagram.svg"
+              alt="The orderOrReserve workflow as rapi-flow draws it: checkInventory branches to readPet and placeOrder when in stock, or to findPending and markWanted when sold out"
+              width="546"
+              height="1108"
+              loading="lazy"
+            />
+          </a>
+          <div class="wf-example-notes">
+            <h3>What to look for</h3>
+            <ul>
+              <li><strong>Two paths from one step.</strong> <code>checkInventory</code>'s <code>onSuccess</code> goes to <code>readPet</code> when <code>available &gt; 0</code>, otherwise to <code>findPending</code>.</li>
+              <li><strong>A retry on the order.</strong> <code>placeOrder</code> tries again after 1 s, at most twice, before the run fails.</li>
+              <li><strong>Values handed on.</strong> <code>findPending</code>'s <code>pendingPetId</code> is the path parameter of <code>markWanted</code>.</li>
+              <li><strong>Outputs from either path.</strong> <code>orderId</code> or <code>reservedPetId</code>, whichever branch ran.</li>
+            </ul>
+            <div class="wf-example-actions">
+              <a href="/examples/arazzo?workflow=orderOrReserve#overview" class="rd-btn rd-btn-primary">
+                <Icon name="play" size={18} />
+                <span>Run It Live</span>
+              </a>
+              <a href="/specs/petstore.arazzo.yaml" class="rd-btn rd-btn-secondary">
+                <Icon name="file-code" size={18} />
+                <span>Arazzo Spec</span>
+              </a>
+            </div>
+            <p class="wf-example-caveat">
+              On the example page, the run goes to the real Petstore API or to RapiDoc's in-browser mock: no backend needed.
+            </p>
           </div>
         </div>
-        <p class="wf-demo-caveat">
-          The buttons fill the <strong>Mock Response Status</strong> table under the diagram: one row per step, plus a default.
-          Edit it yourself to try other paths.
-        </p>
       </section>
 
       <section class="rd-section">
@@ -234,6 +226,15 @@ const mockServerHtmlSnippet = `<rapi-flow
           The layout is RapiDoc's own SVG code with no graph library, so the same diagram renders in the browser and, in a
           portal, as static SVG at build time.
         </p>
+        <figure class="wf-illustration">
+          <img
+            src="/assets/images/rapi-flow/workflow-branches.svg"
+            alt="placeOrder answers 503 and its retry action runs it again; the second attempt answers 200 and goto moves on to getOrder; in another run a 404 takes the end action"
+            width="760"
+            height="440"
+            loading="lazy"
+          />
+        </figure>
         <div class="feature-grid">
           <div class="feature-card">
             <div class="feature-icon"><Icon name="path" size={24} weight="duotone" /></div>
@@ -289,6 +290,15 @@ const mockServerHtmlSnippet = `<rapi-flow
           The run button, AI agents and the developer portal all use the same workflow runtime, built on RapiDoc's MCP
           manifest. A workflow that runs on this page runs the same way for an agent.
         </p>
+        <figure class="wf-illustration">
+          <img
+            src="/assets/images/rapi-flow/workflow-one-runtime.svg"
+            alt="One Arazzo spec feeds the workflow runtime, which runs it in the browser, serves it to AI agents as an MCP tool and draws it in the developer portal"
+            width="760"
+            height="420"
+            loading="lazy"
+          />
+        </figure>
         <div class="standards-grid">
           <div class="standard-card">
             <div class="standard-badge"><Icon name="browser" size={14} /> Browser</div>
@@ -365,22 +375,6 @@ const mockServerHtmlSnippet = `<rapi-flow
   <SiteFooter />
 </GlobalLayout>
 
-<script>
-  import 'rapidoc/flow';
-
-  // Scenario buttons fill the flow's status-code table (`*` = every step, else by step id); the
-  // flow hands them to the tied <rapi-doc>'s in-browser mock, per operation, for the run.
-  const flow = document.querySelector('rapi-flow') as any;
-  const note = document.querySelector('.wf-scenario-note');
-  document.querySelectorAll<HTMLButtonElement>('.wf-scenario').forEach((button) => {
-    button.addEventListener('click', () => {
-      if (flow) flow.statusCodes = JSON.parse(button.dataset.codes || '{}');
-      document.querySelectorAll('.wf-scenario').forEach((b) => b.classList.toggle('is-active', b === button));
-      if (note) note.textContent = `${button.dataset.note} Press Run workflow.`;
-    });
-  });
-</script>
-
 <style>
   .wf-guide-main {
     position: relative;
@@ -388,6 +382,57 @@ const mockServerHtmlSnippet = `<rapi-flow
     max-width: 1100px;
     margin: 0 auto;
     padding: var(--rd-page-top) 24px 96px;
+  }
+
+  /* The hero: text and buttons on the left, the animated run on the right; the stats bar below */
+  .wf-hero.rd-hero-header {
+    max-width: none;
+    padding: 0;
+  }
+  .wf-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 40px;
+    text-align: left;
+  }
+  .wf-hero-copy .rd-page-subtitle {
+    margin-left: 0;
+  }
+  .wf-hero-copy .wf-cta-row {
+    justify-content: flex-start;
+    margin-bottom: 0;
+  }
+  .wf-hero-visual {
+    margin: 0;
+    position: relative;
+  }
+  /* A soft amber glow behind the panel */
+  .wf-hero-visual::before {
+    content: '';
+    position: absolute;
+    inset: 12% 8%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--rd-accent) 18%, transparent), transparent);
+    filter: blur(30px);
+    z-index: -1;
+  }
+  .wf-hero-visual img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  @media (max-width: 900px) {
+    .wf-hero-grid {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    .wf-hero-copy .rd-page-subtitle {
+      margin-left: auto;
+    }
+    .wf-hero-copy .wf-cta-row {
+      justify-content: center;
+    }
   }
 
   /* The hero's call-to-action buttons */
@@ -497,121 +542,99 @@ const mockServerHtmlSnippet = `<rapi-flow
   }
 
   /* Live demo */
-  .wf-scenarios {
+  /* The example: the diagram as an image, beside what to look for */
+  .wf-example {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 14px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: start;
   }
-  .wf-scenario {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 14px 16px;
-    text-align: left;
-    font: inherit;
-    color: var(--rd-text-soft);
-    background: var(--rd-surface);
-    border: 1px solid var(--rd-border);
-    border-radius: var(--rd-radius-md);
-    cursor: pointer;
-    transition: border-color 0.15s ease;
-  }
-  .wf-scenario:hover {
-    border-color: var(--rd-border-hover);
-  }
-  .wf-scenario.is-active {
-    border-color: var(--rd-accent);
-    background: color-mix(in srgb, var(--rd-accent) 6%, transparent);
-  }
-  .wf-scenario:focus-visible {
-    outline: 2px solid var(--rd-accent);
-    outline-offset: 2px;
-  }
-  .wf-scenario strong {
+  .wf-example-diagram {
     display: block;
-    color: var(--rd-text-bright);
-    font-size: 14px;
-  }
-  .wf-scenario small {
-    display: block;
-    margin-top: 2px;
-    font-size: 12px;
-    line-height: 1.5;
-    color: var(--rd-text-muted);
-  }
-  .wf-scenario-code {
-    flex-shrink: 0;
-    padding: 2px 8px;
-    border-radius: var(--rd-radius-sm);
-    font-family: var(--rd-font-mono);
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.6;
-  }
-  .wf-scenario-code.ok {
-    background: color-mix(in srgb, var(--rd-green) 15%, transparent);
-    color: var(--rd-green-light);
-  }
-  .wf-scenario-code.fail {
-    background: color-mix(in srgb, var(--rd-red) 15%, transparent);
-    color: var(--rd-red-light);
-  }
-  .wf-scenario-code.warn {
-    background: color-mix(in srgb, var(--rd-amber) 15%, transparent);
-    color: var(--rd-amber-light);
-    white-space: nowrap;
-  }
-  .wf-scenario-note {
-    margin: 14px 0 18px;
-    font-size: 13px;
-    color: var(--rd-text-muted);
-  }
-  .wf-scenario-note strong {
-    color: var(--rd-accent-light);
-  }
-  .wf-demo {
-    /* Wider than the content column on large screens: the viewport less a 24px gutter on each side,
-       at most 1600px, never narrower than the column; centred by equal negative margins. */
-    --wf-demo-width: max(100%, min(100vw - 48px, 1600px));
-    width: var(--wf-demo-width);
-    margin-inline: calc((100% - var(--wf-demo-width)) / 2);
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    /* One row exactly the box's height: an auto row would grow to the content, and each pane's own
-       scroll area with it, leaving the run panel below the clipped edge */
-    grid-template-rows: minmax(0, 1fr);
-    height: 760px;
+    position: relative;
+    max-height: 640px;
+    overflow: hidden;
+    padding: 24px;
     border: 1px solid var(--rd-border);
     border-radius: var(--rd-radius-lg);
-    overflow: hidden;
     background: var(--rd-surface);
+    transition: var(--rd-transition);
+    /* The lower part fades out: the whole diagram is one click away */
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
   }
-  .wf-demo-flow {
-    min-height: 0;
+  .wf-example-diagram:hover,
+  .wf-example-diagram:focus-visible {
+    border-color: var(--rd-accent-border);
+  }
+  .wf-example-diagram img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .wf-example-notes h3 {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--rd-text-primary);
+    margin: 0 0 14px;
+  }
+  .wf-example-notes ul {
+    margin: 0 0 28px;
     padding: 0;
-    overflow: auto;
-    border-right: 1px solid var(--rd-border);
+    list-style: none;
+    display: grid;
+    gap: 14px;
   }
-  .wf-demo-doc {
-    min-width: 0;
-    height: 100%;
+  .wf-example-notes li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--rd-text-muted);
   }
-  .wf-demo-caveat {
-    margin: 12px 0 0;
+  .wf-example-notes li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--rd-accent);
+  }
+  .wf-example-notes li strong {
+    color: var(--rd-text-primary);
+  }
+  .wf-example-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .wf-example-caveat {
+    margin: 16px 0 0;
     font-size: 12px;
     line-height: 1.6;
     color: var(--rd-text-dim);
   }
   @media (max-width: 860px) {
-    .wf-demo {
+    .wf-example {
       grid-template-columns: 1fr;
-      grid-template-rows: auto 560px;
-      height: auto;
     }
-    .wf-demo-flow {
-      border-right: 0;
-      border-bottom: 1px solid var(--rd-border);
+    .wf-example-diagram {
+      max-height: 520px;
     }
+  }
+
+  /* The animated illustrations above a section's cards */
+  .wf-illustration {
+    margin: 0 0 28px;
+  }
+  .wf-illustration img {
+    display: block;
+    width: 100%;
+    max-width: 760px;
+    height: auto;
+    margin: 0 auto;
   }
 
   /* What it draws */
