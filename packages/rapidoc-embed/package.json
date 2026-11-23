@@ -43,7 +43,7 @@
       "default": "./src/node.js"
     },
     "./sidebar": {
-      "types": "./src/index.d.ts",
+      "types": "./src/sidebar.d.ts",
       "default": "./src/sidebar.js"
     },
     "./conformance/*": "./conformance/*"

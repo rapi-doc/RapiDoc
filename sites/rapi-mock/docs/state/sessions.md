@@ -20,3 +20,7 @@ curl localhost:4010/openapi/pets                               # does not
 - The [control endpoints](/docs/reference/control-api/) follow the header too: a reset or a read of the state with `X-Mock-Session` works on that session only.
 
 Any value works as a session id. A test's own name is a good one.
+
+## How many sessions
+
+The mock keeps the data of 1000 sessions per API. When one more session writes, the session used longest ago is dropped: its header then reads the seed data again, as a new session would. A session that only reads holds no copy and does not count. A test run that starts thousands of sessions and comes back to an early one much later should `POST /__mock/reset` with its header first, or use fewer session ids.

@@ -64,13 +64,26 @@ public class EndpointTests
         Assert.Empty(await head.Content.ReadAsByteArrayAsync());
         var etag = head.Headers.ETag!;
         Assert.StartsWith("\"sha384-", etag.Tag);
-        Assert.Equal("public, max-age=3600", head.Headers.CacheControl?.ToString());
+        // The browser asks every time, and gets a 304 while the build is the same
+        Assert.Equal("no-cache", head.Headers.CacheControl?.ToString());
+        Assert.Equal("nosniff", head.Headers.GetValues("X-Content-Type-Options").Single());
 
-        var again = new HttpRequestMessage(HttpMethod.Get, "/docs/rapidoc-min.js");
-        again.Headers.IfNoneMatch.Add(etag);
-        var notModified = await client.SendAsync(again);
-        Assert.Equal(HttpStatusCode.NotModified, notModified.StatusCode);
-        Assert.Empty(await notModified.Content.ReadAsByteArrayAsync());
+        foreach (var header in new[] { etag.Tag, "W/" + etag.Tag, "\"other\", W/" + etag.Tag + " , \"more\"", "*" })
+        {
+            var again = new HttpRequestMessage(HttpMethod.Get, "/docs/rapidoc-min.js");
+            again.Headers.TryAddWithoutValidation("If-None-Match", header);
+            var notModified = await client.SendAsync(again);
+            Assert.Equal(HttpStatusCode.NotModified, notModified.StatusCode);
+            Assert.Empty(await notModified.Content.ReadAsByteArrayAsync());
+            Assert.Equal(etag.Tag, notModified.Headers.ETag?.Tag);
+        }
+        foreach (var header in new[] { "\"other\"", "W/\"other\", \"more\"" })
+        {
+            var other = new HttpRequestMessage(HttpMethod.Get, "/docs/rapidoc-min.js");
+            other.Headers.TryAddWithoutValidation("If-None-Match", header);
+            Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(other)).StatusCode);
+        }
+        Assert.Equal("nosniff", (await client.GetAsync("/docs")).Headers.GetValues("X-Content-Type-Options").Single());
 
         var pageHead = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, "/docs"));
         Assert.Equal(HttpStatusCode.OK, pageHead.StatusCode);
@@ -176,6 +189,26 @@ public class EndpointTests
         var root = await client.GetStringAsync("/");
         Assert.Contains("src=\"/public/rapidoc-min.js\"", root);
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/rapidoc-min.js")).StatusCode);
+    }
+
+    [Fact]
+    public async Task ServesAtTheSiteRootAndTakesAnEmptyOptionAsAnAbsentOne()
+    {
+        var root = await Start(app => app.MapRapiDoc("/"));
+        var html = await root.GetStringAsync("/");
+        Assert.Contains("src=\"/rapidoc-min.js\"", html);
+        Assert.Contains("oauth-receiver=\"/oauth-receiver.html\"", html);
+        Assert.Contains("src=\"/rapidoc-min.js\"", await root.GetStringAsync("/oauth-receiver.html"));
+
+        var empty = await Start(app => app.MapRapiDoc(options =>
+        {
+            options.UiPath = "";
+            options.PublicUiPath = "";
+            options.Lang = "";
+        }));
+        var page = await empty.GetStringAsync("/docs");
+        Assert.Contains("<html lang=\"en\">", page);
+        Assert.Contains("src=\"/docs/rapidoc-min.js\"", page);
     }
 
     [Fact]

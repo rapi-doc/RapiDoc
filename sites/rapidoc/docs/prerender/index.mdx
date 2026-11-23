@@ -83,13 +83,15 @@ export default async function ApiReferencePage() {
 The output looks like this:
 
 ```html
-<rapi-doc theme="ember" color-scheme="dark" render-style="read" layout="column">
+<rapi-doc render-style="read" theme="ember" color-scheme="dark">
   <template shadowrootmode="open">
     <style>/* the element's styles */</style>
     <!-- navigation, tags, operations and schemas, as the element renders them -->
   </template>
 </rapi-doc>
 ```
+
+Only the options you pass become attributes. For everything else the element uses its own defaults, and the HTML is rendered with those same defaults, so nothing changes when the element takes over.
 
 With `outputMode: 'html'` (or `'light'`) you get plain light-DOM HTML in a `<div class="rapidoc-prerender-container">` with scoped styles instead: static, with nothing for the element to take over.
 
@@ -112,7 +114,7 @@ const endpoint = await renderEndpoint({
 const schema = await renderSchema({
   spec: './specs/logistics.yaml',
   schema: 'ShipmentResponse', // a name under components/schemas, or a schema object
-  style: 'table',             // or 'tree'
+  schemaStyle: 'table',       // or 'tree'
 });
 ```
 
@@ -120,32 +122,80 @@ For an interactive single endpoint in the browser instead, use [`<rapi-doc-mini>
 
 ## Options
 
-`renderRapiDoc` takes the attributes of `<rapi-doc>` in camelCase. The main ones:
+Options are camelCase and have the names of `<rapi-doc>`'s properties: `schemaStyle` for the `schema-style` attribute, `usePathInNavBar` for `use-path-in-nav-bar`. An option that is also an attribute of `<rapi-doc>` can be written in the attribute's kebab-case form too (`'schema-style': 'tree'`). Options of this package only, such as `outputMode` or `basePath`, have their camelCase name alone.
+
+A name a function does not know is an error that lists the valid names, so a typo is caught at build time. `renderRapiDoc` is the exception: any other name is taken for an attribute of `<rapi-doc>` and written to the element.
+
+### `renderRapiDoc`
+
+The defaults are those of `<rapi-doc>`.
 
 | Option | Default | |
 | :--- | :--- | :--- |
 | `spec` | (required) | A file path, a URL, spec text (JSON or YAML) or a spec object. |
 | `renderStyle` | `'read'` | `'read'`, `'view'` or `'focused'`. |
-| `layout` | `'column'` for read and focused, `'row'` for view | Request and response side by side, or one above the other. |
+| `layout` | `'row'` | `'row'` or `'column'`: request and response side by side, or one above the other. |
 | `theme` | `'amber'` | A preset (`ember`, `carbon`, `cobalt`, `jade`, `indigo`, `amber`) or a hex color. |
-| `colorScheme` | `'dark'` | `'dark'`, `'light'` or `'system'`. |
-| `schemaStyle` | `'table'` | `'table'` or `'tree'`. |
+| `colorScheme` | `'dark'` | `'dark'`, `'light'`, `'system'` or `'auto'`. |
+| `schemaStyle` | `'tree'` | `'tree'` or `'table'`. |
 | `schemaExpandLevel` | `99999` | How many schema levels start expanded. |
-| `defaultSchemaTab` | | `'example'` or `'schema'`. |
-| `filterOperations` | | Which operations to render, as [`filter-operations`](/docs/rapidoc/reference/#filter-operations). |
-| `showHeader`, `showSideNav`, `showInfo` | | Show or hide those parts, as on the element. |
-| `allowTry`, `allowSearch`, `allowAdvancedSearch`, `allowServerSelection`, `allowAuthentication` | | Include those features, as on the element. |
+| `defaultSchemaTab` | `'example'` | `'example'` or `'schema'`. |
+| `showHeader`, `showSideNav`, `showInfo` | `true` | Show or hide those parts, as on the element. |
+| `allowTry`, `allowSearch`, `allowAdvancedSearch`, `allowServerSelection`, `allowAuthentication` | `true` | Include those features, as on the element. |
 | `focusedElementId` | `'overview'` | The operation shown first in focused mode. |
-| `pageDirection` | | `'ltr'` or `'rtl'`. |
+| `pageDirection` | `'ltr'` | `'ltr'` or `'rtl'`. |
 | `outputMode` | `'dsd'` | `'dsd'` (Declarative Shadow DOM), or `'html'` / `'light'` for plain light-DOM HTML. |
 | `includeStyles` | `true` | Inline the element's styles in the output. |
 | `inlineSpec` | `true` | With a spec object, inline it in the output, so the element doesn't fetch it again. |
+| any other attribute of `<rapi-doc>` | | Written to the element. |
 
-`renderEndpoint` takes `spec`, `path`, `method`, and `renderStyle`, `layout`, `theme`, `colorScheme`, `includeStyles`, `allowTry` and `schemaStyle`. `renderSchema` takes `schema`, `spec`, `style`, `schemaExpandLevel`, `theme`, `colorScheme` and `includeStyles`. The types are in the package's `index.d.ts`.
+### How the spec is read
+
+These are accepted by `renderRapiDoc`, `renderEndpoint`, `getNavBarHtml` and `getSpecNavigation`, with the meaning they have on `<rapi-doc>`:
+
+| Option | Default | |
+| :--- | :--- | :--- |
+| `filterOperations` | | Which operations to keep, as [`filter-operations`](/docs/rapidoc/reference/#filter-operations). |
+| `sortTags`, `sortSchemas` | `false` | Sort tags or schemas by name. |
+| `sortEndpointsBy` | `'none'` | `'path'`, `'method'`, `'summary'` or `'none'` (the spec's order). The element's own default is `'path'`: pass the option to get the same order before and after the element loads. |
+| `generateMissingTags` | `false` | Give an operation without a tag one named after its path. |
+| `showUnusedTags` | `false` | Keep tags no operation uses when they have a description. |
+| `apiKeyName`, `apiKeyLocation`, `apiKeyValue`, `serverUrl` | | As on the element. |
+
+### `renderEndpoint` and `renderSchema`
+
+Their output is static HTML that no element takes over, so their defaults are their own.
+
+| Function | Options |
+| :--- | :--- |
+| `renderEndpoint` | `spec`, `path`, `method` (all required), `renderStyle` (`'read'`), `layout` (`'column'`), `schemaStyle` (`'table'`), `allowTry` (`false`), `theme`, `colorScheme`, `includeStyles`, and the options of the table above. |
+| `renderSchema` | `schema` (required: a name or a schema object), `spec` (required with a name), `schemaStyle` (`'table'`), `schemaExpandLevel`, `theme`, `colorScheme`, `includeStyles`. |
+
+The types are in the package's `index.d.ts`.
+
+## Errors
+
+A spec that cannot be loaded stops the build with an error that says what was being loaded and why: `Cannot load the OpenAPI spec: file not found: ./specs/petsotre.yaml`, a URL that does not answer, or text that is not an OpenAPI document. A string is taken for a URL when it starts with `http://` or `https://`, for spec text when it starts with `{` or `[` or has more than one line, and for a local file path otherwise. The functions never return an empty page or an empty sidebar for a spec they could not read.
 
 ## A static sidebar
 
-For a site that draws its own navigation beside a headless `<rapi-doc>`, as the [RapiDoc Portal](https://portal.rapidocui.com/) does, the package also renders the sidebar: `getNavBarHtml(spec, options)` returns its HTML, `getNavCss()` and `getThemeTokensCss(theme)` its styles, and `bindNavBar(sidebar, rapiDoc)` ties it to the element in the browser, so clicks scroll the reference and the current operation is highlighted. `getSpecNavigation(spec)` returns the same tags and operations as data, to build your own. Its options follow `<rapi-doc>`'s sidebar attributes: `showMethodInNavBar`, `usePathInNav` and `showBadgesInNavBar` (`"dot"`, the default, marks items whose operation shows a badge; `"false"` turns that off).
+For a site that draws its own navigation beside a headless `<rapi-doc>`, as the [RapiDoc Portal](https://portal.rapidocui.com/) does, the package also renders the sidebar: `getNavBarHtml(spec, options)` returns its HTML, `getNavCss()` and `getThemeTokensCss(theme)` its styles, and `bindNavBar(sidebar, rapiDoc)` ties it to the element in the browser, so clicks scroll the reference and the current operation is highlighted.
+
+| Option of `getNavBarHtml` | Default | |
+| :--- | :--- | :--- |
+| `basePath` | `''` | The prefix of every link, such as `/apis/orders`. A closing slash is ignored. |
+| `routingMode` | `'single-page'` | `'single-page'`: links are `<basePath>#<operation>`. `'tag-pages'`: `<basePath>/<tag>#<operation>`, for a site with a page per tag. |
+| `activeHref` | | The current URL or anchor; its item is marked active. |
+| `showMethodInNavBar` | `'as-colored-text'` | `'false'`, `'as-plain-text'`, `'as-colored-text'` or `'as-colored-block'`, as on the element. |
+| `usePathInNavBar` | `false` | Show each operation's path instead of its summary. |
+| `showBadgesInNavBar` | `'dot'` | `'dot'` marks items whose operation shows a badge; `'false'` turns that off. |
+| `methodBadgeFormat` | `'3-char'` | With `'as-colored-block'`: `'3-char'` (`DEL`) or `'full'` (`DELETE`). |
+| `includeSearch`, `searchPlaceholder` | `true`, `'Filter...'` | The filter box above the list. |
+| `includeOverview` | `true` | The link to the API's overview. |
+| `backToDocsHref`, `backToDocsLabel` | | A link below the list. |
+| `itemClassName` | | A class added to every operation link. |
+
+`getSpecNavigation(spec)` returns the same tags and operations as data, to build your own: `title`, `version`, `description`, `tagGroups`, `tags` and `remainingTags`. Each tag has `name`, `displayName`, `description`, `elementId`, `expanded` and `paths`, its operations, each with exactly `method`, `path`, `summary`, `description`, `elementId` (its anchor in `<rapi-doc>`), `operationId`, `deprecated` and `isWebhook`. Operations and tags marked `x-internal` or `x-hidden` are left out.
 
 <Aside>
   The pre-rendered HTML comes from the same templates as the element, so the two match.

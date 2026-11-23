@@ -10,7 +10,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
     import 'rapidoc/flow';
 
     // The Real server / Mock switch: turns <rapi-doc>'s in-browser mock on or off.
-    // <rapi-flow> follows it (its run button reads "Run workflow (Mock)").
+    // <rapi-flow> follows it (its run button reads "RUN WORKFLOW (Mock)").
     const doc = document.querySelector('rapi-doc');
     for (const button of document.querySelectorAll<HTMLButtonElement>('.server-switch button')) {
       button.addEventListener('click', () => {
@@ -24,9 +24,26 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
         }
       });
     }
+
+    // The Dark / Light switch: sets both elements' color-scheme and the page's own colors.
+    const flow = document.querySelector('rapi-flow');
+    const example = document.querySelector<HTMLElement>('.flow-example');
+    const logo = document.querySelector<HTMLImageElement>('.flow-logo');
+    for (const button of document.querySelectorAll<HTMLButtonElement>('.scheme-switch button')) {
+      button.addEventListener('click', () => {
+        const scheme = button.dataset.scheme;
+        flow.setAttribute('color-scheme', scheme);
+        doc.setAttribute('color-scheme', scheme);
+        example.dataset.scheme = scheme;
+        logo.src = `/assets/images/rapi-flow-lockup-${scheme}.svg`;
+        for (const b of document.querySelectorAll('.scheme-switch button')) {
+          b.setAttribute('aria-pressed', String(b === button));
+        }
+      });
+    }
   </script>
 
-  <div class="flow-example">
+  <div class="flow-example" data-scheme="dark">
     <div class="flow-pane">
       <rapi-flow
         arazzo-url="/specs/petstore.arazzo.yaml"
@@ -35,13 +52,20 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
         update-route="true"
         mcp="true"
         theme = "amber"
+        color-scheme="dark"
       >
         <div slot="header">
           <div class="header-bar">
-            <img src="/assets/images/rapi-flow-lockup-dark.svg" alt="rapi-flow" height="26" />
-            <div class="server-switch" role="group" aria-label="Server">
-              <button type="button" data-server="real" aria-pressed="true">Real server</button>
-              <button type="button" data-server="mock" aria-pressed="false">Mock</button>
+            <img class="flow-logo" src="/assets/images/rapi-flow-lockup-dark.svg" alt="rapi-flow" height="26" />
+            <div class="switches">
+              <div class="switch scheme-switch" role="group" aria-label="Color scheme">
+                <button type="button" data-scheme="dark" aria-pressed="true">Dark</button>
+                <button type="button" data-scheme="light" aria-pressed="false">Light</button>
+              </div>
+              <div class="switch server-switch" role="group" aria-label="Server">
+                <button type="button" data-server="real" aria-pressed="true">Real server</button>
+                <button type="button" data-server="mock" aria-pressed="false">Mock</button>
+              </div>
             </div>
           </div>
           <p class="server-note" data-server="real">
@@ -64,22 +88,37 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
       render-style="focused"
       show-side-nav="floating"
       mock-server="false"
+      color-scheme="dark"
     ></rapi-doc>
   </div>
 </ExampleLayout>
 
 <style>
   /* Two panes: <rapi-flow> on the left, <rapi-doc> on the right */
+  /* The page's own colors, for each position of the Dark / Light switch */
   .flow-example {
+    --example-bg: rgb(31, 31, 35);
+    --example-muted: #a1a1aa;
+    --example-border: var(--rd-border-hover);
     display: flex;
     gap: 16px;
     height: 100vh;
-    background: rgb(31, 31, 35);
+    background: var(--example-bg);
+  }
+  .flow-example[data-scheme='light'] {
+    --example-bg: #fff;
+    --example-muted: #52525b;
+    --example-border: #d4d4d8;
+  }
+  .flow-example[data-scheme='light'] .switch button[aria-pressed='true'] {
+    color: #9a4a00;
+    border-color: #f0a35c;
+    background: #fff4e8;
   }
   .flow-pane {
     width: clamp(30rem, 45%, 56rem);
     overflow: auto;
-    border-right: 1px solid var(--rd-border-hover);
+    border-right: 1px solid var(--example-border);
   }
   .doc-pane {
     flex: 1;
@@ -89,19 +128,30 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
   /* The header slot: logo on the left, the server switch on the right, a note below */
   .header-bar {
     display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
     align-items: center;
     justify-content: space-between;
   }
-  .server-switch button {
+  .switches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .switch {
+    display: flex;
+  }
+  .switch button {
+    white-space: nowrap;
     padding: 0.25rem 0.75rem;
     font: inherit;
     font-size: 0.8125rem;
-    color: #a1a1aa;
+    color: var(--example-muted);
     background: transparent;
-    border: 1px solid var(--rd-border-hover);
+    border: 1px solid var(--example-border);
     cursor: pointer;
   }
-  .server-switch button[aria-pressed='true'] {
+  .switch button[aria-pressed='true'] {
     color: var(--rd-accent);
     border-color: var(--rd-accent-border);
     background: var(--rd-accent-dim);
@@ -109,7 +159,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
   .server-note {
     margin: 12px 0 16px;
     font-size: 0.8125rem;
-    color: #a1a1aa;
+    color: var(--example-muted);
   }
 
   @media (max-width: 900px) {

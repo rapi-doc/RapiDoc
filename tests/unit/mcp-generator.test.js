@@ -13,10 +13,18 @@ import {
   toJsonSchema,
   estimateTokenCost,
   generateHostConfigs,
+  hostEnvFor,
   envNameFor,
+  operationToolName,
+  assignToolNames,
   buildRequest,
   createMcpRuntime,
   credentialsFromEnv,
+  credentialEnvNames,
+  baseUrlsFromEnv,
+  baseUrlEnvNames,
+  sourcesWithoutBaseUrl,
+  MANIFEST_VERSION,
   writeMcpProject,
   generateMcpServer,
   createZip,
@@ -66,11 +74,11 @@ describe("mcp: string utilities and the mcp attribute", () => {
     );
   });
 
-  it("reads the mcp attribute: on for true or a language, off for false, none, or a list with them", () => {
+  it("reads the mcp attribute: on for true only", () => {
     assert.equal(parseMcpEnabled("true"), true);
-    assert.equal(parseMcpEnabled("typescript"), true);
-    assert.equal(parseMcpEnabled(["typescript", "python"]), true);
-    for (const off of ["", "false", "none", false, undefined, "typescript, none", ["none"]]) {
+    assert.equal(parseMcpEnabled(" True "), true);
+    assert.equal(parseMcpEnabled(true), true);
+    for (const off of ["", "false", "none", false, undefined, null, "typescript", "true,none"]) {
       assert.equal(parseMcpEnabled(off), false, String(off));
     }
   });
@@ -266,51 +274,65 @@ describe("mcp: manifest rules", () => {
     );
   });
 
-  it("classifies a parameterless GET on a reference-data path as a resource", () => {
+  it("makes every operation a tool: a path never makes a GET a resource", () => {
     const { tools, resources } = buildMcpManifest(
       minimal({
-        "/currencies": { get: { summary: "Currency codes" } },
+        "/currencies": {
+          get: {
+            summary: "Currency codes",
+            parameters: [{ name: "region", in: "query", schema: { type: "string" } }],
+          },
+        },
+        "/schemas": { get: { operationId: "listSchemas" } },
         "/orders": { get: { operationId: "listOrders" } },
       }),
     );
     assert.deepEqual(
       tools.map((t) => t.name),
-      ["list_orders"],
+      ["get_currencies", "list_schemas", "list_orders"],
     );
-    assert.equal(resources[0].uri, "reference://currencies");
-    assert.equal(resources[0].operation.path, "/currencies");
+    // The optional parameter is still an argument
+    assert.deepEqual(Object.keys(tools[0].inputSchema.properties), ["region"]);
+    assert.deepEqual(resources, []);
   });
 
-  it("lets x-mcp-resource decide between a resource and a tool, and keeps /status a tool", () => {
+  it("makes a GET a resource only with x-mcp-resource: true, and keeps it a tool too", () => {
     const { tools, resources } = buildMcpManifest(
       minimal({
         "/currencies": { get: { operationId: "getCurrencies", "x-mcp-resource": false } },
-        "/plans": { get: { operationId: "getPlans", "x-mcp-resource": true } },
+        "/plans": {
+          get: {
+            operationId: "getPlans",
+            "x-mcp-resource": true,
+            parameters: [{ name: "tier", in: "query", schema: { type: "string" } }],
+          },
+        },
         "/status": { get: { operationId: "getStatus" } },
+        // A resource is read without arguments, and only a GET is a read
+        "/plans/{id}": {
+          get: {
+            operationId: "getPlan",
+            "x-mcp-resource": true,
+            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+          },
+        },
+        "/reports": { post: { operationId: "makeReport", "x-mcp-resource": true } },
       }),
     );
     assert.deepEqual(
       tools.map((t) => t.name),
-      ["get_currencies", "get_status"],
+      ["get_currencies", "get_plans", "get_status", "get_plan", "make_report"],
     );
+    assert.deepEqual(Object.keys(tools[1].inputSchema.properties), ["tier"]);
     assert.deepEqual(
-      resources.map((r) => r.uri),
-      ["reference://plans"],
+      resources.map((r) => [r.name, r.uri]),
+      [["get_plans", "reference://plans"]],
     );
   });
 
-  it("substitutes server variables and numbers duplicate tool names", () => {
-    const m = buildMcpManifest(
-      minimal({
-        "/a": { get: { operationId: "same" } },
-        "/b": { get: { operationId: "same" } },
-      }),
-    );
+  it("substitutes server variables", () => {
+    const m = buildMcpManifest(minimal({ "/a": { get: { operationId: "a" } } }));
     assert.equal(m.sources.api.baseUrl, "https://api.store.com/v1");
-    assert.deepEqual(
-      m.tools.map((t) => t.name),
-      ["same", "same_2"],
-    );
   });
 
   it("accepts ProcessSpec's shape: tags[].paths[] with merged parameters and xInternal flags", () => {
@@ -518,7 +540,7 @@ describe("mcp: the runtime builds and sends requests", () => {
       openapi: "3.0.0",
       info: { title: "R", version: "1" },
       servers: [{ url: "https://r.test" }],
-      paths: { "/currencies": { get: { summary: "Currencies" } } },
+      paths: { "/currencies": { get: { summary: "Currencies", "x-mcp-resource": true } } },
     });
     const f = fakeFetch(200, '["EUR"]');
     const runtime = createMcpRuntime(m, { fetch: f.impl });
@@ -536,25 +558,431 @@ describe("mcp: the runtime builds and sends requests", () => {
     await assert.rejects(runtime.readResource("reference://none"), /Unknown resource/);
   });
 
-  it("reads credentials from the environment by scheme name; API_KEY is a fallback for one scheme only", () => {
-    assert.equal(envNameFor("petstore_auth"), "PETSTORE_AUTH");
-    assert.equal(envNameFor("myApiKey"), "MY_API_KEY");
-    assert.deepEqual(credentialsFromEnv(manifest, { PETSTORE_AUTH: "t", API_KEY: "k" }), {
-      petstore_auth: "t",
-      api_key: "k",
-    });
-    // Two schemes: API_KEY is api_key's own variable, never petstore_auth's credential too
-    assert.deepEqual(credentialsFromEnv(manifest, { API_KEY: "k" }), { api_key: "k" });
+  it("reads credentials only from MCP_AUTH_<SCHEME> variables", () => {
+    assert.equal(envNameFor("petstore_auth"), "MCP_AUTH_PETSTORE_AUTH");
+    assert.equal(envNameFor("myApiKey"), "MCP_AUTH_MY_API_KEY");
+    assert.match(envNameFor("認証"), /^MCP_AUTH_SCHEME_[0-9A-F]{8}$/);
+    assert.deepEqual(
+      credentialsFromEnv(manifest, { MCP_AUTH_PETSTORE_AUTH: "t", MCP_AUTH_API_KEY: "k" }),
+      { petstore_auth: "t", api_key: "k" },
+    );
+    // The old names, and the API_KEY shortcut, are not read
+    assert.deepEqual(credentialsFromEnv(manifest, { PETSTORE_AUTH: "t", API_KEY: "k" }), {});
     const one = {
       sources: { api: { securitySchemes: { token: { type: "http", scheme: "bearer" } } } },
     };
-    assert.deepEqual(credentialsFromEnv(one, { API_KEY: "k" }), { token: "k" });
+    assert.deepEqual(credentialsFromEnv(one, { API_KEY: "k", TOKEN: "t" }), {});
+    assert.deepEqual(credentialsFromEnv(one, { MCP_AUTH_TOKEN: "t" }), { token: "t" });
     const basic = {
       sources: { api: { securitySchemes: { basic: { type: "http", scheme: "basic" } } } },
     };
-    assert.deepEqual(credentialsFromEnv(basic, { BASIC_USERNAME: "u", BASIC_PASSWORD: "p" }), {
-      basic: { username: "u", password: "p" },
+    assert.deepEqual(credentialEnvNames(basic), {
+      basic: ["MCP_AUTH_BASIC_USERNAME", "MCP_AUTH_BASIC_PASSWORD"],
     });
+    assert.deepEqual(
+      credentialsFromEnv(basic, { MCP_AUTH_BASIC_USERNAME: "u", MCP_AUTH_BASIC_PASSWORD: "p" }),
+      { basic: { username: "u", password: "p" } },
+    );
+    assert.deepEqual(credentialsFromEnv(basic, { MCP_AUTH_BASIC: "u:p", BASIC_USERNAME: "u" }), {});
+  });
+
+  it("never reads a variable outside the MCP_ prefix, whatever the schemes are called", () => {
+    const hostile = {
+      sources: {
+        api: {
+          securitySchemes: {
+            path: { type: "apiKey", in: "header", name: "X-Key" },
+            token: { type: "http", scheme: "bearer" },
+            user: { type: "http", scheme: "basic" },
+            rapidoc_session_secret: { type: "apiKey", in: "query", name: "s" },
+            "": { type: "http", scheme: "bearer" },
+          },
+        },
+      },
+    };
+    const read = [];
+    const env = new Proxy(
+      {},
+      {
+        get(_, name) {
+          read.push(String(name));
+          return "secret";
+        },
+      },
+    );
+    credentialsFromEnv(hostile, env);
+    baseUrlsFromEnv(hostile, env);
+    assert.ok(read.length > 5);
+    for (const name of read) assert.match(name, /^MCP_(AUTH|BASE_URL)/, name);
+    assert.ok(!read.includes("PATH") && !read.includes("RAPIDOC_SESSION_SECRET"));
+  });
+
+  it("reads MCP_BASE_URL for one source and MCP_BASE_URL_<SOURCE> for several", () => {
+    assert.deepEqual(baseUrlEnvNames(manifest), { api: "MCP_BASE_URL" });
+    assert.deepEqual(baseUrlsFromEnv(manifest, { MCP_BASE_URL: "http://m.test" }), {
+      api: "http://m.test",
+    });
+    assert.deepEqual(baseUrlsFromEnv(manifest, { API_BASE_URL: "http://m.test" }), {});
+    const two = { sources: { petstore: {}, "billing-api": {} } };
+    assert.deepEqual(baseUrlEnvNames(two), {
+      petstore: "MCP_BASE_URL_PETSTORE",
+      "billing-api": "MCP_BASE_URL_BILLING_API",
+    });
+    assert.deepEqual(baseUrlsFromEnv(two, { MCP_BASE_URL_BILLING_API: "http://b.test" }), {
+      "billing-api": "http://b.test",
+    });
+    assert.throws(
+      () => baseUrlsFromEnv(two, { MCP_BASE_URL: "http://m.test" }),
+      /MCP_BASE_URL is for a server with one API.*MCP_BASE_URL_PETSTORE, MCP_BASE_URL_BILLING_API/,
+    );
+  });
+
+  it("refuses a manifest version it does not know", () => {
+    assert.equal(manifest.manifestVersion, MANIFEST_VERSION);
+    assert.throws(
+      () => createMcpRuntime({ ...manifest, manifestVersion: 2 }),
+      /reads manifest version 1, and the manifest is version 2/,
+    );
+    assert.throws(() => createMcpRuntime({ sources: {}, tools: [] }), /not versioned/);
+  });
+});
+
+describe("mcp: tool names", () => {
+  const spec = (paths, extra = {}) => ({
+    openapi: "3.0.3",
+    info: { title: "Names", version: "1" },
+    servers: [{ url: "https://n.test" }],
+    paths,
+    ...extra,
+  });
+  const names = (m) => m.tools.map((t) => t.name);
+  const VALID = /^[a-zA-Z0-9_-]{1,64}$/;
+
+  it("falls back to method and path when the operationId has no Latin letter or digit", () => {
+    assert.equal(operationToolName("顧客一覧", "get", "/customers"), "get_customers");
+    assert.equal(operationToolName("listPets", "get", "/pets"), "list_pets");
+    const m = buildMcpManifest(
+      spec({
+        "/customers": { get: { operationId: "顧客一覧" } },
+        "/顧客": { get: { operationId: "顧客" }, post: { operationId: "作成" } },
+        "/注文": { get: {} },
+      }),
+    );
+    for (const name of names(m)) assert.match(name, VALID);
+    assert.equal(names(m)[0], "get_customers");
+    assert.equal(names(m)[2], "post");
+    // GET /顧客 and GET /注文 would both be "get": each ends in a hash of its own method and path
+    assert.match(names(m)[1], /^get_[0-9a-f]{8}$/);
+    assert.match(names(m)[3], /^get_[0-9a-f]{8}$/);
+    assert.equal(new Set(names(m)).size, 4);
+  });
+
+  it("gives the server a name when the title has no Latin letter or digit", () => {
+    assert.equal(
+      buildMcpManifest(spec({}, { info: { title: "ペット" } })).server.name,
+      "api_mcp_server",
+    );
+    assert.equal(toSnakeCase("ペット"), "tool");
+    assert.ok(
+      JSON.parse(generateHostConfigs("ペット").claudeDesktopConfig).mcpServers.api_mcp_server,
+    );
+  });
+
+  it("cuts names to 64 characters with a hash, keeping two long names distinct", () => {
+    const long = "getTheVeryLongNameOfAnOperationThatSomeGeneratorWroteFromItsControllerAndMethod";
+    const m = buildMcpManifest(
+      spec({
+        "/a": { get: { operationId: `${long}One` } },
+        "/b": { get: { operationId: `${long}Two` } },
+        "/c": { get: { operationId: "short" } },
+      }),
+    );
+    const [one, two, short] = names(m);
+    assert.equal(short, "short");
+    for (const name of [one, two]) {
+      assert.match(name, VALID);
+      assert.ok(name.length <= 64, name);
+      assert.match(name, /^get_the_very_long_name_.*_[0-9a-f]{8}$/);
+    }
+    assert.notEqual(one, two);
+    // The same again: the name depends on nothing but the operation
+    assert.deepEqual(
+      names(buildMcpManifest(spec({ "/z": { get: { operationId: `${long}One` } } }))),
+      [one],
+    );
+  });
+
+  it("names clashing operations by their method and path, not by document order", () => {
+    const a = { "/a": { get: { operationId: "same" } } };
+    const b = { "/b": { get: { operationId: "same" }, post: { operationId: "Same" } } };
+    const other = { "/c": { get: { operationId: "other" } } };
+    const first = buildMcpManifest(spec({ ...a, ...b, ...other }));
+    const second = buildMcpManifest(spec({ ...other, ...b, ...a }));
+    const byKey = (m) =>
+      Object.fromEntries(m.tools.map((t) => [`${t.operation.method} ${t.operation.path}`, t.name]));
+    assert.deepEqual(byKey(first), byKey(second));
+    const named = byKey(first);
+    assert.equal(named["GET /c"], "other");
+    assert.equal(new Set(Object.values(named)).size, 4);
+    for (const key of ["GET /a", "GET /b", "POST /b"])
+      assert.match(named[key], /^same_[0-9a-f]{8}$/);
+    // Adding an unrelated operation renames nothing
+    const third = byKey(buildMcpManifest(spec({ "/new": { get: {} }, ...a, ...b, ...other })));
+    for (const key of Object.keys(named)) assert.equal(third[key], named[key]);
+  });
+
+  it("never gives a suffixed name that another tool really has", () => {
+    const [taken] = assignToolNames([
+      { name: "same", key: "GET /a" },
+      { name: "same", key: "GET /b" },
+    ]);
+    const result = assignToolNames([
+      { name: "same", key: "GET /a" },
+      { name: "same", key: "GET /b" },
+      { name: taken, key: "GET /real" },
+    ]);
+    assert.equal(result[2], taken);
+    assert.equal(new Set(result).size, 3);
+    assert.match(result[0], /^same_[0-9a-f]{8}$/);
+    assert.notEqual(result[0], taken);
+  });
+
+  it("puts a prefix in front before cutting and comparing", () => {
+    const m = buildMcpManifest(
+      spec({
+        "/a": { get: { operationId: "listThings" } },
+        "/b": { get: { operationId: "x".repeat(60) } },
+      }),
+      { toolNamePrefix: "billing_" },
+    );
+    assert.equal(names(m)[0], "billing_list_things");
+    assert.equal(names(m)[1].length, 64);
+    assert.match(names(m)[1], /^billing_x+_[0-9a-f]{8}$/);
+  });
+
+  it("lists an operation once when a processed spec repeats it under two tags", () => {
+    const op = { method: "get", path: "/pets", rawOperation: { operationId: "listPets" } };
+    const m = buildMcpManifest({
+      info: { title: "P" },
+      servers: [{ url: "https://p.test" }],
+      tags: [
+        { name: "a", paths: [op] },
+        { name: "b", paths: [op] },
+      ],
+    });
+    assert.deepEqual(names(m), ["list_pets"]);
+  });
+});
+
+describe("mcp: security scheme variables that would clash", () => {
+  const withSchemes = (securitySchemes) => ({
+    openapi: "3.0.3",
+    info: { title: "S", version: "1" },
+    servers: [{ url: "https://s.test" }],
+    paths: {},
+    components: { securitySchemes },
+  });
+
+  it("reports two schemes whose ids give the same variable", () => {
+    assert.throws(
+      () =>
+        buildMcpManifest(
+          withSchemes({
+            "api-key": { type: "apiKey", in: "header", name: "X-A" },
+            apiKey: { type: "apiKey", in: "header", name: "X-B" },
+          }),
+        ),
+      /security scheme "api-key" and security scheme "apiKey" would both read the environment variable MCP_AUTH_API_KEY/,
+    );
+    assert.throws(
+      () =>
+        buildMcpManifest(
+          withSchemes({
+            login: { type: "http", scheme: "basic" },
+            login_username: { type: "apiKey", in: "header", name: "X-U" },
+          }),
+        ),
+      /MCP_AUTH_LOGIN_USERNAME/,
+    );
+    assert.doesNotThrow(() =>
+      buildMcpManifest(
+        withSchemes({
+          api_key: { type: "apiKey", in: "header", name: "X-A" },
+          apiKey2: { type: "apiKey", in: "header", name: "X-B" },
+        }),
+      ),
+    );
+  });
+});
+
+describe("mcp: Swagger 2.0 documents", () => {
+  const swagger = {
+    swagger: "2.0",
+    info: { title: "Legacy", version: "1" },
+    host: "legacy.test",
+    basePath: "/v2",
+    schemes: ["https"],
+    consumes: ["application/json"],
+    securityDefinitions: {
+      login: { type: "basic" },
+      oauth: {
+        type: "oauth2",
+        flow: "accessCode",
+        authorizationUrl: "https://legacy.test/auth",
+        tokenUrl: "https://legacy.test/token",
+        scopes: { read: "Read" },
+      },
+    },
+    security: [{ login: [] }],
+    paths: {
+      "/pets/{id}": {
+        post: {
+          operationId: "updatePetWithForm",
+          consumes: ["application/x-www-form-urlencoded"],
+          parameters: [
+            { name: "id", in: "path", required: true, type: "integer" },
+            {
+              name: "name",
+              in: "formData",
+              required: true,
+              type: "string",
+              description: "New name",
+            },
+            { name: "status", in: "formData", type: "string", enum: ["available", "sold"] },
+          ],
+        },
+      },
+      "/pets/{id}/image": {
+        post: {
+          operationId: "uploadFile",
+          consumes: ["multipart/form-data"],
+          parameters: [
+            { name: "id", in: "path", required: true, type: "integer" },
+            { name: "file", in: "formData", type: "file" },
+          ],
+        },
+      },
+    },
+  };
+  const manifest = buildMcpManifest(swagger);
+  const tool = (name) => manifest.tools.find((t) => t.name === name);
+
+  it("treats `type: basic` as HTTP Basic, never as a bearer token", () => {
+    assert.deepEqual(manifest.sources.api.securitySchemes.login, { type: "http", scheme: "basic" });
+    assert.deepEqual(manifest.sources.api.securitySchemes.oauth.flows, {
+      authorizationCode: {
+        authorizationUrl: "https://legacy.test/auth",
+        tokenUrl: "https://legacy.test/token",
+        scopes: { read: "Read" },
+      },
+    });
+    assert.deepEqual(credentialEnvNames(manifest).login, [
+      "MCP_AUTH_LOGIN_USERNAME",
+      "MCP_AUTH_LOGIN_PASSWORD",
+    ]);
+    const credentials = credentialsFromEnv(manifest, {
+      MCP_AUTH_LOGIN_USERNAME: "ann",
+      MCP_AUTH_LOGIN_PASSWORD: "pw",
+    });
+    const request = buildRequest(
+      manifest,
+      tool("update_pet_with_form").operation,
+      { id: 1, body: { name: "Rex" } },
+      { credentials },
+    );
+    assert.equal(request.headers.Authorization, `Basic ${btoa("ann:pw")}`);
+  });
+
+  it("sends formData parameters as a form body", () => {
+    const t = tool("update_pet_with_form");
+    assert.deepEqual(t.inputSchema.properties.body, {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "New name" },
+        status: { type: "string", enum: ["available", "sold"] },
+      },
+      required: ["name"],
+    });
+    assert.deepEqual(t.inputSchema.required, ["id", "body"]);
+    const request = buildRequest(manifest, t.operation, {
+      id: 7,
+      body: { name: "Rex & co", status: "sold" },
+    });
+    assert.equal(request.url, "https://legacy.test/v2/pets/7");
+    assert.equal(request.headers["Content-Type"], "application/x-www-form-urlencoded");
+    assert.equal(request.body, "name=Rex+%26+co&status=sold");
+    const upload = tool("upload_file");
+    assert.deepEqual(upload.inputSchema.properties.body.properties, { file: { type: "string" } });
+    assert.equal(upload.operation.params.at(-1).contentType, "multipart/form-data");
+  });
+});
+
+describe("mcp: the API's base URL", () => {
+  const doc = (servers, extra = {}) => ({
+    openapi: "3.0.3",
+    info: { title: "Base", version: "1" },
+    ...(servers && { servers }),
+    paths: { "/pets": { get: { operationId: "listPets" } } },
+    ...extra,
+  });
+
+  it("resolves a relative server URL, or none, against the address the spec came from", () => {
+    const from = { specUrl: "https://docs.example.com/specs/v3/openapi.yaml" };
+    const base = (servers, options = from) =>
+      buildMcpManifest(doc(servers), options).sources.api.baseUrl;
+    assert.equal(base([{ url: "/api/v1" }]), "https://docs.example.com/api/v1");
+    assert.equal(base([{ url: "../api" }]), "https://docs.example.com/specs/api");
+    assert.equal(base([{ url: "//api.example.com/v1" }]), "https://api.example.com/v1");
+    assert.equal(base(null), "https://docs.example.com");
+    assert.equal(base([{ url: "https://api.example.com/v1" }]), "https://api.example.com/v1");
+    // A file path is not an address
+    assert.equal(base([{ url: "/api/v1" }], { specUrl: "/home/me/openapi.yaml" }), undefined);
+  });
+
+  it("leaves the base URL unset when nothing says where the API is", () => {
+    for (const servers of [[{ url: "/api/v1" }], null, []]) {
+      const source = buildMcpManifest(doc(servers)).sources.api;
+      assert.ok(!("baseUrl" in source), JSON.stringify(servers));
+    }
+    const swagger = buildMcpManifest({
+      swagger: "2.0",
+      info: { title: "S" },
+      basePath: "/v2",
+      paths: {},
+    });
+    assert.ok(!("baseUrl" in swagger.sources.api));
+    assert.equal(
+      buildMcpManifest(
+        { swagger: "2.0", info: { title: "S" }, basePath: "/v2", paths: {} },
+        { specUrl: "http://old.test/swagger.json" },
+      ).sources.api.baseUrl,
+      "http://old.test/v2",
+    );
+  });
+
+  it("fails a call without a base URL with a message, and never calls localhost", async () => {
+    const manifest = buildMcpManifest(doc([{ url: "/api/v1" }]));
+    assert.deepEqual(sourcesWithoutBaseUrl(manifest), ["api"]);
+    assert.deepEqual(sourcesWithoutBaseUrl(manifest, { api: "http://m.test" }), []);
+    const f = fakeFetch();
+    const result = await createMcpRuntime(manifest, { fetch: f.impl }).callTool("list_pets");
+    assert.equal(result.isError, true);
+    assert.match(result.content[0].text, /No base URL for the API "api".*Set MCP_BASE_URL/);
+    assert.equal(f.calls.length, 0);
+    const withBase = createMcpRuntime(manifest, {
+      fetch: f.impl,
+      baseUrls: { api: "http://m.test/" },
+    });
+    assert.equal((await withBase.callTool("list_pets")).isError, undefined);
+    assert.equal(f.calls[0].url, "http://m.test/pets");
+  });
+
+  it("names the base URL as required in the exported project", () => {
+    const { files, hostConfig, manifest } = generateMcpServer(doc(null));
+    assert.ok(files["README.md"].includes("`MCP_BASE_URL`: **required**"));
+    assert.ok(files["README.md"].includes('MCP_BASE_URL="https://api.example.com" npm start'));
+    assert.deepEqual(hostEnvFor(manifest), { MCP_BASE_URL: "https://api.example.com" });
+    assert.deepEqual(Object.values(JSON.parse(hostConfig).mcpServers)[0].env, hostEnvFor(manifest));
   });
 });
 
@@ -581,8 +1009,17 @@ describe("mcp: the exported project", () => {
     assert.equal(pkg.name, "pet-store");
     assert.ok(pkg.dependencies["@modelcontextprotocol/sdk"]);
     assert.equal(pkg.dependencies.zod, undefined);
-    assert.ok(files["README.md"].includes("`PETSTORE_AUTH`"));
-    assert.ok(files["README.md"].includes("`API_KEY`: the API key sent as header `api_key`"));
+    assert.ok(files["README.md"].includes("`MCP_AUTH_PETSTORE_AUTH`: the bearer token"));
+    assert.ok(
+      files["README.md"].includes("`MCP_AUTH_API_KEY`: the API key sent as header `api_key`"),
+    );
+    assert.ok(
+      files["README.md"].includes("`MCP_BASE_URL`: overrides the base URL in the manifest"),
+    );
+    for (const file of ["README.md", "server.ts", "mcp.json"]) {
+      assert.ok(!/API_BASE_URL|[^_]EXTERNAL_HOSTS|`API_KEY`|"API_KEY"/.test(files[file]), file);
+    }
+    assert.ok(files["server.ts"].includes("baseUrlsFromEnv(manifest, process.env)"));
   });
 
   it("writes host configuration with one env entry per security scheme", () => {
@@ -601,9 +1038,23 @@ describe("mcp: the exported project", () => {
     );
     assert.equal(placed.files["mcp.json"], placed.hostConfig);
     assert.ok(!placed.files["README.md"].includes("replace the path in `args`"));
-    assert.deepEqual(Object.keys(config.mcpServers.pet_store.env), ["PETSTORE_AUTH", "API_KEY"]);
-    assert.deepEqual(JSON.parse(generateHostConfigs("x").claudeDesktopConfig).mcpServers.x.env, {
-      API_KEY: "your-api-key-here",
+    assert.deepEqual(config.mcpServers.pet_store.env, {
+      MCP_AUTH_PETSTORE_AUTH: "your-petstore-auth",
+      MCP_AUTH_API_KEY: "your-api-key",
+    });
+    // No scheme, no variable: there is no API_KEY shortcut
+    assert.deepEqual(JSON.parse(generateHostConfigs("x").claudeDesktopConfig).mcpServers.x.env, {});
+    const basic = {
+      sources: {
+        api: {
+          baseUrl: "https://b.test",
+          securitySchemes: { login: { type: "http", scheme: "basic" } },
+        },
+      },
+    };
+    assert.deepEqual(hostEnvFor(basic), {
+      MCP_AUTH_LOGIN_USERNAME: "your-login-username",
+      MCP_AUTH_LOGIN_PASSWORD: "your-login-password",
     });
     assert.equal(files["mcp.json"], hostConfig);
   });

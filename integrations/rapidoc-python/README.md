@@ -23,7 +23,7 @@ FastAPI serves Swagger UI at `/docs` unless you create the app with `docs_url=No
 
 | Option | Default | |
 | :--- | :--- | :--- |
-| `ui_path` | `/docs` | URL path the reference page is served at, within the app. `path` is its old name, still read |
+| `ui_path` | `/docs` | URL path the reference page is served at, within the app. The app's `root_path`, which a mount or a proxy sets, goes in front of it in the page |
 | `spec_url` | the app's `openapi_url` | URL of the OpenAPI document, which the browser fetches when the page opens. A path starting with `/` is a path of the app |
 | `spec` | | The OpenAPI document itself (a dict or JSON text), written into the page so the browser makes no request for it. With both, `spec` is shown and `spec_url` is the download link |
 | `title` | the app's title + "API Reference" | Page title |
@@ -34,7 +34,7 @@ FastAPI serves Swagger UI at `/docs` unless you create the app with `docs_url=No
 | `nonce` | | Content-Security-Policy nonce, or a function that takes the request and returns it |
 | `enabled` | `True` | `False` adds nothing, for example outside development |
 
-These are the options of every RapiDoc integration, in Python naming.
+These are the options of every RapiDoc integration, in Python naming. An empty string counts as an option that is not set.
 
 ## Behind a proxy
 
@@ -47,6 +47,7 @@ When a proxy strips a path prefix, run the app with that prefix as its `root_pat
 ## Notes
 
 - Each release ships one version of `rapidoc`: `rapidoc.rapidoc_version()`.
+- The bundle is sent with `cache-control: no-cache` and an `ETag`, so browsers pick up a new RapiDoc build on the first visit after a deploy and get a `304` otherwise.
 - The routes are left out of the app's OpenAPI document.
 - OAuth sign-in returns to `{ui_path}/oauth-receiver.html`, which the app serves on its own origin, also with `assets="cdn"`.
 - [`examples/app.py`](./examples/app.py) is a complete app.
@@ -54,6 +55,10 @@ When a proxy strips a path prefix, run the app with that prefix as its `root_pat
 - The package itself requires no framework; `rapidoc.fastapi` uses the Starlette that FastAPI installs. `rapidoc.contract` is the RapiDoc integration contract in plain Python, for building an integration for another framework.
 
 Python 3.10 or later; Starlette 0.27 or later. MIT.
+
+## Upgrading to 0.3.0
+
+0.3.0 removes the names of version 0.1: `setup_rapidoc(path=...)` is `setup_rapidoc(ui_path=...)`, and `rapidoc.contract` no longer has `DEFAULT_PATH` (use `DEFAULT_UI_PATH`) or reads a `path` option. An option that is an empty string now counts as not set (`lang=""` is `en`; the site root is `ui_path="/"`). The bundle is sent with `cache-control: no-cache` in place of `max-age=3600`, and every response has `x-content-type-options: nosniff`.
 
 ## Upgrading to 0.2.2
 

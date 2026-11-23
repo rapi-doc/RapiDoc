@@ -113,7 +113,6 @@ const jumps = [
                 <tr id={attr.name} data-ref-item data-ref-text={`${attr.name} ${attr.allowed?.join(' ') ?? ''}`.toLowerCase()}>
                   <th scope="row" class="ref-name-cell">
                     <a href={`#${attr.name}`} class="ref-name"><code>{attr.name}</code></a>
-                    {attr.deprecated && <span class="ref-badge-deprecated">Deprecated</span>}
                   </th>
                   <td class="ref-desc-cell">
                     {attr.allowed && (
@@ -197,12 +196,10 @@ const jumps = [
   /* The docs' standard tables (Starlight's, as every docs page has them); only what a reference adds is here */
   :root {
     --ref-red: #f87171;
-    --ref-red-bg: rgb(248 113 113 / 0.1);
     --ref-green: var(--sl-color-green, #30a46c);
   }
   :root[data-theme='light'] {
     --ref-red: #c62828;
-    --ref-red-bg: rgb(198 40 40 / 0.07);
     /* Darker than Starlight's light-theme green, which is hard to read on white */
     --ref-green: #15803d;
   }
@@ -265,21 +262,6 @@ const jumps = [
   }
   .sl-markdown-content .ref-name {
     text-decoration: none;
-  }
-  .sl-markdown-content .ref-badge-deprecated {
-    display: block;
-    width: fit-content;
-    margin-top: 0.375rem;
-    padding: 0.0625rem 0.4375rem;
-    border: 1px solid color-mix(in srgb, var(--ref-red) 55%, transparent);
-    border-radius: 4px;
-    background: var(--ref-red-bg);
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    line-height: 1.4;
-    text-transform: uppercase;
-    color: var(--ref-red);
   }
   .sl-markdown-content .ref-desc-cell > * + * {
     margin-top: 0.5rem;

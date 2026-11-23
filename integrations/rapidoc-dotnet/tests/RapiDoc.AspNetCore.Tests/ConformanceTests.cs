@@ -34,7 +34,7 @@ public class ConformanceTests
     }
 
     [Fact]
-    public void FindsTheFixtures() => Assert.True(Cases().Count >= 15, $"no conformance fixtures in {Fixtures}");
+    public void FindsTheFixtures() => Assert.True(Cases().Count >= 24, $"no conformance fixtures in {Fixtures}");
 
     [Theory]
     [MemberData(nameof(Cases))]
@@ -61,7 +61,44 @@ public class ConformanceTests
         }
 
         var html = page == "host" ? RapiDocContract.RenderHostPage(options) : RapiDocContract.RenderOAuthReceiverPage(options);
-        Assert.Equal(File.ReadAllText(Path.Combine(folder, "expected.html"), Encoding.UTF8), html);
+        AssertSamePage(File.ReadAllText(Path.Combine(folder, "expected.html"), Encoding.UTF8), html);
+    }
+
+    private const string SpecOpen = "<script type=\"application/json\" slot=\"rapidoc-spec\">";
+    private const string SpecClose = "</script>";
+
+    /// <summary>The page without its inline spec, and the inline spec's text (null when there is none).</summary>
+    private static (string Page, string? Spec) SplitPage(string html)
+    {
+        var start = html.IndexOf(SpecOpen, StringComparison.Ordinal);
+        if (start < 0) return (html, null);
+        var begin = start + SpecOpen.Length;
+        var end = html.IndexOf(SpecClose, begin, StringComparison.Ordinal);
+        return (html[..begin] + html[end..], html[begin..end]);
+    }
+
+    /// <summary>The contract's comparison: byte for byte, except the inline spec, which is compared as parsed JSON.</summary>
+    private static void AssertSamePage(string expected, string actual)
+    {
+        var (expectedPage, expectedSpec) = SplitPage(expected);
+        var (actualPage, actualSpec) = SplitPage(actual);
+        Assert.Equal(expectedPage, actualPage);
+        if (expectedSpec is null) return;
+        Assert.NotNull(actualSpec);
+        Assert.True(actualSpec.IndexOfAny(['<', '>', '&', (char)0x2028, (char)0x2029, '\n']) < 0, "the inline spec cannot end its script element");
+        Assert.True(JsonNode.DeepEquals(JsonNode.Parse(expectedSpec), JsonNode.Parse(actualSpec)), $"inline spec differs: {actualSpec}");
+    }
+
+    [Fact]
+    public void ComparesAPageByteForByteExceptTheInlineSpec()
+    {
+        static string Page(string spec, string title = "T") =>
+            $"<title>{title}</title>\n      {SpecOpen}{spec}{SpecClose}\n    </rapi-doc>\n";
+
+        AssertSamePage(Page("{\"a\":2,\"b\":1}"), Page("{\"b\":1,\"a\":2}"));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertSamePage(Page("{\"a\":2,\"b\":1}"), Page("{\"a\":3,\"b\":1}")));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertSamePage(Page("{}"), Page("{}", "T ")));
+        Assert.ThrowsAny<Xunit.Sdk.XunitException>(() => AssertSamePage(Page("{\"a\":\"x\"}"), Page("{\"a\":\"<\"}")));
     }
 
     [Fact]
@@ -106,11 +143,23 @@ public class ConformanceTests
     }
 
     [Fact]
-    public void StillReadsPathTheNameUiPathHadInVersion1()
+    public void ReadsUiPathAndNoOtherNameForIt()
     {
-        Assert.Equal("/old", RapiDocContract.EmbedUrls(new JsonObject { ["path"] = "/old/" }).Page);
+        Assert.Equal("/docs", RapiDocContract.EmbedUrls(new JsonObject { ["path"] = "/old/" }).Page);
         Assert.Equal("/new", RapiDocContract.EmbedUrls(new JsonObject { ["path"] = "/old", ["uiPath"] = "new" }).Page);
         Assert.Equal("/docs", RapiDocContract.EmbedUrls(null).Page);
+        Assert.Equal("/docs", RapiDocContract.EmbedUrls(new JsonObject { ["uiPath"] = "" }).Page);
+        Assert.Equal("/", RapiDocContract.EmbedUrls(new JsonObject { ["uiPath"] = "/" }).Page);
         Assert.Equal(2, RapiDocContract.ContractVersion);
+    }
+
+    [Fact]
+    public void TakesAnEmptyOptionAsAnAbsentOne()
+    {
+        var empty = JsonNode.Parse("""{"uiPath":"","specUrl":"","spec":"","title":"","assets":"","head":"","css":"","lang":"","nonce":""}""")!.AsObject();
+        Assert.Equal(RapiDocContract.RenderHostPage(null), RapiDocContract.RenderHostPage(empty));
+        Assert.Equal(4, RapiDocContract.EmbedRoutes(empty).Count);
+        var custom = JsonNode.Parse("""{"assets":{"scriptUrl":"/x.js"}}""")!.AsObject();
+        Assert.Equal(2, RapiDocContract.EmbedRoutes(custom).Count);
     }
 }

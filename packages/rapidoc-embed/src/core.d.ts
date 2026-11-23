@@ -2,6 +2,7 @@ import type { RapiDocAttributes } from "rapidoc";
 
 /** rapidoc's `dist/integration.json`. */
 export interface IntegrationManifest {
+  /** Version of this file's format. Not the version of the integration contract (`CONTRACT_VERSION`). */
   contract: number;
   name: string;
   version: string;
@@ -24,15 +25,21 @@ export type RapiDocOptions = {
   [K in keyof RapiDocAttributes as CamelCase<K & string>]?: AttributeValue<RapiDocAttributes[K]>;
 } & { [attribute: string]: unknown };
 
-/** The options every RapiDoc integration takes, under these names. */
+/**
+ * The options every RapiDoc integration takes, under these names. An option that is `null` or an empty
+ * string counts as absent, so its default applies.
+ */
 export interface EmbedOptions {
   /**
-   * Where the reference is served: the public URL path of its page, including any prefix the app is mounted
-   * under. The bundle and the OAuth return page are served under it. Default `/docs`.
+   * URL path of the reference page; the bundle and the OAuth return page are served under it. Default
+   * `/docs`; `/` is the site root.
+   *
+   * An integration takes it as the path within the app or mount it is registered in, and serves the routes
+   * of `embedRoutes` there. The render functions (`renderHostPage`, `renderOAuthReceiverPage`, `embedUrls`)
+   * write it into the page as given, so they take the public path, the one the browser requests: the
+   * integration puts the mount's prefix in front before it calls them.
    */
   uiPath?: string;
-  /** @deprecated Renamed to `uiPath`. */
-  path?: string;
   /** URL of the OpenAPI document. Integrations default it to the framework's own endpoint. */
   specUrl?: string;
   /** The OpenAPI document itself (object or JSON text), written into the page. It wins over `specUrl`, which stays the download link. */
@@ -41,7 +48,7 @@ export interface EmbedOptions {
   title?: string;
   /**
    * Where the browser loads `rapidoc-min.js` from: `"bundled"` (default, served by the integration under
-   * `path`), `"cdn"` (the pinned version on jsDelivr, with its SRI hash) or your own URL.
+   * `uiPath`), `"cdn"` (the pinned version on jsDelivr, with its SRI hash) or your own URL.
    */
   assets?: "bundled" | "cdn" | { scriptUrl: string; integrity?: string };
   /** Attributes of `<rapi-doc>`. */
@@ -69,11 +76,13 @@ export type EmbedRoute =
   | { path: string; kind: "page" | "oauth-receiver"; contentType: string }
   | { path: string; kind: "file"; file: string; contentType: string };
 
+/**
+ * Version of the integration contract: the options, routes and HTML that `conformance/fixtures/` fix.
+ * Independent of this package's version and of the `contract` field of rapidoc's `integration.json`.
+ */
 export declare const CONTRACT_VERSION: number;
 export declare const DEFAULT_UI_PATH: string;
-/** @deprecated Use `DEFAULT_UI_PATH`. */
-export declare const DEFAULT_PATH: string;
-/** The `uiPath` option of `options`, or `path`, its name before contract version 2, or the default. */
+/** The `uiPath` option of `options`, or the default. */
 export declare function uiPathOf(options?: EmbedOptions): string;
 export declare const DEFAULT_TITLE: string;
 export declare const SCRIPT_FILE: string;

@@ -4,8 +4,11 @@ info:
   version: 1.0.0
 servers:
   - url: https://api.example.com/v1
+  - url: https://api.example.com/v2/
+  - url: ""
 tags:
   - name: orders
+  - name: billing
 paths:
   /orderItems:
     get:
@@ -68,6 +71,66 @@ paths:
               example: { id: 7 }
         "400":
           description: Not valid, with nothing said about the body
+  /reports/:
+    get:
+      operationId: listReportsAgain
+      summary: The same list, at an address with a slash at its end
+      tags: [orders]
+      responses:
+        "200":
+          description: OK
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      summary: An order, at an address another path already matches
+      tags: [orders]
+      parameters:
+        - name: orderId
+          in: path
+          description: Described, so only the rule under test fires.
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+  /search?kind=orders:
+    get:
+      operationId: searchOrders
+      summary: A search, with its query written into the path
+      tags: [orders]
+      responses:
+        "200":
+          description: OK
+  /getReports:
+    get:
+      operationId: get_reports
+      summary: Reports, with a verb in the path and a name written another way
+      tags: [orders]
+      parameters:
+        - name: pageSize
+          in: query
+          description: Described, so only the rule under test fires.
+          schema: { type: integer }
+        - name: sortBy
+          in: query
+          description: Described, so only the rule under test fires.
+          schema: { type: string }
+        - name: page_token
+          in: query
+          description: Described, so only the rule under test fires.
+          schema: { type: string }
+        - name: pageSize
+          in: query
+          description: Described, so only the rule under test fires.
+          schema: { type: integer }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+              example: { id: "r1", total: 12 }
 components:
   parameters:
     Id:
@@ -90,3 +153,15 @@ components:
         - type: object
           properties:
             iban: { type: string }
+    Report:
+      type: object
+      description: A report. <script>alert("removed")</script>
+      required: [id, total]
+      properties:
+        id: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+        total_amount: { type: number }
+        status:
+          type: integer
+          enum: [1, "open"]

@@ -51,6 +51,19 @@ await server.close();
 | `issuer`, `audience` | Token checks, as in [Tokens and scopes](/docs/responses/tokens-and-scopes/) |
 | `streamInterval` | Gap between the items of a streamed response |
 | `origin` | Origins allowed by CORS. Default `*` |
-| `port`, `host` | `startMockServer` only. Defaults `4010` and `0.0.0.0` |
+| `port`, `host` | `startMockServer` only. Defaults `4010` and `localhost` (`0.0.0.0` for every network interface) |
 
 The app is a [Hono](https://hono.dev) app, so it can be mounted under a path of a server you already have.
+
+## What they return
+
+| Function | Returns |
+| :--- | :--- |
+| `createMockApp(options)` | `{ app, apis, skipped }` |
+| `startMockServer(options)` | `{ url, port, apis, skipped, close }` |
+
+- `apis`: the APIs served, each `{ id, title, operations }`, and with `stateful` also `stateful: { resources, confident, needsReview, plainMock, review }` (records per resource, operations per label, and the review notes).
+- `skipped`: the APIs whose spec could not be loaded, each `{ id, error }`.
+- `url`, `port`: where the server listens. `close()` stops it.
+
+`createMockApp`, `startMockServer` and `DEFAULT_PORT` (`4010`) are the whole public API of `@rapidoc/mock`. The subpath `@rapidoc/mock/internal` is for RapiDoc CLI only and can change in any release.

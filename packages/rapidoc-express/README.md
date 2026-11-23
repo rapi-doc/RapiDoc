@@ -28,7 +28,7 @@ app.use("/api", rapidoc({ specUrl: "/api/openapi.json" })); // the reference is 
 
 | Option         | Default         |                                                                                                                                                                                            |
 | :------------- | :-------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `uiPath`       | `/docs`         | URL path the reference page is served at. `path` is its old name, still read                                                                                                               |
+| `uiPath`       | `/docs`         | URL path the reference page is served at, within the app or router the middleware is mounted in                                                                                            |
 | `specUrl`      |                 | URL of your OpenAPI document, which the browser fetches when the page opens. Use it when the app already serves the document                                                               |
 | `spec`         |                 | The OpenAPI document itself, as an object or JSON text. It is written into the page, so the browser makes no request for it. With both, `spec` is shown and `specUrl` is the download link |
 | `title`        | `API Reference` | Page title                                                                                                                                                                                 |
@@ -37,10 +37,10 @@ app.use("/api", rapidoc({ specUrl: "/api/openapi.json" })); // the reference is 
 | `head`, `css`  |                 | Markup and CSS added to the page as given                                                                                                                                                  |
 | `lang`         | `en`            | Language of the page                                                                                                                                                                       |
 | `nonce`        |                 | Content-Security-Policy nonce, or a function that reads it from the request                                                                                                                |
-| `publicUiPath` |                 | `uiPath` as the browser sees it, when a proxy strips a prefix before the request reaches the app. `publicPath` is its old name, still read                                                 |
+| `publicUiPath` |                 | The page's whole path as the browser sees it. Only for a proxy that strips a prefix before the request reaches the app; a prefix inside the app is added without it                        |
 | `enabled`      | `true`          | `false` serves nothing, for example outside development                                                                                                                                    |
 
-These are the options of every RapiDoc integration.
+These are the options of every RapiDoc integration. An empty string counts as an option that is not set.
 
 ## With helmet
 
@@ -53,7 +53,8 @@ app.use(rapidoc({ specUrl: "/openapi.json", nonce: (req, res) => res.locals.cspN
 ## Notes
 
 - Works with Express 4 and 5, Connect, and a plain `node:http` server (`rapidoc(options)(req, res, next)`).
-- Each release serves one version of `rapidoc`, exported as `rapidocVersion`.
+- Each release serves one version of `rapidoc`, exported as `rapidocVersion`. The package serves the current major of RapiDoc; a new RapiDoc major arrives as a minor release of this package.
+- The bundle is sent with `cache-control: no-cache` and an `ETag`, so browsers pick up a new RapiDoc build on the first visit after a deploy and get a `304` otherwise.
 - OAuth sign-in returns to `{uiPath}/oauth-receiver.html`, which the middleware serves on your own origin, also with `assets: "cdn"`.
 - [`examples/server.js`](./examples/server.js) is a complete app.
 

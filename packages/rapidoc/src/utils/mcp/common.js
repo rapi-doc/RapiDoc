@@ -1,9 +1,12 @@
 /**
  * MCP (Model Context Protocol) helpers shared by the manifest builder and the project writer.
  */
-import { envNameFor } from "./runtime.js";
+import { baseUrlEnvNames, credentialEnvNames, envNameFor, shortHash } from "./runtime.js";
 
 export { envNameFor };
+
+/** MCP hosts accept tool names of up to 64 characters (letters, digits, `_`, `-`). */
+export const MAX_TOOL_NAME_LENGTH = 64;
 
 // Auth and transport headers never exposed as tool arguments
 export const AUTH_TRANSPORT_HEADERS = new Set([
@@ -23,32 +26,33 @@ export const AUTH_TRANSPORT_HEADERS = new Set([
 ]);
 
 /**
- * Reads the `mcp` attribute: export is off for an empty value, `false`, `none` or a list that
- * contains one of them (the old kill-switch), and on for anything else, including the old
- * language names.
+ * Reads `<rapi-doc>`'s `mcp` attribute: the Export MCP Server button is shown for `true` only.
  *
- * @param {string|string[]|boolean} val
+ * @param {string|boolean} val
  * @returns {boolean}
  */
 export function parseMcpEnabled(val) {
-  if (!val || val === "false") return false;
-  const items = Array.isArray(val) ? val : String(val).split(",");
-  const normalized = items.map((s) => String(s).trim().toLowerCase()).filter(Boolean);
-  if (!normalized.length) return false;
-  return !normalized.some((s) => s === "none" || s === "false");
+  return (
+    val === true ||
+    String(val ?? "")
+      .trim()
+      .toLowerCase() === "true"
+  );
 }
 
 /**
- * Converts camelCase, PascalCase, kebab-case, or arbitrary text into clean snake_case.
+ * Converts camelCase, PascalCase, kebab-case, or arbitrary text into clean snake_case. Text with
+ * no Latin letter or digit (an empty string, a title in another script) gives `fallback`.
  */
-export function toSnakeCase(str) {
-  if (!str) return "tool";
-  return str
-    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-    .replace(/[^a-zA-Z0-9_]/g, "_")
-    .replace(/_+/g, "_")
-    .replace(/^_|_$/g, "")
-    .toLowerCase();
+export function toSnakeCase(str, fallback = "tool") {
+  return (
+    String(str ?? "")
+      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+      .replace(/[^a-zA-Z0-9_]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "")
+      .toLowerCase() || fallback
+  );
 }
 
 /**
@@ -71,7 +75,7 @@ export function sanitizeDescription(text, maxLength = 300) {
  * e.g., GET /customers/{customerId}/orders -> get_customers_by_customer_id_orders
  */
 export function deriveToolName(method, path) {
-  const parts = path
+  const parts = String(path || "")
     .split("/")
     .filter(Boolean)
     .map((seg) => {
@@ -81,6 +85,58 @@ export function deriveToolName(method, path) {
       return seg;
     });
   return toSnakeCase(`${method}_${parts.join("_")}`);
+}
+
+/**
+ * An operation's tool name before the length cap and the duplicate check: its operationId in
+ * snake_case, or the method-and-path name when it has none or it has no Latin letter or digit.
+ */
+export function operationToolName(operationId, method, path) {
+  return toSnakeCase(operationId, "") || deriveToolName(method, path);
+}
+
+/** `stem` cut so that `stem_<hash>` fits in a tool name. */
+function withHash(stem, hash) {
+  const room = MAX_TOOL_NAME_LENGTH - hash.length - 1;
+  return `${stem.slice(0, room).replace(/_+$/, "")}_${hash}`;
+}
+
+/**
+ * The final tool names of a manifest, valid and stable:
+ *
+ * - a name over 64 characters is cut and ends in a hash of the whole name, so two long names that
+ *   differ only at the end stay distinct;
+ * - when several tools would get the same name, each of them ends in a hash of its own `key`
+ *   (`GET /pets`, `workflow <id>`), so the name depends on the operation, never on where it is in
+ *   the document, and never equals another tool's name.
+ *
+ * @param {{ name: string, key: string }[]} entries `name` as wanted, `key` what the tool is
+ * @param {string} [prefix] put in front of every name before the rules apply
+ * @returns {string[]} the names, in the order of `entries`
+ */
+export function assignToolNames(entries, prefix = "") {
+  const wanted = entries.map((e) => `${prefix}${e.name}`);
+  const names = wanted.map((name) =>
+    name.length > MAX_TOOL_NAME_LENGTH ? withHash(name, shortHash(name)) : name,
+  );
+  const count = new Map();
+  for (const name of names) count.set(name, (count.get(name) || 0) + 1);
+  const taken = new Set(names.filter((name) => count.get(name) === 1));
+  const repeated = names
+    .map((name, i) => i)
+    .filter((i) => count.get(names[i]) > 1)
+    .sort((a, b) =>
+      entries[a].key < entries[b].key ? -1 : entries[a].key > entries[b].key ? 1 : 0,
+    );
+  for (const i of repeated) {
+    let name;
+    for (let salt = 0; name === undefined || taken.has(name); salt++) {
+      name = withHash(wanted[i], shortHash(salt ? `${entries[i].key}#${salt}` : entries[i].key));
+    }
+    taken.add(name);
+    names[i] = name;
+  }
+  return names;
 }
 
 /**
@@ -147,22 +203,45 @@ export function destructiveHintFor(methods) {
 }
 
 /**
+ * The environment variables of an exported server, each with a placeholder value, for `mcp.json`:
+ * one per credential (`MCP_AUTH_<SCHEME>`; `_USERNAME` and `_PASSWORD` for HTTP Basic), and the
+ * base URL variable of every source whose base URL the manifest leaves unset, which is required.
+ *
+ * @param {object} manifest
+ * @returns {Record<string, string>}
+ */
+export function hostEnvFor(manifest) {
+  const env = {};
+  for (const [id, names] of Object.entries(credentialEnvNames(manifest))) {
+    const hint = toSnakeCase(id, "credential").replace(/_/g, "-");
+    for (const name of names) {
+      const part =
+        names.length > 1 ? `-${name.slice(name.lastIndexOf("_") + 1).toLowerCase()}` : "";
+      env[name] = `your-${hint}${part}`;
+    }
+  }
+  const baseNames = baseUrlEnvNames(manifest);
+  for (const [name, source] of Object.entries(manifest?.sources || {})) {
+    if (!source?.baseUrl) env[baseNames[name]] = "https://api.example.com";
+  }
+  return env;
+}
+
+/**
  * Generates the `mcpServers` configuration entry for the exported project (`mcp.json`): the format
  * Claude Desktop, Cursor, Claude Code and most other MCP hosts read.
  *
  * @param {string} serverName
  * @param {object} [options]
- * @param {string[]} [options.schemes] security scheme ids; one `env` entry each (`API_KEY` when none)
+ * @param {Record<string, string>} [options.env] the entry's environment variables with their
+ *   placeholder values, from hostEnvFor(manifest); none by default
  * @param {string} [options.serverPath] absolute path of the project's `server.ts`. A host starts
  *   the server from its own working directory, so a relative path would not be found; without
  *   this, the entry carries a placeholder path the user replaces.
  */
 export function generateHostConfigs(serverName, options = {}) {
-  const safeName = toSnakeCase(serverName || "api_mcp_server");
-  const schemes = options.schemes?.length ? options.schemes : [];
-  const env = {};
-  for (const id of schemes) env[envNameFor(id)] = `your-${toSnakeCase(id).replace(/_/g, "-")}`;
-  if (!schemes.length) env.API_KEY = "your-api-key-here";
+  const safeName = toSnakeCase(serverName, "api_mcp_server");
+  const env = { ...options.env };
 
   const claudeConfig = {
     mcpServers: {

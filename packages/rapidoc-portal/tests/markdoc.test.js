@@ -4,213 +4,71 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Markdoc from "@markdoc/markdoc";
-import { compileMarkdoc, compileDocFile } from "../src/index.js";
 import { portalMarkdocConfig } from "../src/markdoc/astro-config.js";
 
-describe("RapiDoc Portal Markdoc Engine (Milestone 3)", () => {
-  const DEMO_GUIDES_DIR = path.join(
-    process.env.RAPIDOC_DEMO_PORTAL_DIR ??
-      fileURLToPath(new URL("../../../../rapi-portal-demo/cosmo-cargo", import.meta.url)),
-    "docs/guides",
-  );
+const DEMO_GUIDES_DIR = path.join(
+  process.env.RAPIDOC_DEMO_PORTAL_DIR ??
+    fileURLToPath(new URL("../../../../rapi-portal-demo/cosmo-cargo", import.meta.url)),
+  "docs/guides",
+);
 
-  it("should compile order-fulfillment.markdoc from rapi-portal-demo", () => {
-    const filePath = `${DEMO_GUIDES_DIR}/order-fulfillment.markdoc`;
-    assert.ok(fs.existsSync(filePath), `File exists: ${filePath}`);
+/** What the build reports for a Markdoc source: the validation errors of the portal's tags. */
+function problems(source) {
+  const { nodes, tags } = portalMarkdocConfig();
+  return Markdoc.validate(Markdoc.parse(source), { nodes, tags }).map((e) => e.error.message);
+}
 
-    const result = compileDocFile(filePath);
-
-    // 1. Verify HTML output
-    assert.ok(result.html.length > 0);
-
-    // Callout verification
-    assert.ok(result.html.includes('class="portal-callout" role="note" data-type="info"'));
-    assert.ok(result.html.includes("Real-time Webhook Updates"));
-    assert.ok(result.html.includes('data-type="warning"'));
-    assert.ok(result.html.includes("Bay Holds"));
-
-    // Steps verification
-    assert.ok(result.html.includes("portal-steps-list"));
-    assert.ok(result.html.includes("portal-step"));
-    assert.ok(result.html.includes("1. Request a Quote"));
-
-    // Tabs verification
-    assert.ok(result.html.includes("portal-tabs-container"));
-    assert.ok(result.html.includes("portal-tab-bar"));
-    assert.ok(result.html.includes("cURL"));
-    assert.ok(result.html.includes("JavaScript"));
-
-    // Interactive RapiDoc operation embed verification
-    assert.ok(result.html.includes("portal-api-operation-embed"));
-    assert.ok(result.html.includes('data-spec="cargo-containers"'));
-    assert.ok(result.html.includes('data-path="/containers/book"'));
-    assert.ok(result.html.includes('data-method="POST"'));
-    assert.ok(result.html.includes("<rapi-doc-mini"));
-    assert.ok(result.html.includes('filter-operations="POST /containers/book"'));
-    assert.ok(!result.html.includes("match-paths"));
-    assert.ok(!result.html.includes("spec-url="), "no spec-url without a specUrls variable");
-
-    // 2. Verify Table of Contents (TOC)
-    assert.equal(result.toc.length, 2);
-    assert.equal(result.toc[0].title, "Fulfillment Steps");
-    assert.equal(result.toc[0].id, "fulfillment-steps");
-    assert.equal(result.toc[0].level, 2);
-
-    assert.equal(result.toc[1].title, "Interactive Endpoint Preview");
-    assert.equal(result.toc[1].id, "interactive-endpoint-preview");
-    assert.equal(result.toc[1].level, 2);
+describe("the portal's Markdoc tags (src/markdoc/astro-config.js)", () => {
+  it("accepts the guides of rapi-portal-demo", () => {
+    for (const name of [
+      "order-fulfillment.markdoc",
+      "loyalty-and-rewards.markdoc",
+      "first-shipment.markdoc",
+    ]) {
+      const source = fs.readFileSync(path.join(DEMO_GUIDES_DIR, name), "utf8");
+      assert.deepEqual(problems(source.replace(/^---\n[\s\S]*?\n---\n/, "")), [], name);
+    }
   });
 
-  it("should compile loyalty-and-rewards.markdoc from rapi-portal-demo", () => {
-    const filePath = `${DEMO_GUIDES_DIR}/loyalty-and-rewards.markdoc`;
-    assert.ok(fs.existsSync(filePath));
-
-    const result = compileDocFile(filePath);
-
-    // Card grid & cards
-    assert.ok(result.html.includes("portal-card-grid"));
-    assert.ok(result.html.includes("portal-card"));
-    assert.ok(result.html.includes("Bronze Tier"));
-    assert.ok(result.html.includes("Silver Tier"));
-    assert.ok(result.html.includes("Gold Tier"));
-
-    // Callout tip
-    assert.ok(result.html.includes('data-type="tip"'));
-    assert.ok(result.html.includes("Double Miles on Warp Days"));
-
-    // RapiDoc operation embed for a priority upgrade
-    assert.ok(result.html.includes('data-spec="shipments"'));
-    assert.ok(result.html.includes('data-path="/shipments/{shipmentId}/priority"'));
-
-    // TOC
-    assert.equal(result.toc.length, 2);
-    assert.equal(result.toc[0].title, "Loyalty Tiers");
-    assert.equal(result.toc[1].title, "Redeeming Rewards");
-  });
-
-  it("should fill in the embed spec-url from the specUrls variable and match exactly one operation", () => {
-    const result = compileMarkdoc(
-      '{% api-operation spec="shipments" path="/shipments/{trackingNumber}" method="get" /%}',
-      {
-        variables: { specUrls: { shipments: "/specs/shipments.json" } },
-      },
-    );
-    assert.ok(result.html.includes('spec-url="/specs/shipments.json"'));
-    assert.ok(
-      result.html.includes('filter-operations="GET /shipments/{trackingNumber}"'),
-      result.html,
-    );
-  });
-
-  it("should expand the embed unless collapsed=true is set", () => {
-    const open = compileMarkdoc('{% api-operation spec="shipments" path="/shipments" /%}');
-    assert.ok(open.html.includes('paths-expanded="true"'), open.html);
-    const closed = compileMarkdoc(
-      '{% api-operation spec="shipments" path="/shipments" collapsed=true /%}',
-    );
-    assert.ok(closed.html.includes('paths-expanded="false"'), closed.html);
-  });
-
-  it("should draw {% workflow %} as inline SVG from the workflows variable, else leave a placeholder", () => {
-    const demo = path.dirname(DEMO_GUIDES_DIR);
-    const arazzo = fs.readFileSync(
-      path.join(demo, "../workflows/track-a-shipment.arazzo.yaml"),
-      "utf8",
-    );
-    const shipments = JSON.parse(
-      fs.readFileSync(path.join(demo, "../specs/shipments.json"), "utf8"),
-    );
-    const source = '{% workflow file="track-a-shipment" id="trackShipment" title="Track" /%}';
-    const drawn = compileMarkdoc(source, {
-      variables: { workflows: { "track-a-shipment": { arazzo, sources: { shipments } } } },
-    });
-    assert.ok(
-      drawn.html.includes(
-        '<figure class="portal-workflow not-content" data-file="track-a-shipment" data-workflow="trackShipment">',
-      ),
-    );
-    assert.ok(drawn.html.includes("<figcaption>Track</figcaption>"));
-    assert.ok(
-      drawn.html.includes('<svg xmlns="http://www.w3.org/2000/svg" class="rf-svg'),
-      "the SVG is not escaped",
-    );
-    assert.ok(drawn.html.includes('data-step-id="listEvents"'));
-    assert.ok(
-      drawn.html.includes("/shipments/{shipmentId}/events"),
-      "steps resolve against the spec",
-    );
-    const plain = compileMarkdoc(source);
-    assert.ok(plain.html.includes('data-file="track-a-shipment"'));
-    assert.ok(!plain.html.includes("<svg"), "no SVG without the documents");
-  });
-
-  it("should generate unique anchor slugs for duplicate headings", () => {
-    const content = `
-# Section
-
-## Quickstart
-
-## Quickstart
-
-### Details
-`;
-    const result = compileMarkdoc(content);
-
-    assert.ok(result.html.includes('id="quickstart"'));
-    assert.ok(result.html.includes('id="quickstart-1"'));
-
-    assert.equal(result.toc.length, 3);
-    assert.equal(result.toc[0].id, "quickstart");
-    assert.equal(result.toc[1].id, "quickstart-1");
-    assert.equal(result.toc[2].id, "details");
-  });
-
-  it("should extract frontmatter metadata correctly", () => {
-    const content = `---
-title: My Custom Guide
-description: An awesome tutorial
-author: Jane Doe
-tags: [coffee, barista]
----
-
-# Introduction
-
-Here is some content.
-`;
-    const result = compileMarkdoc(content);
-
-    assert.equal(result.frontmatter.title, "My Custom Guide");
-    assert.equal(result.frontmatter.description, "An awesome tutorial");
-    assert.equal(result.frontmatter.author, "Jane Doe");
-    assert.deepEqual(result.frontmatter.tags, ["coffee", "barista"]);
-  });
-
-  it("should render custom code fence with language data attributes", () => {
-    const content = `
-\`\`\`javascript
-const greeting = "Hello RapiDoc!";
-console.log(greeting);
-\`\`\`
-`;
-    const result = compileMarkdoc(content);
-
-    assert.ok(result.html.includes("portal-code-block"));
-    assert.ok(result.html.includes("language-javascript"));
-    assert.ok(result.html.includes('data-language="javascript"'));
-    assert.ok(result.html.includes("const greeting = &quot;Hello RapiDoc!&quot;;"));
-  });
-
-  it("should accept the process=false fence annotation in the docs pages config (shows tags without checking them)", () => {
-    const { nodes, tags } = portalMarkdocConfig();
-    const ast = Markdoc.parse("```md {% process=false %}\n{% not-a-tag x=1 %}\n```\n");
+  it("api-operation takes the API's id as `api`; `spec` is unknown", () => {
+    assert.deepEqual(problems('{% api-operation api="shipments" path="/shipments" /%}'), []);
     assert.deepEqual(
-      Markdoc.validate(ast, { nodes, tags }).map((e) => e.error.message),
+      problems(
+        '{% api-operation api="shipments" version="v1" path="/s" method="post" title="T" collapsed=true /%}',
+      ),
       [],
     );
-    assert.ok(
-      compileMarkdoc(
-        "```md {% process=false %}\n{% callout %}x{% /callout %}\n```\n",
-      ).html.includes("{% callout %}"),
+    const old = problems('{% api-operation spec="shipments" path="/shipments" /%}');
+    assert.ok(old.includes("Invalid attribute: 'spec'"), old.join("; "));
+    assert.ok(old.includes("Missing required attribute: 'api'"), old.join("; "));
+  });
+
+  it("workflow takes the workflows entry's id as `document`; `file` is unknown", () => {
+    assert.deepEqual(
+      problems('{% workflow document="track-a-shipment" id="trackShipment" view="compact" /%}'),
+      [],
     );
+    const old = problems('{% workflow file="track-a-shipment" id="trackShipment" /%}');
+    assert.ok(old.includes("Invalid attribute: 'file'"), old.join("; "));
+    assert.ok(old.includes("Missing required attribute: 'document'"), old.join("; "));
+  });
+
+  it("tab takes `label`, required; `name` is unknown", () => {
+    assert.deepEqual(problems('{% tabs %}{% tab label="npm" %}x{% /tab %}{% /tabs %}'), []);
+    const old = problems('{% tabs %}{% tab name="npm" %}x{% /tab %}{% /tabs %}');
+    assert.ok(old.includes("Invalid attribute: 'name'"), old.join("; "));
+    assert.ok(old.includes("Missing required attribute: 'label'"), old.join("; "));
+  });
+
+  it("card-grid takes 1 to 4 columns, default 3", () => {
+    const { tags } = portalMarkdocConfig();
+    assert.equal(tags["card-grid"].attributes.columns.default, 3);
+    assert.deepEqual(problems("{% card-grid columns=2 %}{% /card-grid %}"), []);
+    assert.deepEqual(problems("{% card-grid %}{% /card-grid %}"), []);
+    assert.equal(problems("{% card-grid columns=7 %}{% /card-grid %}").length, 1);
+  });
+
+  it("accepts the process=false fence annotation (shows tags without checking them)", () => {
+    assert.deepEqual(problems("```md {% process=false %}\n{% not-a-tag x=1 %}\n```\n"), []);
   });
 });

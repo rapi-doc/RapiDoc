@@ -1,26 +1,24 @@
 /**
- * Direct OpenAPI Navigation HTML Serializer & Metadata Extractor.
+ * The static sidebar and the navigation model of an OpenAPI spec.
  *
- * Directly renders framework-agnostic navigation HTML from OpenAPI specifications,
- * eliminating intermediate AST node abstractions:
- * - `getNavBarHtml(specInput, options)`: Resolves spec and renders navigation HTML directly
- * - `renderNavBarHtml(resolvedSpec, options)`: Pure zero-dependency HTML generator
- * - `getSpecNavigation(specInput, options)`: Extracts semantic navigation metadata (tagGroups & tags)
+ * - `getNavBarHtml(specInput, options)`: loads the spec and returns the sidebar's HTML
+ * - `renderNavBarHtml(resolvedSpec, options)`: the same from an already parsed model (internal)
+ * - `getSpecNavigation(specInput, options)`: the tag groups, tags and operations as data
  *
- * Supports 3-tier navigation (x-tagGroups / x-tag-groups) with fallback to 2-tier tags.
+ * With tag groups (x-tagGroups / x-tag-groups) the sidebar has three levels, otherwise two.
  */
 
 import { resolveSpecInput } from "./render.js";
+import { SPEC_OPTIONS, isTrue, pick, readOptions } from "./options.js";
 import { escapeHtml } from "./serializer.js";
 import { OperationSlugger, toKebabCase } from "../../rapidoc/src/utils/slugger.js";
 import { bindNavBar } from "../../rapidoc/src/utils/bind-navbar.js";
 import {
   isInternalOrHidden,
   navBadgeDot,
+  navIconSvg,
   navItemTitle,
 } from "../../rapidoc/src/utils/common-utils.js";
-
-export { isInternalOrHidden };
 
 /** Values of show-method-in-nav-bar (rapidoc.ts accepts the same). */
 const METHOD_STYLES = ["false", "as-plain-text", "as-colored-text", "as-colored-block"];
@@ -42,71 +40,42 @@ export function getMethodBadge(method, format = "3-char") {
   return m.toUpperCase();
 }
 
-/**
- * Retrieves visible operations for a tag, supporting both parsed and raw specs.
- *
- * @param {Object} tag
- * @param {Object} spec
- * @param {OperationSlugger} [sharedSlugger]
- */
-function getTagOperations(tag, spec, sharedSlugger) {
-  if (Array.isArray(tag.paths) && tag.paths.length > 0) {
-    return tag.paths.filter((p) => !isInternalOrHidden(p));
-  }
-  if (!spec?.paths || typeof spec.paths !== "object") return [];
+/** A tag's operations, without the hidden ones (x-internal, x-hidden). */
+function getTagOperations(tag) {
+  return (tag.paths || []).filter((p) => !isInternalOrHidden(p));
+}
 
-  const tagName = (tag.name || "").toLowerCase();
-  const operations = [];
-  const httpMethods = ["get", "post", "put", "delete", "patch", "options", "head", "trace"];
-  const slugger = sharedSlugger || new OperationSlugger();
-  const tagSlug = toKebabCase(tag.name);
-
-  for (const [pathKey, pathObj] of Object.entries(spec.paths)) {
-    if (!pathObj || typeof pathObj !== "object") continue;
-    for (const method of httpMethods) {
-      const op = pathObj[method];
-      if (op && typeof op === "object" && !isInternalOrHidden(op)) {
-        const opTags = Array.isArray(op.tags) ? op.tags.map((t) => String(t).toLowerCase()) : [];
-        if (opTags.includes(tagName)) {
-          operations.push({
-            method,
-            path: pathKey,
-            summary: op.summary || "",
-            description: op.description || "",
-            deprecated: Boolean(op.deprecated),
-            operationId: op.operationId || "",
-            elementId: slugger.slug(
-              {
-                method,
-                path: pathKey,
-                operationId: op.operationId,
-                summary: op.summary || op.description,
-              },
-              tagSlug,
-            ),
-          });
-        }
-      }
-    }
-  }
-  return operations;
+/** An operation as getSpecNavigation returns it: these fields and no others (index.d.ts: NavigationOperation). */
+function toNavigationOperation(op) {
+  return {
+    method: op.method || "",
+    path: op.path || "",
+    summary: op.summary || "",
+    description: op.description || "",
+    elementId: op.elementId || "",
+    deprecated: Boolean(op.deprecated),
+    operationId: op.operationId || "",
+    isWebhook: Boolean(op.isWebhook),
+  };
 }
 
 /**
- * Extracts a complete, framework-agnostic navigation hierarchy from an OpenAPI spec.
+ * The navigation of a spec as data: tag groups, tags and their operations, without the hidden ones.
  *
- * @param {string|Object} specInput - Specification file path, URL, raw string, or parsed spec
- * @param {Object} [options]
+ * @param {string|Object} specInput - File path, URL, JSON or YAML text, or object
+ * @param {Object} [options] - The spec options (`sortTags`, `sortEndpointsBy`, `filterOperations`,
+ *   `showUnusedTags`, `generateMissingTags`, ...), as on <rapi-doc>
  * @returns {Promise<{ title: string, version: string, description: string, tagGroups: Array, tags: Array, remainingTags: Array }>}
  */
-export async function getSpecNavigation(specInput, options = {}) {
-  const resolvedSpec = await resolveSpecInput(specInput, options);
+export async function getSpecNavigation(specInput, options) {
+  const o = readOptions("getSpecNavigation", options, { attributes: SPEC_OPTIONS });
+  const resolvedSpec = await resolveSpecInput(specInput, o);
   const slugger = new OperationSlugger();
 
   const allTags = (resolvedSpec.tags || [])
     .filter((t) => !isInternalOrHidden(t))
     .map((t) => {
-      const paths = getTagOperations(t, resolvedSpec, slugger);
+      const paths = getTagOperations(t).map(toNavigationOperation);
       return {
         name: t.name || t.displayName || "",
         displayName: t.displayName || t.name || "",
@@ -127,7 +96,7 @@ export async function getSpecNavigation(specInput, options = {}) {
         .filter((t) => !isInternalOrHidden(t))
         .map((t) => {
           assignedTagNames.add((t.name || "").toLowerCase());
-          const paths = getTagOperations(t, resolvedSpec, slugger);
+          const paths = getTagOperations(t).map(toNavigationOperation);
           return {
             name: t.name || t.displayName || "",
             displayName: t.displayName || t.name || "",
@@ -174,7 +143,6 @@ function renderOperation(op, tagSlug, ctx) {
   const path = op.path || "";
 
   // Extract clean operation slug without tag prefix
-  const rawElementId = op.elementId || ctx.slugger.slug(op, tagSlug);
   let opSlug;
   let hierarchicalId;
 
@@ -184,16 +152,12 @@ function renderOperation(op, tagSlug, ctx) {
       const prefix = `${tagSlug}--`;
       opSlug = hierarchicalId.startsWith(prefix)
         ? hierarchicalId.slice(prefix.length)
-        : ctx.slugger.slugOp
-          ? ctx.slugger.slugOp(op)
-          : hierarchicalId;
+        : ctx.slugger.slugOp(op);
     } else {
       opSlug = hierarchicalId;
     }
   } else {
-    opSlug = ctx.slugger.slugOp
-      ? ctx.slugger.slugOp(op)
-      : rawElementId.replace(/^[a-z0-9_-]+--/, "");
+    opSlug = ctx.slugger.slugOp(op);
     hierarchicalId = tagSlug && tagSlug !== "general" ? `${tagSlug}--${opSlug}` : opSlug;
   }
 
@@ -207,7 +171,7 @@ function renderOperation(op, tagSlug, ctx) {
     contentId = hierarchicalId;
   }
 
-  const label = ctx.usePathInNav
+  const label = ctx.usePathInNavBar
     ? `<span class="mono-font">${escapeHtml(path)}</span>`
     : escapeHtml(op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`);
   // As in <rapi-doc>: a three-letter badge for as-colored-block, the full method otherwise, nothing for false.
@@ -232,17 +196,17 @@ function renderOperation(op, tagSlug, ctx) {
   return `
     <a
       href="${escapeHtml(href)}"
-      class="nav-bar-path${extraClass} ${isActive ? "active" : ""}${deprecatedClass}"
+      class="nav-bar-path${extraClass} ${isActive ? "active" : ""}${deprecatedClass}"${isActive ? ' aria-current="true"' : ""}
       part="section-navbar-item section-navbar-path"
       data-action="navigate"
       data-content-id="${contentId}"
       data-op-slug="${opSlug}"
       data-path="${escapeHtml(path)}"
       id="link-${contentId}"
-      tabindex="0"
-      data-title="${escapeHtml(navItemTitle(ctx.usePathInNav ? path : op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`, op.xBadges))}"
+      data-title="${escapeHtml(navItemTitle(ctx.usePathInNavBar ? path : op.summary || op.shortSummary || `${method.toUpperCase()} ${path}`, op.xBadges))}"
     >
-      <span class="nav-bar-path-label">${label}</span>${badgeDotHtml(ctx.showBadgesInNavBar, op.xBadges)}${methodHtml}
+${methodHtml}
+      <span class="nav-bar-path-label">${label}</span>${badgeDotHtml(ctx.showBadgesInNavBar, op.xBadges)}
     </a>`;
 }
 
@@ -260,7 +224,7 @@ function badgeDotHtml(mode, xBadges) {
  */
 function renderTag(tag, ctx) {
   if (!tag || isInternalOrHidden(tag)) return "";
-  const visiblePaths = getTagOperations(tag, ctx.resolvedSpec, ctx.slugger);
+  const visiblePaths = getTagOperations(tag);
   if (visiblePaths.length === 0 && !tag.descriptionOnly) return "";
   const tagSlug = toKebabCase(tag.name);
   const elementId = tag.elementId || ctx.slugger.slugTag(tag.name);
@@ -270,7 +234,7 @@ function renderTag(tag, ctx) {
   const tagHref =
     ctx.routingMode === "tag-pages" && tagSlug && tagSlug !== "general"
       ? `${ctx.cleanBase}/${tagSlug}`
-      : `${ctx.basePath}#${elementId}`;
+      : `${ctx.cleanBase}#${elementId}`;
 
   const isActive = Boolean(
     ctx.activeHref && (ctx.activeHref === tagHref || ctx.activeHref.endsWith(`#${elementId}`)),
@@ -282,12 +246,11 @@ function renderTag(tag, ctx) {
     <div class="nav-bar-tag-and-paths description-only">
       <a
         href="${escapeHtml(tagHref)}"
-        class="nav-bar-tag ${isActive ? "active" : ""}"
+        class="nav-bar-tag ${isActive ? "active" : ""}"${isActive ? ' aria-current="true"' : ""}
         part="section-navbar-item section-navbar-tag"
         id="link-${elementId}"
         data-action="navigate"
         data-content-id="${elementId}"
-        tabindex="0"
       >
         <span class="nav-bar-tag-title">${escapeHtml(title)}</span>
       </a>
@@ -296,24 +259,21 @@ function renderTag(tag, ctx) {
 
   return `
     <div class="nav-bar-tag-and-paths ${isExpanded ? "expanded" : "collapsed"}">
-      <div
-        class="nav-bar-tag${isActive ? " active" : ""}"
-        part="section-navbar-item section-navbar-tag"
-        id="link-${elementId}"
-        data-action="navigate"
-        data-content-id="${elementId}"
-        data-tag-href="${escapeHtml(tagHref)}"
-        tabindex="0"
-      >
-        <div class="nav-bar-tag-title">${escapeHtml(title)}</div>
-        <div
+      <div class="nav-bar-tag${isActive ? " active" : ""}" part="section-navbar-item section-navbar-tag">
+        <a
+          href="${escapeHtml(tagHref)}"
+          id="link-${elementId}"
+          class="nav-bar-tag-title"${isActive ? ' aria-current="true"' : ""}
+          data-action="navigate"
+          data-content-id="${elementId}"
+        >${escapeHtml(title)}</a>
+        <button
+          type="button"
           class="nav-bar-tag-icon"
-          tabindex="0"
-          role="button"
           aria-label="Expand or collapse ${escapeHtml(title)}"
           aria-expanded="${isExpanded ? "true" : "false"}"
           data-action="expand-collapse-tag"
-        ></div>
+        ></button>
       </div>
       <div class="nav-bar-paths-under-tag">
         ${pathsHtml}
@@ -333,20 +293,14 @@ function renderGroup(group, ctx) {
   if (!groupTagsHtml) return "";
   const groupId = group.elementId || ctx.slugger.slugTagGroup(group.name);
   const title = group.displayName || group.name || "";
-  const isExpanded = group.expanded !== false;
 
   return `
-    <div class="nav-bar-tag-group ${isExpanded ? "expanded" : "collapsed"}" id="link-${groupId}">
+    <div class="nav-bar-tag-group expanded" id="link-${groupId}">
       <div
-        class="nav-bar-tag-group-header"
-        part="section-navbar-item section-navbar-tag-group"
-        data-action="expand-collapse-tag-group"
-        tabindex="0"
-        role="button"
-        aria-expanded="${isExpanded ? "true" : "false"}"
+        class="nav-bar-tag-group-header nav-bar-section-label"
+        part="section-navbar-item section-navbar-tag-group section-navbar-label"
       >
         <div class="nav-bar-tag-group-title">${escapeHtml(title)}</div>
-        <div class="nav-bar-tag-group-icon" tabindex="0" data-action="expand-collapse-tag-group"></div>
       </div>
       <div class="nav-bar-tags-under-group">
         ${groupTagsHtml}
@@ -362,9 +316,12 @@ function renderGroup(group, ctx) {
  * @param {string} [options.inputClassName='']
  * @returns {string}
  */
-export function getNavFilterHtml(options = {}) {
-  const placeholder = options.searchPlaceholder || options.placeholder || "Filter...";
-  const extraClass = options.inputClassName ? ` ${options.inputClassName}` : "";
+export function getNavFilterHtml(options) {
+  const o = readOptions("getNavFilterHtml", options, {
+    own: ["searchPlaceholder", "inputClassName"],
+  });
+  const placeholder = o.searchPlaceholder || "Filter...";
+  const extraClass = o.inputClassName ? ` ${o.inputClassName}` : "";
   return `
       <div class="nav-bar-header" part="section-navbar-header">
         <div class="nav-bar-search-container" part="section-navbar-search">
@@ -384,25 +341,46 @@ export function getNavFilterHtml(options = {}) {
       </div>`;
 }
 
+/** Options of the sidebar that are not attributes of <rapi-doc>. */
+const NAV_OWN_OPTIONS = [
+  "basePath",
+  "activeHref",
+  "includeSearch",
+  "searchPlaceholder",
+  "backToDocsHref",
+  "backToDocsLabel",
+  "itemClassName",
+  "includeOverview",
+  "methodBadgeFormat",
+  "routingMode",
+];
+/** Options of the sidebar that are attributes of <rapi-doc>. */
+const NAV_ATTRIBUTE_OPTIONS = ["showMethodInNavBar", "showBadgesInNavBar", "usePathInNavBar"];
+
 /**
- * Asynchronously generates complete navigation HTML directly from a spec input (file, URL, or object).
+ * The sidebar's HTML for a spec: the options of `renderNavBarHtml` below, plus the spec options
+ * (`sortTags`, `sortEndpointsBy`, `filterOperations`, `showUnusedTags`, ...), as on <rapi-doc>.
  *
- * @param {string|Object} specInput
+ * @param {string|Object} specInput - File path, URL, JSON or YAML text, or object
  * @param {Object} [options]
  * @returns {Promise<string>}
  */
-export async function getNavBarHtml(specInput, options = {}) {
-  const resolvedSpec = await resolveSpecInput(specInput, options);
-  return renderNavBarHtml(resolvedSpec, options);
+export async function getNavBarHtml(specInput, options) {
+  const o = readOptions("getNavBarHtml", options, {
+    own: NAV_OWN_OPTIONS,
+    attributes: [...NAV_ATTRIBUTE_OPTIONS, ...SPEC_OPTIONS],
+  });
+  const resolvedSpec = await resolveSpecInput(specInput, pick(o, SPEC_OPTIONS));
+  return renderNavBarHtml(resolvedSpec, pick(o, [...NAV_OWN_OPTIONS, ...NAV_ATTRIBUTE_OPTIONS]));
 }
 
 /**
- * Pure, zero-dependency HTML string generator for OpenAPI navigation.
- * Produces standard RapiDoc navigation HTML directly from the spec.
+ * The sidebar's HTML from an already parsed model (`resolveSpecInput`), in the structure <rapi-doc>'s
+ * own sidebar has. Internal: the model's shape follows the parser.
  *
- * @param {Object} resolvedSpec - Resolved OpenAPI specification
+ * @param {Object} resolvedSpec - The parsed model
  * @param {Object} [options]
- * @param {string} [options.basePath=''] - Base URL prefix for all links (e.g. '/apis/shipments')
+ * @param {string} [options.basePath=''] - Base URL prefix for all links (e.g. '/apis/shipments'); a closing slash is ignored
  * @param {string} [options.activeHref=''] - Currently active path or anchor
  * @param {boolean} [options.includeSearch=true] - Render filter/search input header
  * @param {string} [options.searchPlaceholder='Filter...'] - Search placeholder
@@ -411,15 +389,21 @@ export async function getNavBarHtml(specInput, options = {}) {
  * @param {string} [options.itemClassName=''] - Additional CSS class for endpoint link items
  * @param {boolean} [options.includeOverview=true] - Include overview/info link
  * @param {'3-char'|'full'} [options.methodBadgeFormat='3-char'] - Badge format (with `as-colored-block`)
- * @param {'false'|'as-plain-text'|'as-colored-text'|'as-colored-block'} [options.showMethodInNavBar='as-colored-block'] -
- *   How each operation shows its HTTP method, as `show-method-in-nav-bar` of <rapi-doc> (also accepted under that name)
- * @param {boolean|string} [options.usePathInNav=false] - Display endpoint path instead of summary (also accepted as
- *   `use-path-in-nav-bar`, `'true'` or `true`)
+ * @param {'false'|'as-plain-text'|'as-colored-text'|'as-colored-block'} [options.showMethodInNavBar='as-colored-text'] -
+ *   How each operation shows its HTTP method, as `show-method-in-nav-bar` of <rapi-doc>
+ * @param {boolean|string} [options.usePathInNavBar=false] - Each operation's path instead of its summary, as
+ *   `use-path-in-nav-bar` of <rapi-doc>
  * @param {'dot'|'false'} [options.showBadgesInNavBar='dot'] - A dot on items whose operation shows a badge, as
- *   `show-badges-in-nav-bar` of <rapi-doc> (also accepted under that name)
+ *   `show-badges-in-nav-bar` of <rapi-doc>
+ * @param {'single-page'|'tag-pages'} [options.routingMode='single-page'] - `tag-pages`: links go to a page per tag
+ *   (`<basePath>/<tag slug>#<operation>`)
  * @returns {string} Standard RapiDoc navigation HTML
  */
-export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
+export function renderNavBarHtml(resolvedSpec = {}, options) {
+  const o = readOptions("renderNavBarHtml", options, {
+    own: NAV_OWN_OPTIONS,
+    attributes: NAV_ATTRIBUTE_OPTIONS,
+  });
   const {
     basePath = "",
     activeHref = "",
@@ -430,23 +414,20 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     itemClassName = "",
     includeOverview = true,
     methodBadgeFormat = "3-char",
-    routingMode = options.routingMode ?? options["routing-mode"] ?? "single-page",
-  } = options;
-  // The same values as <rapi-doc>'s show-method-in-nav-bar and use-path-in-nav-bar; anything else is the default.
-  const methodStyle = options.showMethodInNavBar ?? options["show-method-in-nav-bar"];
-  const showMethodInNavBar = METHOD_STYLES.includes(String(methodStyle))
-    ? String(methodStyle)
-    : "as-colored-block";
-  const badgeOption = options.showBadgesInNavBar ?? options["show-badges-in-nav-bar"];
-  const showBadgesInNavBar = String(badgeOption) === "false" ? "false" : "dot";
-  const pathOption = options.usePathInNav ?? options["use-path-in-nav-bar"];
-  const usePathInNav = pathOption === true || pathOption === "true";
+    routingMode = "single-page",
+  } = o;
+  // The same values as <rapi-doc>'s attributes; anything else is the default.
+  const showMethodInNavBar = METHOD_STYLES.includes(String(o.showMethodInNavBar))
+    ? String(o.showMethodInNavBar)
+    : "as-colored-text";
+  const showBadgesInNavBar = String(o.showBadgesInNavBar) === "false" ? "false" : "dot";
+  const usePathInNavBar = isTrue(o.usePathInNavBar);
 
   const slugger = new OperationSlugger();
-  const cleanBase = basePath.replace(/\/$/, "");
+  // One form for every link: `/apis/x/` and `/apis/x` both give `/apis/x#...` and `/apis/x/<tag>`
+  const cleanBase = String(basePath).replace(/\/+$/, "");
 
   const ctx = {
-    basePath,
     cleanBase,
     activeHref,
     routingMode,
@@ -455,7 +436,7 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
     methodBadgeFormat,
     showMethodInNavBar,
     showBadgesInNavBar,
-    usePathInNav,
+    usePathInNavBar,
     resolvedSpec,
     slugger,
   };
@@ -463,30 +444,31 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
   let overviewHtml = "";
   if (includeOverview && resolvedSpec.info) {
     const overviewTitle = resolvedSpec.info.title || "Overview";
-    const href = `${basePath}#overview`;
+    const href = `${cleanBase}#overview`;
     const isActive = Boolean(
       activeHref &&
       (activeHref === href ||
-        activeHref === basePath ||
-        activeHref === `${basePath}/` ||
+        activeHref === cleanBase ||
+        activeHref === `${cleanBase}/` ||
         activeHref.endsWith("#overview")),
     );
     overviewHtml = `
+      <div class="nav-bar-section-label" part="section-navbar-label">Overview</div>
       <a
         href="${escapeHtml(href)}"
-        class="nav-bar-info ${isActive ? "active" : ""}"
+        class="nav-bar-info ${isActive ? "active" : ""}"${isActive ? ' aria-current="true"' : ""}
         id="link-overview"
         data-action="navigate"
         data-content-id="overview"
-        tabindex="0"
         part="section-navbar-item section-navbar-overview"
       >
-        <span class="nav-bar-info-title">${escapeHtml(overviewTitle)}</span>
+        ${navIconSvg("overview")}<span class="nav-bar-info-title">${escapeHtml(overviewTitle)}</span>
       </a>`;
   }
 
   let bodyHtml;
-  if (resolvedSpec.tagGroups && resolvedSpec.tagGroups.length > 0) {
+  const hasTagGroups = Boolean(resolvedSpec.tagGroups && resolvedSpec.tagGroups.length > 0);
+  if (hasTagGroups) {
     const assignedTagNames = new Set();
     const groupsHtml = resolvedSpec.tagGroups
       .filter((g) => !isInternalOrHidden(g))
@@ -526,7 +508,7 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
 
   return `
     ${searchHeaderHtml}
-    <div class="nav-scroll" tabindex="-1" part="section-navbar-scroll">
+    <div class="nav-scroll${hasTagGroups ? "" : " tags-as-labels"}" tabindex="-1" part="section-navbar-scroll">
       ${overviewHtml}
       ${bodyHtml}
       ${backLinkHtml}
@@ -534,13 +516,3 @@ export function renderNavBarHtml(resolvedSpec = {}, options = {}) {
 }
 
 export { bindNavBar };
-
-export default {
-  getSpecNavigation,
-  getNavBarHtml,
-  renderNavBarHtml,
-  getNavFilterHtml,
-  getMethodBadge,
-  isInternalOrHidden,
-  bindNavBar,
-};

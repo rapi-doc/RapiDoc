@@ -47,9 +47,12 @@ See [API versions](/docs/api-reference/versions/).
 
 ## Local or remote specs
 
-Local specs are read at build time. Relative `$ref`s to other files resolve, and the spec is published with the site.
+Local specs are read at build time. Relative `$ref`s to other files resolve, and the spec is published with the site. A spec that can't be read or parsed stops the build with an error that names the API and the file. In `rapidoc dev` that API's page shows the error and the rest of the portal keeps working.
 
-A remote spec (a URL) is loaded by the reader's browser from where it is hosted. The build doesn't read it, so:
+A remote spec (a URL) is loaded by the reader's browser from where it is hosted. The build fetches it once, to list the API's tag pages and draw its sidebar, and does not publish it. So:
+
+- The URL must answer when you build. If it doesn't, the build stops and names the API and the URL.
+- The sidebar shows the spec as it was at build time. Rebuild after the spec changes.
 
 - Set `title` and `description` yourself; without them the catalog shows the id.
 - Its operations are not in the site search.

@@ -87,6 +87,14 @@ navigation:
 
 A page needs the object form (`{ slug, icon }`) to have an icon. Pages of an `autogenerate` group have none; the group itself can.
 
+The sidebar draws three levels, like the API pages' sidebar:
+
+- **A tab's top-level groups** are section labels: small upper-case text that stays open. A group with `collapsed: true` gets an arrow and opens from its label. A top-level group shows no icon.
+- **Their items** are rows with their `icon`. A group here opens and closes with an arrow.
+- **Deeper items** are compact rows under a thin line, without icons.
+
+The current page is a filled block; the group that holds it shows its icon in the accent color.
+
 ## Which tab is active
 
 The active tab is the one whose sidebar has the current page. Two rules decide the rest:

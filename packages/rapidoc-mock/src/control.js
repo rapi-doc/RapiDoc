@@ -24,8 +24,8 @@
  *   POST /__mock/snapshot[?api=<id>]            the stored records, as a document `restore` takes
  *   POST /__mock/restore                        replaces the records of the APIs the document names
  *
- * All but `health` work on the state `--stateful` keeps, and on the caller's session when the request has an
- * `X-Mock-Session` header. A state document is `{ "<api id>": { "<Resource>": [records] } }`. A record of a
+ * `health`, `settings`, `apis` and `ui` work without `--stateful`; the others work on the state it keeps, and
+ * on the caller's session when the request has an `X-Mock-Session` header. A state document is `{ "<api id>": { "<Resource>": [records] } }`. A record of a
  * nested resource whose own fields don't name its parent carries it under `$parents` (see stateful/handlers.js):
  * a restore needs it to put the record back under the same parent.
  *
@@ -45,6 +45,22 @@ import {
 
 /** The path prefix of the control API; no API may use it as its id. */
 export const CONTROL_PREFIX = "__mock";
+
+/**
+ * The segments of a path, decoded, or null when one has a percent-escape that is no text (`%E0%A4%A`):
+ * the caller answers 400 for it.
+ */
+export function segmentsOf(pathname) {
+  try {
+    return pathname.split("/").filter(Boolean).map(decodeURIComponent);
+  } catch {
+    return null;
+  }
+}
+
+/** The answer to a path segmentsOf() could not read. */
+export const badPath = () =>
+  problem(400, "Bad Request", "The path has a percent-escape that can't be decoded.");
 
 const json = (data, status = 200) => ({
   status,

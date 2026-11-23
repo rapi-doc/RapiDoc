@@ -4,7 +4,7 @@
 import { fixRenderedAnchorLinks } from "~/utils/markdown-utils";
 import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHTML } from "../utils/sanitize.js";
+import { safeUrl, sanitizeHTML } from "../utils/sanitize.js";
 import { marked } from "marked";
 import Slugger from "github-slugger";
 import { badgeColorVar, rapidocApiKey } from "~/utils/common-utils";
@@ -132,7 +132,7 @@ export function expandedEndpointBodyTemplate(
               <div class="m-markdown">${unsafeHTML(sanitizeHTML(marked(path.externalDocs?.description || "")))}</div>
               ${
                 path.externalDocs?.url
-                  ? html`<a class="external-docs-link" href="${path.externalDocs?.url}" target="_blank">
+                  ? html`<a class="external-docs-link" href="${safeUrl(path.externalDocs?.url) || nothing}" target="_blank" rel="noopener noreferrer">
                       ${path.externalDocs?.url}
                       <span class="external-docs-arrow">⇲</span>
                     </a>`

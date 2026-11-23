@@ -6,7 +6,7 @@
 
 - **Package Name**: `@rapidoc/hono`
 - **Module Type**: ESM, published as source (`src/`, no build), with `examples/`
-- **Dependencies**: `@rapidoc/embed`; `hono` is a peer (`>=4`)
+- **Dependencies**: `@rapidoc/embed`; `hono` is a peer (`^4`)
 - **Versioning**: its own semver, outside the fixed group (root `AGENTS.md` §6)
 
 | File                                 | Role                                                                                                                                                          |
@@ -23,7 +23,8 @@
 - **No HTML here.** Pages and the route table come from `@rapidoc/embed`; `tests/hono.test.js` compares the responses with its `renderHostPage` and `renderOAuthReceiverPage`. A change to the page belongs in the contract, not in this package.
 - **`src/edge.js` and `src/middleware.js` import no Node module**, directly or through `@rapidoc/embed/node` (a test checks the source), so a Workers bundle needs no Node compatibility.
 - **Options are the contract's** (`@rapidoc/embed`'s `EmbedOptions`). Hono-specific ones are `enabled`, `publicUiPath` and a `nonce` function; add another only when it has no meaning outside Hono.
-- **Requests are matched on `uiPath`; pages are written with `publicUiPath`.** They differ only behind a proxy that strips a prefix.
+- **`uiPath` is the path within the app the middleware is registered in.** `mountOf` in `src/middleware.js` reads the prefix (a `basePath`, an `app.route()` mount, the path of `app.use("/v1/*", ...)`) from the route's path and the request, and hands it to the responder as `mount`, which puts it in front of `uiPath` in the pages. It reads `c.req.routePath`, which Hono 4 has in every release (the `hono/route` helper only from 4.8). `publicUiPath` replaces prefix and `uiPath` in the pages, for a proxy that strips a prefix.
+- **No aliases**: `path` and `publicPath`, the 0.x names, are not read.
 
 ---
 

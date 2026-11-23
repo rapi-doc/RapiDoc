@@ -16,7 +16,11 @@ export default defineConfig({
   build: {
     ssr: true,
     lib: {
-      entry: resolve(__dirname, "src/index.js"),
+      // `internal` is `@rapidoc/prerender/internal`: for the other RapiDoc packages, not public API
+      entry: {
+        index: resolve(__dirname, "src/index.js"),
+        internal: resolve(__dirname, "src/internal.js"),
+      },
       formats: ["es"],
     },
     rollupOptions: {
@@ -26,12 +30,14 @@ export default defineConfig({
         /^lit\//,
         "@scalar/openapi-parser",
         "marked",
+        "js-yaml",
         "yaml",
         "github-slugger",
         /^microlighter/,
       ],
       output: {
-        entryFileNames: "index.js",
+        entryFileNames: "[name].js",
+        chunkFileNames: "chunks/[name]-[hash].js",
       },
     },
     outDir: resolve(__dirname, "dist"),

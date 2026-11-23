@@ -66,7 +66,11 @@ The reader's access token inside it is not refreshed. It usually expires sooner 
 
 ## Credentials of other kinds
 
-The reader's access token fills `oauth2`, `openIdConnect` and HTTP `bearer` schemes. For an API that takes an API key or HTTP Basic, set the credential in the environment of `rapidoc serve`, named like the exported project's: the scheme id in upper snake case (`PARTNER_KEY`), `<SCHEME>_USERNAME` and `<SCHEME>_PASSWORD` for Basic. For an API with one security scheme, `API_KEY` also works; an API with several needs a variable per scheme. Every agent then calls that API with the same key, with or without a token.
+The reader's access token fills `oauth2`, `openIdConnect` and HTTP `bearer` schemes. For an API that takes an API key or HTTP Basic, set the credential in the environment of `rapidoc serve`, named like the exported project's: `MCP_AUTH_<SCHEME>`, with the scheme id in upper snake case (the scheme `partner_key` or `partnerKey` reads `MCP_AUTH_PARTNER_KEY`), and `MCP_AUTH_<SCHEME>_USERNAME` and `MCP_AUTH_<SCHEME>_PASSWORD` for Basic. Every agent then calls that API with the same key, with or without a token. The server sends an API nothing but these variables, whatever a spec calls its schemes.
+
+## Where the API is
+
+Tool calls go to the first server of each API's spec. A spec with a relative server URL (`/api/v1`) or no `servers` does not say where the API is: the tools of that API are left out of `/mcp`, and `rapidoc serve` logs which API and which variable when it starts. Set `MCP_BASE_URL_<API ID>` (the API's id in upper snake case, such as `MCP_BASE_URL_ORDERS`; `MCP_BASE_URL` when the portal has one API) to give the URL. The same variable overrides a spec's server, for example to send an environment's agents to its own API.
 
 ## From the command line
 

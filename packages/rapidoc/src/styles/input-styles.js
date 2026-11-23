@@ -80,26 +80,11 @@ export default css`
     }
   }
 
-  /* Secondary Variant (Muted surface action) */
-  .btn-secondary,
-  .btn.secondary {
-    background: var(--muted);
-    border-color: var(--border);
-    color: var(--foreground);
-    box-shadow: none;
-
-    &:hover {
-      background: color-mix(in srgb, var(--muted) 80%, var(--foreground));
-      color: var(--foreground);
-    }
-  }
-
   /*
    * Outline Variant: the form-field border (--input) and a faint fill, so it reads as the same size as a
    * filled button and matches the input it usually sits next to
    */
-  .btn-outline,
-  .btn.thin-border {
+  .btn-outline {
     border-width: 1px;
     border-color: var(--input);
     background: color-mix(in srgb, var(--foreground) 5%, transparent);
@@ -109,20 +94,6 @@ export default css`
     &:hover {
       background: var(--muted);
       border-color: var(--muted-foreground);
-      color: var(--foreground);
-    }
-  }
-
-  /* Ghost Variant (Borderless, transparent until hover) */
-  .btn-ghost,
-  .btn.ghost {
-    border-color: transparent;
-    background: transparent;
-    color: var(--muted-foreground);
-    box-shadow: none;
-
-    &:hover {
-      background: var(--muted);
       color: var(--foreground);
     }
   }
@@ -149,29 +120,10 @@ export default css`
   }
 
   /* Sizes */
-  .btn-lg,
-  .btn.large {
-    padding: 0.55em 1.1em;
-    font-size: var(--font-size-regular);
-  }
   /* Small: same size as the file input's Choose File button */
-  .btn-sm,
-  .btn.small {
+  .btn-sm {
     padding: 0.3em 0.75em;
     font-size: var(--font-size-small);
-  }
-  .btn-xs,
-  .btn.tiny {
-    padding: 0.2em 0.5em;
-    font-size: var(--font-size-xs);
-  }
-  .btn-icon,
-  .btn.circle {
-    border-radius: 50%;
-    padding: 0.35em;
-    width: calc(2.15em + 2px);
-    height: calc(2.15em + 2px);
-    min-width: calc(2.15em + 2px);
   }
   .btn.nav {
     border: 1px solid var(--primary);
@@ -198,16 +150,6 @@ export default css`
     background: var(--primary);
     color: var(--primary-foreground);
     user-select: none;
-  }
-  .badge-secondary {
-    background: var(--muted);
-    color: var(--foreground);
-    border-color: var(--border);
-  }
-  .badge-outline {
-    background: transparent;
-    color: var(--foreground);
-    border-color: var(--border);
   }
   /* A badge in any colour, set as color on the element: the border and a 15% tint follow it
      (operation badges: x-badges and OpenAPI 3.2 kind: badge tags) */
@@ -285,11 +227,6 @@ export default css`
   textarea:focus-visible {
     border-color: var(--primary);
     box-shadow: var(--focus-shadow);
-  }
-
-  .input-sm {
-    padding: 0.3em 0.5em;
-    font-size: var(--font-size-small);
   }
 
   select {

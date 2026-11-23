@@ -24,13 +24,13 @@ The command comes from the npm package `@rapidoc/cli`. In a project that has it 
 | `pdf <spec>` | Writes the API reference of a spec as a PDF ([pdf](/docs/cli/pdf/)). Needs `rapipdf`. |
 | `mcp export <spec>` | Writes an MCP server project for the spec ([mcp](/docs/cli/mcp/)). |
 | `mcp serve <spec>` | Runs that MCP server over stdio, without writing files. |
-| `migrate [--from <src>]` | Writes `rapidoc.config.yaml` from a `zudoku` or `redocly` project (found in the folder when `--from` is left out; [Migrating](https://portal.rapidocui.com/docs/tools/migrate/)). |
+| `migrate [dir] [--from <src>]` | Writes `rapidoc.config.yaml` from a `zudoku` or `redocly` project in `dir` (found in the folder when `--from` is left out; an existing `rapidoc.config.yaml` is replaced only with `--force`, or after asking in a terminal; [Migrating](https://portal.rapidocui.com/docs/tools/migrate/)). |
 | `doctor [dir]` | Checks Node, the packages' versions, the portal config and the browser bundle; `--format json` for bug reports. |
 | `completion <zsh \| bash \| fish>` | Prints a completion script for the shell ([Shell completion](#shell-completion)). |
 | `help [command]` | Shows help, or one command's options and examples (same as `rapidoc <command> --help`). |
 | `--version`, `-v` | Shows the version. |
 
-Options and arguments can come in any order (`rapidoc build --out-dir public ./portal`). A misspelled command or option is an error with a suggestion (`Unknown option --outdir. Did you mean --out-dir?`).
+Options and arguments can come in any order (`rapidoc build --out-dir site ./portal`). A misspelled command or option is an error with a suggestion (`Unknown option --outdir. Did you mean --out-dir?`).
 
 ## Options
 
@@ -38,7 +38,7 @@ Options and arguments can come in any order (`rapidoc build --out-dir public ./p
 | :--- | :--- | :--- |
 | `--out-dir <path>` | build | Output folder. Default `dist`. |
 | `--port <number>` | dev, serve, mock, preview | dev: default `4321`; serve: `$PORT` or `8080`; mock: `4010`; preview: `4000`. |
-| `--host <host>` | serve, mock, preview | Address to listen on. Default `$HOST` (serve), `localhost` (preview), else `0.0.0.0`. |
+| `--host <host>` | dev, serve, mock, preview | Address to listen on. `serve`: default `$HOST`, else `0.0.0.0`. `dev`, `mock` and `preview`: default `localhost`, this machine only; `0.0.0.0` shares them with your network. |
 | `--open` | dev, preview | Open the page in the browser. |
 | `--theme <name>` | preview | `<rapi-doc>` theme. |
 | `--mount-path <path>` | serve | Path requests arrive under, when a proxy strips part of the portal's path. Default `$RAPIDOC_MOUNT_PATH`, else the path of `site.url`. |
@@ -54,7 +54,7 @@ Options and arguments can come in any order (`rapidoc build --out-dir public ./p
 | `--title <title>` | init | Site title. |
 | `--spec <file>` | init | An OpenAPI file to include; repeat for more. Default: every one found in the folder. |
 | `--starter-spec` | init | Use the starter spec instead of the OpenAPI files found. |
-| `--force`, `-f` | init | Overwrite existing files (in a terminal, lists them and asks first). |
+| `--force`, `-f` | init, migrate | init: overwrite existing files (in a terminal, lists them and asks first). migrate: replace an existing `rapidoc.config.yaml` without asking. |
 | `--no-install` | init | Skip `npm install`. |
 | `--format <format>` | validate, lint, doctor, bundle | validate, lint, doctor: `pretty` (default), `json`, or `sarif` (validate, lint). bundle: `yaml` or `json` (default: by the output file's extension). |
 | `--strict` | validate, lint | Fail on warnings too. |
@@ -89,7 +89,7 @@ In a terminal, commands ask for what their options don't say, and `rapidoc` alon
 | :--- | :--- | :--- |
 | `init` | The site title, which of the OpenAPI files found to include, whether to run `npm install`. Then prints the command that does the same without questions. | `--title`, `--spec` / `--starter-spec`, `--no-install` |
 | `init --force` | Whether to replace the existing files it lists. | `--yes` |
-| `migrate` | Which project to migrate, when `--from` is left out (it looks for `redocly.yaml` and `zudoku.config.*`); whether to replace an existing `rapidoc.config.yaml`. | `--from`, `--yes` |
+| `migrate` | Which project to migrate, when `--from` is left out (it looks for `redocly.yaml` and `zudoku.config.*`); whether to replace an existing `rapidoc.config.yaml` (without a terminal, or with `--yes`, it stops unless `--force` is given). | `--from`, `--force` |
 | `dev`, `serve`, `mock` | Whether to use the next free port when the port is taken. Without a terminal, `serve` and `mock` stop (`dev` moves to a free port by itself). | `--port`, `--yes` |
 
 `Ctrl+C` on a question cancels the command (exit code `130`).

@@ -56,9 +56,23 @@ def test_answers_304_when_the_browser_already_has_the_bundle():
     client = TestClient(make_app())
     etag = client.get("/docs/rapidoc-min.js").headers["etag"]
     assert rapidoc_manifest()["files"]["rapidoc-min.js"]["integrity"] in etag
-    again = client.get("/docs/rapidoc-min.js", headers={"if-none-match": etag})
-    assert again.status_code == 304
-    assert again.content == b""
+    for header in (etag, f"W/{etag}", f'"other", W/{etag} , "more"', "*"):
+        again = client.get("/docs/rapidoc-min.js", headers={"if-none-match": header})
+        assert again.status_code == 304, header
+        assert again.content == b""
+        assert again.headers["etag"] == etag
+    for header in ('"other"', etag.strip('"')):
+        assert client.get("/docs/rapidoc-min.js", headers={"if-none-match": header}).status_code == 200
+
+
+def test_has_the_browser_revalidate_the_bundle_and_forbids_content_sniffing():
+    client = TestClient(make_app())
+    bundle = client.get("/docs/rapidoc-min.js")
+    assert bundle.headers["cache-control"] == "no-cache"
+    assert bundle.headers["x-content-type-options"] == "nosniff"
+    page = client.get("/docs")
+    assert page.headers["cache-control"] == "no-cache"
+    assert page.headers["x-content-type-options"] == "nosniff"
 
 
 def test_refuses_the_path_swagger_ui_already_has():
@@ -124,7 +138,33 @@ def test_works_on_a_starlette_app():
     assert "<title>Reference</title>" in page
 
 
-def test_still_takes_path_the_name_ui_path_had():
+def test_does_not_take_path_the_name_ui_path_had():
+    with pytest.raises(TypeError):
+        setup_rapidoc(FastAPI(docs_url=None), path="/old")
+    assert not hasattr(contract, "DEFAULT_PATH")
+    assert contract.embed_urls({"path": "/old"})["page"] == "/docs"
+
+
+def test_serves_at_the_site_root_and_under_a_mount():
+    app = Starlette()
+    setup_starlette(app, ui_path="/", spec_url="/openapi.json")
+    page = TestClient(app).get("/").text
+    assert 'src="/rapidoc-min.js"' in page
+    assert TestClient(app).get("/rapidoc-min.js").status_code == 200
+
+    # ui_path is the path within the app: a mount's prefix goes in front of it in the page
+    sub = Starlette()
+    setup_starlette(sub, ui_path="reference/", spec_url="/openapi.json")
+    parent = Starlette()
+    parent.mount("/v1", sub)
+    page = TestClient(parent).get("/v1/reference").text
+    assert 'src="/v1/reference/rapidoc-min.js"' in page
+    assert 'oauth-receiver="/v1/reference/oauth-receiver.html"' in page
+    assert TestClient(parent).get("/v1/reference/rapidoc-min.js").status_code == 200
+
+
+def test_takes_an_empty_option_as_an_absent_one():
     app = FastAPI(docs_url=None)
-    setup_rapidoc(app, path="/old")
-    assert TestClient(app).get("/old").status_code == 200
+    setup_rapidoc(app, ui_path="", lang="", assets="")
+    assert '<html lang="en">' in TestClient(app).get("/docs").text
+    assert TestClient(app).get("/docs/rapidoc-min.js").status_code == 200

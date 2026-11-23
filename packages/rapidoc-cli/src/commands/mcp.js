@@ -11,6 +11,12 @@ import { canAsk, confirm } from "../lib/prompt.js";
  * Export MCP Server button: manifest.json, server.ts, runtime.js, package.json, README.md,
  * mcp.json). rapidoc mcp serve <spec>: runs that server over stdio right away, for an
  * AI agent's config, without writing files. Both use @rapidoc/mcp; serve also needs the MCP SDK.
+ *
+ * Every variable the server reads starts with MCP_: MCP_AUTH_<SCHEME> (credentials), MCP_BASE_URL
+ * (MCP_BASE_URL_<SOURCE> with several APIs) and MCP_EXTERNAL_HOSTS. A spec without an absolute server
+ * URL gives no base URL (a spec read from an address resolves a relative one against it): export says
+ * so and the project's README marks the variable as required; serve stops unless --base-url or the
+ * variable gives one.
  */
 
 const isUrl = (target) => /^https?:\/\//i.test(target);
@@ -42,6 +48,8 @@ async function generate(specTarget, values, extra = {}) {
   }
   try {
     return generateMcpServer(spec, {
+      // A relative server URL (or none) is resolved against the address the spec came from
+      ...(isUrl(location) && { specUrl: location }),
       ...(values["server-name"] && { serverName: values["server-name"] }),
       ...(arazzo && { arazzo }),
       ...extra,
@@ -52,6 +60,11 @@ async function generate(specTarget, values, extra = {}) {
 }
 
 async function exportProject(specTarget, values) {
+  if (values["base-url"])
+    throw new UsageError(
+      "--base-url is for rapidoc mcp serve. An exported server takes its base URL from MCP_BASE_URL.",
+      { command: "mcp" },
+    );
   const outDir = path.resolve(values["out-dir"]);
   if (fs.existsSync(outDir) && fs.readdirSync(outDir).length) {
     if (!values.force) {
@@ -85,26 +98,67 @@ async function exportProject(specTarget, values) {
   info(`   • Files:    ${Object.keys(result.files).join(", ")}`);
   for (const warning of budget.warnings) warn(warning, "   ");
   for (const problem of problems) warn(`workflow left out: ${problem.message}`, "   ");
+  const { baseUrlEnvNames, sourcesWithoutBaseUrl } = await import("@rapidoc/mcp");
+  const unset = sourcesWithoutBaseUrl(manifest);
+  const variables = unset.map((source) => baseUrlEnvNames(manifest)[source]);
+  if (unset.length)
+    warn(
+      `A base URL is required: ${specTarget} names no absolute server URL, so the manifest has none. Set ${variables.join(", ")} when you start the server (mcp.json and README.md list ${unset.length > 1 ? "them" : "it"}); until then tool calls answer with an error.`,
+      "   ",
+    );
   info(`\nNext steps:`);
   info(`   cd ${relative(outDir)}`);
   info(`   npm install`);
-  info(`   npm start          # or add mcp.json's entry to your AI app\n`);
+  info(
+    `   ${variables.map((v) => `${v}=https://api.example.com `).join("")}npm start          # or add mcp.json's entry to your AI app\n`,
+  );
 }
 
 async function serve(specTarget, values) {
   // stdout carries the MCP protocol: nothing else may go there.
   setQuiet(true);
   const sdk = await loadMcpSdk();
-  const { createMcpRuntime, credentialsFromEnv, externalHostsFromEnv } =
-    await import("@rapidoc/mcp");
+  const {
+    baseUrlEnvNames,
+    baseUrlsFromEnv,
+    createMcpRuntime,
+    credentialsFromEnv,
+    externalHostsFromEnv,
+    sourcesWithoutBaseUrl,
+  } = await import("@rapidoc/mcp");
   const { manifest, problems } = await generate(specTarget, values);
-  const baseUrls = values["base-url"]
-    ? Object.fromEntries(Object.keys(manifest.sources).map((name) => [name, values["base-url"]]))
-    : undefined;
+  const names = baseUrlEnvNames(manifest);
+  const sources = Object.keys(manifest.sources);
+  let baseUrls;
+  try {
+    baseUrls = baseUrlsFromEnv(manifest, process.env);
+  } catch (err) {
+    throw new ProblemError(err.message);
+  }
+  if (values["base-url"]) {
+    // One URL for several APIs would send each API's credentials to the same host
+    if (sources.length > 1)
+      throw new UsageError(
+        `--base-url is for one API, and these workflows use ${sources.length}: set ${Object.values(names).join(", ")} instead.`,
+        { command: "mcp" },
+      );
+    if (!isUrl(values["base-url"]))
+      throw new UsageError(`--base-url must be an http(s) URL, got "${values["base-url"]}".`, {
+        command: "mcp",
+      });
+    baseUrls[sources[0]] = values["base-url"];
+  }
+  const unset = sourcesWithoutBaseUrl(manifest, baseUrls);
+  if (unset.length) {
+    const flag = sources.length === 1 ? "pass --base-url <url> or " : "";
+    throw new ProblemError(
+      `A base URL is required: ${specTarget} names no absolute server URL${sources.length > 1 ? ` for ${unset.join(", ")}` : ""}. To say where the API is, ${flag}set ${unset.map((source) => names[source]).join(", ")}.`,
+    );
+  }
   const runtime = createMcpRuntime(manifest, {
     credentials: credentialsFromEnv(manifest, process.env),
     externalHosts: externalHostsFromEnv(process.env),
-    ...(baseUrls && { baseUrls }),
+    baseUrls,
   });
 
   const server = new sdk.Server(
@@ -125,7 +179,8 @@ async function serve(specTarget, values) {
   );
   await server.connect(new sdk.StdioServerTransport());
 
-  const where = values["base-url"] ? ` against ${values["base-url"]}` : "";
+  const urls = sources.map((source) => baseUrls[source] || manifest.sources[source].baseUrl);
+  const where = ` against ${[...new Set(urls)].join(", ")}`;
   process.stderr.write(
     `rapidoc mcp serve: "${manifest.server.name}", ${manifest.tools.length} tool(s)${where}, over stdio\n`,
   );
@@ -138,7 +193,7 @@ export default {
   usage: "mcp <export|serve> <spec>",
   summary: "Turns an OpenAPI spec into MCP tools: export a server project, or serve it over stdio",
   description:
-    "export writes the MCP server project (the same files as <rapi-doc>'s Export MCP Server button).\nserve runs it over stdio for an AI agent, without files; it needs @modelcontextprotocol/sdk.\nCredentials come from the environment, one variable per security scheme (see the project's README).\nEXTERNAL_HOSTS (comma-separated, * for any) lists the hosts a workflow's x-operation URL computed at run time may go to, besides those the workflow names.",
+    "export writes the MCP server project (the same files as <rapi-doc>'s Export MCP Server button).\nserve runs it over stdio for an AI agent, without files; it needs @modelcontextprotocol/sdk.\nEvery variable the server reads starts with MCP_ (the project's README and mcp.json name the exact ones):\n  MCP_AUTH_<SCHEME>   a security scheme's credential, <SCHEME> its id in UPPER_SNAKE (HTTP Basic: MCP_AUTH_<SCHEME>_USERNAME and _PASSWORD)\n  MCP_BASE_URL        the API's base URL (with several APIs, MCP_BASE_URL_<SOURCE> each); required when the spec names no absolute server URL\n  MCP_EXTERNAL_HOSTS  hosts (comma-separated, * for any) a workflow's x-operation URL computed at run time may go to, besides those the workflow names",
   positionals: { name: "action", max: 2, choices: ["export", "serve"] },
   options: {
     "out-dir": {
@@ -166,7 +221,7 @@ export default {
       type: "string",
       value: "url",
       description:
-        "serve: call the API here instead of the spec's server (for example rapidoc mock)",
+        "serve: call the API here instead of the spec's server (for example rapidoc mock); same as MCP_BASE_URL, for one API only",
     },
     remote: { type: "boolean", description: "Also fetch remote $refs" },
   },

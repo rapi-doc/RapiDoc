@@ -53,8 +53,8 @@ A version that has the same slug as a tag of the default version (`/apis/<id>/<x
   label, plus "3 versions" when there is more than one.
 - **Search**: every version is indexed. Records of the default version are as today; records of other
   versions link to their versioned URL and their category reads "Payments API · v1".
-- **`api-operation` tag**: `spec="payments"` embeds from the default version; a new optional `version="v1"`
-  picks another. In `compileMarkdoc()` (plain HTML), `variables.specUrls` takes `payments@v1` keys as well.
+- **`api-operation` tag**: `api="payments"` embeds from the default version; a new optional `version="v1"`
+  picks another.
 - **Spec files**: the default version stays at `/specs/<id><ext>` (`api.specUrl`, unchanged), and every
   version is also at `/specs/<id>/<version><ext>`, so a spec URL pinned to a version stays valid.
 - **Access rules**: a rule on `/apis/<id>/**` covers every version and every version's spec. A spec follows

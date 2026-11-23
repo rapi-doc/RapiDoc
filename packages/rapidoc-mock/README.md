@@ -11,6 +11,8 @@ A mock server for the APIs of a RapiDoc portal. It is what `rapidoc mock` runs.
   - A bearer requirement without scopes (`- bearerAuth: []` next to `- oauth2: ['orders:write']`) needs the operation's OAuth scopes: they name the permission the operation needs, whichever scheme carries the token.
   - **API key:** the header, query parameter or cookie must be present. **Basic:** credentials must be present.
   - `security: []` (or none): open.
+  - A requirement that names a scheme the spec does not define can't be met: the operation answers `401` unless another requirement is met, and the mock names the scheme when it starts.
+  - Not checked: `mutualTLS`, HTTP schemes other than `basic` and `bearer`, and the expiry of a token without `exp`.
 - CORS for any origin by default (tokens travel in the `Authorization` header, never in cookies).
 
 ## Use
@@ -33,7 +35,7 @@ Ids are lower-case letters, digits and dashes. Files that would share an id get 
 | `--issuer <url>`         | `RAPIDOC_MOCK_ISSUER`   | OpenID Connect issuer whose access tokens are accepted. Without it, any bearer token passes and scopes aren't checked. |
 | `--audience <id>`        | `RAPIDOC_MOCK_AUDIENCE` | `aud` the tokens must have (the API identifier at your provider).                                                      |
 | `--port <number>`        |                         | Default `4010`.                                                                                                        |
-| `--host <host>`          |                         | Default `0.0.0.0`.                                                                                                     |
+| `--host <host>`          |                         | Default `localhost`. `0.0.0.0` opens the mock and its control API to your network (a container, a shared test server). |
 | `--seed <number>`        |                         | Seed for generated data; default `1`.                                                                                  |
 | `--mock-config <file>`   |                         | With `--stateful`: corrections to what the mock worked out; default `mock.config.yaml` beside the spec.                |
 | `--delay <ms>`           |                         | Wait this long before every API response; default `0`.                                                                 |
@@ -61,7 +63,7 @@ Applied preferences come back in `Preference-Applied`. `GET /` lists the APIs se
 - A record created under a parent (`/articles/{slug}/comments`) is listed and found under that parent only, whether or not it has a field for it.
 - A record goes where the response schema puts it (inside `data` next to a `request_id`, say).
 - An operation that fits no resource (a login, a search) answers as without `--stateful`. The start-up output counts the operations in each group.
-- An `X-Mock-Session` header gives a caller its own copy of the data, so parallel tests don't see each other's changes.
+- An `X-Mock-Session` header gives a caller its own copy of the data, so parallel tests don't see each other's changes. The mock keeps 1000 sessions per API; one more, and the session used longest ago reads the seed data again.
 - `Prefer: code=` and `Prefer: example=` return that response as written; nothing is stored.
 
 `/__mock/ui` is the Mock UI: a dashboard per API, its resources with their records, every operation with its label (stateful, needs review, static) grouped by path or by resource, and a settings page (new seed data, response delay). A resource's About tab lists its fields with how each is seeded, and an operation's Details page says what the mock does for it. `GET /__mock/model` (and `/model/<api>/resources/<Resource>`, `/model/<api>/operations/<id>`) and `GET /__mock/settings` return what it shows as JSON; `PATCH /__mock/settings` with `{ "delay": 250 }` changes the delay, and `POST /__mock/reset` with `{ "rows": 25, "seed": 7 }` makes new seed data.
@@ -85,7 +87,11 @@ const { app } = await createMockApp({
 // app is a Hono app: app.fetch(request), or mount it in your own server.
 ```
 
+`createMockApp(options)` returns `{ app, apis, skipped }`: `apis` is what is served (`{ id, title, operations }` each, with `stateful: { resources, confident, needsReview, plainMock, review }` in the stateful mode) and `skipped` the APIs whose spec could not be loaded (`{ id, error }`).
+
 `startMockServer({ apis, port, host, issuer, audience, seed, stateful, delay, streamInterval, origin })` starts it on Node and returns `{ url, port, apis, skipped, close }`.
+
+These two functions and `DEFAULT_PORT` (`4010`) are the package's public API, covered by semver. `@rapidoc/mock/internal` is what `rapidoc lint` takes from the mock (`exampleError`, `configFor`, `statefulFindings`, `statefulReport`). It is not public API and not covered by semver: it can change or go in any release, and only `@rapidoc/cli` of the same version should import it.
 
 ## Built on
 

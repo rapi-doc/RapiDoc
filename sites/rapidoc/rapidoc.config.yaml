@@ -138,7 +138,7 @@ footer:
         - { label: Examples, href: /examples/ }
         - { label: Spec Sandbox, href: /sandbox/ }
         - { label: Live Configurator, href: /examples/controller-showcase/ }
-        - { label: Migration guides, href: /docs/rapidoc/migration/v13-to-v14/ }
+        - { label: Migration guides, href: /docs/rapidoc/migration/v14-to-v15/ }
         - { label: Test Matrix, href: /tests/ }
         - { label: Performance, href: /tests/performance/ }
     - title: Project
@@ -208,10 +208,12 @@ navigation:
       - label: "Migration Guides"
         collapsed: true
         items:
+          - { slug: rapidoc/migration/v14-to-v15, label: "v14 to v15" }
           - { slug: rapidoc/migration/v13-to-v14, label: "v13 to v14" }
           - { slug: rapidoc/migration/v12-to-v13, label: "v12 to v13" }
           - { slug: rapidoc/migration/v11-to-v12, label: "v11 to v12" }
           - { slug: rapidoc/migration/v10-to-v11, label: "v10 to v11" }
+          - { slug: rapidoc/migration/removed-attributes, label: "Removed attributes" }
   - label: "RapiDoc Mini"
     icon: puzzle-piece
     items:

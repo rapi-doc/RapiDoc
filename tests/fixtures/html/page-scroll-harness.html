@@ -62,7 +62,7 @@
     for (const [name, value] of Object.entries(attributes)) doc.setAttribute(name, value);
 
     window.__activeIds = [];
-    doc.addEventListener('nav-active-change', (e) => window.__activeIds.push(e.detail.id));
+    doc.addEventListener('nav-active-change', (e) => window.__activeIds.push(e.detail.elementId));
   </script>
 </body>
 </html>

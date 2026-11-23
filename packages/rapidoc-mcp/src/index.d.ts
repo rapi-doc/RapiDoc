@@ -17,7 +17,11 @@ export interface McpSecurityScheme {
 }
 
 export interface McpSource {
-  baseUrl: string;
+  /**
+   * Absolute http(s) URL. Left out when the OpenAPI document names no absolute server URL and
+   * was not loaded from an address: the runtime then needs `baseUrls` (`MCP_BASE_URL`).
+   */
+  baseUrl?: string;
   securitySchemes: Record<string, McpSecurityScheme>;
 }
 
@@ -48,11 +52,16 @@ export interface McpOperation {
 
 export interface McpToolAnnotations {
   readOnlyHint: boolean;
-  destructiveHint: boolean;
+  /**
+   * True with a PUT, PATCH or DELETE, false for reads. Left out for a POST (it may add or undo),
+   * so hosts assume the tool may be destructive.
+   */
+  destructiveHint?: boolean;
   idempotentHint: boolean;
 }
 
 export interface McpTool {
+  /** At most 64 characters of `a-z`, `0-9` and `_`; unique in the manifest. */
   name: string;
   description: string;
   inputSchema: JsonSchema;
@@ -124,7 +133,7 @@ export interface McpManifest {
   sources: Record<string, McpSource>;
   tools: McpTool[];
   resources: McpResource[];
-  /** Empty until workflows land. */
+  /** By workflow id; empty without an Arazzo document. */
   workflows: Record<string, McpWorkflow>;
 }
 
@@ -145,6 +154,15 @@ export interface BuildManifestOptions {
   serverName?: string;
   /** The key of the API in `sources`; defaults to `api`. */
   sourceName?: string;
+  /**
+   * The http(s) address the document was loaded from. A relative server URL (`/api/v1`), or
+   * none, is resolved against it; without it the source has no `baseUrl`.
+   */
+  specUrl?: string;
+  /** The same for the documents in `sources`, by name. */
+  sourceUrls?: Record<string, string>;
+  /** Put in front of every tool name, before names are cut to 64 characters and made unique. */
+  toolNamePrefix?: string;
   includeInternal?: boolean;
   includeDeprecated?: boolean;
   /** `false` leaves the operations out: the Arazzo workflows' tools alone (default `true`). */
@@ -153,7 +171,11 @@ export interface BuildManifestOptions {
 
 /**
  * Builds the manifest from a raw OpenAPI 3.x / Swagger 2.0 object or from `<rapi-doc>`'s
- * processed spec (`resolvedSpec`).
+ * processed spec (`resolvedSpec`). Every operation is a tool; a GET without required arguments
+ * marked `x-mcp-resource: true` is a resource as well.
+ *
+ * Throws when two security schemes (or two sources) would read the same environment variable,
+ * such as the schemes `api-key` and `apiKey` (both `MCP_AUTH_API_KEY`).
  */
 export function buildMcpManifest(spec: object, options?: BuildManifestOptions): McpManifest;
 
@@ -263,7 +285,11 @@ export interface McpRuntime {
   readResource(uri: string): Promise<McpResourceResult>;
 }
 
-/** In `@rapidoc/mcp` this is createMcpWorkflowRuntime: workflow tools run too. */
+/**
+ * In `@rapidoc/mcp` this is createMcpWorkflowRuntime: workflow tools run too. Throws when
+ * `manifest.manifestVersion` is not `MANIFEST_VERSION`. A tool call for a source without a base
+ * URL answers with an error result that names the variable to set; it never calls `localhost`.
+ */
 export function createMcpRuntime(manifest: McpManifest, options?: RuntimeOptions): McpRuntime;
 
 /** Runs a workflow tool on a runtime; pass as `runWorkflow`. */
@@ -297,20 +323,47 @@ export function buildRequest(
   },
 ): BuiltRequest;
 
-/** Credentials for every security scheme, from variables such as `PETSTORE_AUTH` or `API_KEY`. */
+/**
+ * Credentials for every security scheme, from `MCP_AUTH_<SCHEME>` (`MCP_AUTH_<SCHEME>_USERNAME`
+ * and `MCP_AUTH_<SCHEME>_PASSWORD` for HTTP Basic), and from no other variable.
+ */
 export function credentialsFromEnv(
   manifest: McpManifest,
   env?: Record<string, string | undefined>,
 ): Record<string, McpCredential>;
 
+/** The variables credentialsFromEnv reads, by security scheme id. */
+export function credentialEnvNames(manifest: McpManifest): Record<string, string[]>;
+
+/** `petstore_auth` → `MCP_AUTH_PETSTORE_AUTH`. */
+export function envNameFor(schemeId: string): string;
+
 /**
- * The hosts `EXTERNAL_HOSTS` lists (comma-separated, `*` for any), as RuntimeOptions'
+ * The variable each source's base URL is read from, by source name: `MCP_BASE_URL` with one
+ * source, `MCP_BASE_URL_<SOURCE>` each with several.
+ */
+export function baseUrlEnvNames(manifest: McpManifest): Record<string, string>;
+
+/**
+ * Base URLs from those variables, as RuntimeOptions' `baseUrls`. Throws when `MCP_BASE_URL` is
+ * set for a manifest with several sources.
+ */
+export function baseUrlsFromEnv(
+  manifest: McpManifest,
+  env?: Record<string, string | undefined>,
+): Record<string, string>;
+
+/** The sources with no absolute base URL, in the manifest or in `baseUrls`. */
+export function sourcesWithoutBaseUrl(
+  manifest: McpManifest,
+  baseUrls?: Record<string, string>,
+): string[];
+
+/**
+ * The hosts `MCP_EXTERNAL_HOSTS` lists (comma-separated, `*` for any), as RuntimeOptions'
  * `externalHosts`.
  */
 export function externalHostsFromEnv(env?: Record<string, string | undefined>): string[];
-
-/** `petstore_auth` → `PETSTORE_AUTH`. */
-export function envNameFor(schemeId: string): string;
 
 /**
  * The exported project's files: manifest.json, server.ts, runtime.js, package.json, README.md,
@@ -336,9 +389,16 @@ export interface McpBudget {
 
 export function estimateTokenCost(manifest: McpManifest): McpBudget;
 
+/**
+ * The exported server's environment variables with placeholder values, for `mcp.json`: its
+ * credentials, and the base URL variable of each source the manifest gives no base URL.
+ */
+export function hostEnvFor(manifest: McpManifest): Record<string, string>;
+
+/** The `mcpServers` entry of `mcp.json`; `env` is hostEnvFor(manifest), none by default. */
 export function generateHostConfigs(
   serverName: string,
-  options?: { schemes?: string[]; serverPath?: string },
+  options?: { env?: Record<string, string>; serverPath?: string },
 ): { claudeDesktopConfig: string; cursorConfig: string };
 
 export interface GenerateMcpServerResult {
@@ -386,10 +446,19 @@ export function generateMcpServer(
   options?: BuildManifestOptions & { workflowRuntime?: string; serverPath?: string },
 ): GenerateMcpServerResult;
 
-/** Reads `<rapi-doc>`'s `mcp` attribute: off for empty, `false` or `none`. */
-export function parseMcpEnabled(val: unknown): boolean;
-
-export function toSnakeCase(str: string): string;
+/** snake_case; `fallback` (default `tool`) for text with no Latin letter or digit. */
+export function toSnakeCase(str: string, fallback?: string): string;
 export function sanitizeDescription(text: string, maxLength?: number): string;
 export function deriveToolName(method: string, path: string): string;
+/** An operation's name before the length cap and the duplicate check: its operationId, else method and path. */
+export function operationToolName(operationId: string, method: string, path: string): string;
+export const MAX_TOOL_NAME_LENGTH: 64;
+/**
+ * Final tool names: over 64 characters, cut with a hash of the whole name; names several tools
+ * share end in a hash of each tool's `key` (`GET /pets`), so they do not depend on order.
+ */
+export function assignToolNames(
+  entries: { name: string; key: string }[],
+  prefix?: string,
+): string[];
 export const AUTH_TRANSPORT_HEADERS: Set<string>;

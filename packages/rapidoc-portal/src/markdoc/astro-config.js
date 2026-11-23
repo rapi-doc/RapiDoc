@@ -4,7 +4,7 @@
  *
  * It extends Starlight's Markdoc preset (aside, tabs/tabitem, steps, cardgrid, code, ...) and adds
  * the portal's tags, rendered with Starlight components so they look and behave like the rest of
- * the docs. The HTML versions of the same tags in tags.js back compileMarkdoc().
+ * the docs. This is the one definition of the portal's tags.
  */
 
 import Markdoc from "@markdoc/markdoc";
@@ -13,8 +13,7 @@ import starlightMarkdoc from "@astrojs/starlight-markdoc";
 import { CALLOUT_TYPES } from "../components/callout-types.js";
 import { withBase } from "../components/base-path.js";
 
-const portal = (name) => component("@rapidoc/portal/markdoc/components", name);
-const starlight = (name) => component("@astrojs/starlight/components", name);
+const portal = (name) => component("@rapidoc/portal/internal/markdoc-components", name);
 
 /**
  * Links and images with paths relative to the portal get the base path the portal is served under
@@ -91,7 +90,7 @@ export function portalMarkdocConfig({ base = "" } = {}) {
       },
       tab: {
         render: portal("Tab"),
-        attributes: { name: { type: String }, label: { type: String } },
+        attributes: { label: { type: String, required: true } },
       },
       steps: { render: portal("Steps") },
       step: {
@@ -107,9 +106,11 @@ export function portalMarkdocConfig({ base = "" } = {}) {
         },
       },
       "card-grid": {
-        render: starlight("CardGrid"),
-        // `columns` is accepted for compatibility with the HTML tag; Starlight's grid sizes itself.
-        attributes: { stagger: { type: Boolean }, columns: { type: Number } },
+        render: portal("CardGrid"),
+        attributes: {
+          columns: { type: Number, default: 3, matches: [1, 2, 3, 4] },
+          stagger: { type: Boolean },
+        },
       },
       badge: {
         render: portal("Badge"),
@@ -123,7 +124,7 @@ export function portalMarkdocConfig({ base = "" } = {}) {
         render: portal("Workflow"),
         selfClosing: true,
         attributes: {
-          file: { type: String, required: true },
+          document: { type: String, required: true },
           id: { type: String },
           view: { type: String, matches: ["expanded", "compact"] },
           title: { type: String },
@@ -133,7 +134,7 @@ export function portalMarkdocConfig({ base = "" } = {}) {
         render: portal("ApiOperation"),
         selfClosing: true,
         attributes: {
-          spec: { type: String, required: true },
+          api: { type: String, required: true },
           path: { type: String, required: true },
           method: { type: String, default: "get" },
           title: { type: String },

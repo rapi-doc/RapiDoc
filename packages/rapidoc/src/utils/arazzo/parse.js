@@ -1,7 +1,7 @@
 /**
  * Arazzo document parsing and structural validation.
  */
-import { parse as parseYaml } from "yaml";
+import { parseYaml } from "./yaml.js";
 import { collectRefs } from "./refs.js";
 import { resolveComponentRef } from "./components.js";
 import { ACTION_TYPES } from "./actions.js";

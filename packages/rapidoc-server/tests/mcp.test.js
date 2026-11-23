@@ -267,13 +267,12 @@ describe("rapidoc serve: /mcp", () => {
   });
 
   it("serves no /mcp and no agent tokens with RAPIDOC_MCP=off", async () => {
-    const { app: off, mcp } = await createApp({
+    const { app: off, summary } = await createApp({
       distDir,
       env: testEnv(issuer.issuer, { RAPIDOC_MCP: "off" }),
       log: quiet,
     });
-    assert.equal(mcp.off, true);
-    assert.equal(mcp.count, 0);
+    assert.deepEqual(summary.mcp, { enabled: false, tools: 0 });
     assert.notEqual((await postMcp(off)).status, 200);
 
     const browser = createBrowser(off);
@@ -292,6 +291,7 @@ describe("rapidoc serve: /mcp", () => {
 
     const staticDir = writeFixtureBuild();
     fs.rmSync(path.join(staticDir, "rapidoc-server.json"));
+    fs.rmSync(path.join(staticDir, "protected"), { recursive: true });
     writeMcpManifests(staticDir, api.url, { section: false });
     try {
       const { app: staticOff } = await createApp({
@@ -312,9 +312,10 @@ describe("rapidoc serve: /mcp", () => {
     );
   });
 
-  it("calls a workflow's x-operation URL computed at run time only on a host EXTERNAL_HOSTS allows", async () => {
+  it("calls a workflow's x-operation URL computed at run time only on a host MCP_EXTERNAL_HOSTS allows", async () => {
     const staticDir = writeFixtureBuild();
     fs.rmSync(path.join(staticDir, "rapidoc-server.json"));
+    fs.rmSync(path.join(staticDir, "protected"), { recursive: true });
     // The API is at 127.0.0.1:<port>, the workflow's source: the same server as localhost:<port>
     // is another host
     const target = api.url.replace("127.0.0.1", "localhost");
@@ -379,10 +380,115 @@ describe("rapidoc serve: /mcp", () => {
       assert.equal(refused.isError, true);
       assert.match(refused.content[0].text, /x-operation URL host localhost:\d+ is not allowed/);
       const host = new URL(target).host;
-      const allowed = await call({ EXTERNAL_HOSTS: `cdn.example.com, ${host}` }, `${target}/pets`);
+      const oldName = await call({ EXTERNAL_HOSTS: host }, `${target}/pets`);
+      assert.equal(oldName.isError, true, "only MCP_EXTERNAL_HOSTS is read");
+      const allowed = await call(
+        { MCP_EXTERNAL_HOSTS: `cdn.example.com, ${host}` },
+        `${target}/pets`,
+      );
       assert.deepEqual(allowed.structuredContent, { name: "Rex" });
     } finally {
       fs.rmSync(staticDir, { recursive: true, force: true });
+    }
+  });
+
+  /** A static build with the given manifests in mcp/, by file name. */
+  function staticBuildWith(manifests) {
+    const dir = writeFixtureBuild();
+    fs.rmSync(path.join(dir, "rapidoc-server.json"));
+    fs.rmSync(path.join(dir, "protected"), { recursive: true });
+    fs.mkdirSync(path.join(dir, "mcp"), { recursive: true });
+    for (const [name, manifest] of Object.entries(manifests)) {
+      fs.writeFileSync(path.join(dir, "mcp", `${name}.json`), JSON.stringify(manifest));
+    }
+    return dir;
+  }
+  const oneTool = (source, { baseUrl, securitySchemes = {}, security = [], version = 1 } = {}) => ({
+    manifestVersion: version,
+    server: { name: source, version: "1.0.0" },
+    sources: { [source]: { ...(baseUrl && { baseUrl }), securitySchemes } },
+    tools: [
+      {
+        name: `${source}_list_pets`,
+        description: "List pets",
+        inputSchema: { type: "object", properties: {} },
+        annotations: { readOnlyHint: true },
+        operation: { source, method: "GET", path: "/pets", params: [], security },
+      },
+    ],
+    resources: [],
+    workflows: {},
+  });
+
+  it("reads API credentials only from MCP_AUTH_<SCHEME>, never a variable a scheme id names", async () => {
+    // A spec whose scheme is called like the server's own secret
+    const dir = staticBuildWith({
+      keys: oneTool("keys", {
+        baseUrl: api.url,
+        securitySchemes: {
+          rapidoc_session_secret: { type: "apiKey", in: "header", name: "Authorization" },
+        },
+        security: [{ rapidoc_session_secret: [] }],
+      }),
+    });
+    const sent = async (env) => {
+      const { app: staticApp } = await createApp({ distDir: dir, env, log: quiet });
+      const answer = await rpc(staticApp, "tools/call", { name: "keys_list_pets", arguments: {} });
+      return answer.body.result.structuredContent.auth;
+    };
+    try {
+      assert.equal(
+        await sent({ RAPIDOC_SESSION_SECRET: "the-servers-own-secret", API_KEY: "old-shortcut" }),
+        null,
+        "neither the variable named like the scheme nor API_KEY is sent",
+      );
+      assert.equal(
+        await sent({
+          RAPIDOC_SESSION_SECRET: "the-servers-own-secret",
+          MCP_AUTH_RAPIDOC_SESSION_SECRET: "the-api-key",
+        }),
+        "the-api-key",
+      );
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("leaves out the tools of an API without a base URL, and of a manifest version it does not read, and logs why", async () => {
+    const dir = staticBuildWith({
+      pets: oneTool("pets", { baseUrl: api.url }),
+      nobase: oneTool("nobase"),
+      newer: oneTool("newer", { baseUrl: api.url, version: 2 }),
+    });
+    try {
+      const lines = [];
+      const { app: staticApp, summary } = await createApp({
+        distDir: dir,
+        env: {},
+        log: (line) => lines.push(line),
+      });
+      assert.equal(summary.mcp.tools, 1);
+      assert.deepEqual(toolNames(await rpc(staticApp, "tools/list")), ["pets_list_pets"]);
+      const hidden = await rpc(staticApp, "tools/call", { name: "nobase_list_pets" });
+      assert.equal(hidden.body.result.isError, true);
+      const log = lines.join("\n");
+      assert.match(log, /no base URL for the API "nobase".*set MCP_BASE_URL_NOBASE/);
+      assert.match(log, /newer\.json left out: it is manifest version 2/);
+
+      // With its variable set, the API is offered and called there
+      const { app: withBase } = await createApp({
+        distDir: dir,
+        env: { MCP_BASE_URL_NOBASE: api.url },
+        log: quiet,
+      });
+      assert.deepEqual(toolNames(await rpc(withBase, "tools/list")).sort(), [
+        "nobase_list_pets",
+        "pets_list_pets",
+      ]);
+      const call = await rpc(withBase, "tools/call", { name: "nobase_list_pets", arguments: {} });
+      assert.deepEqual(call.body.result.structuredContent.pets, [{ id: 1, name: "Rex" }]);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
@@ -392,19 +498,20 @@ describe("rapidoc serve: /mcp", () => {
     fs.cpSync(path.join(staticDir, "protected"), path.join(staticDir, "public"), {
       recursive: true,
     });
+    fs.rmSync(path.join(staticDir, "protected"), { recursive: true });
     writeMcpManifests(staticDir, api.url, { section: false });
     try {
-      const { app: staticApp, mcp } = await createApp({ distDir: staticDir, log: quiet });
-      assert.equal(mcp.count, 2);
+      const { app: staticApp, summary } = await createApp({ distDir: staticDir, log: quiet });
+      assert.deepEqual(summary.mcp, { enabled: true, tools: 2 });
       assert.deepEqual(toolNames(await rpc(staticApp, "tools/list")).sort(), [
         "billing_list_invoices",
         "pets_list_pets",
       ]);
-      const { app: plain, mcp: none } = await createApp({
+      const { app: plain, summary: none } = await createApp({
         distDir: path.join(staticDir, "public"),
         log: quiet,
       });
-      assert.equal(none.count, 0);
+      assert.equal(none.mcp.tools, 0);
       assert.equal((await rpc(plain, "tools/list")).status, 200, "an empty tool list, not a 404");
     } finally {
       fs.rmSync(staticDir, { recursive: true, force: true });

@@ -48,6 +48,8 @@ If the spec has no security scheme for it, set the key with attributes, and it i
 
 `persist-auth="true"` keeps API keys, bearer tokens and OAuth access tokens in the browser's `localStorage`, so a reload doesn't sign the reader out. An OAuth token is dropped once it expires; HTTP Basic credentials and OAuth client secrets are never stored.
 
+The keys are saved per API: under the spec's URL, or its title when the spec is given as an object. Two APIs on one site that both name a scheme `bearerAuth` each keep their own token. Saved keys are applied once, when the spec has loaded and before `spec-loaded` fires, so a key your page sets in a `spec-loaded` listener with `setApiKey` stays.
+
 ## Hide the forms
 
 `allow-authentication="false"` hides the Authentication section, for a page that fills in every credential itself or an API that needs none.

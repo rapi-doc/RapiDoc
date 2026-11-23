@@ -1,5 +1,5 @@
 /**
- * Framework-agnostic static pre-rendering engine for RapiDoc.
+ * The renderers of @rapidoc/prerender: a whole reference, one operation, one schema.
  *
  * Runs seamlessly in Node.js >= 22, Bun, Astro, Nuxt, Next.js, and custom SSG scripts.
  */
@@ -53,191 +53,250 @@ import SchemaTable from "../../rapidoc/src/components/schema-table.ts";
 import SchemaTree from "../../rapidoc/src/components/schema-tree.ts";
 import { getBundledCss } from "../../rapidoc/src/styles/css-bundle.js";
 import { DEFAULT_THEME } from "../../rapidoc/src/styles/theme-tokens.js";
+import { parse as parseYaml } from "yaml";
 import { renderTemplateToString, escapeHtml } from "./serializer.js";
+import { SPEC_OPTIONS, isTrue, pick, readOptions, toAttributeName } from "./options.js";
 
-function toKebabCase(str) {
-  return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+const isHttpUrl = (text) => /^https?:\/\//i.test(text);
+const isNode = typeof process !== "undefined" && Boolean(process.versions?.node);
+
+/** JSON or YAML text as an object. Throws with the parser's message. */
+function parseSpecText(text, label) {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    try {
+      parsed = parseYaml(text, { maxAliasCount: -1, merge: true });
+    } catch (err) {
+      throw new Error(
+        `Cannot load the OpenAPI spec ${label}: it is not valid JSON or YAML (${err.message})`,
+        {
+          cause: err,
+        },
+      );
+    }
+  }
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error(`Cannot load the OpenAPI spec ${label}: it is not an OpenAPI document`);
+  }
+  return parsed;
 }
 
-function toCamelCase(str) {
-  return str.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
+/** A local spec file as an object. Throws "file not found: <path>" when there is no such file. */
+async function readSpecFile(location) {
+  const fs = await import("node:fs");
+  const filePath = location.startsWith("file:")
+    ? (await import("node:url")).fileURLToPath(location)
+    : location;
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Cannot load the OpenAPI spec: file not found: ${filePath}`);
+  }
+  let text;
+  try {
+    text = fs.readFileSync(filePath, "utf-8");
+  } catch (err) {
+    throw new Error(`Cannot load the OpenAPI spec ${filePath}: ${err.message}`, { cause: err });
+  }
+  return parseSpecText(text, filePath);
+}
+
+/** Why a spec URL could not be loaded, for the error: asked of the server again, after the parser failed. */
+async function whyUrlFails(url, parserSaid) {
+  let response;
+  try {
+    response = await fetch(url);
+  } catch (err) {
+    return `it could not be fetched (${err.cause?.message || err.message})`;
+  }
+  if (!response.ok) return `the server answered ${response.status} ${response.statusText}`.trim();
+  try {
+    parseSpecText(await response.text(), url);
+  } catch (err) {
+    return err.message.slice(err.message.lastIndexOf(": it is") + 2);
+  }
+  return /^\d+$|Not Found/.test(parserSaid)
+    ? "it or a file it refers to could not be read"
+    : parserSaid;
 }
 
 /**
- * Resolves an OpenAPI specification from a file path, URL, JSON/YAML string, or JS object.
+ * Loads an OpenAPI spec and parses it into the model the templates render (not public API: its shape
+ * follows the parser of packages/rapidoc).
  *
- * @param {string|Object} specInput
- * @param {Object} [options]
- * @returns {Promise<Object>} Fully parsed and dereferenced OpenAPI specification
+ * A string is a URL when it starts with `http://` or `https://`, spec text when it starts with `{` or
+ * `[` or has more than one line, and otherwise the path of a local file (in Node and Bun). A spec that
+ * cannot be loaded or parsed throws; a path that is not a file throws "file not found".
+ *
+ * @param {string|Object} specInput - URL, file path, JSON or YAML text, a spec object, or an already parsed model
+ * @param {Object} [options] - The spec options (`sortTags`, `filterOperations`, `showUnusedTags`, ...)
+ * @returns {Promise<Object>} The parsed model
  */
-export async function resolveSpecInput(specInput, options = {}) {
+export async function resolveSpecInput(specInput, options) {
   if (!specInput) {
-    throw new Error("OpenAPI specification input is required (file path, URL, string, or object).");
+    throw new Error(
+      "An OpenAPI spec is required: a file path, a URL, JSON or YAML text, or an object.",
+    );
+  }
+  if (typeof specInput !== "string" && typeof specInput !== "object") {
+    throw new TypeError("The OpenAPI spec must be a string or an object.");
   }
 
-  // Already resolved/parsed spec object (from ProcessSpec)
-  if (
-    typeof specInput === "object" &&
-    specInput !== null &&
-    Array.isArray(specInput.securitySchemes)
-  ) {
+  // Already the parsed model
+  if (typeof specInput === "object" && Array.isArray(specInput.securitySchemes)) {
     return specInput;
   }
 
-  let rawSpec = specInput;
+  const o = readOptions("resolveSpecInput", options, { attributes: SPEC_OPTIONS });
 
+  let rawSpec = specInput;
+  let label = "(the object given)";
   if (typeof specInput === "string") {
     const trimmed = specInput.trim();
-
-    // Check if it's inlined JSON or multiline YAML
     if (trimmed.startsWith("{") || trimmed.startsWith("[") || trimmed.includes("\n")) {
-      try {
-        rawSpec = JSON.parse(trimmed);
-      } catch {
-        rawSpec = trimmed;
-      }
-    } else if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
-      // Local file path in Node.js / Bun
-      if (typeof process !== "undefined" && process.versions?.node) {
-        try {
-          const fs = await import("node:fs");
-          if (fs.existsSync(trimmed)) {
-            const content = fs.readFileSync(trimmed, "utf-8");
-            try {
-              rawSpec = JSON.parse(content);
-            } catch {
-              rawSpec = content;
-            }
-          }
-        } catch {
-          // If filesystem read fails, fall through to default loader
-        }
-      }
+      label = "(the text given)";
+      rawSpec = parseSpecText(trimmed, label);
+    } else if (isHttpUrl(trimmed)) {
+      label = trimmed;
+      rawSpec = trimmed;
+    } else if (isNode) {
+      label = trimmed;
+      rawSpec = await readSpecFile(trimmed);
+    } else {
+      // Not Node or Bun: there is no file system, so the parser fetches it
+      label = trimmed;
+      rawSpec = trimmed;
     }
   }
 
-  return ProcessSpec(
+  const resolved = await ProcessSpec(
     rawSpec,
-    options.generateMissingTags ?? options["generate-missing-tags"] ?? false,
-    options.sortTags ?? options["sort-tags"] ?? false,
-    options.sortSchemas ?? options["sort-schemas"] ?? false,
-    options.sortEndpointsBy ?? options["sort-endpoints-by"] ?? "none",
-    options.apiKey ?? options.apiKeyName ?? options["api-key-name"] ?? "",
-    options.apiKeyLocation ?? options["api-key-location"] ?? "",
-    options.apiKeyValue ?? options["api-key-value"] ?? "",
-    options.serverUrl ?? options["server-url"] ?? "",
-    options.filterOperations ?? options["filter-operations"] ?? "",
-    String(options.showUnusedTags ?? options["show-unused-tags"] ?? false) === "true",
+    isTrue(o.generateMissingTags),
+    isTrue(o.sortTags),
+    isTrue(o.sortSchemas),
+    o.sortEndpointsBy ?? "none",
+    o.apiKeyName ?? "",
+    o.apiKeyLocation ?? "",
+    o.apiKeyValue ?? "",
+    o.serverUrl ?? "",
+    o.filterOperations ?? "",
+    isTrue(o.showUnusedTags),
   );
+
+  // The parser reports a failure as a stub (what <rapi-doc> shows in the page); at build time it is an error
+  if (!resolved || resolved.specLoadError) {
+    const said = String(resolved?.info?.description || "").trim();
+    let reason =
+      said === "Invalid Spec Definition" || !said
+        ? "it is not an OpenAPI document (no info, paths, components, servers or tags)"
+        : said.split("┃").pop().trim();
+    // The parser reports any failed fetch as 404; ask the server what really happened
+    if (typeof rawSpec === "string" && isHttpUrl(rawSpec))
+      reason = await whyUrlFails(rawSpec, reason);
+    throw new Error(`Cannot load the OpenAPI spec ${label}: ${reason}`);
+  }
+  return resolved;
 }
 
+/** What `<rapi-doc>` uses when an attribute is not set; renderRapiDoc renders with the same values. */
+const ELEMENT_DEFAULTS = {
+  renderStyle: "read",
+  layout: "row",
+  theme: DEFAULT_THEME,
+  colorScheme: "dark",
+  showHeader: "true",
+  showSideNav: "true",
+  showInfo: "true",
+  allowSearch: "true",
+  allowAdvancedSearch: "true",
+  allowServerSelection: "true",
+  allowAuthentication: "true",
+  allowTry: "true",
+  schemaStyle: "tree",
+  schemaExpandLevel: 99999,
+  defaultSchemaTab: "example",
+  pageDirection: "ltr",
+};
+
+/** Options of renderRapiDoc that are not attributes of <rapi-doc>. */
+const RENDER_OWN_OPTIONS = [
+  "spec",
+  "outputMode",
+  "includeStyles",
+  "inlineSpec",
+  "focusedElementId",
+];
+
 /**
- * Pre-renders an entire OpenAPI documentation page into static HTML.
+ * Pre-renders a whole API reference.
  *
- * Supported output modes:
- * - 'dsd' (default): Declarative Shadow DOM `<rapi-doc><template shadowrootmode="open">...</template></rapi-doc>`.
- *   Delivers zero FOUC, instant first paint, and automatic hydration when client bundle loads.
- * - 'html' / 'light': Semantic Light DOM `<div class="rapidoc-prerender-container">...</div>`.
+ * Output modes:
+ * - 'dsd' (default): `<rapi-doc ...><template shadowrootmode="open">...</template></rapi-doc>`, which
+ *   the element takes over when its script loads. Only the options the caller passed are written as
+ *   attributes, so for the rest the element's own defaults apply, and the HTML is rendered with those
+ *   same defaults.
+ * - 'html' / 'light': plain light-DOM HTML in `<div class="rapidoc-prerender-container">`.
+ *
+ * Besides the options below, any attribute of `<rapi-doc>` is accepted (camelCase or kebab-case) and
+ * written to the element, so an unknown option name is not an error here.
  *
  * @param {Object} options
- * @param {string|Object} options.spec - Specification file path, URL, raw string, or parsed object
- * @param {'read'|'view'|'focused'} [options.renderStyle='read'] - Layout style
- * @param {string} [options.theme='amber'] - Theme preset ('ember', 'carbon', 'cobalt', 'jade', 'indigo', 'amber') or hex
- * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
- * @param {'row'|'column'} [options.layout] - Layout orientation ('column' default for read/focused, 'row' for view)
- * @param {boolean|string} [options.showHeader=true] - Whether to render top header
- * @param {boolean|string} [options.showSideNav=true] - Whether to render sidebar navigation
- * @param {boolean|string} [options.showInfo=true] - Whether to render spec overview & info
- * @param {boolean|string} [options.allowSearch=true] - Whether search is available
- * @param {boolean|string} [options.allowAdvancedSearch=false] - Whether advanced search dialog is pre-rendered
- * @param {boolean|string} [options.allowServerSelection=true] - Whether to show server selection
- * @param {boolean|string} [options.allowAuthentication=true] - Whether to render auth security schemes
- * @param {boolean|string} [options.allowTry=true] - Whether try-it console is included
- * @param {'table'|'tree'} [options.schemaStyle='table'] - Default schema display style
- * @param {number} [options.schemaExpandLevel=99999] - Schema nesting expansion level
- * @param {'example'|'schema'} [options.defaultSchemaTab='example'] - Active tab in schema views
- * @param {'dsd'|'html'|'light'} [options.outputMode='dsd'] - Pre-rendered container mode
- * @param {boolean} [options.includeStyles=true] - Whether to include bundled CSS in the output
- * @returns {Promise<string>} Fully rendered static HTML string
+ * @param {string|Object} options.spec - File path, URL, JSON or YAML text, or object
+ * @param {'read'|'view'|'focused'} [options.renderStyle='read']
+ * @param {string} [options.theme='amber'] - A preset ('ember', 'carbon', 'cobalt', 'jade', 'indigo', 'amber') or a hex color
+ * @param {'dark'|'light'|'system'|'auto'} [options.colorScheme='dark']
+ * @param {'row'|'column'} [options.layout='row']
+ * @param {boolean|string} [options.showHeader=true]
+ * @param {boolean|string} [options.showSideNav=true]
+ * @param {boolean|string} [options.showInfo=true]
+ * @param {boolean|string} [options.allowSearch=true]
+ * @param {boolean|string} [options.allowAdvancedSearch=true]
+ * @param {boolean|string} [options.allowServerSelection=true]
+ * @param {boolean|string} [options.allowAuthentication=true]
+ * @param {boolean|string} [options.allowTry=true]
+ * @param {'tree'|'table'} [options.schemaStyle='tree']
+ * @param {number} [options.schemaExpandLevel=99999]
+ * @param {'example'|'schema'} [options.defaultSchemaTab='example']
+ * @param {'dsd'|'html'|'light'} [options.outputMode='dsd']
+ * @param {boolean} [options.includeStyles=true] - Inline the element's CSS in the output
+ * @param {boolean} [options.inlineSpec=true] - Inline an object `spec` for the element (DSD)
+ * @param {string} [options.focusedElementId] - The operation shown first in focused mode
+ * @returns {Promise<string>} HTML
  */
-export async function renderRapiDoc(options = {}) {
-  // Normalize option names to support both camelCase and kebab-case
-  const normalized = {};
-  for (const [key, val] of Object.entries(options)) {
-    normalized[key] = val;
-    normalized[toCamelCase(key)] = val;
-  }
+export async function renderRapiDoc(options) {
+  const o = readOptions("renderRapiDoc", options, {
+    own: RENDER_OWN_OPTIONS,
+    attributes: [...Object.keys(ELEMENT_DEFAULTS), ...SPEC_OPTIONS],
+    passThrough: true,
+  });
+  const { spec, outputMode = "dsd", includeStyles = true, inlineSpec = true } = o;
 
-  const spec = options.spec ?? normalized.spec;
-  const renderStyle = normalized.renderStyle ?? "read";
-  const theme = normalized.theme ?? DEFAULT_THEME;
-  const colorScheme = normalized.colorScheme ?? "dark";
-  const showHeader = normalized.showHeader ?? true;
-  const showSideNav = normalized.showSideNav ?? true;
-  const showInfo = normalized.showInfo ?? true;
-  const allowSearch = normalized.allowSearch ?? true;
-  const allowAdvancedSearch = normalized.allowAdvancedSearch ?? false;
-  const allowServerSelection = normalized.allowServerSelection ?? true;
-  const allowAuthentication = normalized.allowAuthentication ?? true;
-  const allowTry = normalized.allowTry ?? true;
-  const schemaStyle = normalized.schemaStyle ?? "table";
-  const schemaExpandLevel = normalized.schemaExpandLevel ?? 99999;
-  const defaultSchemaTab = normalized.defaultSchemaTab ?? "example";
-  const outputMode = normalized.outputMode ?? "dsd";
-  const includeStyles = normalized.includeStyles ?? true;
-  const pageDirection = normalized.pageDirection ?? "ltr";
-
-  const defaultLayout = renderStyle === "read" || renderStyle === "focused" ? "column" : "row";
-  const layout = normalized.layout || defaultLayout;
-
-  const resolvedSpec = await resolveSpecInput(spec, normalized);
-
-  const INTERNAL_KEYS = new Set([
-    "spec",
-    "outputMode",
-    "includeStyles",
-    "inlineSpec",
-    "focusedElementId",
-  ]);
-
-  // Pass any custom options into the template context
-  const customContextProps = {};
-  for (const [key, val] of Object.entries(normalized)) {
-    if (!INTERNAL_KEYS.has(key) && val !== undefined && val !== null) {
-      customContextProps[key] = typeof val === "boolean" ? String(val) : val;
+  // What the caller passed for the element: booleans as the attribute's text
+  const passed = {};
+  for (const [name, value] of Object.entries(o)) {
+    if (!RENDER_OWN_OPTIONS.includes(name)) {
+      passed[name] = typeof value === "boolean" ? String(value) : value;
     }
   }
+  const settings = { ...ELEMENT_DEFAULTS, ...passed };
+  const { renderStyle, layout, theme, colorScheme, schemaStyle } = settings;
+
+  const resolvedSpec = await resolveSpecInput(spec, pick(o, SPEC_OPTIONS));
 
   const context = {
-    ...customContextProps,
+    ...settings,
     resolvedSpec,
-    renderStyle,
-    layout,
-    theme,
-    colorScheme,
-    showHeader: String(showHeader),
-    showSideNav: String(showSideNav),
-    showInfo: String(showInfo),
-    allowSearch: String(allowSearch),
-    allowAdvancedSearch: String(allowAdvancedSearch),
-    allowServerSelection: String(allowServerSelection),
-    allowAuthentication: String(allowAuthentication),
-    allowTry: String(allowTry),
-    schemaStyle,
-    schemaExpandLevel,
-    defaultSchemaTab,
-    pageDirection,
     config: {
       renderStyle,
       schemaStyle,
-      schemaExpandLevel,
-      defaultSchemaTab,
-      allowTry: String(allowTry),
+      schemaExpandLevel: settings.schemaExpandLevel,
+      defaultSchemaTab: settings.defaultSchemaTab,
+      allowTry: settings.allowTry,
     },
     selectedServer: resolvedSpec.servers?.[0],
     focusedElementId:
-      options.focusedElementId ||
-      (showInfo === "false" || showInfo === false
+      o.focusedElementId ||
+      (settings.showInfo === "false"
         ? resolvedSpec.tags?.[0]?.paths?.[0]?.elementId || ""
         : "overview"),
     handleHref: () => {},
@@ -249,7 +308,7 @@ export async function renderRapiDoc(options = {}) {
   if (outputMode === "html" || outputMode === "light") {
     const scopeClass = "rapidoc-prerender-container";
     const cssText = includeStyles
-      ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${scopeClass}` })}</style>`
+      ? `<style>${getBundledCss({ scope: `.${scopeClass}` })}</style>`
       : "";
     return `<div class="${scopeClass}" data-theme="${escapeHtml(theme)}" data-color-scheme="${escapeHtml(colorScheme)}" data-render-style="${escapeHtml(renderStyle)}" data-layout="${escapeHtml(layout)}" data-schema-style="${escapeHtml(schemaStyle)}">
 ${cssText}
@@ -258,49 +317,26 @@ ${serializedBody}
   }
 
   // Default: Declarative Shadow DOM (DSD)
-  const cssText = includeStyles ? `<style>${getBundledCss({ theme, colorScheme })}</style>` : "";
+  const cssText = includeStyles ? `<style>${getBundledCss()}</style>` : "";
   const specScript =
-    options.inlineSpec !== false && typeof spec === "object" && spec !== null
+    inlineSpec !== false && typeof spec === "object" && spec !== null
       ? `  <script type="application/json" slot="rapidoc-spec">${JSON.stringify(spec).replace(/</g, "\\u003c")}</script>\n`
       : "";
 
-  // Construct complete attributes map to ensure exact client hydration parity
+  // Only what the caller passed: for everything else the element's defaults apply, as rendered above
   const attrsMap = new Map();
-  attrsMap.set("theme", theme);
-  attrsMap.set("color-scheme", colorScheme);
-  attrsMap.set("render-style", renderStyle);
-  attrsMap.set("layout", layout);
-  attrsMap.set("schema-style", schemaStyle);
-  attrsMap.set("schema-expand-level", String(schemaExpandLevel));
-  attrsMap.set("default-schema-tab", defaultSchemaTab);
-  attrsMap.set("show-header", String(showHeader));
-  attrsMap.set("show-side-nav", String(showSideNav));
-  attrsMap.set("show-info", String(showInfo));
-  attrsMap.set("allow-search", String(allowSearch));
-  attrsMap.set("allow-advanced-search", String(allowAdvancedSearch));
-  attrsMap.set("allow-server-selection", String(allowServerSelection));
-  attrsMap.set("allow-authentication", String(allowAuthentication));
-  attrsMap.set("allow-try", String(allowTry));
-  attrsMap.set("page-direction", pageDirection);
-
-  // Reflect any additional user-provided options to custom element attributes (converted to kebab-case)
-  for (const [key, val] of Object.entries(options)) {
-    const camel = toCamelCase(key);
-    if (!INTERNAL_KEYS.has(camel) && !INTERNAL_KEYS.has(key) && val !== undefined && val !== null) {
-      const kebab = toKebabCase(camel);
-      attrsMap.set(kebab, typeof val === "boolean" ? String(val) : String(val));
-    }
+  for (const [name, value] of Object.entries(passed)) {
+    attrsMap.set(toAttributeName(name), String(value));
   }
-
-  if (typeof spec === "string" && (spec.startsWith("http://") || spec.startsWith("https://"))) {
-    attrsMap.set("spec-url", spec);
+  if (typeof spec === "string" && isHttpUrl(spec.trim())) {
+    attrsMap.set("spec-url", spec.trim());
   }
 
   const attrsString = Array.from(attrsMap.entries())
-    .map(([name, value]) => `${name}="${escapeHtml(value)}"`)
-    .join(" ");
+    .map(([name, value]) => ` ${name}="${escapeHtml(value)}"`)
+    .join("");
 
-  return `<rapi-doc ${attrsString}>
+  return `<rapi-doc${attrsString}>
 ${specScript}  <template shadowrootmode="open">
 ${cssText}
 ${serializedBody}
@@ -309,21 +345,34 @@ ${serializedBody}
 }
 
 /**
- * Pre-renders a single isolated endpoint / operation into static HTML.
- * Ideal for embedding individual API operations in Markdown/MDX guides (Cosmo Cargo / Zudoku style).
+ * Pre-renders one operation as light-DOM HTML with its own styles, for a guide or a blog post.
  *
  * @param {Object} options
- * @param {string|Object} options.spec - Specification file path, URL, raw string, or parsed object
- * @param {string} options.path - Operation path (e.g. '/v1/shipments' or '/pet/{petId}')
- * @param {string} options.method - HTTP method ('get', 'post', 'put', 'delete', etc.)
- * @param {'read'|'view'} [options.renderStyle='read'] - Layout style
- * @param {'row'|'column'} [options.layout='column'] - Layout orientation
- * @param {string} [options.theme='amber'] - Theme preset name or hex
- * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
- * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
- * @returns {Promise<string>} Rendered HTML string of the isolated endpoint
+ * @param {string|Object} options.spec - File path, URL, JSON or YAML text, or object
+ * @param {string} options.path - The operation's path (e.g. '/pet/{petId}'), matched exactly
+ * @param {string} options.method - The HTTP method, in any case
+ * @param {'read'|'view'} [options.renderStyle='read']
+ * @param {'row'|'column'} [options.layout='column']
+ * @param {string} [options.theme='amber'] - A preset or a hex color
+ * @param {'dark'|'light'|'system'} [options.colorScheme='dark']
+ * @param {boolean} [options.includeStyles=true] - Prepend the scoped CSS
+ * @param {boolean|string} [options.allowTry=false]
+ * @param {'table'|'tree'} [options.schemaStyle='table']
+ * @returns {Promise<string>} HTML
  */
-export async function renderEndpoint(options = {}) {
+export async function renderEndpoint(options) {
+  const o = readOptions("renderEndpoint", options, {
+    own: ["spec", "path", "method", "includeStyles"],
+    attributes: [
+      "renderStyle",
+      "layout",
+      "theme",
+      "colorScheme",
+      "allowTry",
+      "schemaStyle",
+      ...SPEC_OPTIONS,
+    ],
+  });
   const {
     spec,
     path: targetPathStr,
@@ -334,14 +383,15 @@ export async function renderEndpoint(options = {}) {
     colorScheme = "dark",
     includeStyles = true,
     allowTry = false,
-  } = options;
+    schemaStyle = "table",
+  } = o;
 
   if (!targetPathStr || !targetMethodStr) {
     throw new Error("Both `path` and `method` are required for renderEndpoint().");
   }
 
   const normalizedMethod = targetMethodStr.toLowerCase().trim();
-  const resolvedSpec = await resolveSpecInput(spec, options);
+  const resolvedSpec = await resolveSpecInput(spec, pick(o, SPEC_OPTIONS));
 
   // Search across tags for matching operation
   let matchedPath = null;
@@ -378,7 +428,7 @@ export async function renderEndpoint(options = {}) {
     allowTry: String(allowTry),
     config: {
       renderStyle,
-      schemaStyle: options.schemaStyle || "table",
+      schemaStyle,
       allowTry: String(allowTry),
     },
     selectedServer: resolvedSpec.servers?.[0],
@@ -395,7 +445,7 @@ export async function renderEndpoint(options = {}) {
 
   const containerClass = "rapidoc-endpoint-container";
   const cssText = includeStyles
-    ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${containerClass}` })}</style>`
+    ? `<style>${getBundledCss({ scope: `.${containerClass}` })}</style>`
     : "";
 
   return `<div class="${containerClass} ${escapeHtml(renderStyle)}-mode" data-theme="${escapeHtml(theme)}" data-color-scheme="${escapeHtml(colorScheme)}">
@@ -405,28 +455,31 @@ ${serializedHtml}
 }
 
 /**
- * Pre-renders an isolated JSON Schema or component schema into static HTML.
+ * Pre-renders one schema as light-DOM HTML with its own styles.
  *
  * @param {Object} options
- * @param {Object|string} options.schema - JSON Schema object, or name of schema in `components.schemas`
- * @param {Object|string} [options.spec] - Optional OpenAPI spec to resolve schema names against
- * @param {'table'|'tree'} [options.style='table'] - Display style ('table' or 'tree')
- * @param {number} [options.schemaExpandLevel=99999] - Level of initial property expansion
- * @param {string} [options.theme='amber'] - Theme preset name or hex
- * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
- * @param {boolean} [options.includeStyles=true] - Whether to prepend scoped CSS
- * @returns {Promise<string>} Rendered schema HTML string
+ * @param {Object|string} options.schema - A JSON Schema object, or a name under `components.schemas` of `spec`
+ * @param {Object|string} [options.spec] - The spec a schema name is looked up in
+ * @param {'table'|'tree'} [options.schemaStyle='table']
+ * @param {number} [options.schemaExpandLevel=99999] - How many levels start expanded
+ * @param {string} [options.theme='amber'] - A preset or a hex color
+ * @param {'dark'|'light'|'system'} [options.colorScheme='dark']
+ * @param {boolean} [options.includeStyles=true] - Prepend the scoped CSS
+ * @returns {Promise<string>} HTML
  */
-export async function renderSchema(options = {}) {
+export async function renderSchema(options) {
   const {
     schema,
     spec,
-    style = "table",
+    schemaStyle = "table",
     schemaExpandLevel = 99999,
     theme = DEFAULT_THEME,
     colorScheme = "dark",
     includeStyles = true,
-  } = options;
+  } = readOptions("renderSchema", options, {
+    own: ["schema", "spec", "includeStyles"],
+    attributes: ["schemaStyle", "schemaExpandLevel", "theme", "colorScheme"],
+  });
 
   let resolvedSchema = schema;
 
@@ -452,24 +505,14 @@ export async function renderSchema(options = {}) {
   }
 
   const ast = schemaToAST(resolvedSchema);
-  let renderedTemplate;
+  const view = schemaStyle === "tree" ? new SchemaTree() : new SchemaTable();
+  view.data = ast;
+  view.schemaExpandLevel = schemaExpandLevel;
+  const serializedHtml = renderTemplateToString(view.render());
 
-  if (style === "tree") {
-    const tree = new SchemaTree();
-    tree.data = ast;
-    tree.schemaExpandLevel = schemaExpandLevel;
-    renderedTemplate = tree.render();
-  } else {
-    const table = new SchemaTable();
-    table.data = ast;
-    table.schemaExpandLevel = schemaExpandLevel;
-    renderedTemplate = table.render();
-  }
-
-  const serializedHtml = renderTemplateToString(renderedTemplate);
   const containerClass = "rapidoc-schema-container";
   const cssText = includeStyles
-    ? `<style>${getBundledCss({ theme, colorScheme, scope: `.${containerClass}` })}</style>`
+    ? `<style>${getBundledCss({ scope: `.${containerClass}` })}</style>`
     : "";
 
   return `<div class="${containerClass}" data-theme="${escapeHtml(theme)}" data-color-scheme="${escapeHtml(colorScheme)}">
@@ -477,10 +520,3 @@ ${cssText}
 ${serializedHtml}
 </div>`;
 }
-
-export default {
-  resolveSpecInput,
-  renderRapiDoc,
-  renderEndpoint,
-  renderSchema,
-};

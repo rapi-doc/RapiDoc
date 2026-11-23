@@ -9,4 +9,12 @@ npx rapidoc mcp export openapi.yaml --out-dir orders-mcp   # the server project
 npx rapidoc mcp serve openapi.yaml                         # run it over stdio, no files
 ```
 
-`mcp export` writes the same project as `<rapi-doc>`'s [Export MCP Server](/docs/mcp/) button. `mcp serve` runs it directly, so an agent's config can start it with `npx rapidoc mcp serve <spec>` (it needs `@modelcontextprotocol/sdk` installed). Credentials come from the environment, one variable per security scheme; `--base-url` points the calls at `rapidoc mock`, and `--arazzo` adds workflows as tools. `EXTERNAL_HOSTS` (comma-separated, `*` for any) lists the hosts a workflow step's [`x-operation`](https://flow.rapidocui.com/docs/extensions/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names.
+`mcp export` writes the same project as `<rapi-doc>`'s [Export MCP Server](/docs/mcp/) button. `mcp serve` runs it directly, so an agent's config can start it with `npx rapidoc mcp serve <spec>` (it needs `@modelcontextprotocol/sdk` installed). `--arazzo` adds workflows as tools.
+
+Every variable the server reads starts with `MCP_` ([the full table](/docs/mcp/server/#environment-variables)):
+
+- **Credentials**: `MCP_AUTH_<SCHEME>`, one per security scheme, `<SCHEME>` being the scheme's id in upper snake case (`api_key` reads `MCP_AUTH_API_KEY`); `MCP_AUTH_<SCHEME>_USERNAME` and `MCP_AUTH_<SCHEME>_PASSWORD` for HTTP Basic.
+- **Base URL**: `MCP_BASE_URL`, or `--base-url` on `mcp serve` (for example to point the calls at `rapidoc mock`). With workflows over several APIs, set `MCP_BASE_URL_<SOURCE>` for each; `--base-url` is then an error, because one URL would get every API's credentials.
+- **`MCP_EXTERNAL_HOSTS`** (comma-separated, `*` for any) lists the hosts a workflow step's [`x-operation`](https://flow.rapidocui.com/docs/extensions/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names.
+
+A spec with a relative server URL (`/api/v1`) or no `servers` does not say where the API is. Read from an address (`rapidoc mcp serve https://example.com/openapi.yaml`), the URL is resolved against that address. Read from a file, a base URL is required: `mcp export` says so and marks `MCP_BASE_URL` as required in the project's `README.md` and `mcp.json`, and `mcp serve` stops with a message unless `--base-url` or `MCP_BASE_URL` gives one.

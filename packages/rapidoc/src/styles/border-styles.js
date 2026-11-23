@@ -8,16 +8,6 @@ export default css`
     border: 1px solid var(--border);
     border-radius: min(var(--radius), 0.5rem);
   }
-  .light-border {
-    border: 1px solid var(--border);
-    border-radius: min(var(--radius), 0.5rem);
-  }
-  .pad-8-16 {
-    padding: 8px 16px;
-  }
-  .pad-top-8 {
-    padding-top: 8px;
-  }
   .mar-top-8 {
     margin-top: 8px;
   }

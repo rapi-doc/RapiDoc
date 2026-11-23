@@ -66,7 +66,7 @@ callback: code → tokens
 
 - RapiDoc's own **Authorize** button (OAuth popup from the spec) returns to `oauth-receiver.html`, which portal builds didn't include, and RapiDoc always resolved that name against the _page's folder_ (`/apis/oauth-receiver.html`, `/apis/shipments/oauth-receiver.html`, …): one redirect URL per page to register with the provider.
 - **RapiDoc core (small, backward compatible):** `oauthReceiverUrl()` in `utils/url-utils.js`. A value starting with `/` is a path from the site root, a full URL is used as is, anything else resolves against the page folder as before. Values starting with `/` produced a broken URL before (`/apis//oauth-receiver.html`), so nothing relied on them. Unit test: `tests/unit/oauth-receiver-url.test.js`.
-- **Portal:** the build writes `/oauth-receiver.html` (always public) and sets `oauth-receiver="/oauth-receiver.html"` on `<rapi-doc>` and `<rapi-doc-mini>`; `compileMarkdoc()` takes `variables.oauthReceiver`. This helps portals **without** `auth` too. `oauth-receiver` joins the attributes the portal manages (setting it under `rapidoc:` is a config error).
+- **Portal:** the build writes `/oauth-receiver.html` (always public) and sets `oauth-receiver="/oauth-receiver.html"` on `<rapi-doc>` and `<rapi-doc-mini>`. This helps portals **without** `auth` too. `oauth-receiver` joins the attributes the portal manages (setting it under `rapidoc:` is a config error).
 
 ## 4. Security trade-off
 

@@ -56,7 +56,7 @@ Exit codes: 0 success, 1 problems in the input (specs, config, build), 2 a wrong
 Examples:
   rapidoc init my-portal --title "Acme Developer Portal"
   rapidoc dev
-  rapidoc build --out-dir public
+  rapidoc build --out-dir site
   rapidoc validate ./specs/orders-api.yaml
   rapidoc build --help
 `;

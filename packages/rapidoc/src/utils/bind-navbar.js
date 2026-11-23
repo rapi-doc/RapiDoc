@@ -1,8 +1,9 @@
 import { syncNavItemTitle } from "./common-utils.js";
 import {
   expandCollapseNavBarTag,
-  expandCollapseNavBarTagGroup,
   expandParentNavContainers,
+  markNavItem,
+  navItemRow,
 } from "../templates/navbar-template.js";
 
 /**
@@ -43,10 +44,12 @@ export function bindNavBar(sidebar, rapiDoc, options = {}) {
   // 2. Set active navigation link and auto-expand parent containers
   function setActiveNavId(targetId, shouldUpdateHistory = true) {
     const link = findMatchingLink(targetId);
-    if (!link || link.classList.contains(activeClass)) return;
+    if (!link || navItemRow(link).classList.contains(activeClass)) return;
 
-    sidebarEl.querySelectorAll("." + activeClass).forEach((el) => el.classList.remove(activeClass));
-    link.classList.add(activeClass);
+    sidebarEl
+      .querySelectorAll("." + activeClass)
+      .forEach((el) => markNavItem(el, false, activeClass));
+    markNavItem(link, true, activeClass);
 
     // Reuse RapiDoc's native hierarchy expander
     expandParentNavContainers(link);
@@ -74,18 +77,19 @@ export function bindNavBar(sidebar, rapiDoc, options = {}) {
     const navEl =
       e.target.closest("[data-action]") || e.target.closest(".nav-bar-path, .nav-bar-info");
     if (!navEl) return;
+    // A link opened in a new tab or window (Ctrl, Cmd, Shift, middle button) is the browser's business
+    if (navEl.matches("a") && (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey))
+      return;
 
     const action = navEl.dataset?.action;
     if (action === "expand-collapse-tag") {
       expandCollapseNavBarTag(navEl, "toggle");
-    } else if (action === "expand-collapse-tag-group") {
-      expandCollapseNavBarTagGroup(navEl, "toggle");
     } else if (
       action === "navigate" ||
       navEl.classList.contains("nav-bar-path") ||
       navEl.classList.contains("nav-bar-info")
     ) {
-      const href = navEl.getAttribute("href") || navEl.getAttribute("data-tag-href");
+      const href = navEl.getAttribute("href");
       const hashIdx = href ? href.indexOf("#") : -1;
       // A tag's link on a tag page (tag-pages routing) has no hash: its section is in data-content-id
       const elementId =
@@ -94,6 +98,8 @@ export function bindNavBar(sidebar, rapiDoc, options = {}) {
         navEl.getAttribute("data-op-slug") ||
         navEl.id?.replace(/^link-/, "");
 
+      // A click on a closed tag's name opens it as well as going to its section
+      if (navEl.closest(".nav-bar-tag")) expandCollapseNavBarTag(navEl, "expand");
       if (elementId && rapiDocEl && typeof rapiDocEl.scrollToPath === "function") {
         e.preventDefault();
         setActiveNavId(elementId, false);
@@ -129,16 +135,14 @@ export function bindNavBar(sidebar, rapiDoc, options = {}) {
           '.nav-bar-path:not([style*="display: none"]), .portal-sidebar-op-item:not([style*="display: none"])',
         );
         group.style.display = hasVisible || !query ? "" : "none";
-        if (query && hasVisible) expandCollapseNavBarTagGroup(group, "expand");
       });
     };
     filterInput.addEventListener("input", handleFilter);
   }
 
-  // 5. Native rapi-doc nav-active-change event listener
+  // 5. Native rapi-doc nav-active-change event listener: the section's element id, also for a tag
   const handleNavActiveChange = (e) => {
-    const targetId = e.detail?.operationId || e.detail?.id || e.detail?.elementId;
-    if (targetId) setActiveNavId(targetId, true);
+    if (e.detail?.elementId) setActiveNavId(e.detail.elementId, true);
   };
   if (rapiDocEl) {
     rapiDocEl.addEventListener("nav-active-change", handleNavActiveChange);

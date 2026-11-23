@@ -23,6 +23,9 @@ RapiDoc for Python web frameworks (FastAPI and Starlette so far), and the refere
 
 ## 2. Boundaries and Invariants
 
+- **One name for each option, an empty string is an absent option.** No aliases (`path` is gone since 0.3.0). `ui_path` is the path within the app; `starlette.py` puts the request's `root_path` in front before it renders.
+- **The conformance runner compares as the contract says**: the page byte for byte, except the inline spec, which is compared as parsed JSON (Python writes `1.0` and keeps key order; JavaScript does neither).
+- **`CONTRACT_VERSION` in `contract.py` is the contract's version**, the same number as in `core.js`. It is not this package's version and not the `contract` field of `integration.json`.
 - **`contract.py` and `core.js` change together.** Any change to the contract's output is made in `@rapidoc/embed` first (new contract version, regenerated fixtures), then ported here until `tests/test_conformance.py` passes. Never adjust a fixture to fit the port.
 - **`contract.py` takes the contract's option names** (`specUrl`, `scriptUrl`), because the fixtures are read as they are. Python naming (`spec_url`, `script_url`, `render_style`) is translated in `starlette.py`.
 - **The three asset files come from one rapidoc release**; `integration.json` carries the bundle's SRI hash, which is also the ETag.

@@ -6,33 +6,33 @@ description: Put a live, interactive API operation inside a guide.
 A guide that explains an endpoint can show the endpoint itself: its parameters, request body, responses, and a **Try** console. Embed one with the `api-operation` Markdoc tag:
 
 ```markdoc
-{% api-operation spec="bookstore" path="/orders" method="post" title="Place an order" /%}
+{% api-operation api="bookstore" path="/orders" method="post" title="Place an order" /%}
 ```
 
-{% api-operation spec="bookstore" path="/orders" method="post" title="Place an order" /%}
+{% api-operation api="bookstore" path="/orders" method="post" title="Place an order" /%}
 
 ## Attributes
 
 | Attribute | Meaning |
 | :--- | :--- |
-| `spec` | **Required.** The `id` of an API in `apis:`. |
+| `api` | **Required.** The `id` of an API in `apis:`. |
 | `path` | **Required.** The path as written in the spec, with its `{parameters}`. |
 | `method` | `get` (default), `post`, `put`, `patch`, `delete`, ... |
 | `title` | A heading for the embed. Default: the operation's summary. |
 | `version` | One of the API's [versions](/docs/api-reference/versions/). Default: its default version. |
 | `collapsed` | `true` shows only the method and path; the reader clicks them to open the operation. Default `false`. |
 
-An unknown `spec` id shows a notice on the page and a build warning, so a typo doesn't go unnoticed.
+An unknown `api` id shows a notice on the page and a build warning, so a typo doesn't go unnoticed.
 
 ## Collapsed embeds
 
 A guide that lists several operations stays short with `collapsed=true`. Each one shows its method and path, and opens in place when clicked:
 
 ```markdoc
-{% api-operation spec="bookstore" path="/books" title="List books" collapsed=true /%}
+{% api-operation api="bookstore" path="/books" title="List books" collapsed=true /%}
 ```
 
-{% api-operation spec="bookstore" path="/books" title="List books" collapsed=true /%}
+{% api-operation api="bookstore" path="/books" title="List books" collapsed=true /%}
 
 ## How it works
 

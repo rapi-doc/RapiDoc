@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import yaml from "yaml";
 import { getSpecNavigation, toKebabCase } from "@rapidoc/prerender";
+import { resolveSpecInput } from "@rapidoc/prerender/internal";
 import { API_PATH } from "../config/normalizer.js";
 
 /**
@@ -25,35 +26,76 @@ export function readVersionSpec(version) {
   }
 }
 
+/** Parsed specs of this process, so a build reads each spec once for its page list and all its sidebars. */
+const loadedSpecs = new Map();
+
 /**
- * Slugs of a spec's tag pages: the tags the sidebar links to (getNavBarHtml), including tags that operations
- * use without declaring them in the spec's top-level `tags`.
+ * A version's spec, loaded and parsed for the sidebar (`renderNavBarHtml`) and the page list: a local
+ * file is read again when it changes; a remote spec (`spec:` is a URL) is fetched once per run, so a
+ * running dev server keeps the copy it fetched.
+ *
+ * Throws, naming the API and the spec, when the spec cannot be read, fetched or parsed. A build stops
+ * there: an API page without its sidebar is never written.
  */
-export async function tagSlugsOf(specData) {
-  if (!specData) return [];
-  try {
-    const { tags } = await getSpecNavigation(specData);
-    return [...new Set(tags.map((t) => toKebabCase(t.name)))].filter(
-      (slug) => slug && slug !== "general",
-    );
-  } catch {
-    return []; // the API keeps its overview page
+export function loadVersionSpec(api, version) {
+  const location = version.fullPath || version.spec;
+  let key = location;
+  if (!version.isRemote && fs.existsSync(location)) key += `:${fs.statSync(location).mtimeMs}`;
+  if (!loadedSpecs.has(key)) {
+    const loading = resolveSpecInput(location).catch((err) => {
+      loadedSpecs.delete(key); // the next request tries again
+      const which = api.versioned
+        ? `API "${api.id}", version "${version.version}"`
+        : `API "${api.id}"`;
+      const said = err.message.replace(/^Cannot load the OpenAPI spec/, "cannot load its spec");
+      throw new Error(`${which}: ${said}`, { cause: err });
+    });
+    loadedSpecs.set(key, loading);
   }
+  return loadedSpecs.get(key);
 }
 
 /**
- * @param {object[]} apis - Normalized `apis` (normalizer.js)
- * @returns {Promise<Array<{params: {apiRoute: string}, props: object}>>} Props: api, version, versionTags
- *   (tag slugs per version, in `api.versions` order), activeTagSlug, currentPath, or redirectTo.
+ * Slugs of a spec's tag pages: the tags the sidebar links to (getNavBarHtml), including tags that operations
+ * use without declaring them in the spec's top-level `tags`.
+ *
+ * @param {object} spec - A spec object, or the parsed model of `loadVersionSpec`
  */
-export async function apiReferencePaths(apis = []) {
+export async function tagSlugsOf(spec) {
+  const { tags } = await getSpecNavigation(spec);
+  return [...new Set(tags.map((t) => toKebabCase(t.name)))].filter(
+    (slug) => slug && slug !== "general",
+  );
+}
+
+/**
+ * A spec that cannot be loaded (a local file that does not parse, a URL that does not answer) throws,
+ * which stops a build. With `deferSpecErrors` (the dev server) the API keeps its overview page, whose
+ * props carry `specError`, so only that page shows the error.
+ *
+ * @param {object[]} apis - Normalized `apis` (normalizer.js)
+ * @param {{ deferSpecErrors?: boolean }} [options]
+ * @returns {Promise<Array<{params: {apiRoute: string}, props: object}>>} Props: api, version, versionTags
+ *   (tag slugs per version, in `api.versions` order), activeTagSlug, currentPath, or redirectTo; with
+ *   `deferSpecErrors`, also specError.
+ */
+export async function apiReferencePaths(apis = [], { deferSpecErrors = false } = {}) {
   const paths = [];
   const route = (urlPath) => urlPath.slice(`${API_PATH}/`.length);
 
   for (const api of apis) {
     const versionTags = [];
-    for (const version of api.versions)
-      versionTags.push(await tagSlugsOf(readVersionSpec(version)));
+    const specErrors = [];
+    for (const version of api.versions) {
+      try {
+        versionTags.push(await tagSlugsOf(await loadVersionSpec(api, version)));
+        specErrors.push(undefined);
+      } catch (err) {
+        if (!deferSpecErrors) throw err;
+        versionTags.push([]);
+        specErrors.push(err.message);
+      }
+    }
     const [defaultTags] = versionTags;
 
     api.versions.forEach((version, i) => {
@@ -63,6 +105,7 @@ export async function apiReferencePaths(apis = []) {
         );
       }
       const page = { api, version, versionTags };
+      if (specErrors[i]) page.specError = specErrors[i];
       paths.push({
         params: { apiRoute: route(version.path) },
         props: { ...page, activeTagSlug: "", currentPath: version.path },

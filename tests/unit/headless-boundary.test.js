@@ -33,7 +33,7 @@ const ROOTS = [
 ];
 
 /** Third-party packages headless code may import. Adding one here is a deliberate decision. */
-const ALLOWED_PACKAGES = ["@scalar/openapi-parser", "yaml", "marked", "github-slugger"];
+const ALLOWED_PACKAGES = ["@scalar/openapi-parser", "js-yaml", "yaml", "marked", "github-slugger"];
 
 /** UI code: folders and element files headless code must never reach. */
 const UI_FOLDERS = ["components/", "templates/", "styles/"];

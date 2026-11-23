@@ -74,8 +74,8 @@ console.log("Rendering OpenAPI spec to Declarative Shadow DOM (DSD)...");
 const dsdHtml = await renderRapiDoc({
   spec: sampleSpec,
   renderStyle: "read",
-  theme: "dark",
-  primaryColor: "#0ea5e9",
+  theme: "cobalt",
+  colorScheme: "dark",
   schemaStyle: "table",
   showHeader: true,
   allowTry: true,

@@ -264,12 +264,6 @@ export default css`
     border-radius: min(var(--radius), 0.5rem);
     transition: max-height 0.2s ease-out;
   }
-  .expanded-endpoint-body .tag-icon {
-    transition: transform 0.2s ease-out;
-  }
-  .expanded-endpoint-body .tag-icon.expanded {
-    transform: rotate(180deg);
-  }
   .divider {
     border-top: 1px solid var(--border);
     margin: 24px 0;
@@ -299,20 +293,6 @@ export default css`
   .download-btn.view-spec {
     min-width: 190px;
   }
-  .download-select {
-    min-width: 180px;
-    height: 32px;
-    line-height: 30px;
-    padding: 0 14px;
-    white-space: nowrap;
-    vertical-align: middle;
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    cursor: pointer;
-  }
-
   .header-action-icon {
     margin: 6px 5px 0 -24px;
     font-size: var(--font-size-regular);

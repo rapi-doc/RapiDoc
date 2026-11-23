@@ -19,7 +19,11 @@ import { ELEMENTS, readApiManifest } from "./rapidoc-api.js";
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const rapidocDir = path.join(rootDir, "packages/rapidoc");
 
-/** Version of the format of integration.json. (The contract of @rapidoc/embed has its own version.) */
+/**
+ * Version of the format of integration.json (its `contract` field), and nothing else. It is independent
+ * of the integration contract's version (CONTRACT_VERSION in packages/rapidoc-embed/src/core.js) and of
+ * the version of @rapidoc/embed: a change to either does not change this number.
+ */
 export const CONTRACT_VERSION = 1;
 
 const GENERATED = "Generated from the element sources by scripts/rapidoc-metadata.js. Do not edit.";
@@ -90,7 +94,6 @@ export function listAttributes(manifest) {
         const known = kind === "boolean" ? ["true", "false"] : attribute.values;
         if (!known || known.includes(value)) attribute.default = value;
       }
-      if (item.deprecated) attribute.deprecated = true;
       if (item.hidden) attribute.hidden = true;
       attributes.push(attribute);
     }
@@ -130,7 +133,6 @@ export function buildOptionsSchema(manifest, pkg) {
       property.type = "string";
     }
     if (attribute.default !== undefined) property.default = attribute.default;
-    if (attribute.deprecated) property.deprecated = true;
     property["x-rapidoc-kind"] = attribute.kind;
     properties[attribute.name] = property;
   }
@@ -163,7 +165,6 @@ function elementDeclaration({ tag, className, manifest }) {
       const entry = { name: attribute.name, description: attribute.description, type: { text } };
       if (attribute.summary) entry.summary = attribute.summary;
       if (attribute.default !== undefined) entry.default = JSON.stringify(attribute.default);
-      if (attribute.deprecated) entry.deprecated = true;
       return entry;
     }),
     events: visible(manifest.Events).map((event) => ({
@@ -232,10 +233,7 @@ function elementTypes({ tag, className, manifest }) {
         type = attribute.values.map((value) => JSON.stringify(value)).join(" | ");
         if (attribute.open) type += " | (string & {})";
       }
-      const note = attribute.deprecated
-        ? `@deprecated ${attribute.description}`
-        : attribute.description;
-      return `${docComment(note)}  ${JSON.stringify(attribute.name)}?: ${type};\n`;
+      return `${docComment(attribute.description)}  ${JSON.stringify(attribute.name)}?: ${type};\n`;
     })
     .join("");
   const events = visible(manifest.Events)

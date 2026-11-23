@@ -46,7 +46,7 @@ The schema is strict: an unknown key fails the build with its path, e.g. `naviga
 site:
   title: Cosmo Cargo Inc.
   description: Interstellar shipping APIs.
-  url: https://cosmocargo.dev # canonical URLs and sitemap; a path (https://acme.com/developers) is where the portal is served
+  url: https://cosmocargo.dev # needed for canonical URLs and the sitemap (a build without it has neither); a path (https://acme.com/developers) is where the portal is served
   logo:
     src: /logo.svg # in public/; or { light: ..., dark: ... }
     text: COSMO CARGO # wordmark next to the image
@@ -112,13 +112,13 @@ navigation: # row 2: one tab per entry
     href: https://example.com/blog
 
 apis:
-  - id: shipments # reference page /apis/shipments; also used by `api:` and {% api-operation spec="..." %}
+  - id: shipments # reference page /apis/shipments; also used by `api:` and {% api-operation api="..." %}
     spec: ./specs/shipments.json # file or URL
     category: Core # catalog group (default General)
     # title, description               # default: info.title / info.description of the spec
 
 workflows:
-  - file: ./workflows/checkout.arazzo.yaml # drawn by {% workflow file="checkout" /%}; sources named like an API id
+  - file: ./workflows/checkout.arazzo.yaml # drawn by {% workflow document="checkout" /%}; sources named like an API id
     # id: checkout                           # default: the file name; published at /workflows/<id>.arazzo.yaml
     # sources: { storeAPI: shipments }       # a source description that is not named like an API
 
@@ -216,8 +216,8 @@ access:
 - **Markdown (`.md`)**: a first `# Heading` becomes the page title when there's no frontmatter `title`.
 - **MDX (`.mdx`)**: portal components can be used without importing them: `Callout`, `Card` (+ `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`), `Badge`, `Button`, `Link`, `Steps`, `Tabs`, `TabItem`, `OpenPlaygroundButton`. Starlight components (`Aside`, `CardGrid`, `LinkCard`, `FileTree`, ...) and `Icon` (`<Icon name="rocket" />`, a [Phosphor](https://phosphoricons.com) icon at 24px, or `size={16}`) are exported from `@rapidoc/portal/components`.
 - **Markdoc (`.markdoc`)**: rendered by Astro's Markdoc integration with Starlight's components, so headings, the table of contents and code blocks work as in Markdown. Tags:
-  - `{% callout type="info|tip|warning|danger" title="..." icon="..." %}`, `{% tabs %}{% tab name="..." %}`, `{% steps %}{% step title="..." %}`, `{% card-grid %}{% card title="..." icon="..." href="..." %}`, `{% badge text="..." variant="..." /%}`. Card icons are [Phosphor](https://phosphoricons.com) names, like every icon name in the config.
-  - `{% api-operation spec="<api id>" path="/shipments" method="post" title="..." /%}` embeds one live, interactive operation (`<rapi-doc-mini>`). `spec` is the `id` of an entry in `apis:`; an unknown id shows a notice on the page and a build warning. Pages with an embed load the RapiDoc bundle; other docs pages don't.
+  - `{% callout type="info|tip|warning|danger" title="..." icon="..." %}`, `{% tabs %}{% tab label="..." %}`, `{% steps %}{% step title="..." %}`, `{% card-grid columns=3 %}{% card title="..." icon="..." href="..." %}`, `{% badge text="..." variant="..." /%}`. `columns` (1 to 4, default 3) is how many cards go side by side from 50rem wide. Card icons are [Phosphor](https://phosphoricons.com) names, like every icon name in the config.
+  - `{% api-operation api="<api id>" path="/shipments" method="post" title="..." /%}` embeds one live, interactive operation (`<rapi-doc-mini>`). `api` is the `id` of an entry in `apis:`; an unknown id shows a notice on the page and a build warning. Pages with an embed load the RapiDoc bundle; other docs pages don't.
   - Starlight's own Markdoc tags (`aside`, `tabitem`, `cardgrid`, `linkcard`, `filetree`, ...) work too.
   - Tags inside a code fence show as text but are still checked; ` ```markdoc {% process=false %} ` skips the check (for tags from elsewhere). `markdoc` fences are highlighted as Markdown.
 - **Callouts** look the same however they are written: `{% callout %}` or `{% aside %}` in Markdoc, `<Callout>` or `<Aside>` in MDX, and `:::tip` blocks in Markdown and MDX (title as `:::tip[Title]` or `:::tip{title="Title"}`). Types: `note`, `info`, `tip`, `success`, `caution`, `warning`, `danger`, and Zudoku's `sparkles`, `rocket`, `settings`, `zap`, `lock`, `megaphone`; `icon` picks any other Phosphor icon.
@@ -266,7 +266,9 @@ const { config } = await loadConfig('./my-portal'); // normalized config
 
 Both `buildPortal` and `startDevServer` accept `keepWorkspace: true` (CLI: `--debug`) to leave the run's workspace in `.rapidoc-temp/` for inspecting the generated Astro project.
 
-Other exports: config helpers (`normalizeConfig`, `migrateConfig`, `RapidocConfigSchema`), Markdoc (`compileMarkdoc`, `markdocTags`), search (`buildSearchIndex`, `searchRecords`), and spec checks (`checkPortalSpecs`, `checkApiSpec`).
+Other exports: config helpers (`resolveConfig(raw, baseDir)`: validate and normalize a config object, as `loadConfig` does for a file; `migrateConfig`, `RapidocConfigSchema`, `defineConfig`), search (`buildSearchIndex`), and spec checks (`checkPortalSpecs`, `checkApiSpec`).
+
+Subpath exports: `./config`, `./search`, `./components` (MDX components and `PortalLayout`), `./components/PortalHead.astro`, `./components/PortalPageHeader.astro`, `./components/PortalPageFooter.astro` (for a project's own pages) and `./schema.json`. The `./internal/*` paths are what the generated workspace imports; they are not public API and can change in any release.
 
 ---
 
@@ -295,7 +297,7 @@ src/
 ├── pages/         catalog, api-reference, first-tab-redirect, rapidoc-notice (access denied, sign-in error) (.astro)
 ├── components/    Portal header/footer/sidebar/search/user menu and MDX components
 ├── styles/        portal-theme.css
-├── markdoc/       Markdoc tags, nodes, compiler
+├── markdoc/       Markdoc tags (astro-config.js) and the components they render to
 └── search/        Search index builder
 ```
 

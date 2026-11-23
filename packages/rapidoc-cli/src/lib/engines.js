@@ -45,8 +45,11 @@ export async function loadServer() {
   return server;
 }
 
-/** The mock server's package, or null when it isn't installed (lint's rules that need it are then skipped). */
-export const tryLoadMock = () => tryImport(MOCK_MODULE);
+/**
+ * What lint takes from the mock server's package (`@rapidoc/mock/internal`: exampleError, configFor,
+ * statefulFindings, statefulReport), or null when it isn't installed (the rules that need it are then skipped).
+ */
+export const tryLoadMock = () => tryImport(`${MOCK_MODULE}/internal`, MOCK_MODULE);
 
 export async function loadMock() {
   const mock = await tryImport(MOCK_MODULE);

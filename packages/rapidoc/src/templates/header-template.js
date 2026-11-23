@@ -52,8 +52,9 @@ export default function headerTemplate() {
                 part="btn btn-fill"
                 @click="${this.onFileLoadClick}"
               >
-                LOCAL JSON FILE
+                LOCAL FILE
               </button>
+              ${this.specFileError ? html`<span role="alert" style="margin-left:10px; font-size:var(--font-size-small)">${this.specFileError}</span>` : ""}
             `
       }
       <slot name="header"></slot>

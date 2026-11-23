@@ -1,6 +1,7 @@
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import {
+  authStorageKey,
   updateOAuthKey,
   recoverPersistedApiKeys,
   onClearAllApiKeys,
@@ -17,11 +18,13 @@ function memoryStorage() {
   };
 }
 
-function fakeDoc(persistAuth = "true") {
+function fakeDoc(persistAuth = "true", specUrl = "https://example.com/orders.yaml") {
   return {
     persistAuth,
+    specUrl,
     requestUpdate() {},
     resolvedSpec: {
+      info: { title: "Orders" },
       securitySchemes: [
         {
           securitySchemeId: "oauth",
@@ -43,7 +46,8 @@ function fakeDoc(persistAuth = "true") {
 }
 
 const scheme = (doc, id) => doc.resolvedSpec.securitySchemes.find((s) => s.securitySchemeId === id);
-const saved = () => JSON.parse(globalThis.localStorage.getItem("rapidoc") || "{}");
+const KEY = "rapidoc-auth:https://example.com/orders.yaml";
+const saved = (key = KEY) => JSON.parse(globalThis.localStorage.getItem(key) || "{}");
 
 describe("persist-auth with OAuth tokens", () => {
   let original;
@@ -84,7 +88,7 @@ describe("persist-auth with OAuth tokens", () => {
 
   it("drops an expired token on reload instead of applying it", () => {
     globalThis.localStorage.setItem(
-      "rapidoc",
+      KEY,
       JSON.stringify({
         oauth: { securitySchemeId: "oauth", value: "Bearer old", expiresAt: Date.now() - 1000 },
       }),
@@ -99,13 +103,53 @@ describe("persist-auth with OAuth tokens", () => {
     const doc = fakeDoc("false");
     updateOAuthKey.call(doc, "oauth", "tok", "Bearer", 60);
     assert.equal(scheme(doc, "oauth").finalKeyValue, "Bearer tok");
-    assert.equal(globalThis.localStorage.getItem("rapidoc"), null);
+    assert.equal(globalThis.localStorage.getItem(KEY), null);
   });
 
   it("CLEAR ALL forgets the saved token", () => {
     const doc = fakeDoc();
     updateOAuthKey.call(doc, "oauth", "tok", "Bearer", 60);
     onClearAllApiKeys.call(doc);
-    assert.deepEqual(saved(), {});
+    assert.equal(globalThis.localStorage.getItem(KEY), null);
+  });
+
+  it("keeps each API's keys apart: by spec URL, or by title for a spec object", () => {
+    assert.equal(authStorageKey.call(fakeDoc()), KEY);
+    assert.equal(authStorageKey.call(fakeDoc("true", "")), "rapidoc-auth:Orders");
+
+    updateOAuthKey.call(fakeDoc(), "oauth", "orders-token", "Bearer");
+    const other = fakeDoc("true", "https://example.com/billing.yaml");
+    recoverPersistedApiKeys.call(other);
+    assert.equal(scheme(other, "oauth").finalKeyValue, "", "same scheme name, another API");
+    updateOAuthKey.call(other, "oauth", "billing-token", "Bearer");
+    assert.equal(saved().oauth.value, "Bearer orders-token");
+    assert.equal(
+      saved("rapidoc-auth:https://example.com/billing.yaml").oauth.value,
+      "Bearer billing-token",
+    );
+  });
+
+  it("ignores the old shared entry and a value that is not JSON, without throwing", () => {
+    globalThis.localStorage.setItem(
+      "rapidoc",
+      JSON.stringify({ oauth: { securitySchemeId: "oauth", value: "Bearer v14" } }),
+    );
+    globalThis.localStorage.setItem(KEY, "not json");
+    const doc = fakeDoc();
+    assert.doesNotThrow(() => recoverPersistedApiKeys.call(doc));
+    assert.equal(scheme(doc, "oauth").finalKeyValue, "");
+  });
+
+  it("does not throw when storage is blocked", () => {
+    Object.defineProperty(globalThis, "localStorage", {
+      get() {
+        throw new Error("SecurityError");
+      },
+      configurable: true,
+    });
+    const doc = fakeDoc();
+    assert.doesNotThrow(() => recoverPersistedApiKeys.call(doc));
+    assert.doesNotThrow(() => updateOAuthKey.call(doc, "oauth", "tok", "Bearer"));
+    assert.equal(scheme(doc, "oauth").finalKeyValue, "Bearer tok");
   });
 });

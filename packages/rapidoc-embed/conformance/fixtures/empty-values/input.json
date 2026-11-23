@@ -1,0 +1,15 @@
+{
+  "description": "An option that is an empty string counts as absent: the same page as with no options at all.",
+  "page": "host",
+  "options": {
+    "uiPath": "",
+    "specUrl": "",
+    "spec": "",
+    "title": "",
+    "assets": "",
+    "head": "",
+    "css": "",
+    "lang": "",
+    "nonce": ""
+  }
+}

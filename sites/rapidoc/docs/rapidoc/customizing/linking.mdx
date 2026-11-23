@@ -111,7 +111,7 @@ Opening a URL with a hash scrolls to that ID.
 
 ### In a single-page app
 
-When your app's router owns the URL, set `update-route="false"` and follow RapiDoc's position through the `nav-active-change` event. Its `detail` is `{ id, elementId }`.
+When your app's router owns the URL, set `update-route="false"` and follow RapiDoc's position through the `nav-active-change` event. Its `detail` is `{ elementId, type, operationId? }`: the section's element ID, whether it is an `"operation"`, a `"tag"` or a `"section"` (the overview, servers, authentication, a heading), and for an operation that has one, its `operationId` from the spec.
 
 ```javascript
 const doc = document.querySelector('rapi-doc');

@@ -6,8 +6,6 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { guard } from "lit/directives/guard.js";
 
 import {
-  renderTemplateToString,
-  escapeHtml,
   renderRapiDoc,
   renderEndpoint,
   renderSchema,
@@ -15,11 +13,17 @@ import {
   getNavBarHtml,
   getNavFilterHtml,
   bindNavBar,
-  getMethodBadge,
   getBundledCss,
   getNavCss,
   getThemeTokensCss,
 } from "@rapidoc/prerender";
+import * as prerender from "@rapidoc/prerender";
+import {
+  renderTemplateToString,
+  escapeHtml,
+  resolveSpecInput,
+} from "../../packages/rapidoc-prerender/src/internal.js";
+import { getMethodBadge } from "../../packages/rapidoc-prerender/src/navigation.js";
 import { isInternalOrHidden } from "~/utils/common-utils";
 
 const sampleSpec = {
@@ -369,66 +373,36 @@ describe("Static Document Pre-Rendering (renderRapiDoc)", () => {
     assert.ok(htmlOutput.includes('shadowrootmode="open"'));
   });
 
-  it("should serialize all default SSR configuration attributes onto <rapi-doc> tag to prevent hydration mismatch", async () => {
-    const htmlOutput = await renderRapiDoc({
+  it("writes only the options the caller passed as attributes, and renders the rest with <rapi-doc>'s defaults", async () => {
+    const byDefault = await renderRapiDoc({ spec: sampleSpec });
+    assert.ok(
+      byDefault.startsWith("<rapi-doc>"),
+      "no attribute without an option: the element's own defaults apply",
+    );
+    // ...and the HTML is rendered with those defaults, so the element changes nothing on taking over
+    assert.ok(byDefault.includes('schema-style="tree"'), "schemas as trees, as the element");
+    assert.ok(!byDefault.includes('schema-style="table"'));
+    assert.ok(byDefault.includes("advanced-search-dialog"), "advanced search on, as the element");
+
+    const withOptions = await renderRapiDoc({
       spec: sampleSpec,
+      schemaStyle: "table",
+      layout: "column",
+      allowAdvancedSearch: false,
+      includeStyles: false,
+      inlineSpec: false,
     });
+    assert.ok(
+      withOptions.startsWith(
+        '<rapi-doc schema-style="table" layout="column" allow-advanced-search="false">',
+      ),
+      "the options passed, and not includeStyles or inlineSpec, which are not attributes",
+    );
+    assert.ok(!withOptions.includes('schema-style="tree"'));
+    assert.ok(!withOptions.includes("advanced-search-dialog"));
 
-    // Extract the opening <rapi-doc ...> tag
-    const openingTagMatch = htmlOutput.match(/<rapi-doc\s+([^>]+)>/);
-    assert.ok(openingTagMatch, "<rapi-doc> opening tag must exist");
-    const openingTagAttrs = openingTagMatch[1];
-
-    // Verify key attributes that prevent client-side hydration drift/mismatch
-    assert.ok(
-      openingTagAttrs.includes('schema-style="table"'),
-      'Must serialize schema-style="table" (preventing drift to tree)',
-    );
-    assert.ok(
-      openingTagAttrs.includes('allow-advanced-search="false"'),
-      'Must serialize allow-advanced-search="false" (preventing modal injection)',
-    );
-    assert.ok(openingTagAttrs.includes('show-header="true"'), 'Must serialize show-header="true"');
-    assert.ok(
-      openingTagAttrs.includes('show-side-nav="true"'),
-      'Must serialize show-side-nav="true"',
-    );
-    assert.ok(openingTagAttrs.includes('show-info="true"'), 'Must serialize show-info="true"');
-    assert.ok(
-      openingTagAttrs.includes('allow-search="true"'),
-      'Must serialize allow-search="true"',
-    );
-    assert.ok(
-      openingTagAttrs.includes('allow-server-selection="true"'),
-      'Must serialize allow-server-selection="true"',
-    );
-    assert.ok(
-      openingTagAttrs.includes('allow-authentication="true"'),
-      'Must serialize allow-authentication="true"',
-    );
-    assert.ok(openingTagAttrs.includes('allow-try="true"'), 'Must serialize allow-try="true"');
-    assert.ok(
-      openingTagAttrs.includes('render-style="read"'),
-      'Must serialize render-style="read"',
-    );
-    assert.ok(openingTagAttrs.includes('layout="column"'), 'Must serialize layout="column"');
-    assert.ok(openingTagAttrs.includes('theme="amber"'), 'Must serialize theme="amber"');
-    assert.ok(
-      openingTagAttrs.includes('color-scheme="dark"'),
-      'Must serialize color-scheme="dark"',
-    );
-    assert.ok(
-      openingTagAttrs.includes('page-direction="ltr"'),
-      'Must serialize page-direction="ltr"',
-    );
-    assert.ok(
-      openingTagAttrs.includes('default-schema-tab="example"'),
-      'Must serialize default-schema-tab="example"',
-    );
-    assert.ok(
-      openingTagAttrs.includes('schema-expand-level="99999"'),
-      'Must serialize schema-expand-level="99999"',
-    );
+    const light = await renderRapiDoc({ spec: sampleSpec, outputMode: "light" });
+    assert.ok(light.includes('data-layout="row"') && light.includes('data-schema-style="tree"'));
   });
 
   it("should serialize customized options onto <rapi-doc> tag and reflect them in static shadow DOM", async () => {
@@ -703,7 +677,7 @@ describe("Static Schema Pre-Rendering (renderSchema)", () => {
   it("should render schema in table format with column headers and fields", async () => {
     const htmlOutput = await renderSchema({
       schema: sampleSpec.components.schemas.Shipment,
-      style: "table",
+      schemaStyle: "table",
       theme: "carbon",
     });
 
@@ -718,7 +692,7 @@ describe("Static Schema Pre-Rendering (renderSchema)", () => {
   it("should render schema in tree format", async () => {
     const htmlOutput = await renderSchema({
       schema: sampleSpec.components.schemas.Shipment,
-      style: "tree",
+      schemaStyle: "tree",
       theme: "ember",
     });
 
@@ -731,7 +705,7 @@ describe("Static Schema Pre-Rendering (renderSchema)", () => {
     const htmlOutput = await renderSchema({
       spec: sampleSpec,
       schema: "Shipment",
-      style: "table",
+      "schema-style": "table",
     });
 
     assert.ok(htmlOutput.includes("destination"));
@@ -759,11 +733,11 @@ describe("Navigation & Styling Helpers (getSpecNavigation, getBundledCss)", () =
   });
 
   it("getBundledCss should return valid CSS and support Light DOM scoping", () => {
-    const shadowCss = getBundledCss({ theme: "ember" });
+    const shadowCss = getBundledCss();
     assert.ok(shadowCss.includes(":host"));
     assert.ok(shadowCss.includes(".main-content"));
 
-    const lightCss = getBundledCss({ theme: "ember", scope: ".my-portal" });
+    const lightCss = getBundledCss({ scope: ".my-portal" });
     assert.ok(!lightCss.includes(":host {"));
     assert.ok(lightCss.includes(".my-portal"));
   });
@@ -785,12 +759,20 @@ describe("Navigation & Styling Helpers (getSpecNavigation, getBundledCss)", () =
     });
 
     assert.ok(html.includes('class="nav-bar-tag-group expanded"'));
-    assert.ok(html.includes('class="nav-bar-tag-group-header"'));
+    assert.ok(html.includes('class="nav-bar-tag-group-header nav-bar-section-label"'));
+    assert.ok(!html.includes('data-action="expand-collapse-tag-group"'), "a tag group is a label");
+    assert.ok(!html.includes("tags-as-labels"), "with tag groups, the tags are rows");
+    assert.ok(
+      html.includes(
+        '<div class="nav-bar-section-label" part="section-navbar-label">Overview</div>',
+      ),
+    );
+    assert.ok(html.includes('<svg class="nav-bar-icon" part="section-navbar-icon"'));
     assert.ok(html.includes('class="nav-bar-tag-and-paths expanded"'));
     assert.ok(html.includes('class="nav-bar-tag"'));
     assert.ok(html.includes('class="nav-bar-paths-under-tag"'));
     assert.ok(html.includes('class="nav-bar-path active"'));
-    assert.ok(html.includes('class="nav-method as-colored-block get"'));
+    assert.ok(html.includes('class="nav-method as-colored-text get"'));
     assert.ok(html.includes(">GET</span>"));
     assert.ok(html.includes('href="/apis/shipments#overview"'));
     assert.ok(html.includes('href="/apis/shipments#shipments--list-shipments"'));
@@ -816,30 +798,44 @@ describe("Navigation & Styling Helpers (getSpecNavigation, getBundledCss)", () =
     assert.ok(tagPagesHtml.includes('href="/apis/shipments/shipments#list-shipments"'));
   });
 
-  it("getNavBarHtml should make a tag's title go to the tag and its chevron expand or collapse it", async () => {
+  it("getNavBarHtml makes a tag's name a link to the tag and its arrow a button beside it", async () => {
     const html = await getNavBarHtml(sampleSpec, {
       basePath: "/apis/shipments",
       routingMode: "tag-pages",
       activeHref: "/apis/shipments/shipments",
     });
-    const row = html.match(/<div\s+class="nav-bar-tag[ "][\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? "";
+    const row = html.match(/<div\s+class="nav-bar-tag[ "][\s\S]*?<\/div>/)?.[0] ?? "";
     assert.match(row, /class="nav-bar-tag active"/);
-    assert.match(row, /data-action="navigate"\s+data-content-id="tag--shipments"/);
-    assert.match(row, /data-tag-href="\/apis\/shipments\/shipments"/);
+    // the row itself is not a control: the link and the button are, side by side
+    assert.doesNotMatch(row.slice(0, row.indexOf(">")), /data-action|tabindex|role=/);
     assert.match(
       row,
-      /class="nav-bar-tag-icon"[^>]*role="button"[^>]*aria-expanded="true"[^>]*data-action="expand-collapse-tag"/,
+      /<a\s+href="\/apis\/shipments\/shipments"\s+id="link-tag--shipments"\s+class="nav-bar-tag-title"\s+aria-current="true"\s+data-action="navigate"\s+data-content-id="tag--shipments"\s*>Shipments<\/a>/,
     );
+    assert.match(
+      row,
+      /<button\s+type="button"\s+class="nav-bar-tag-icon"[^>]*aria-expanded="true"[^>]*data-action="expand-collapse-tag"\s*><\/button>/,
+    );
+    // no focusable element is a div, and only the current item is marked as current
+    assert.doesNotMatch(html, /<div[^>]*tabindex="0"/);
+    assert.equal(html.match(/aria-current=/g)?.length, 1);
   });
 
   it("renderNavBarHtml should show methods and paths as <rapi-doc> does (show-method-in-nav-bar, use-path-in-nav-bar)", async () => {
     const nav = (options) => getNavBarHtml(sampleSpec, { basePath: "/apis/shipments", ...options });
 
-    const block = await nav({});
+    const byDefault = await nav({});
     assert.ok(
-      block.includes('<span class="nav-method as-colored-block get">GET</span>'),
-      "default: a three-letter colored block",
+      byDefault.includes('<span class="nav-method as-colored-text get">GET</span>'),
+      "default: colored text",
     );
+    assert.match(
+      byDefault,
+      /<span class="nav-method [^"]*">GET<\/span>\s*<span class="nav-bar-path-label">/,
+      "the method leads the row",
+    );
+    const block = await nav({ showMethodInNavBar: "as-colored-block" });
+    assert.ok(block.includes('<span class="nav-method as-colored-block get">GET</span>'));
 
     const text = await nav({ "show-method-in-nav-bar": "as-colored-text" });
     assert.ok(text.includes('<span class="nav-method as-colored-text get">GET</span>'));
@@ -849,7 +845,7 @@ describe("Navigation & Styling Helpers (getSpecNavigation, getBundledCss)", () =
     assert.ok(!hidden.includes('class="nav-method'), "false: no method at all");
     const unknown = await nav({ showMethodInNavBar: "as-rainbow" });
     assert.ok(
-      unknown.includes('class="nav-method as-colored-block get"'),
+      unknown.includes('class="nav-method as-colored-text get"'),
       "an unknown value falls back to the default",
     );
 
@@ -859,7 +855,7 @@ describe("Navigation & Styling Helpers (getSpecNavigation, getBundledCss)", () =
         '<span class="nav-bar-path-label"><span class="mono-font">/v1/shipments</span></span>',
       ),
     );
-    assert.ok(!(await nav({ usePathInNav: "false" })).includes('class="mono-font"'));
+    assert.ok(!(await nav({ usePathInNavBar: "false" })).includes('class="mono-font"'));
   });
 
   it("getNavFilterHtml should generate clean dedicated filter header without search modal button", () => {
@@ -914,10 +910,10 @@ describe("Light DOM scoping of :host selectors (getBundledCss, getNavCss)", () =
     );
     assert.ok(!bundled.includes(":not([theme][color-scheme"), "no attribute swallowed into :not()");
     assert.ok(!bundled.includes("]))"), "no stray closing parenthesis");
-    assert.ok(bundled.includes(".api-docs:not([nav-item-overflow]) .nav-bar-tag-title"));
+    assert.ok(bundled.includes(".api-docs:not([nav-item-overflow]) :is(.nav-bar-tag-group-title"));
 
     const nav = getNavCss(".api-nav");
-    assert.ok(nav.includes(".api-nav:not([nav-item-overflow]) .nav-bar-tag-title"));
+    assert.ok(nav.includes(".api-nav:not([nav-item-overflow]) :is(.nav-bar-tag-group-title"));
     assert.ok(!nav.includes("]))"), "no stray closing parenthesis in the nav css");
   });
 
@@ -940,6 +936,223 @@ describe("Light DOM scoping of :host selectors (getBundledCss, getNavCss)", () =
     for (const out of [endpoint, schema]) {
       assert.ok(!out.includes("<script>alert(1)</script>"), "no raw markup from the theme");
       assert.ok(out.includes('data-theme="&quot;&gt;&lt;script&gt;'));
+    }
+  });
+
+  it("rejects an option name a function does not know, listing the valid ones", async () => {
+    const endpoint = { spec: sampleSpec, path: "/v1/shipments", method: "get" };
+    const schema = { schema: { type: "string" } };
+    for (const [call, pattern] of [
+      [
+        () => getNavBarHtml(sampleSpec, { usePathInNav: true }),
+        /getNavBarHtml\(\): unknown option "usePathInNav"\. Valid options: .*usePathInNavBar/,
+      ],
+      [
+        () => getNavBarHtml(sampleSpec, { "routing-mode": "tag-pages" }),
+        /unknown option "routing-mode"/,
+      ],
+      [
+        () => getSpecNavigation(sampleSpec, { apiKey: "x" }),
+        /getSpecNavigation\(\): unknown option "apiKey".*apiKeyName/,
+      ],
+      [
+        () => renderEndpoint({ ...endpoint, schemStyle: "tree" }),
+        /renderEndpoint\(\): unknown option "schemStyle"/,
+      ],
+      [
+        () => renderSchema({ ...schema, style: "tree" }),
+        /renderSchema\(\): unknown option "style".*schemaStyle/,
+      ],
+      [
+        () => renderRapiDoc({ spec: sampleSpec, "output-mode": "light" }),
+        /unknown option "output-mode"/,
+      ],
+      [
+        () =>
+          renderRapiDoc({
+            spec: sampleSpec,
+            "render-style": "read",
+            renderStyle: "view",
+          }),
+        /"renderStyle" is given twice/,
+      ],
+    ]) {
+      await assert.rejects(async () => call(), pattern);
+    }
+    assert.throws(() => getNavFilterHtml({ placeholder: "Find" }), /unknown option "placeholder"/);
+    assert.throws(
+      () => getBundledCss({ theme: "ember" }),
+      /getBundledCss\(\): unknown option "theme"/,
+    );
+  });
+
+  it("accepts the kebab-case name of every option that is an attribute of <rapi-doc>, in every function", async () => {
+    const endpoint = await renderEndpoint({
+      spec: sampleSpec,
+      path: "/v1/shipments",
+      method: "get",
+      "schema-style": "tree",
+      "color-scheme": "light",
+      "render-style": "view",
+      includeStyles: false,
+    });
+    assert.ok(endpoint.includes('data-color-scheme="light"') && endpoint.includes("view-mode"));
+    const schema = await renderSchema({
+      schema: sampleSpec.components.schemas.Shipment,
+      "schema-style": "tree",
+      "schema-expand-level": 1,
+      includeStyles: false,
+    });
+    assert.ok(!schema.includes("Field"), "tree, not the table with its column headers");
+    const sorted = await getSpecNavigation(sampleSpec, { "sort-tags": "true" });
+    assert.deepEqual(
+      sorted.tags.map((t) => t.name),
+      sorted.tags.map((t) => t.name).sort(),
+    );
+    const nav = await getNavBarHtml(sampleSpec, { "use-path-in-nav-bar": true, sortTags: true });
+    assert.ok(nav.includes('class="mono-font"'));
+    // renderRapiDoc passes any other attribute of <rapi-doc> on to the element
+    const doc = await renderRapiDoc({
+      spec: sampleSpec,
+      "use-path-in-nav-bar": "true",
+      gotoPath: "x",
+    });
+    assert.ok(doc.startsWith('<rapi-doc use-path-in-nav-bar="true" goto-path="x">'));
+  });
+
+  it("gives every sidebar link one form, with or without a closing slash on basePath", async () => {
+    const hrefs = async (options) =>
+      [...(await getNavBarHtml(sampleSpec, options)).matchAll(/href="([^"]+)"/g)]
+        .map((m) => m[1])
+        .sort();
+    for (const routingMode of ["single-page", "tag-pages"]) {
+      const withSlash = await hrefs({ basePath: "/apis/x/", routingMode });
+      assert.deepEqual(withSlash, await hrefs({ basePath: "/apis/x", routingMode }));
+      assert.ok(withSlash.includes("/apis/x#overview"));
+      assert.ok(!withSlash.some((href) => href.includes("/apis/x/#") || href.includes("x//")));
+    }
+  });
+
+  it("getSpecNavigation returns exactly the declared fields of an operation", async () => {
+    const nav = await getSpecNavigation(sampleSpec);
+    const fields = [
+      "deprecated",
+      "description",
+      "elementId",
+      "isWebhook",
+      "method",
+      "operationId",
+      "path",
+      "summary",
+    ];
+    const tags = [...nav.tags, ...nav.remainingTags, ...nav.tagGroups.flatMap((g) => g.tags)];
+    assert.ok(tags.length > 0);
+    for (const tag of tags) {
+      for (const operation of tag.paths) {
+        assert.deepEqual(Object.keys(operation).sort(), fields);
+        assert.equal(typeof operation.deprecated, "boolean");
+        assert.equal(typeof operation.isWebhook, "boolean");
+      }
+    }
+  });
+
+  it("exports the documented API by name only: no default export, no internal helpers", () => {
+    assert.deepEqual(Object.keys(prerender).sort(), [
+      "bindNavBar",
+      "getBundledCss",
+      "getFlowCss",
+      "getNavBarHtml",
+      "getNavCss",
+      "getNavFilterHtml",
+      "getSpecNavigation",
+      "getThemeTokensCss",
+      "methodPathSlug",
+      "operationAnchorSource",
+      "renderArazzoWorkflow",
+      "renderEndpoint",
+      "renderRapiDoc",
+      "renderSchema",
+      "toKebabCase",
+    ]);
+  });
+});
+
+describe("A spec that cannot be loaded throws", () => {
+  const calls = (spec) => [
+    () => renderRapiDoc({ spec }),
+    () => renderEndpoint({ spec, path: "/a", method: "get" }),
+    () => renderSchema({ spec, schema: "A" }),
+    () => getSpecNavigation(spec),
+    () => getNavBarHtml(spec),
+    () => resolveSpecInput(spec),
+  ];
+
+  it("a path that is not a file: file not found, and nothing is fetched", async () => {
+    const realFetch = globalThis.fetch;
+    let fetched = 0;
+    globalThis.fetch = async () => {
+      fetched += 1;
+      throw new Error("no network in this test");
+    };
+    try {
+      for (const call of calls("./specs/no-such-spec.yaml")) {
+        await assert.rejects(
+          call,
+          /Cannot load the OpenAPI spec: file not found: \.\/specs\/no-such-spec\.yaml/,
+        );
+      }
+      assert.equal(fetched, 0, "a mistyped path is not requested from http://localhost");
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  it("a URL that does not answer, naming the URL", async () => {
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response("gone", { status: 503, statusText: "Unavailable" });
+    try {
+      for (const call of calls("https://specs.example.test/openapi.json")) {
+        await assert.rejects(
+          call,
+          /Cannot load the OpenAPI spec https:\/\/specs\.example\.test\/openapi\.json: /,
+        );
+      }
+      globalThis.fetch = async () => {
+        throw new TypeError("fetch failed");
+      };
+      await assert.rejects(
+        getNavBarHtml("https://specs.example.test/openapi.json"),
+        /Cannot load the OpenAPI spec https:\/\/specs\.example\.test\/openapi\.json: /,
+      );
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  it("text and objects that are not an OpenAPI document", async () => {
+    await assert.rejects(getNavBarHtml("{ not json\n  nor: [yaml"), /it is not valid JSON or YAML/);
+    await assert.rejects(getNavBarHtml("just some\ntext"), /it is not an OpenAPI document/);
+    await assert.rejects(
+      getSpecNavigation({ hello: "world" }),
+      /Cannot load the OpenAPI spec \(the object given\): it is not an OpenAPI document/,
+    );
+    await assert.rejects(renderRapiDoc({}), /An OpenAPI spec is required/);
+  });
+
+  it("a file that exists but does not parse, naming the file", async () => {
+    const fs = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-prerender-spec-"));
+    const file = path.join(dir, "broken.yaml");
+    fs.writeFileSync(file, "openapi: 3.1.0\ninfo: [unclosed\n");
+    try {
+      await assert.rejects(getNavBarHtml(file), (err) => {
+        assert.ok(err.message.includes(file) && /not valid JSON or YAML/.test(err.message));
+        return true;
+      });
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 });

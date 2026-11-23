@@ -15,7 +15,7 @@ workflows:
 | Key | Meaning |
 | :--- | :--- |
 | `file` | **Required.** An [Arazzo 1.x](https://spec.openapis.org/arazzo/latest.html) file, YAML or JSON, relative to the config. |
-| `id` | Lowercase letters, digits and dashes. Default: the file name without `.arazzo.yaml`. The `workflow` tag refers to it (`file="<id>"`), and the file is published at `/workflows/<id>.arazzo.yaml`. |
+| `id` | Lowercase letters, digits and dashes. Default: the file name without `.arazzo.yaml`. The `workflow` tag refers to it (`document="<id>"`), and the file is published at `/workflows/<id>.arazzo.yaml`. |
 | `sources` | Which API in `apis:` each of the file's source descriptions is: `<source name>: <api id>`. A source whose name is already an API id needs no entry. |
 
 ## What an Arazzo spec gets

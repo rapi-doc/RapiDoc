@@ -31,11 +31,18 @@ function isInside(filePath, dir) {
  * @param {string} [projectDir] - Folder containing rapidoc.config.yaml
  * @param {object} [options]
  * @param {number} [options.port=4321]
+ * @param {string} [options.host='localhost'] - Address to listen on. `0.0.0.0` opens the server to the network:
+ *   the dev server does not enforce access rules, so every page is then readable from other machines
  * @param {boolean} [options.keepWorkspace=false] - Leave the temp workspace on stop (debugging)
  * @returns {Promise<{port: number, readonly workspaceDir: string, stop: () => Promise<void>}>}
  */
 export async function startDevServer(projectDir = process.cwd(), options = {}) {
   const port = options.port || 4321;
+  // Astro: true is every interface, a string that address. `localhost` is the IPv4 loopback address: as a
+  // name to listen on it is one address family only (IPv6 on macOS), which a client asking for 127.0.0.1 misses.
+  const listenHost = options.host || "localhost";
+  const host =
+    listenHost === "localhost" ? "127.0.0.1" : listenHost === "0.0.0.0" ? true : listenHost;
   let workspace = null;
   let server = null;
   let watcher = null;
@@ -50,7 +57,7 @@ export async function startDevServer(projectDir = process.cwd(), options = {}) {
       );
     }
     try {
-      server = await astroDev(createAstroConfig(workspace, { server: { port, host: true } }));
+      server = await astroDev(createAstroConfig(workspace, { server: { port, host } }));
     } catch (err) {
       removePortalWorkspace(workspace);
       throw err;

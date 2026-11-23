@@ -108,7 +108,13 @@ export default {
       value: "number",
       description: "Port to listen on (default 4010)",
     },
-    host: { type: "string", value: "host", description: "Address to listen on (default 0.0.0.0)" },
+    host: {
+      type: "string",
+      value: "host",
+      default: "localhost",
+      description:
+        "Address to listen on (0.0.0.0 opens the mock, and its control API, to your network: for a container or a shared test server)",
+    },
     issuer: {
       type: "string",
       value: "url",
@@ -252,7 +258,8 @@ export default {
             streamInterval: values["stream-interval"],
           }),
         values.port ?? DEFAULT_PORT ?? 4010,
-        { host: values.host ?? "0.0.0.0" }, // the mock server's default host
+        // the address the mock binds for `localhost` (startMockServer)
+        { host: values.host === "localhost" ? "127.0.0.1" : values.host },
       );
     } catch (err) {
       if (err.exitCode) throw err; // a busy port without --port, or a cancelled question

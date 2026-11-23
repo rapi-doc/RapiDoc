@@ -99,7 +99,7 @@ describe("mock-interceptor", () => {
 
   it("should cycle through multi-status codes in sequence", async () => {
     enableMockServer(testSpec, { log: "false" });
-    updateMockConfig({ statusCode: "404, 200", statusStrategy: "cycle" });
+    updateMockConfig({ statusCode: "404, 200" });
 
     const first = await fetch("/api/v1/users/1");
     assert.strictEqual(first.status, 404);
@@ -123,7 +123,6 @@ describe("mock-interceptor", () => {
     enableMockServer(testSpec, {
       log: "false",
       statusCode: { "get /users/{id}": "404", "*": "201" },
-      statusStrategy: "cycle",
     });
     assert.strictEqual((await fetch("https://api.example.com/v1/users/1")).status, 404);
     assert.strictEqual(
@@ -211,7 +210,7 @@ describe("mock-interceptor", () => {
     it("keeps status codes and cycle positions per mock", async () => {
       enableMockServer(testSpec, { log: "false", owner: users, statusCode: "404" });
       enableMockServer(ordersSpec, { log: "false", owner: orders });
-      updateMockConfig({ owner: orders, statusCode: "200, 404", statusStrategy: "cycle" });
+      updateMockConfig({ owner: orders, statusCode: "200, 404" });
 
       assert.strictEqual((await fetch("https://api.example.com/v1/users/1")).status, 404);
       assert.strictEqual((await fetch("http://localhost:4010/orders/orders")).status, 200);

@@ -2,9 +2,9 @@
  * Renders the API specification overview header with metadata, description markdown, contact, license, and download links.
  */
 import { fixRenderedAnchorLinks } from "~/utils/markdown-utils";
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { sanitizeHTML } from "../utils/sanitize.js";
+import { safeUrl, sanitizeHTML } from "../utils/sanitize.js";
 import Slugger from "github-slugger";
 import { marked } from "marked";
 
@@ -51,7 +51,7 @@ export default function overviewTemplate() {
                   this.resolvedSpec.info.contact?.url
                     ? html`<span
                         >URL:
-                        <a href="${this.resolvedSpec.info.contact.url}" part="anchor anchor-overview"
+                        <a href="${safeUrl(this.resolvedSpec.info.contact.url) || nothing}" rel="noopener noreferrer" part="anchor anchor-overview"
                           >${this.resolvedSpec.info.contact.url}</a
                         ></span
                       >`
@@ -63,7 +63,7 @@ export default function overviewTemplate() {
                         >License:
                         ${
                           this.resolvedSpec.info.license.url
-                            ? html`<a href="${this.resolvedSpec.info.license.url}" part="anchor anchor-overview"
+                            ? html`<a href="${safeUrl(this.resolvedSpec.info.license.url) || nothing}" rel="noopener noreferrer" part="anchor anchor-overview"
                                 >${this.resolvedSpec.info.license.name}</a
                               >`
                             : this.resolvedSpec.info.license.name
@@ -74,7 +74,7 @@ export default function overviewTemplate() {
                 ${
                   this.resolvedSpec.info.termsOfService
                     ? html`<span
-                        ><a href="${this.resolvedSpec.info.termsOfService}" part="anchor anchor-overview">Terms of Service</a></span
+                        ><a href="${safeUrl(this.resolvedSpec.info.termsOfService) || nothing}" rel="noopener noreferrer" part="anchor anchor-overview">Terms of Service</a></span
                       >`
                     : ""
                 }

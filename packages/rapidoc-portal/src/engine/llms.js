@@ -93,8 +93,8 @@ export function toMarkdown(source, portalConfig) {
 
   // Operation embeds → method, path, title, and a link to the API page.
   text = text.replace(/\{%\s*api-operation\s+([^%]*?)\/?%\}/g, (_, attrText) => {
-    const { spec, path: opPath, method = "get", title, version } = attributesOf(attrText);
-    const api = apis.get(spec);
+    const { api: apiId, path: opPath, method = "get", title, version } = attributesOf(attrText);
+    const api = apis.get(apiId);
     const target =
       api && (version ? api.versions.find((v) => v.version === version) : api.versions[0]);
     const label = `\`${method.toUpperCase()} ${opPath}\`${title ? ` ${title}` : ""}`;
@@ -134,8 +134,8 @@ export function toMarkdown(source, portalConfig) {
 
   // Every other Markdoc tag keeps its content; a tab keeps its label and a step its title.
   text = text.replace(/\{%\s*(tab|step)\s+([^%]*?)%\}/g, (_, _tag, attrText) => {
-    const { label, name, title } = attributesOf(attrText);
-    const heading = label || name || title;
+    const { label, title } = attributesOf(attrText);
+    const heading = label || title;
     return heading ? `**${heading}**\n` : "";
   });
   text = text.replace(/\{%\s*\/?[\w-]+[^%]*?%\}/g, "");

@@ -103,7 +103,6 @@ const ATTRIBUTE_CONTROLS: Record<string, AttributeControl> = {
   "use-path-in-nav-bar": {},
   "show-method-in-nav-bar": {},
   "show-badges-in-nav-bar": {},
-  "nav-item-spacing": {},
   "sort-tags": {},
   "info-description-headings-in-navbar": {},
   "update-route": {},
@@ -237,7 +236,7 @@ function firstSentence(html: string): string {
 
 function attributeControl(attr: string, extra: AttributeControl): ControlDef {
   const declared = ATTRIBUTES.get(attr);
-  if (!declared || declared.deprecated) {
+  if (!declared) {
     throw new Error(`controller-registry: <rapi-doc> has no attribute "${attr}"`);
   }
   const allowed = (declared.allowed ?? []).map(String).filter((value) => !isNote(value));
@@ -352,7 +351,6 @@ export const PRESETS: Record<string, string[]> = {
   nav: [
     "use-path-in-nav-bar",
     "show-method-in-nav-bar",
-    "nav-item-spacing",
     "sort-tags",
     "update-route",
   ],

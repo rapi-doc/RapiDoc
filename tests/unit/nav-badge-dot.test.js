@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderNavBarHtml } from "@rapidoc/prerender";
+import { renderNavBarHtml } from "../../packages/rapidoc-prerender/src/internal.js";
 import ProcessSpec from "../../packages/rapidoc/src/utils/spec-parser.js";
 import {
   navBadgeDot,

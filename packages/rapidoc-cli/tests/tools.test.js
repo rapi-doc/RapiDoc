@@ -159,7 +159,7 @@ test("rapidoc mcp", async (t) => {
     await client.connect(
       new StdioClientTransport({
         command: "node",
-        args: [CLI_PATH, "mcp", "serve", SPEC],
+        args: [CLI_PATH, "mcp", "serve", SPEC, "--base-url", "http://127.0.0.1:9"],
         stderr: "ignore",
       }),
     );
@@ -174,6 +174,71 @@ test("rapidoc mcp", async (t) => {
       await client.close();
     }
   });
+
+  await t.test("export says a base URL is required when the spec names no server", (t) => {
+    const out = path.join(tempDir(t), "server");
+    // The fixture has no `servers`
+    const result = run(["mcp", "export", SPEC, "--out-dir", out]);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stderr, /A base URL is required: .* Set MCP_BASE_URL/);
+    assert.match(result.stdout, /MCP_BASE_URL=https:\/\/api\.example\.com npm start/);
+    const manifest = JSON.parse(fs.readFileSync(path.join(out, "manifest.json"), "utf8"));
+    assert.ok(!("baseUrl" in manifest.sources.api), "no http://localhost guess");
+    const config = JSON.parse(fs.readFileSync(path.join(out, "mcp.json"), "utf8"));
+    assert.deepEqual(Object.values(config.mcpServers)[0].env, {
+      MCP_BASE_URL: "https://api.example.com",
+    });
+    assert.match(
+      fs.readFileSync(path.join(out, "README.md"), "utf8"),
+      /`MCP_BASE_URL`: \*\*required\*\*/,
+    );
+    const flag = run([
+      "mcp",
+      "export",
+      SPEC,
+      "--out-dir",
+      out,
+      "--force",
+      "--base-url",
+      "http://x",
+    ]);
+    assert.equal(flag.status, 2);
+    assert.match(flag.stderr, /--base-url is for rapidoc mcp serve/);
+  });
+
+  await t.test(
+    "serve stops without a base URL, and takes one from --base-url or MCP_BASE_URL",
+    async () => {
+      const { MCP_BASE_URL: _unset, ...env } = process.env;
+      const stopped = run(["mcp", "serve", SPEC], { env });
+      assert.equal(stopped.status, 1);
+      assert.match(
+        stopped.stderr,
+        /A base URL is required: .*pass --base-url <url> or set MCP_BASE_URL/,
+      );
+      assert.equal(stopped.stdout, "");
+      const relative = run(["mcp", "serve", SPEC, "--base-url", "/api"], { env });
+      assert.equal(relative.status, 2);
+      assert.match(relative.stderr, /--base-url must be an http\(s\) URL/);
+
+      const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
+      const { StdioClientTransport } = await import("@modelcontextprotocol/sdk/client/stdio.js");
+      const client = new Client({ name: "test", version: "1" });
+      await client.connect(
+        new StdioClientTransport({
+          command: "node",
+          args: [CLI_PATH, "mcp", "serve", SPEC],
+          env: { ...env, MCP_BASE_URL: "http://127.0.0.1:9" },
+          stderr: "ignore",
+        }),
+      );
+      try {
+        assert.equal((await client.listTools()).tools.length, 1);
+      } finally {
+        await client.close();
+      }
+    },
+  );
 
   await t.test("serve without the MCP SDK says how to install it", () => {
     const result = run(["mcp", "serve", SPEC], {

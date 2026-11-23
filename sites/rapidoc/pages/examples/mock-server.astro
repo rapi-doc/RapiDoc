@@ -2,7 +2,7 @@
 // The in-browser mock, live: a testbed that sets the mock attributes and calls fetch(), which the mock
 // answers. The how-to is in content/docs/mocking/; this page was the Mock Server guide.
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
-import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import Icon from '../../components/Icon.astro';
 
@@ -18,12 +18,6 @@ const mockAttributes = [
     type: 'String',
     default: '(auto)',
     desc: 'Target HTTP status code, or a comma-separated list used in turn per operation ("503, 503, 200"); "random:200, 500" picks one at random for each call. Or a JSON map by operation, each entry with its own codes and prefix ({ "POST /orders": "503, 200", "*": "200" }, keys are the method and path template, "*" the default). If omitted, the mock server automatically picks the first available 2xx response in the spec.',
-  },
-  {
-    name: 'mock-server-status-strategy',
-    type: 'first | cycle | random',
-    default: 'cycle',
-    desc: "Deprecated: write the strategy in front of the codes in mock-server-status-code instead (random:200, 500). How codes without a prefix are picked: 'cycle' in turn per operation, 'random' one per call, 'first' always the first code.",
   },
   {
     name: 'mock-server-delay',

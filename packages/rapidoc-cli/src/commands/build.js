@@ -15,7 +15,8 @@ export default {
       type: "string",
       value: "path",
       default: "dist",
-      description: "Output folder, relative to the portal folder",
+      description:
+        "Output folder, relative to the portal folder. It is emptied first, so it must be a folder of its own",
     },
     debug: {
       type: "boolean",
@@ -23,7 +24,7 @@ export default {
         "Keep the temporary Astro workspace and print its path (for debugging the engine)",
     },
   },
-  examples: ["rapidoc build", "rapidoc build ./my-portal", "rapidoc build --out-dir public"],
+  examples: ["rapidoc build", "rapidoc build ./my-portal", "rapidoc build --out-dir site"],
 
   async run({ values, positionals }) {
     const targetDir = path.resolve(positionals[0] || ".");

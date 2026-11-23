@@ -59,7 +59,7 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
       cwd: projectDir,
       env: {
         ...process.env,
-        API_BASE_URL: `${mock.url}/petstore`,
+        MCP_BASE_URL: `${mock.url}/petstore`,
         ...env,
       },
       stderr: "pipe",
@@ -71,7 +71,7 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
   }
 
   it("lists the manifest's tools and calls the API with the credential from the environment", async () => {
-    const client = await connect({ API_KEY: "test-key" });
+    const client = await connect({ MCP_AUTH_API_KEY: "test-key" });
     const { tools } = await client.listTools();
     assert.equal(tools.length, 22); // 19 operations and 3 workflows (registerUser cannot run)
     const get = tools.find((t) => t.name === "get_pet_by_id");
@@ -106,8 +106,11 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
   });
 
   it("runs a workflow tool end to end against the mock", async () => {
-    // Two schemes, so each has its own variable: API_KEY is not sent as petstore_auth's token
-    const client = await connect({ API_KEY: "test-key", PETSTORE_AUTH: "test-key" });
+    // Each scheme has its own variable
+    const client = await connect({
+      MCP_AUTH_API_KEY: "test-key",
+      MCP_AUTH_PETSTORE_AUTH: "test-key",
+    });
     const result = await client.callTool({ name: "adopt_pet", arguments: { quantity: 1 } });
     assert.equal(result.isError ?? false, false, result.content?.[0]?.text);
     const outputs = result.structuredContent;
@@ -116,8 +119,8 @@ describe("mcp: the exported project runs against @rapidoc/mock", () => {
     assert.ok(["placed", "approved", "delivered"].includes(outputs.orderStatus));
   });
 
-  it("gets the API's 401 as an error result when no credential is set", async () => {
-    const client = await connect({ API_KEY: "" });
+  it("gets the API's 401 as an error result when no credential is set, the old variable names included", async () => {
+    const client = await connect({ MCP_AUTH_API_KEY: "", API_KEY: "test-key" });
     const result = await client.callTool({ name: "get_pet_by_id", arguments: { petId: 1 } });
     assert.equal(result.isError, true);
     assert.match(result.content[0].text, /^HTTP 401/);

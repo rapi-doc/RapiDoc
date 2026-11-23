@@ -59,11 +59,11 @@ async function chooseSource(targetDir, from, sources) {
 
 export default {
   name: "migrate",
-  usage: "migrate [--from <src>]",
+  usage: "migrate [dir] [--from <src>]",
   summary: "Converts a Redocly or a Zudoku project to rapidoc.config.yaml (redocly, zudoku)",
   description:
-    "Reads the project in the current folder and writes rapidoc.config.yaml next to it, listing what\nwasn't migrated and what to fix before building. Without --from it looks for redocly.yaml or\nzudoku.config.* and, in a terminal, asks to confirm. An existing rapidoc.config.yaml is replaced\n(after asking, in a terminal).",
-  positionals: { name: "", max: 0 },
+    "Reads the project in dir (default: current folder) and writes rapidoc.config.yaml next to it,\nlisting what wasn't migrated and what to fix before building. Without --from it looks for\nredocly.yaml or zudoku.config.* and, in a terminal, asks to confirm. An existing\nrapidoc.config.yaml is replaced only with --force, or after asking in a terminal.",
+  positionals: { name: "dir", max: 1 },
   options: {
     from: {
       type: "string",
@@ -71,19 +71,29 @@ export default {
       choices: ["redocly", "zudoku"],
       description: "The tool the project comes from (default: the one found in the folder)",
     },
+    force: {
+      type: "boolean",
+      short: "f",
+      description: "Replace an existing rapidoc.config.yaml without asking",
+    },
   },
   examples: [
     "rapidoc migrate",
-    "rapidoc migrate --from redocly",
+    "rapidoc migrate ./my-docs --from redocly",
     "rapidoc migrate --from zudoku --yes",
+    "rapidoc migrate --from zudoku --force",
   ],
 
-  async run({ values }) {
+  async run({ values, positionals }) {
     const { migrateConfig, MIGRATION_SOURCES } = await loadPortal("migrate");
-    const targetDir = process.cwd();
+    const targetDir = path.resolve(positionals[0] || ".");
+    if (!fs.existsSync(targetDir) || !fs.statSync(targetDir).isDirectory())
+      throw new UsageError(`${targetDir} is not a folder.`, { command: "migrate" });
     const from = await chooseSource(targetDir, values.from, MIGRATION_SOURCES);
 
-    if (fs.existsSync(path.join(targetDir, "rapidoc.config.yaml")) && canAsk()) {
+    if (fs.existsSync(path.join(targetDir, "rapidoc.config.yaml")) && !values.force) {
+      if (!canAsk())
+        throw new ProblemError("rapidoc.config.yaml exists: pass --force to replace it.");
       const ok = await confirm({
         message: "rapidoc.config.yaml exists. Replace it?",
         initialValue: false,

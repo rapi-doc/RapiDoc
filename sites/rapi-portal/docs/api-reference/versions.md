@@ -68,7 +68,7 @@ The default version's spec is published at `/specs/<id>.<ext>`, as for an API wi
   A tab for one version is the current tab on that version's pages; the API's other pages belong to its main tab.
 - **Catalog**: one card per API, linking to the default version and showing its label and how many versions there are.
 - **Search**: finds operations of every version. Results from a version other than the default say which version they are from.
-- **Embedded operations**: `{% api-operation spec="payments" ... /%}` shows the operation from the default version; add `version="v2"` for another one. See [Embedding operations](/docs/writing/embedding-operations/).
+- **Embedded operations**: `{% api-operation api="payments" ... /%}` shows the operation from the default version; add `version="v2"` for another one. See [Embedding operations](/docs/writing/embedding-operations/).
 
 ## Access rules
 

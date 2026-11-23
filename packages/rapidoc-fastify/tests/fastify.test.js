@@ -4,8 +4,8 @@ import Fastify from "fastify";
 import { renderHostPage, renderOAuthReceiverPage, rapidocManifest } from "@rapidoc/embed";
 import rapidocDefault, { rapidoc, rapidocVersion } from "../src/index.js";
 
-async function appWith(options, registerOptions = {}) {
-  const fastify = Fastify();
+async function appWith(options, registerOptions = {}, serverOptions = {}) {
+  const fastify = Fastify(serverOptions);
   await fastify.register(rapidoc, { ...options, ...registerOptions });
   await fastify.ready();
   return fastify;
@@ -43,6 +43,13 @@ describe("@rapidoc/fastify", () => {
       headers: { "if-none-match": first.headers.etag },
     });
     assert.equal(again.statusCode, 304);
+    assert.equal(first.headers["cache-control"], "no-cache");
+    assert.equal(first.headers["x-content-type-options"], "nosniff");
+    const weak = await app.inject({
+      url: "/docs/rapidoc-min.js",
+      headers: { "if-none-match": `"x", W/${first.headers.etag}` },
+    });
+    assert.equal(weak.statusCode, 304);
     assert.equal(again.body, "");
     assert.equal((await app.inject({ method: "HEAD", url: "/docs" })).statusCode, 200);
   });
@@ -62,10 +69,58 @@ describe("@rapidoc/fastify", () => {
     assert.equal((await app.inject({ url: "/reference" })).statusCode, 404);
   });
 
-  it("still takes path, the name uiPath had in version 0.1", async () => {
-    const app = await appWith({ ...options, path: "/ref" }, { prefix: "/old" });
-    const page = (await app.inject({ url: "/old/ref" })).body;
-    assert.match(page, /src="\/old\/ref\/rapidoc-min\.js"/);
+  it("does not read path and publicPath, the option names of 0.x", async () => {
+    const app = await appWith(
+      { ...options, path: "/ref", publicPath: "/gw/ref" },
+      { prefix: "/old" },
+    );
+    assert.equal((await app.inject({ url: "/old/ref" })).statusCode, 404);
+    const page = (await app.inject({ url: "/old/docs" })).body;
+    assert.match(page, /src="\/old\/docs\/rapidoc-min\.js"/);
+  });
+
+  it("takes a uiPath without its leading slash under a prefix", async () => {
+    const app = await appWith({ ...options, uiPath: "ref/" }, { prefix: "/api" });
+    const page = (await app.inject({ url: "/api/ref" })).body;
+    assert.equal(page, renderHostPage({ ...options, uiPath: "/api/ref" }));
+    assert.equal((await app.inject({ url: "/api/ref/rapidoc-min.js" })).statusCode, 200);
+  });
+
+  it("serves the page with a trailing slash too", async () => {
+    const app = await appWith(options);
+    const res = await app.inject({ url: "/docs/" });
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body, renderHostPage(options));
+    assert.equal((await app.inject({ url: "/docs/rapidoc-min.js/" })).statusCode, 404);
+
+    const prefixed = await appWith(options, { prefix: "/api" });
+    assert.equal((await prefixed.inject({ url: "/api/docs/" })).statusCode, 200);
+
+    // at the root of the app and of a prefix
+    const root = await appWith({ ...options, uiPath: "/" });
+    assert.match((await root.inject({ url: "/" })).body, /src="\/rapidoc-min\.js"/);
+    const prefixRoot = await appWith({ ...options, uiPath: "/" }, { prefix: "/api" });
+    for (const url of ["/api", "/api/"]) {
+      assert.match((await prefixRoot.inject({ url })).body, /src="\/api\/rapidoc-min\.js"/, url);
+    }
+
+    // an instance that ignores trailing slashes gets one route, not a duplicate
+    for (const serverOptions of [
+      { ignoreTrailingSlash: true },
+      { routerOptions: { ignoreTrailingSlash: true } },
+    ]) {
+      const loose = await appWith(options, {}, serverOptions);
+      assert.equal((await loose.inject({ url: "/docs/" })).statusCode, 200);
+      assert.equal((await loose.inject({ url: "/docs" })).statusCode, 200);
+    }
+  });
+
+  it("writes publicUiPath in place of the prefix, behind a proxy", async () => {
+    const app = await appWith({ ...options, publicUiPath: "/gw/docs" }, { prefix: "/api" });
+    assert.match(
+      (await app.inject({ url: "/api/docs" })).body,
+      /src="\/gw\/docs\/rapidoc-min\.js"/,
+    );
   });
 
   it("takes the nonce from the request, loads from the CDN when asked, and can be disabled", async () => {

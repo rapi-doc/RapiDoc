@@ -33,7 +33,6 @@ Five attributes cover most visual changes. Try them:
 | `color-scheme`     | `dark`, `light`, `system`, `auto`                                                                          | `"dark"`    | Light or dark surfaces. `system` follows the operating system; `auto` follows the host page's CSS `color-scheme`, else the operating system. |
 | `radius`           | `none`, `sm`, `md`, `lg`, `full`                                                                           | `"sm"`      | Corner radius scale applied across cards, buttons, badges, inputs, and modal dialogs.                                  |
 | `scale`            | `sm`, `default`, `lg`                                                                                      | `"default"` | Proportional scale factor for UI base dimensions, body typography, code blocks, and sidebar width.                     |
-| `nav-item-spacing` | `compact`, `default`, `relaxed`                                                                            | `"default"` | Vertical density and padding of sidebar navigation links, decoupled from font size scaling.                            |
 
 ---
 
@@ -73,13 +72,15 @@ The `scale` attribute controls typography, base sizing, and proportional margins
 - `scale="default"` _(default)_: Standard desktop scale (14px base font, 18.75rem sidebar width). Optimal for full-page documentation portals.
 - `scale="lg"`: Generous scale (16px base font, 21rem sidebar width). Optimal for large monitors, accessibility compliance, and presentations.
 
-### Sidebar Item Density (`nav-item-spacing`)
+### Sidebar density
 
-Adjust sidebar link density without altering the global font size:
+Each sidebar level has its own spacing: roomy rows for the API title, API Servers, Authentication and grouped tags, compact rows for operations. To change the operation rows' padding, set `--sidebar-item-padding` (default `0.3125rem 0.625rem`):
 
-- `nav-item-spacing="compact"`: 5px vertical padding for large APIs with hundreds of endpoints.
-- `nav-item-spacing="default"` _(default)_: 7px vertical padding for balanced readability.
-- `nav-item-spacing="relaxed"`: 10px vertical padding for touchscreens and clean navigation.
+```css
+rapi-doc {
+  --sidebar-item-padding: 0.5rem 0.625rem;
+}
+```
 
 ---
 

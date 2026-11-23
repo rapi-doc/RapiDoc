@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import ProcessSpec, { groupByTagGroups } from "../../packages/rapidoc/src/utils/spec-parser.js";
-import { renderTemplateToString } from "@rapidoc/prerender";
+import { renderTemplateToString } from "../../packages/rapidoc-prerender/src/internal.js";
 
 describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
   const mockTags = [
@@ -407,7 +407,7 @@ describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
     assert.equal(camelTag.expanded, false, "camel-tag should have expanded=false");
   });
 
-  it("should auto-expand parent tag and tag-group containers via expandParentNavContainers", async () => {
+  it("should auto-expand the parent tag via expandParentNavContainers (a tag group is a fixed label)", async () => {
     const { expandParentNavContainers } =
       await import("../../packages/rapidoc/src/templates/navbar-template.js");
 
@@ -466,7 +466,7 @@ describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
       return el;
     }
 
-    const tagGroupEl = createMockElement("nav-bar-tag-group collapsed");
+    const tagGroupEl = createMockElement("nav-bar-tag-group");
     const groupHeader = createMockElement("nav-bar-tag-group-header");
     tagGroupEl.appendChild(groupHeader);
 
@@ -482,14 +482,16 @@ describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
     const pathEl = createMockElement("nav-bar-path");
     tagAndPathsEl.appendChild(pathEl);
 
-    assert.ok(tagGroupEl.classList.contains("collapsed"));
     assert.ok(tagAndPathsEl.classList.contains("collapsed"));
 
     expandParentNavContainers(pathEl);
 
-    assert.ok(tagGroupEl.classList.contains("expanded"));
     assert.ok(tagAndPathsEl.classList.contains("expanded"));
-    assert.equal(groupHeader.getAttribute("aria-expanded"), "true");
+    assert.equal(
+      groupHeader.getAttribute("aria-expanded"),
+      undefined,
+      "no aria-expanded on a group label",
+    );
     assert.equal(tagIcon.getAttribute("aria-expanded"), "true");
   });
 
@@ -501,8 +503,8 @@ describe("OpenAPI 3-Tier Navigation (x-tagGroups / x-tag-groups)", () => {
       "Should style collapsed tag containing active path",
     );
     assert.ok(
-      cssText.includes(".nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header"),
-      "Should style collapsed tag group containing active element",
+      !cssText.includes(".nav-bar-tag-group.collapsed"),
+      "A tag group is a fixed section label: it never collapses",
     );
   });
 

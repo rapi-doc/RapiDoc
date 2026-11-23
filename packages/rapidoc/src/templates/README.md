@@ -52,6 +52,20 @@ Default exports are section templates; named exports are helpers used by other t
 - **Navigation ids.** An operation root has `id="${path.elementId}"`; its nav link is
   `id="link-${elementId}"` with `data-content-id` on navigate items (expandable tags carry
   `data-first-path-id` instead).
+- **Sidebar levels.** Section labels (`.nav-bar-section-label`, part `section-navbar-label`: Overview,
+  each tag group, Components) are not links; a tag group never collapses. Without tag groups
+  `.nav-scroll` gets `tags-as-labels` and the tags take the labels' place. A tag's name navigates and
+  opens a closed tag, its arrow only toggles [navbar-template.js:navBarClickAndEnterHandler]. The
+  method span comes before the label; a deprecated operation's row has the class `deprecated`
+  (no inline style), and a description heading's text is in a `.nav-bar-path-label` so
+  `nav-item-overflow` covers it. Every item is a real link (`<a href="#<element id>">`), never a
+  `div` with `tabindex`: `link-<id>` always names the link, so `.click()` on it navigates. A tag's row
+  (`div.nav-bar-tag`) holds the link to the tag and a `<button>` that opens and closes it, side by
+  side, and draws the current tag. `markNavItem` marks the current item: the `active` class and part
+  on the item, or on a tag's row (`navItemRow`), and `aria-current="true"` on the link. The click handler acts on clicks only (links and buttons handle Enter and Space themselves),
+  calls `preventDefault` on a link (the element scrolls and sets the address), and leaves a click
+  with a modifier key or the middle button to the browser, so a section opens in a new tab.
+  `@rapidoc/prerender`'s `renderNavBarHtml` writes the same structure, and `nav-styles.js` styles both.
 - **Schema hide flags.** In `endpoint-template.js` and `expanded-endpoint-template.js`, `"never"`
   yields `"false"`; otherwise requests hide read-only and responses hide write-only fields,
   inverted for webhooks. `callback-template.js` always uses the webhook direction.
@@ -59,26 +73,32 @@ Default exports are section templates; named exports are helpers used by other t
   empty value, so an empty value never clears a key. OAuth uses a fresh `state` and `nonce` per
   sign-in and PKCE (`S256`) when its checkbox is checked; a reply is accepted only when
   `isExpectedOAuthReply` matches. Relative OAuth URLs resolve against the selected server's
-  `computedUrl` (or its origin).
-- **Persistence.** With `persistAuth === "true"`, `localStorage["rapidoc"]` holds
-  `{ securitySchemeId, value }` per apiKey / bearer scheme, and per OAuth scheme the access token
+  `computedUrl` (or its origin); a server URL that cannot be parsed leaves them as written
+  instead of throwing during render.
+- **Persistence.** With `persistAuth === "true"`, one `localStorage` entry per API
+  (`[security-scheme-template.js:authStorageKey]`: `rapidoc-auth:<absolute spec URL>`, or the API
+  title for a spec object) holds `{ securitySchemeId, value }` per apiKey / bearer scheme, and per OAuth scheme the access token
   (`[security-scheme-template.js:updateOAuthKey]`) with `expiresAt` when the provider sent
   `expires_in`; `recoverPersistedApiKeys` drops an expired token. Basic credentials and OAuth
   client secrets are never stored.
-  `removeApiKey` deletes one entry; `[security-scheme-template.js:onClearAllApiKeys]` empties it.
+  `removeApiKey` deletes one scheme; `[security-scheme-template.js:onClearAllApiKeys]` removes the
+  entry. Every storage access is wrapped: blocked storage or a value that is not JSON reads as no
+  saved keys and never throws. The hosts call `recoverPersistedApiKeys` once per spec load, before
+  `spec-loaded`; no template calls it.
+- **Selectors from spec names.** A scheme, parameter or field name is never placed in a selector
+  unescaped: the PKCE checkbox is found by class (`.oauth-pkce input`), `data-pname` lookups go
+  through `CSS.escape`.
 - **Server variables.** `[server-template.js:onApiServerVarChange]` reads every input in the
   enclosing `<ul class="server-vars">` and recomputes `selectedServer.computedUrl`; the list
   class is what it looks up, so keep it.
 
 ## Side Effects
 
-- Render writes host state: `mainBodyTemplate` calls `recoverPersistedApiKeys` on every render
-  (before the `specLoadError` check), which can call `requestUpdate()` during render;
-  `requestBodyTemplate` sets the selected body type and example when unset;
+- Render writes host state: `requestBodyTemplate` sets the selected body type and example when unset;
   `focusedEndpointTemplate` sets `focusedElementId` and expands its nav item.
 - Handlers mutate `resolvedSpec` (`expanded` flags in `endpoint-template.js`; scheme values in
   `security-scheme-template.js`) and host tab state, then call `requestUpdate()`.
-- `localStorage` key `rapidoc` (see Persistence); no `sessionStorage`.
+- `localStorage` keys `rapidoc-auth:<api>` (see Persistence); no `sessionStorage`.
 - `security-scheme-template.js`: `fetch` to the token URL, `window.open` for sign-in
   (`console.error` if blocked), a `BroadcastChannel` and `window` `message` listener while
   waiting, `document` `keydown` listener for popovers.

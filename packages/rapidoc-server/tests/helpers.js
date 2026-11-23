@@ -19,17 +19,19 @@ export const SESSION_SECRET = "test-session-secret-0123456789-abcdef";
  * @param {Record<string, string[]>} [options.claims] - Extra claims per scope, e.g. { openid: ['https://rapidoc/roles'] }
  * @param {string[]} [options.redirectUris] - Extra redirect URIs, e.g. a RapiDoc OAuth return page
  * @param {boolean} [options.cors] - Let browsers call the token endpoint from any origin (RapiDoc's Authorize flow)
+ * @param {number} [options.port] - A port to listen on (default: any free one), for a provider that comes up later
  */
 export async function startIssuer({
   portalOrigin = PORTAL_ORIGIN,
   claims: extraClaims = {},
   redirectUris = [],
   cors = false,
+  port = 0,
 } = {}) {
   const users = new Map();
   let current = null;
   const server = http.createServer();
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  await new Promise((resolve) => server.listen(port, "127.0.0.1", resolve));
   const issuer = `http://localhost:${server.address().port}`;
 
   const provider = new Provider(issuer, {
@@ -98,6 +100,15 @@ export async function startIssuer({
     },
     close: () => new Promise((resolve) => server.close(resolve)),
   };
+}
+
+/** A port nothing listens on: taken from the system, then given back. */
+export async function freePort() {
+  const server = http.createServer();
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const { port } = server.address();
+  await new Promise((resolve) => server.close(resolve));
+  return port;
 }
 
 /**

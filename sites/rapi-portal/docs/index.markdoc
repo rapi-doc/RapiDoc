@@ -14,9 +14,13 @@ npm run dev
 
 The starter is a portal with an example API, a `rapidoc.config.yaml` and two guides, on `http://localhost:4321`. Already have a repository with OpenAPI files? Run `npx @rapidoc/cli init` there instead. [Read the quickstart](/docs/getting-started/quickstart/).
 
+{% callout type="rocket" title="RapiDoc Portal 1.0" %}
+The first stable release, ready for production: from here on, a change that breaks your portal comes only in a new major version. [See what's new in 1.0](/docs/getting-started/whats-new/).
+{% /callout %}
+
 ## Find your way
 
-{% card-grid %}
+{% card-grid columns=2 %}
 {% card title="Get started" icon="rocket-launch" href="/docs/getting-started/introduction/" %}
 What a portal is made of, the quickstart, and the files of a project.
 {% /card %}
@@ -41,7 +45,7 @@ A mock for every API, MCP for agents, spec checks, migrating, and hosting the po
 
 Guides can embed any operation from your specs. This one comes from the [example Bookstore API](/apis/bookstore/). Its **Try** button sends a real request: run the [mock server](/docs/tools/mock-server/) to get answers before your API exists.
 
-{% api-operation spec="bookstore" path="/books" method="get" /%}
+{% api-operation api="bookstore" path="/books" method="get" /%}
 
 {% callout type="rocket" title="Moving from Zudoku or Redocly?" %}
 `npx @rapidoc/cli migrate` writes a `rapidoc.config.yaml` from your existing Zudoku or Redocly project. [See migrating](/docs/tools/migrate/).

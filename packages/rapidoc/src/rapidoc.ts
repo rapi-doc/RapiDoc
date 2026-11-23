@@ -1,6 +1,7 @@
 import { LitElement, noChange } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { fixRenderedAnchorLinks } from "~/utils/markdown-utils";
+import { parse as parseYaml } from "yaml";
 import { marked } from "marked";
 import Slugger from "github-slugger";
 import { scheduleHighlight } from "~/utils/highlighter";
@@ -36,8 +37,12 @@ import {
 import ProcessSpec from "~/utils/spec-parser";
 import { enableMockServer, disableMockServer, updateMockConfig } from "~/utils/mock-interceptor";
 import mainBodyTemplate from "~/templates/main-body-template";
-import { expandParentNavContainers } from "~/templates/navbar-template";
-import { applyApiKey, onClearAllApiKeys } from "~/templates/security-scheme-template";
+import { expandParentNavContainers, markNavItem } from "~/templates/navbar-template";
+import {
+  applyApiKey,
+  onClearAllApiKeys,
+  recoverPersistedApiKeys,
+} from "~/templates/security-scheme-template";
 import { setApiServer } from "~/templates/server-template";
 import {
   generateMcpServer as mcpServerGenerator,
@@ -87,9 +92,9 @@ const INTERACTION_EVENTS = ["pointerdown", "keydown", "wheel", "touchstart"];
  * `@group` (heading on /api), `@default` (when it is not the initial value),
  * `@allowedNote`, `@example` (a page showing it), `@hidden` (kept off /api), `@internal` (not an
  * attribute for page authors). On a method: `@public` (followed by the signature to document, when the
- * method takes internal arguments too), `@example`, `@code`. On the class: `@fires`,
- * `@slot`, and `@deprecatedAttr name | group | allowed values | default | description` for an attribute
- * the element no longer reads.
+ * method takes internal arguments too), `@example`, `@code`. On the class: `@fires` and `@slot`.
+ * An attribute the element no longer reads is not listed here: it goes in the migration guide and
+ * in the docs page of removed attributes.
  *
  * @fires before-render - Dispatched before rendering starts. Provides the parsed OpenAPI
  * specification object via <span class="mono yellow">e.detail.spec</span>, allowing programmatic
@@ -97,15 +102,18 @@ const INTERACTION_EVENTS = ["pointerdown", "keydown", "wheel", "touchstart"];
  * @fires spec-loaded - Dispatched after the OpenAPI specification has been fully fetched, parsed,
  * resolved, and rendered into the DOM. Provides the resolved spec object in <span class="mono
  * yellow">e.detail</span>.
- * @fires nav-active-change - Dispatched when the active section changes, either through
- * programmatic navigation (<span class="mono yellow">scrollToPath</span>, a hash change) or because
- * scrolling brought a different operation or tag into view. Bubbles and is composed, so a
- * page-level listener outside the shadow DOM receives it. <span class="mono
- * yellow">e.detail.id</span> and <span class="mono yellow">e.detail.elementId</span> carry the
- * section's element id; <span class="mono yellow">e.detail.operationId</span> is set when the
- * section is an operation. Static sidebars rendered with <span class="mono
- * yellow">@rapidoc/prerender</span> and <span class="mono yellow">bindNavBar</span> use it to
- * highlight the current item.
+ * @fires nav-active-change - Dispatched when the active section changes: a click in the sidebar,
+ * <span class="mono yellow">scrollToPath</span>, a hash change, or scrolling that brings a
+ * different section into view. Bubbles and is composed, so a page-level listener outside the
+ * shadow DOM receives it. The detail is the same from every source: <span class="mono
+ * yellow">e.detail.elementId</span> is the section's element id, <span class="mono
+ * yellow">e.detail.type</span> is <span class="mono yellow">operation</span>, <span class="mono
+ * yellow">tag</span> or <span class="mono yellow">section</span> (the overview, servers,
+ * authentication, a description heading, a component), and <span class="mono
+ * yellow">e.detail.operationId</span> is the operation's <span class="mono
+ * yellow">operationId</span> from the spec, present only for an operation that has one. Static
+ * sidebars rendered with <span class="mono yellow">@rapidoc/prerender</span> and <span
+ * class="mono yellow">bindNavBar</span> use it to highlight the current item.
  * @fires before-try - Dispatched when a user clicks "TRY" before the network request is initiated.
  * Provides a mutable <a href="https://developer.mozilla.org/en-US/docs/Web/API/Request"
  * target="_blank" rel="noopener">Request-like object</a> via <span class="mono
@@ -190,23 +198,6 @@ const INTERACTION_EVENTS = ["pointerdown", "keydown", "wheel", "touchstart"];
  * @slot {operation-id} - Inserts custom HTML inside one operation, in read and view modes. The name is
  * the operation's element ID: its operationId in kebab-case (<span class="mono yellow">getPetById</span>
  * is <span class="mono yellow">get-pet-by-id</span>), or without one its summary or method and path.
- *
- * @deprecatedAttr nav-active-item-marker | Sidebar & Navigation | left-bar, colored-block |
- * left-bar | <span class="red bold">[DEPRECATED]</span> RapiDoc now standardizes on the modern
- * left-bar active indicator across all modes.
- * @deprecatedAttr on-nav-tag-click | Sidebar & Navigation | expand-collapse, show-description |
- * expand-collapse | <span class="red bold">[DEPRECATED]</span> A click on a tag's name shows the
- * tag's description; a click on its arrow expands or collapses it.<br/> Previously configured
- * sidebar tag click behavior in focused mode.
- *
- * @deprecatedAttr match-paths | Spec & Content | | | <span class="red bold">[REMOVED]</span> Use
- * <span class="mono yellow">filter-operations</span>: a path glob (<span class="mono
- * yellow">/pet/**</span>), a method and path, or operationIds.
- * @deprecatedAttr match-type | Spec & Content | includes, regex | includes | <span class="red
- * bold">[REMOVED]</span> <span class="mono yellow">filter-operations</span> matches exact terms and
- * path globs, not substrings or regular expressions.
- * @deprecatedAttr remove-endpoints-with-badge-label-as | Spec & Content | | | <span class="red
- * bold">[REMOVED]</span> Use <span class="mono yellow">filter-operations="!badge:Beta"</span>.
  */
 @customElement("rapi-doc")
 export default class RapiDoc extends LitElement {
@@ -478,14 +469,16 @@ export default class RapiDoc extends LitElement {
   showSideNav: "true" | "false" | "floating" = "true";
 
   /**
-   * Displays HTTP methods (GET, POST, etc.) alongside endpoint items in the navigation sidebar.
-   * Ensure sufficient contrast if customizing nav-bg-color.
+   * Shows each operation's HTTP method (GET, POST, etc.) at the start of its sidebar item, in a
+   * column of its own: as plain text, colored text, or a colored block with a three-letter method.
+   * <span class="mono yellow">false</span> shows the summary alone.
    * @summary Sidebar HTTP method badge presentation style
    * @group Sidebar & Navigation
    * @example /examples/nav-styles
    */
   @property({ type: String, attribute: "show-method-in-nav-bar" })
-  showMethodInNavBar: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block" = "false";
+  showMethodInNavBar: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block" =
+    "as-colored-text";
 
   /**
    * Marks sidebar items whose operation shows a badge (<span class="mono yellow">x-badges</span>,
@@ -511,15 +504,6 @@ export default class RapiDoc extends LitElement {
    */
   @property({ type: String, attribute: "use-path-in-nav-bar" })
   usePathInNavBar: "true" | "false" = "false";
-
-  /**
-   * Controls vertical density and padding between sidebar navigation items.
-   * @summary Vertical spacing between sidebar navigation items
-   * @group Sidebar & Navigation
-   * @example /examples/nav-styles
-   */
-  @property({ type: String, attribute: "nav-item-spacing", reflect: true })
-  navItemSpacing: "default" | "compact" | "relaxed" = "default";
 
   /**
    * Controls text truncation behavior for long endpoint paths and operation summaries in the
@@ -828,7 +812,7 @@ export default class RapiDoc extends LitElement {
    * @default (empty)
    */
   @property({ type: String, attribute: "api-key-value" })
-  apiKeyValue = "-";
+  apiKeyValue = "";
 
   /**
    * Relative or absolute path to the OAuth receiver HTML file for handling authorization
@@ -896,17 +880,6 @@ export default class RapiDoc extends LitElement {
   mockServerStatusCode: string | Record<string, string> = "200";
 
   /**
-   * <span class="orange bold">Deprecated:</span> put the strategy in front of the codes in <span
-   * class="mono yellow">mock-server-status-code</span> instead (<span class="mono
-   * yellow">random:200, 500</span>). How codes without a prefix are picked: 'cycle' uses them in
-   * turn per operation (the default); 'random' picks one for each call; 'first' always answers the
-   * first code, the same as giving only that code.
-   * @group Mock Server
-   */
-  @property({ type: String, attribute: "mock-server-status-strategy" })
-  mockServerStatusStrategy: "first" | "cycle" | "random" = "cycle";
-
-  /**
    * Simulated network latency in milliseconds before resolving mock responses. Useful for testing
    * client loading spinners and optimistic UI updates. For a streamed response (OpenAPI 3.2
    * <span class="mono fg-color">itemSchema</span>: Server-Sent Events, JSON Lines), the response
@@ -924,21 +897,20 @@ export default class RapiDoc extends LitElement {
   mockServerLog: "true" | "false" = "false";
 
   // MCP
-  // "true" shows the Export MCP Server button; "none" or "false" hides it
   /**
    * Enables Model Context Protocol (MCP) server export for AI agents. <span class="mono
    * fg-color">true</span> renders an <span class="mono fg-color">Export MCP Server</span> button in
    * the overview section that downloads a zip with the MCP manifest (<span class="mono
    * fg-color">manifest.json</span>), a fixed runtime (<span class="mono
    * fg-color">runtime.js</span>) and a stdio TypeScript server (<span class="mono
-   * fg-color">server.ts</span>). <span class="mono fg-color">false</span>, <span class="mono
-   * fg-color">none</span> or an empty value hides the button.
+   * fg-color">server.ts</span>). <span class="mono fg-color">false</span> or an empty value hides
+   * the button.
    * @summary Shows the Export MCP Server button
    * @group MCP
    * @example /examples/mcp-server
    */
   @property({ type: String, attribute: "mcp" })
-  mcp: "true" | "false" | "none" = "false";
+  mcp: "true" | "false" = "false";
 
   /**
    * Custom name for the generated MCP server. Defaults to the API specification title.
@@ -955,14 +927,12 @@ export default class RapiDoc extends LitElement {
   _autoColorScheme = new AutoColorSchemeController(this);
 
   // Internal state, reactive so a change re-renders
-  /** @internal */
-  @property({ type: Boolean }) loading = false;
-  /** @internal */
-  @property({ type: String }) focusedElementId = "";
-  /** @internal */
-  @property({ type: Object }) advancedSearchMatches: any;
-  /** @internal */
-  @property({ type: String }) searchVal = "";
+  @state() loading = false;
+  @state() focusedElementId = "";
+  @state() advancedSearchMatches: any;
+  @state() searchVal = "";
+  // Why the local file chosen last could not be opened, shown next to the button
+  @state() specFileError = "";
 
   static get styles() {
     return [
@@ -1039,10 +1009,6 @@ export default class RapiDoc extends LitElement {
     if (!this.schemaStyle || !"tree, table,".includes(`${this.schemaStyle},`)) {
       this.schemaStyle = "tree";
     }
-    if (this.theme === "light" || this.theme === "dark") {
-      this.colorScheme = this.theme as "light" | "dark";
-      this.theme = DEFAULT_THEME;
-    }
     if (this.primaryColor && isValidHexColor(this.primaryColor)) {
       this.theme = this.primaryColor;
     }
@@ -1058,9 +1024,6 @@ export default class RapiDoc extends LitElement {
     if (!this.scale || !"sm, default, lg,".includes(`${this.scale},`)) {
       this.scale = "default";
     }
-    if (!this.navItemSpacing || !"compact, default, relaxed,".includes(`${this.navItemSpacing},`)) {
-      this.navItemSpacing = "default";
-    }
     if (!this.getAttribute("theme")) {
       this.setAttribute("theme", this.theme);
     }
@@ -1074,13 +1037,8 @@ export default class RapiDoc extends LitElement {
       this.setAttribute("scale", this.scale);
     }
     applyCustomTheme(this, this.theme);
-    if (
-      !this.defaultSchemaTab ||
-      !"example, schema, model,".includes(`${this.defaultSchemaTab},`)
-    ) {
+    if (!this.defaultSchemaTab || !"example, schema,".includes(`${this.defaultSchemaTab},`)) {
       this.defaultSchemaTab = "example";
-    } else if ((this.defaultSchemaTab as string) === "model") {
-      this.defaultSchemaTab = "schema";
     }
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
       this.schemaExpandLevel = 99999;
@@ -1123,9 +1081,6 @@ export default class RapiDoc extends LitElement {
     if (!this.allowTry || !String(this.allowTry).trim()) {
       this.allowTry = "true";
     }
-    if (!this.apiKeyValue) {
-      this.apiKeyValue = "-";
-    }
     if (!this.apiKeyLocation) {
       this.apiKeyLocation = "header";
     }
@@ -1158,16 +1113,13 @@ export default class RapiDoc extends LitElement {
       this.sortEndpointsBy = "path";
     }
 
-    if (!this.navItemSpacing || !"compact, relaxed, default,".includes(`${this.navItemSpacing},`)) {
-      this.navItemSpacing = "default";
-    }
     if (
       !this.showMethodInNavBar ||
       !"false, as-plain-text, as-colored-text, as-colored-block,".includes(
         `${this.showMethodInNavBar},`,
       )
     ) {
-      this.showMethodInNavBar = "false";
+      this.showMethodInNavBar = "as-colored-text";
     }
     if (!this.usePathInNavBar || !"true, false,".includes(`${this.usePathInNavBar},`)) {
       this.usePathInNavBar = "false";
@@ -1223,7 +1175,7 @@ export default class RapiDoc extends LitElement {
       this.cssClasses = "";
     }
     if (!this.mcp) {
-      this.mcp = "none";
+      this.mcp = "false";
     }
 
     if (!this._onHashChange) {
@@ -1241,6 +1193,11 @@ export default class RapiDoc extends LitElement {
       INTERACTION_EVENTS.forEach((type) =>
         window.addEventListener(type, this._onFirstInteraction, { capture: true, passive: true }),
       );
+    }
+
+    // Moved in the page (disconnected, then connected again): disconnectedCallback turned the mock off
+    if (this.mockServer === "true" && this.resolvedSpec?.tags && !this.resolvedSpec.isSpecLoading) {
+      this.enableMock();
     }
 
     // Auto-hydrate from inlined spec or spec-url attribute if not already loaded. This block owns
@@ -1323,9 +1280,6 @@ export default class RapiDoc extends LitElement {
 
   willUpdate(changedProperties) {
     super.willUpdate?.(changedProperties);
-    if ((this.defaultSchemaTab as string) === "model") {
-      this.defaultSchemaTab = "schema";
-    }
     if (changedProperties.has("layout") && !this._isDefaultingLayout) {
       this._userSetLayout = Boolean(this.layout && "row, column,".includes(`${this.layout},`));
     }
@@ -1358,10 +1312,13 @@ export default class RapiDoc extends LitElement {
     this._clearDsdIfNeeded();
 
     // adding custom style for RapiDoc: the page's <link> whose href contains the css-file value
-    if (this.cssFile) {
+    // (copied once per css-file value, not on every render)
+    if (this.cssFile && this._cssFileLinked !== this.cssFile) {
       const cssLinkEl = document.querySelector(`link[href*="${CSS.escape(this.cssFile)}"]`);
       if (cssLinkEl) {
-        this.shadowRoot.appendChild(cssLinkEl.cloneNode());
+        this._cssLinkEl?.remove();
+        this._cssLinkEl = this.shadowRoot.appendChild(cssLinkEl.cloneNode());
+        this._cssFileLinked = this.cssFile;
       }
     }
     return mainBodyTemplate.call(this);
@@ -1390,12 +1347,6 @@ export default class RapiDoc extends LitElement {
     scheduleHighlight(this.shadowRoot);
 
     if (changedProperties.has("theme")) {
-      if (this.theme === "light" || this.theme === "dark") {
-        this.colorScheme = this.theme as "light" | "dark";
-        this.setAttribute("color-scheme", this.colorScheme);
-        this.theme = DEFAULT_THEME;
-        this.setAttribute("theme", DEFAULT_THEME);
-      }
       const normalizedTheme = normalizeTheme(this.theme);
       if (this.theme !== normalizedTheme.theme) {
         this.theme = normalizedTheme.theme;
@@ -1425,27 +1376,19 @@ export default class RapiDoc extends LitElement {
 
     if (changedProperties.has("mockServer")) {
       if (this.mockServer === "true" && this.resolvedSpec) {
-        enableMockServer(this.resolvedSpec, {
-          owner: this,
-          statusCode: this.mockServerStatusCode,
-          statusStrategy: this.mockServerStatusStrategy,
-          delay: this.mockServerDelay,
-          log: this.mockServerLog,
-        });
+        this.enableMock();
       } else if (this.mockServer !== "true") {
         disableMockServer(this);
       }
     }
     if (
       changedProperties.has("mockServerStatusCode") ||
-      changedProperties.has("mockServerStatusStrategy") ||
       changedProperties.has("mockServerDelay") ||
       changedProperties.has("mockServerLog")
     ) {
       updateMockConfig({
         owner: this,
         statusCode: this.mockServerStatusCode,
-        statusStrategy: this.mockServerStatusStrategy,
         delay: this.mockServerDelay,
         log: this.mockServerLog,
       });
@@ -1453,6 +1396,16 @@ export default class RapiDoc extends LitElement {
     if (changedProperties.has("scrollContainer")) {
       this.initIntersectionObserver();
     }
+  }
+
+  // Answers this element's Try requests (and the page's calls to the spec's servers) from the mock
+  enableMock() {
+    enableMockServer(this.resolvedSpec, {
+      owner: this,
+      statusCode: this.mockServerStatusCode,
+      delay: this.mockServerDelay,
+      log: this.mockServerLog,
+    });
   }
 
   observeExpandedContent() {
@@ -1589,12 +1542,22 @@ export default class RapiDoc extends LitElement {
     const specFile = e.target.files[0];
     const reader = new FileReader();
     reader.onload = () => {
+      let specObj;
       try {
-        const specObj = JSON.parse(reader.result);
-        this.loadSpec(specObj);
-        this.shadowRoot.getElementById("spec-url").value = "";
+        // The YAML reader also reads JSON
+        specObj = parseYaml(reader.result as string, { maxAliasCount: -1, merge: true });
       } catch {
-        console.error("RapiDoc: Unable to read or parse json");
+        // reported below
+      }
+      if (!specObj || typeof specObj !== "object") {
+        this.specFileError = `${specFile.name} is not a JSON or YAML file`;
+        return;
+      }
+      this.specFileError = "";
+      this.loadSpec(specObj);
+      const specUrlEl = this.shadowRoot.getElementById("spec-url");
+      if (specUrlEl) {
+        specUrlEl.value = "";
       }
     };
     // Read the Text file
@@ -1645,7 +1608,8 @@ export default class RapiDoc extends LitElement {
 
   onOpenNavBarToggle() {
     const navBarEL = this.shadowRoot.getElementById("nav-bar");
-    navBarEL.classList.toggle("floating-nav");
+    const open = navBarEL.classList.toggle("floating-nav");
+    this.shadowRoot.getElementById("nav-bar-btn")?.setAttribute("aria-expanded", String(open));
   }
 
   onShowAdvancedSearchClicked() {
@@ -1728,6 +1692,10 @@ export default class RapiDoc extends LitElement {
   async afterSpecParsedAndValidated(spec, token = this._specLoadSeq) {
     this._clearDsdIfNeeded();
     this.resolvedSpec = spec;
+    // Once per load and before spec-loaded, so a key the page sets there (setApiKey) is not overwritten
+    if (this.persistAuth === "true" && !spec.specLoadError) {
+      recoverPersistedApiKeys.call(this);
+    }
     this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {
       if (this.defaultApiServerUrl === this.serverUrl) {
@@ -1755,13 +1723,7 @@ export default class RapiDoc extends LitElement {
     this.dispatchEvent(specLoadedEvent);
 
     if (this.mockServer === "true") {
-      enableMockServer(this.resolvedSpec, {
-        owner: this,
-        statusCode: this.mockServerStatusCode,
-        statusStrategy: this.mockServerStatusStrategy,
-        delay: this.mockServerDelay,
-        log: this.mockServerLog,
-      });
+      this.enableMock();
     }
 
     // Initiate IntersectionObserver and put it at the end of event loop, to allow loading all the child elements (must for larger specs)
@@ -1910,16 +1872,7 @@ export default class RapiDoc extends LitElement {
               gotoEl.scrollIntoView({ behavior: this.getContentScrollBehavior(), block: "start" });
             }
             this._activeElementId = tmpElementId;
-            this.dispatchEvent(
-              new CustomEvent("nav-active-change", {
-                detail: {
-                  id: tmpElementId,
-                  elementId: tmpElementId,
-                },
-                bubbles: true,
-                composed: true,
-              }),
-            );
+            this.dispatchNavActiveChange(tmpElementId);
             if (this.updateRoute === "true") {
               this.replaceHistoryState(tmpElementId);
             }
@@ -1930,24 +1883,33 @@ export default class RapiDoc extends LitElement {
     }
   }
 
-  isValidTopId(id) {
-    return id.startsWith("overview") || id === "servers" || id === "auth";
-  }
-
-  isValidPathId(id) {
-    if (id === "overview" && this.showInfo) {
-      return true;
+  /**
+   * Fires nav-active-change for the section that became current. Every source goes through here, so the
+   * detail has one shape: `{ elementId, type, operationId? }` (see the event's description on the class).
+   */
+  dispatchNavActiveChange(elementId: string) {
+    const detail: { elementId: string; type: string; operationId?: string } = {
+      elementId,
+      type: "section",
+    };
+    for (const tag of this.resolvedSpec?.tags || []) {
+      if (tag.elementId === elementId) {
+        detail.type = "tag";
+        break;
+      }
+      const operation = tag.paths?.find((p) => p.elementId === elementId);
+      if (operation) {
+        detail.type = "operation";
+        // The spec's own operationId: `operationId` on the parsed operation falls back to a generated one
+        if (operation.rawOperation?.operationId) {
+          detail.operationId = operation.rawOperation.operationId;
+        }
+        break;
+      }
     }
-    if (id === "servers" && this.allowServerSelection) {
-      return true;
-    }
-    if (id === "auth" && this.allowAuthentication) {
-      return true;
-    }
-    if (id.startsWith("tag--")) {
-      return this.resolvedSpec?.tags?.find((tag) => tag.elementId === id);
-    }
-    return this.resolvedSpec?.tags?.find((tag) => tag.paths.find((path) => path.elementId === id));
+    this.dispatchEvent(
+      new CustomEvent("nav-active-change", { detail, bubbles: true, composed: true }),
+    );
   }
 
   initIntersectionObserver() {
@@ -2073,26 +2035,8 @@ export default class RapiDoc extends LitElement {
     }
 
     this._intersectionRaf = requestAnimationFrame(() => {
-      // 1. Dispatch custom event so outer portals/host apps can sync active state
-      let resolvedOperationId = targetId;
-      if (targetId.startsWith("tag--") && this.resolvedSpec?.tags) {
-        const matchingTag = this.resolvedSpec.tags.find((t) => t.elementId === targetId);
-        if (matchingTag?.paths?.[0]?.elementId) {
-          resolvedOperationId = matchingTag.paths[0].elementId;
-        }
-      }
-
-      this.dispatchEvent(
-        new CustomEvent("nav-active-change", {
-          detail: {
-            id: targetId,
-            elementId: targetId,
-            operationId: resolvedOperationId,
-          },
-          bubbles: true,
-          composed: true,
-        }),
-      );
+      // 1. Tell the page (a static sidebar, a host app) which section is current
+      this.dispatchNavActiveChange(targetId);
 
       if (this.updateRoute === "true") {
         this.replaceHistoryState(targetId);
@@ -2102,17 +2046,13 @@ export default class RapiDoc extends LitElement {
       const newNavEl = this.shadowRoot.getElementById(`link-${targetId}`);
       if (newNavEl) {
         const oldNavEl = this.shadowRoot.querySelector(
-          ".nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active",
+          ".nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active",
         );
 
-        if (oldNavEl && oldNavEl !== newNavEl) {
-          oldNavEl.classList.remove("active");
-          oldNavEl.part.remove("section-navbar-active-item");
-        }
+        if (oldNavEl && oldNavEl !== newNavEl) markNavItem(oldNavEl, false);
 
         expandParentNavContainers(newNavEl);
-        newNavEl.classList.add("active");
-        newNavEl.part.add("section-navbar-active-item");
+        markNavItem(newNavEl, true);
 
         // Scroll sidebar only if the active item is out of view
         const navScrollEl = newNavEl.closest(".nav-scroll");
@@ -2340,9 +2280,7 @@ export default class RapiDoc extends LitElement {
    *  3. Activate IntersectionObserver (after scroll completes)
    */
   async scrollToEventTarget(event, scrollNavItemToView = true) {
-    if (!(event.type === "click" || (event.type === "keyup" && event.keyCode === 13))) {
-      return;
-    }
+    if (event.type !== "click") return;
     const navEl = ((event.target as HTMLElement)?.closest?.("[data-content-id]") ||
       event.target) as HTMLElement;
     if (!navEl?.dataset?.contentId) {
@@ -2405,11 +2343,6 @@ export default class RapiDoc extends LitElement {
    */
   bindNavBar(sidebar: HTMLElement | string, options?: any) {
     return bindNavBar(sidebar, this, options);
-  }
-
-  // Public Method (scrolls to a given path and highlights the left-nav selection)
-  async scrollTo(elementId) {
-    return this.scrollToPath(elementId);
   }
 
   /**
@@ -2484,16 +2417,7 @@ export default class RapiDoc extends LitElement {
 
         // Update Location Hash
         this._activeElementId = contentEl?.id || elementId;
-        this.dispatchEvent(
-          new CustomEvent("nav-active-change", {
-            detail: {
-              id: elementId,
-              elementId,
-            },
-            bubbles: true,
-            composed: true,
-          }),
-        );
+        this.dispatchNavActiveChange(this._activeElementId);
         if (this.updateRoute === "true") {
           this.replaceHistoryState(elementId);
         }
@@ -2520,16 +2444,10 @@ export default class RapiDoc extends LitElement {
           }
           await sleep(0);
           const oldNavEl = this.shadowRoot.querySelector(
-            ".nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active",
+            ".nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active",
           );
-          if (oldNavEl) {
-            oldNavEl.classList.remove("active");
-            oldNavEl.part.remove("active");
-            oldNavEl.part.remove("section-navbar-active-item");
-          }
-          newNavEl.classList.add("active"); // must add the class after scrolling
-          newNavEl.part.add("section-navbar-active-item");
-          // this.requestUpdate();
+          if (oldNavEl) markNavItem(oldNavEl, false);
+          markNavItem(newNavEl, true); // must be marked after scrolling
         }
       }
     }
@@ -2586,7 +2504,6 @@ export default class RapiDoc extends LitElement {
    * </html>
    */
   setApiServer(apiServerUrl) {
-    // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
   }
 

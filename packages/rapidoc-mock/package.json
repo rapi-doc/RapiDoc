@@ -27,7 +27,8 @@
   "type": "module",
   "main": "./src/index.js",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./internal": "./src/internal.js"
   },
   "publishConfig": {
     "access": "public"

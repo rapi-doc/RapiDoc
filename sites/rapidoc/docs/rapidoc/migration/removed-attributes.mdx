@@ -1,0 +1,68 @@
+---
+title: Removed attributes
+description: Every attribute, attribute value, method and event field removed from rapi-doc and rapi-doc-mini, the version that removed it, and what to use instead.
+tableOfContents: false
+---
+
+Looking for an attribute that is not in the [reference](/docs/rapidoc/reference/) any more? This page lists everything removed from `<rapi-doc>` and `<rapi-doc-mini>`, with the version that removed it and what to use instead. A removed attribute is ignored: it causes no error, and has no effect.
+
+The **Guide** column links to the upgrade guide of that version, which has the details.
+
+## Attributes
+
+| Attribute | Removed in | Use instead | Guide |
+| :-- | :-- | :-- | :-- |
+| `bg-color` | v11 | `color-scheme`, or the CSS variable `--background` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `text-color` | v11 | CSS variable `--foreground` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `header-color` | v11 | CSS on `rapi-doc::part(section-header)` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `regular-font` | v11 | CSS variable `--font-sans` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `mono-font` | v11 | CSS variable `--font-mono` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `font-size` | v11 | `scale` (`sm`, `default`, `lg`) | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `nav-bg-color` | v11 | CSS variable `--sidebar` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `nav-text-color` | v11 | CSS variable `--sidebar-foreground` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `nav-hover-bg-color` | v11 | CSS variable `--sidebar-accent` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `nav-hover-text-color` | v11 | CSS variable `--sidebar-accent-foreground` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `nav-accent-color` | v11 | `theme`, or the CSS variable `--primary` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `nav-accent-text-color` | v11 | CSS variable `--sidebar-primary` | [v10 to v11](/docs/rapidoc/migration/v10-to-v11/) |
+| `load-fonts` | v12 | Nothing: RapiDoc loads no web fonts. Load a brand font in your page and set `--font-sans` | [v11 to v12](/docs/rapidoc/migration/v11-to-v12/) |
+| `nav-active-item-marker` | v12 | Nothing: the current item is a filled block in every mode. Restyle it with `rapi-doc::part(section-navbar-active-item)` | [v11 to v12](/docs/rapidoc/migration/v11-to-v12/) |
+| `on-nav-tag-click` | v12 | Nothing: a tag's name goes to its section and opens the tag, its arrow opens and closes it | [v11 to v12](/docs/rapidoc/migration/v11-to-v12/) |
+| `match-paths` | v13 | `filter-operations` (`"GET /pet/{petId}"`, `/store/**`, operationIds) | [v12 to v13](/docs/rapidoc/migration/v12-to-v13/) |
+| `match-type` | v13 | Nothing: `filter-operations` matches exact terms and path globs | [v12 to v13](/docs/rapidoc/migration/v12-to-v13/) |
+| `remove-endpoints-with-badge-label-as` | v13 | `filter-operations="!badge:Beta"` | [v12 to v13](/docs/rapidoc/migration/v12-to-v13/) |
+| `nav-item-spacing` | v15 | Nothing: each sidebar level has its own spacing. CSS variable `--sidebar-item-padding` for the operation rows | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+| `mock-server-status-strategy` | v15 | A prefix on `mock-server-status-code`: `random:200, 500`, `first:500, 200` | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+| `loading`, `focusedelementid`, `searchval`, `advancedsearchmatches` | v15 | Nothing: internal state. `scrollToPath()` shows an operation; `spec-loaded` says the spec is ready | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+
+`<rapi-doc-mini>` lost `match-paths`, `match-type` and `remove-endpoints-with-badge-label-as` in v13, and `mock-server-status-strategy` and `loading` in v15.
+
+## Attribute values
+
+| Value | Removed in | Use instead | Guide |
+| :-- | :-- | :-- | :-- |
+| `theme="light"`, `theme="dark"` | v15 (deprecated in v11) | `color-scheme="light"`, `color-scheme="dark"` | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+| `theme="graphite"`, `"blue"`, `"emerald"`, `"violet"` | v12 | `theme="carbon"`, `"cobalt"`, `"jade"`, `"indigo"` | [v11 to v12](/docs/rapidoc/migration/v11-to-v12/) |
+| `theme="rose"`, `"slate"`, `"modern"`, `"default"` | v12 | A hex code of your own: `theme="#e11d48"` | [v11 to v12](/docs/rapidoc/migration/v11-to-v12/) |
+| `default-schema-tab="model"` | v15 | `default-schema-tab="schema"` | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+| `mcp="none"` | v15 | `mcp="false"` | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+
+## Methods
+
+| Method | Removed in | Use instead | Guide |
+| :-- | :-- | :-- | :-- |
+| `scrollTo(elementId)` | v15 | `scrollToPath(elementId)`. `scrollTo()` on the element is the browser's own method again | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+
+## Event fields
+
+| Field | Removed in | Use instead | Guide |
+| :-- | :-- | :-- | :-- |
+| `nav-active-change`: `detail.id` | v15 | `detail.elementId` | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+| `nav-active-change`: `detail.operationId` as an element ID (for a tag, its first operation) | v15 | `detail.elementId` for the section, `detail.type` for its kind. `detail.operationId` is now the spec's `operationId`, on operations only | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+
+## CSS parts
+
+| Part | Removed in | Use instead | Guide |
+| :-- | :-- | :-- | :-- |
+| `section-navbar-operations-top` | v15 | Nothing: the sidebar has no "Operations" row. Section labels are `section-navbar-label` | [v14 to v15](/docs/rapidoc/migration/v14-to-v15/) |
+
+Renamed and removed CSS variables are in the guides: [v11 to v12](/docs/rapidoc/migration/v11-to-v12/#1-renamed-and-removed-css-variables).

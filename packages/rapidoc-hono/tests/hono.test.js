@@ -54,6 +54,17 @@ describe("@rapidoc/hono", () => {
     });
     assert.equal(again.status, 304);
     assert.equal(await again.text(), "");
+    const weak = await app.request("/docs/rapidoc-min.js", {
+      headers: { "if-none-match": `"x", W/${etag}` },
+    });
+    assert.equal(weak.status, 304);
+  });
+
+  it("has the browser revalidate the bundle, and forbids content sniffing", async () => {
+    const bundle = await app.request("/docs/rapidoc-min.js");
+    assert.equal(bundle.headers.get("cache-control"), "no-cache");
+    assert.equal(bundle.headers.get("x-content-type-options"), "nosniff");
+    assert.equal((await app.request("/docs")).headers.get("x-content-type-options"), "nosniff");
   });
 
   it("answers HEAD and passes on other methods and other paths", async () => {
@@ -82,10 +93,10 @@ describe("@rapidoc/hono", () => {
     assert.equal((await root.request("/oauth-receiver.html")).status, 200);
   });
 
-  it("still takes the option names of version 0.1", async () => {
+  it("does not read path and publicPath, the option names of 0.x", async () => {
     const old = appWith(rapidoc({ ...options, path: "/ref", publicPath: "/gw/ref" }));
-    assert.match(await (await old.request("/ref")).text(), /src="\/gw\/ref\/rapidoc-min\.js"/);
-    assert.equal(await (await old.request("/docs")).text(), "passed on");
+    assert.equal(await (await old.request("/ref")).text(), "passed on");
+    assert.match(await (await old.request("/docs")).text(), /src="\/docs\/rapidoc-min\.js"/);
   });
 
   it("writes publicUiPath into the page when a proxy strips a prefix", async () => {
@@ -96,12 +107,56 @@ describe("@rapidoc/hono", () => {
     assert.equal((await proxied.request("/docs/rapidoc-min.js")).status, 200);
   });
 
-  it("works in an app mounted under a base path", async () => {
+  it("serves under a base path, with uiPath as the path within the app", async () => {
     const mounted = new Hono().basePath("/v1");
-    mounted.use(rapidoc({ ...options, uiPath: "/v1/docs" }));
-    const res = await mounted.request("/v1/docs");
-    assert.equal(res.status, 200);
-    assert.match(await res.text(), /src="\/v1\/docs\/rapidoc-min\.js"/);
+    mounted.use(rapidoc(options));
+    mounted.all("*", (c) => c.text("passed on", 404));
+    for (const path of ["/v1/docs", "/v1/docs/"]) {
+      const res = await mounted.request(path);
+      assert.equal(res.status, 200, path);
+      assert.equal(await res.text(), renderHostPage({ ...options, uiPath: "/v1/docs" }));
+    }
+    assert.equal(
+      await (await mounted.request("/v1/docs/oauth-receiver.html")).text(),
+      renderOAuthReceiverPage({ uiPath: "/v1/docs" }),
+    );
+    assert.equal((await mounted.request("/v1/docs/rapidoc-min.js")).status, 200);
+    assert.equal((await mounted.request("/docs")).status, 404);
+    assert.equal(await (await mounted.request("/v1/v1/docs")).text(), "passed on");
+  });
+
+  it("serves in a sub-app mounted with app.route(), and under app.use(path)", async () => {
+    const sub = new Hono();
+    sub.use(rapidoc({ ...options, uiPath: "reference" }));
+    const app = new Hono();
+    app.route("/v1", sub);
+    app.use("/tools/*", rapidoc(options));
+    app.use("/t/:tenant/*", rapidoc({ ...options, uiPath: "/" }));
+    app.all("*", (c) => c.text("passed on", 404));
+
+    const page = await (await app.request("/v1/reference")).text();
+    assert.equal(page, renderHostPage({ ...options, uiPath: "/v1/reference" }));
+    assert.equal((await app.request("/v1/reference/rapidoc-min.js")).status, 200);
+    assert.equal(await (await app.request("/reference")).text(), "passed on");
+
+    assert.match(
+      await (await app.request("/tools/docs")).text(),
+      /src="\/tools\/docs\/rapidoc-min\.js"/,
+    );
+    assert.equal(await (await app.request("/docs")).text(), "passed on");
+
+    // the prefix comes from the request, so a route parameter has its value
+    const tenant = await (await app.request("/t/acme")).text();
+    assert.match(tenant, /src="\/t\/acme\/rapidoc-min\.js"/);
+    assert.match(tenant, /oauth-receiver="\/t\/acme\/oauth-receiver\.html"/);
+    assert.equal((await app.request("/t/acme/rapidoc-min.js")).status, 200);
+  });
+
+  it("writes publicUiPath in place of the base path, behind a proxy", async () => {
+    const mounted = new Hono().basePath("/v1");
+    mounted.use(rapidoc({ ...options, publicUiPath: "/gateway/v1/docs" }));
+    const page = await (await mounted.request("/v1/docs")).text();
+    assert.match(page, /src="\/gateway\/v1\/docs\/rapidoc-min\.js"/);
   });
 
   it("takes the nonce from the request, as Hono's secureHeaders sets it", async () => {
@@ -138,6 +193,15 @@ describe("@rapidoc/hono/edge", () => {
     assert.equal(page, renderHostPage({ specUrl: "/openapi.json", assets: "cdn" }));
     assert.equal((await app.request("/docs/oauth-receiver.html")).status, 200);
     assert.equal(await (await app.request("/docs/rapidoc-min.js")).text(), "passed on");
+  });
+
+  it("serves under a base path", async () => {
+    const mounted = new Hono().basePath("/v1");
+    mounted.use(edgeRapidoc({ specUrl: "/openapi.json" }));
+    const res = await mounted.request("/v1/docs");
+    assert.equal(res.status, 200);
+    assert.match(await res.text(), /oauth-receiver="\/v1\/docs\/oauth-receiver\.html"/);
+    assert.equal((await mounted.request("/v1/docs/oauth-receiver.html")).status, 200);
   });
 
   it("refuses to serve the bundle, which needs a file system", () => {

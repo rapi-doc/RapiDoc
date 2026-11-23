@@ -449,13 +449,10 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
   background-color: var(--portal-hover-bg);
 }
 
-/* The current page: accent text on a tint, in the same weight as the other links. */
-.sidebar-pane a[aria-current="page"],
-.sidebar-pane a[aria-current="page"] span {
-  color: var(--portal-primary-text);
-}
-
+/* The current page: a filled block (PortalSidebarSublist ticks it on the guide line and puts its
+   icon in the accent), as in the API pages' sidebar. */
 .sidebar-pane a[aria-current="page"] {
+  color: var(--portal-primary-text);
   background-color: var(--portal-primary-tint);
 }
 

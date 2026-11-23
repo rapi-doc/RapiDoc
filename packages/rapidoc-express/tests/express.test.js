@@ -23,7 +23,9 @@ describe("@rapidoc/express", () => {
     const app = express();
     app.use(rapidoc(options));
     app.use("/api", rapidoc({ ...options, uiPath: "/reference" }));
-    app.use("/old", rapidoc({ ...options, path: "/ref" }));
+    app.use("/old", rapidoc({ ...options, path: "/ref", publicPath: "/gw/ref" }));
+    app.use("/bare", rapidoc({ ...options, uiPath: "ref/" }));
+    app.use("/proxied", rapidoc({ ...options, publicUiPath: "/gw/docs" }));
     app.use((req, res) => res.status(404).send("passed on"));
     site = await serve(app);
   });
@@ -56,6 +58,12 @@ describe("@rapidoc/express", () => {
       headers: { "if-none-match": first.headers.get("etag") },
     });
     assert.equal(again.status, 304);
+    assert.equal(first.headers.get("cache-control"), "no-cache");
+    assert.equal(first.headers.get("x-content-type-options"), "nosniff");
+    const weak = await fetch(`${site.url}/docs/rapidoc-min.js`, {
+      headers: { "if-none-match": `"x", W/${first.headers.get("etag")}` },
+    });
+    assert.equal(weak.status, 304);
     const head = await fetch(`${site.url}/docs`, { method: "HEAD" });
     assert.equal(head.status, 200);
     assert.equal(await head.text(), "");
@@ -75,9 +83,21 @@ describe("@rapidoc/express", () => {
     assert.equal((await fetch(`${site.url}/api/reference/rapidoc-min.js`)).status, 200);
   });
 
-  it("still takes path, the name uiPath had in version 0.1", async () => {
-    const page = await (await fetch(`${site.url}/old/ref`)).text();
-    assert.match(page, /src="\/old\/ref\/rapidoc-min\.js"/);
+  it("does not read path and publicPath, the option names of 0.x", async () => {
+    assert.equal(await (await fetch(`${site.url}/old/ref`)).text(), "passed on");
+    const page = await (await fetch(`${site.url}/old/docs`)).text();
+    assert.match(page, /src="\/old\/docs\/rapidoc-min\.js"/);
+  });
+
+  it("takes a uiPath without its leading slash under a mount point", async () => {
+    const page = await (await fetch(`${site.url}/bare/ref`)).text();
+    assert.equal(page, renderHostPage({ ...options, uiPath: "/bare/ref" }));
+    assert.equal((await fetch(`${site.url}/bare/ref/rapidoc-min.js`)).status, 200);
+  });
+
+  it("writes publicUiPath in place of the mount point, behind a proxy", async () => {
+    const page = await (await fetch(`${site.url}/proxied/docs`)).text();
+    assert.match(page, /src="\/gw\/docs\/rapidoc-min\.js"/);
   });
 
   it("takes the nonce from the request, loads from the CDN when asked, and can be disabled", async () => {

@@ -14,7 +14,32 @@ import {
   writeMcpProject as write,
 } from "../../rapidoc/src/utils/mcp-generator.js";
 
-export * from "../../rapidoc/src/utils/mcp-generator.js";
+// Everything of the shared entry except parseMcpEnabled, which reads <rapi-doc>'s `mcp` attribute
+export {
+  AUTH_TRANSPORT_HEADERS,
+  MANIFEST_VERSION,
+  MAX_TOOL_NAME_LENGTH,
+  assignToolNames,
+  baseUrlEnvNames,
+  baseUrlsFromEnv,
+  buildMcpManifest,
+  buildRequest,
+  compileWorkflows,
+  createZip,
+  credentialEnvNames,
+  credentialsFromEnv,
+  deriveToolName,
+  envNameFor,
+  estimateTokenCost,
+  externalHostsFromEnv,
+  generateHostConfigs,
+  hostEnvFor,
+  operationToolName,
+  sanitizeDescription,
+  sourcesWithoutBaseUrl,
+  toJsonSchema,
+  toSnakeCase,
+} from "../../rapidoc/src/utils/mcp-generator.js";
 export {
   parseDocument as parseArazzo,
   validateArazzo,

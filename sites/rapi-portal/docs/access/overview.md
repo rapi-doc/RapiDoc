@@ -93,7 +93,7 @@ Every variable: [Deploy with rapidoc serve](/docs/deploy/rapidoc-serve/#environm
 | Issuer | The URL of the provider's sign-in service, for example `https://acme.okta.com/oauth2/default`. The portal reads the rest of the provider's settings from it. |
 | Client ID, client secret | The portal's application at the provider, and its password. A *confidential client* has a secret; a *public client* has none and proves itself with PKCE alone. |
 | Redirect URL | Where the provider sends the reader after sign-in: `<portal URL>/_rapidoc/auth/callback`. Some providers say redirect URI or callback URL. |
-| Portal URL | `RAPIDOC_PUBLIC_URL`, else `site.url`, else the address the request came to. |
+| Portal URL | `RAPIDOC_PUBLIC_URL`, else `site.url`. Without either, the address the request came to, for a run on `localhost` only. |
 | ID token, access token | What the provider returns after sign-in. The ID token says who the reader is; the portal reads the name, email and groups from it, and from the provider's user info. The access token lets **Try** call your API ([Try with the reader's token](/docs/access/try-it/)). |
 | Claim | One field of a token, such as `email` or `groups`. |
 | Scopes | What the portal asks the provider for at sign-in: `openid profile email`, sometimes `groups`. |

@@ -791,11 +791,11 @@ describe(
       function recordNavigation() {
         window.__navEvents = [];
         document.addEventListener("nav-active-change", (e) => {
-          const target = e.target.getTargetElement?.(e.detail.id);
+          const target = e.target.getTargetElement?.(e.detail.elementId);
           const offset =
             parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
           window.__navEvents.push({
-            id: e.detail.id,
+            id: e.detail.elementId,
             distance: target ? target.getBoundingClientRect().top - offset : null,
           });
         });

@@ -37,17 +37,6 @@ export function copyToClipboard(data, e) {
   document.body.removeChild(textArea);
 }
 
-export function getBaseUrlFromUrl(url) {
-  const pathArray = url.split("/");
-  return `${pathArray[0]}//${pathArray[2]}`;
-}
-
-export async function wait(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 export function getMatchedComponents(searchVal, component) {
   return component.name.toLowerCase().includes(searchVal.toLowerCase());
 }
@@ -223,6 +212,25 @@ export function syncNavItemTitle(event) {
   } else if (row.hasAttribute("title")) {
     row.removeAttribute("title");
   }
+}
+
+/** Outline icons (24px grid, stroked) of the sidebar's built-in items: overview, servers, authentication */
+const NAV_ICON_PATHS = {
+  overview:
+    '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  servers:
+    '<rect x="2" y="3" width="20" height="7" rx="2"/><rect x="2" y="14" width="20" height="7" rx="2"/><path d="M6 6.5h.01M6 17.5h.01"/>',
+  auth: '<circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/>',
+};
+
+/**
+ * A built-in sidebar item's icon as SVG markup, shared by <rapi-doc>'s sidebar and
+ * @rapidoc/prerender's (part `section-navbar-icon`).
+ * @param {'overview'|'servers'|'auth'} name
+ * @returns {string}
+ */
+export function navIconSvg(name) {
+  return `<svg class="nav-bar-icon" part="section-navbar-icon" viewBox="0 0 24 24" aria-hidden="true">${NAV_ICON_PATHS[name] || ""}</svg>`;
 }
 
 /**

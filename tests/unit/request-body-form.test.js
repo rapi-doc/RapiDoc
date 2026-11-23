@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { renderTemplateToString } from "@rapidoc/prerender";
+import { renderTemplateToString } from "../../packages/rapidoc-prerender/src/internal.js";
 import { formDataTemplate } from "~/templates/request-body-template";
 
 // The form fields of a multipart/form-data or x-www-form-urlencoded request body.

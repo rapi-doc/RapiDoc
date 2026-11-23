@@ -1,6 +1,5 @@
 // CSS Custom Highlight API-based Syntax Highlighter using bundled TextMate grammars
 
-import astro from "microlighter/grammars/astro.js";
 import bash from "microlighter/grammars/bash.js";
 import c from "microlighter/grammars/c.js";
 import cpp from "microlighter/grammars/cpp.js";
@@ -13,19 +12,13 @@ import javascript from "microlighter/grammars/javascript.js";
 import json from "microlighter/grammars/json.js";
 import kotlin from "microlighter/grammars/kotlin.js";
 import markdown from "microlighter/grammars/markdown.js";
-import objectiveC from "microlighter/grammars/objective-c.js";
-import perl from "microlighter/grammars/perl.js";
 import php from "microlighter/grammars/php.js";
 import powershell from "microlighter/grammars/powershell.js";
 import python from "microlighter/grammars/python.js";
-import r from "microlighter/grammars/r.js";
 import ruby from "microlighter/grammars/ruby.js";
 import rust from "microlighter/grammars/rust.js";
-import svelte from "microlighter/grammars/svelte.js";
-import toml from "microlighter/grammars/toml.js";
 import tsx from "microlighter/grammars/tsx.js";
 import typescript from "microlighter/grammars/typescript.js";
-import vue from "microlighter/grammars/vue.js";
 import yaml from "microlighter/grammars/yaml.js";
 
 const httpGrammar = {
@@ -59,7 +52,6 @@ const httpGrammar = {
 };
 
 const grammars = {
-  astro,
   bash,
   c,
   cpp,
@@ -73,19 +65,13 @@ const grammars = {
   json,
   kotlin,
   markdown,
-  "objective-c": objectiveC,
-  perl,
   php,
   powershell,
   python,
-  r,
   ruby,
   rust,
-  svelte,
-  toml,
   tsx,
   typescript,
-  vue,
   yaml,
 };
 
@@ -96,7 +82,12 @@ Object.values(grammars).forEach((grammar) => {
   }
 });
 
+// Names that are drawn with another language's grammar. Component formats (Astro, Svelte, Vue) are HTML
+// with script and style blocks, and Objective-C is C with additions: close enough for a code sample, and
+// each grammar left out is 1.3 to 2.3 KB of the bundle. A language with no entry here and no grammar
+// (Perl, R, TOML, Swift ...) is shown as plain text.
 const languageAliases = {
+  astro: "html",
   "c++": "cpp",
   cs: "csharp",
   curl: "bash",
@@ -104,14 +95,17 @@ const languageAliases = {
   jsx: "javascript",
   markup: "html",
   md: "markdown",
-  objc: "objective-c",
+  objc: "c",
+  "objective-c": "c",
   ps1: "powershell",
   py: "python",
   rb: "ruby",
   sh: "bash",
   shell: "bash",
+  svelte: "html",
   svg: "html",
   ts: "typescript",
+  vue: "html",
   xml: "html",
   yml: "yaml",
   zsh: "bash",

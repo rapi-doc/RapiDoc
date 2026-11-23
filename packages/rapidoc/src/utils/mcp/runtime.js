@@ -91,21 +91,64 @@ function parseJson(text) {
   }
 }
 
-/** The environment variable name that holds a scheme's credential: `petstore_auth` → `PETSTORE_AUTH`. */
-export function envNameFor(schemeId) {
-  const name = String(schemeId || "")
+/** The manifest version this runtime reads; buildMcpManifest writes it as `manifestVersion`. */
+export const MANIFEST_VERSION = 1;
+
+/** A short stable hash of a text (FNV-1a, 8 hex digits), for names that must not depend on order. */
+export function shortHash(text) {
+  let h = 0x811c9dc5;
+  for (const byte of new TextEncoder().encode(String(text))) {
+    h ^= byte;
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, "0");
+}
+
+/** An id in UPPER_SNAKE: `petstoreAuth` and `petstore-auth` are both `PETSTORE_AUTH`. */
+function upperSnake(id) {
+  return String(id ?? "")
     .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
     .replace(/[^a-zA-Z0-9]+/g, "_")
     .replace(/^_|_$/g, "")
     .toUpperCase();
-  return name || "API_KEY";
 }
 
 /**
- * Credentials for every security scheme in the manifest, read from environment variables:
- * `<SCHEME>` (the scheme id in upper snake case). `API_KEY` is a fallback only when the manifest
- * has one scheme: with several, one key would be sent as every scheme's credential. HTTP Basic takes
- * `<SCHEME>` as `user:password`, or `<SCHEME>_USERNAME` and `<SCHEME>_PASSWORD`.
+ * The environment variable that holds a security scheme's credential: `MCP_AUTH_<SCHEME>`, the
+ * scheme id in upper snake case (`petstore_auth` → `MCP_AUTH_PETSTORE_AUTH`). Always inside the
+ * `MCP_AUTH_` prefix, so a scheme named `path` or `token` never reads `$PATH` or `$TOKEN`. An id
+ * with no Latin letter or digit gets a hash of itself.
+ */
+export function envNameFor(schemeId) {
+  const id = String(schemeId ?? "");
+  return `MCP_AUTH_${upperSnake(id) || `SCHEME_${shortHash(id).toUpperCase()}`}`;
+}
+
+const isBasic = (scheme) =>
+  scheme?.type === "http" && String(scheme.scheme).toLowerCase() === "basic";
+
+/**
+ * The environment variables each security scheme's credential is read from, by scheme id:
+ * `[MCP_AUTH_<SCHEME>]`, or for HTTP Basic `[MCP_AUTH_<SCHEME>_USERNAME, MCP_AUTH_<SCHEME>_PASSWORD]`.
+ *
+ * @param {object} manifest
+ * @returns {Record<string, string[]>}
+ */
+export function credentialEnvNames(manifest) {
+  const names = {};
+  for (const source of Object.values(manifest?.sources || {})) {
+    for (const [id, scheme] of Object.entries(source?.securitySchemes || {})) {
+      const key = envNameFor(id);
+      names[id] = isBasic(scheme) ? [`${key}_USERNAME`, `${key}_PASSWORD`] : [key];
+    }
+  }
+  return names;
+}
+
+/**
+ * Credentials for every security scheme in the manifest, read from the environment variables
+ * credentialEnvNames lists, and from no other: `MCP_AUTH_<SCHEME>`, or
+ * `MCP_AUTH_<SCHEME>_USERNAME` and `MCP_AUTH_<SCHEME>_PASSWORD` for HTTP Basic.
  *
  * @param {object} manifest
  * @param {Record<string, string|undefined>} env such as `process.env`
@@ -113,27 +156,97 @@ export function envNameFor(schemeId) {
  */
 export function credentialsFromEnv(manifest, env = {}) {
   const credentials = {};
-  const schemeIds = new Set(
-    Object.values(manifest.sources || {}).flatMap((s) => Object.keys(s.securitySchemes || {})),
-  );
-  const fallback = schemeIds.size === 1 ? env.API_KEY : undefined;
-  for (const source of Object.values(manifest.sources || {})) {
-    for (const [id, scheme] of Object.entries(source.securitySchemes || {})) {
+  const given = (v) => v !== undefined && v !== "";
+  for (const source of Object.values(manifest?.sources || {})) {
+    for (const [id, scheme] of Object.entries(source?.securitySchemes || {})) {
       const key = envNameFor(id);
-      if (scheme.type === "http" && String(scheme.scheme).toLowerCase() === "basic") {
-        if (env[`${key}_USERNAME`] !== undefined) {
-          credentials[id] = {
-            username: env[`${key}_USERNAME`],
-            password: env[`${key}_PASSWORD`] || "",
-          };
-          continue;
+      if (isBasic(scheme)) {
+        const username = env[`${key}_USERNAME`];
+        const password = env[`${key}_PASSWORD`];
+        if (given(username) || given(password)) {
+          credentials[id] = { username: username || "", password: password || "" };
         }
-      }
-      const value = env[key] ?? fallback;
-      if (value !== undefined && value !== "") credentials[id] = value;
+      } else if (given(env[key])) credentials[id] = env[key];
     }
   }
   return credentials;
+}
+
+/**
+ * The environment variable each source's base URL is read from, by source name: `MCP_BASE_URL`
+ * when the manifest has one source, `MCP_BASE_URL_<SOURCE>` (the source name in upper snake case)
+ * each when it has several, so one source's requests and credentials never go to another's host.
+ *
+ * @param {object} manifest
+ * @returns {Record<string, string>}
+ */
+export function baseUrlEnvNames(manifest) {
+  const sources = Object.keys(manifest?.sources || {});
+  if (sources.length === 1) return { [sources[0]]: "MCP_BASE_URL" };
+  return Object.fromEntries(
+    sources.map((name) => [
+      name,
+      `MCP_BASE_URL_${upperSnake(name) || `SOURCE_${shortHash(name).toUpperCase()}`}`,
+    ]),
+  );
+}
+
+/**
+ * Base URLs from the environment, as createMcpRuntime's `baseUrls`: the variables
+ * baseUrlEnvNames lists. Throws when `MCP_BASE_URL` is set for a manifest with several sources,
+ * naming the variables to set instead.
+ *
+ * @param {object} manifest
+ * @param {Record<string, string|undefined>} env such as `process.env`
+ * @returns {Record<string, string>}
+ */
+export function baseUrlsFromEnv(manifest, env = {}) {
+  const names = baseUrlEnvNames(manifest);
+  const list = Object.values(names);
+  if (list.length > 1 && env.MCP_BASE_URL) {
+    throw new Error(
+      `MCP_BASE_URL is for a server with one API; this one has ${list.length}: set ${list.join(", ")} instead`,
+    );
+  }
+  const baseUrls = {};
+  for (const [source, name] of Object.entries(names)) if (env[name]) baseUrls[source] = env[name];
+  return baseUrls;
+}
+
+/**
+ * The base URL as an absolute http(s) URL, or "". A relative one is resolved against the page's
+ * address in a browser (where `fetch` would resolve it the same way) and is "" elsewhere.
+ */
+function absoluteBase(url) {
+  const text = String(url || "");
+  if (!text) return "";
+  if (httpHost(text)) return text;
+  const page = globalThis.location?.href;
+  if (!httpHost(page)) return "";
+  try {
+    return new URL(text, page).href;
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * The sources whose requests have nowhere to go: no absolute base URL in the manifest (the
+ * OpenAPI document had no server, or a relative one) and none in `baseUrls`.
+ *
+ * @param {object} manifest
+ * @param {Record<string, string>} [baseUrls] by source name
+ * @returns {string[]} source names
+ */
+export function sourcesWithoutBaseUrl(manifest, baseUrls = {}) {
+  return Object.entries(manifest?.sources || {})
+    .filter(([name, source]) => !absoluteBase(baseUrls[name] || source?.baseUrl))
+    .map(([name]) => name);
+}
+
+function noBaseUrlMessage(manifest, sourceName) {
+  const variable = baseUrlEnvNames(manifest)[sourceName] || "MCP_BASE_URL";
+  return `No base URL for the API "${sourceName}": its OpenAPI document names no absolute server URL. Set ${variable} (rapidoc mcp serve with one API also takes --base-url), or pass baseUrls to the runtime`;
 }
 
 /** Sets a header, replacing one of the same name in any case. */
@@ -160,7 +273,7 @@ function applyCredential(scheme, credential, target) {
       const kept = target.cookies.filter((c) => !c.startsWith(prefix));
       target.cookies.splice(0, target.cookies.length, ...kept, prefix + encodeURIComponent(value));
     } else setHeader(target.headers, scheme.name || "Authorization", value);
-  } else if (scheme.type === "http" && String(scheme.scheme).toLowerCase() === "basic") {
+  } else if (isBasic(scheme)) {
     const pair =
       typeof credential === "string"
         ? credential
@@ -172,7 +285,7 @@ function applyCredential(scheme, credential, target) {
 }
 
 /**
- * The hosts `EXTERNAL_HOSTS` lists (comma-separated; `*` for any), as createMcpRuntime's
+ * The hosts `MCP_EXTERNAL_HOSTS` lists (comma-separated; `*` for any), as createMcpRuntime's
  * `externalHosts`: where a workflow's x-operation URL computed at run time may go besides the
  * hosts the workflow names. Every server that runs workflows reads the same variable.
  *
@@ -180,7 +293,7 @@ function applyCredential(scheme, credential, target) {
  * @returns {string[]}
  */
 export function externalHostsFromEnv(env = {}) {
-  return String(env.EXTERNAL_HOSTS || "")
+  return String(env.MCP_EXTERNAL_HOSTS || "")
     .split(",")
     .map((h) => h.trim())
     .filter(Boolean);
@@ -252,7 +365,9 @@ export function buildRequest(manifest, operation, args = {}, options = {}) {
   // An x-operation step names its own URL, no source
   const base = operation.url
     ? ""
-    : String(options.baseUrls?.[operation.source] || source.baseUrl || "").replace(/\/$/, "");
+    : absoluteBase(options.baseUrls?.[operation.source] || source.baseUrl).replace(/\/$/, "");
+  // Never a request to a relative URL, which Node cannot send and which names no API
+  if (!operation.url && !base) throw new Error(noBaseUrlMessage(manifest, operation.source));
   const headers = {};
   const query = new URLSearchParams();
   // Query parameters with allowReserved, as "name=value" pairs: URLSearchParams would encode them
@@ -339,6 +454,15 @@ function errorResult(text) {
  *   `{ request, response, headers, text, data }` or `{ request?, error }`, for workflow runners.
  */
 export function createMcpRuntime(manifest, options = {}) {
+  if (manifest?.manifestVersion !== MANIFEST_VERSION) {
+    throw new Error(
+      `This MCP runtime reads manifest version ${MANIFEST_VERSION}, and the manifest is ${
+        manifest?.manifestVersion === undefined
+          ? "not versioned (no manifestVersion)"
+          : `version ${JSON.stringify(manifest.manifestVersion)}`
+      }. Build the manifest again, or use the runtime of the RapiDoc version that wrote it.`,
+    );
+  }
   const fetchImpl = options.fetch || globalThis.fetch;
   const requestOptions = {
     credentials: options.credentials || {},

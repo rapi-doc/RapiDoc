@@ -14,6 +14,61 @@ import { createPortalWorkspace, removePortalWorkspace } from "./temp-workspace.j
 import { reportSpecWarnings } from "./spec-checks.js";
 import { indexBuiltPages } from "../search/indexer.js";
 
+const isInside = (child, parent) => {
+  const relative = path.relative(parent, child);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+};
+
+/**
+ * Why `outDir` cannot be the output folder, or null when it can. The build empties its output folder
+ * first, so it must not be, hold, or sit inside anything the portal is built from: the project folder
+ * itself, `docs/`, `public/`, `pages/`, the config, a spec, a workflow file or the stylesheet.
+ *
+ * @param {string} outDir - Absolute path
+ * @param {{ projectDir: string, configPath: string, config: object }} workspace
+ * @returns {string | null}
+ */
+export function outDirProblem(outDir, { projectDir, configPath, config }) {
+  const shown = path.relative(projectDir, outDir) || ".";
+  const refuse = (what) =>
+    `The output folder "${shown}" ${what}. A build empties its output folder first: choose a folder of its own, such as dist.`;
+  if (isInside(projectDir, outDir))
+    return refuse(outDir === projectDir ? "is the portal's folder" : "holds the portal's folder");
+
+  const folders = [
+    [config.docs?.fullPath, "the docs folder"],
+    [path.join(projectDir, "public"), "the public folder"],
+    [path.join(projectDir, "pages"), "the pages folder"],
+    [path.join(projectDir, "node_modules"), "node_modules"],
+    [path.join(projectDir, ".rapidoc-temp"), "the build's own workspace"],
+  ];
+  for (const [folder, name] of folders) {
+    if (!folder) continue;
+    if (outDir === folder) return refuse(`is ${name}`);
+    if (isInside(outDir, folder)) return refuse(`is inside ${name}`);
+    if (isInside(folder, outDir)) return refuse(`holds ${name}`);
+  }
+
+  const files = [
+    [configPath, "the config file"],
+    ...[config.theme?.css || []].flat().map((file) => [file, "a stylesheet (theme.css)"]),
+    ...(config.apis || []).flatMap((api) =>
+      (api.versions || []).map((version) => [
+        version.isRemote ? null : version.fullPath,
+        `the spec of the API "${api.id}"`,
+      ]),
+    ),
+    ...(config.workflows || []).map((workflow) => [
+      workflow.fullPath,
+      `the workflow file "${workflow.id}"`,
+    ]),
+  ];
+  for (const [file, name] of files) {
+    if (file && isInside(file, outDir)) return refuse(`holds ${name}`);
+  }
+  return null;
+}
+
 /**
  * @param {string} [projectDir] - Folder containing rapidoc.config.yaml
  * @param {object} [options]
@@ -25,8 +80,18 @@ import { indexBuiltPages } from "../search/indexer.js";
 export async function buildPortal(projectDir = process.cwd(), options = {}) {
   const startTime = Date.now();
   const workspace = await createPortalWorkspace(projectDir, { kind: "build" });
-  reportSpecWarnings(workspace.config);
   const outDir = path.resolve(workspace.projectDir, options.outDir || "dist");
+  const problem = outDirProblem(outDir, workspace);
+  if (problem) {
+    removePortalWorkspace(workspace);
+    throw new Error(problem);
+  }
+  reportSpecWarnings(workspace.config);
+  const { site } = workspace.config;
+  if (!site.url && !site.noindex)
+    console.log(
+      "[rapidoc-portal] Note: no site.url in the config, so the pages have no canonical link and there is no sitemap. Set site.url to the portal's public address to get both.",
+    );
 
   // Astro writes its prerender chunks to <outDir>/.prerender when outDir is under the cwd, and to
   // <cwd>/.astro/ otherwise. Running from the workspace puts them in <workspace>/.astro/, where

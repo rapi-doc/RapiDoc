@@ -84,9 +84,7 @@ info:
             <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Python</td><td style="padding: 5px 10px; text-align: right;"><code>py</code></td></tr>
             <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Ruby</td><td style="padding: 5px 10px; text-align: right;"><code>rb</code></td></tr>
             <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Bash</td><td style="padding: 5px 10px; text-align: right;"><code>sh</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Perl</td><td style="padding: 5px 10px; text-align: right;"><code>perl</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">PowerShell</td><td style="padding: 5px 10px; text-align: right;"><code>ps1</code></td></tr>
-            <tr><td style="padding: 5px 10px;">R</td><td style="padding: 5px 10px; text-align: right;"><code>r</code></td></tr>
+            <tr><td style="padding: 5px 10px;">PowerShell</td><td style="padding: 5px 10px; text-align: right;"><code>ps1</code></td></tr>
           </tbody>
         </table>
       </div>
@@ -102,7 +100,6 @@ info:
           <tbody>
             <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">JSON</td><td style="padding: 5px 10px; text-align: right;"><code>json</code></td></tr>
             <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">YAML</td><td style="padding: 5px 10px; text-align: right;"><code>yml</code></td></tr>
-            <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">TOML</td><td style="padding: 5px 10px; text-align: right;"><code>toml</code></td></tr>
             <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 5px 10px;">Markdown</td><td style="padding: 5px 10px; text-align: right;"><code>md</code></td></tr>
             <tr><td style="padding: 5px 10px;">HTTP</td><td style="padding: 5px 10px; text-align: right;"><code>http</code></td></tr>
           </tbody>
@@ -200,18 +197,6 @@ info:
               description: An array of pets
     ```
 
-    **TOML** `toml`
-    ```toml
-    [package]
-    name = "rapidoc-demo"
-    version = "1.0.0"
-    edition = "2024"
-
-    [dependencies]
-    serde = { version = "1.0", features = ["derive"] }
-    tokio = { version = "1.0", features = ["full"] }
-    ```
-
     **HTTP** `http`
     ```http
     POST /v2/pet HTTP/1.1
@@ -235,7 +220,7 @@ info:
 
     ## Features
     - **Fast**: Zero runtime overhead.
-    - *Flexible*: Supports 28+ languages out of the box.
+    - *Flexible*: Supports 20 languages out of the box, and draws a few more with the nearest one (Vue, Svelte and Astro as HTML, Objective-C as C).
 
     > Note: Powered by native CSS Custom Highlight API.
     ```
@@ -504,39 +489,6 @@ info:
         true
       end
     end
-    ```
-
-    **PERL** `perl`
-    ```perl
-    #!/usr/bin/perl
-    use strict;
-    use warnings;
-
-    my %fruits = (
-        apple  => 'red',
-        banana => 'yellow',
-        orange => 'orange'
-    );
-
-    while (my ($name, $color) = each %fruits) {
-        print "$name is $color\n";
-    }
-    ```
-
-    **R** `r`
-    ```r
-    # Data visualization example
-    library(ggplot2)
-
-    data <- data.frame(
-      category = c("A", "B", "C", "D"),
-      values = c(23, 45, 12, 67)
-    )
-
-    plot <- ggplot(data, aes(x = category, y = values, fill = category)) +
-      geom_bar(stat = "identity") +
-      theme_minimal() +
-      labs(title = "Category Breakdown", x = "Category", y = "Value")
     ```
 
     **OBJECTIVE-C** `objective-c`

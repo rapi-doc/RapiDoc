@@ -646,8 +646,6 @@ const instanceId = `rd-pretty-${targetId}-${Math.random().toString(36).slice(2, 
 
         if (typeof target.scrollToPath === 'function') {
           target.scrollToPath(path);
-        } else if (typeof target.scrollTo === 'function') {
-          target.scrollTo(path);
         }
       }
 

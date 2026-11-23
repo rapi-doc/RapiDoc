@@ -1,0 +1,43 @@
+{
+  "description": "An inline spec whose keys a JSON writer may reorder (JavaScript writes 200 and 404 before default) and with numbers it may write differently (1.0 or 1). The inline spec is compared as parsed JSON; the rest of the page byte for byte.",
+  "page": "host",
+  "options": {
+    "spec": {
+      "openapi": "3.1.0",
+      "info": {
+        "title": "Pets",
+        "version": "1.0.0"
+      },
+      "paths": {
+        "/pets/{id}": {
+          "get": {
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "number",
+                  "minimum": 1.0,
+                  "maximum": 99.5,
+                  "multipleOf": 0.5
+                }
+              }
+            ],
+            "responses": {
+              "default": {
+                "description": "Error"
+              },
+              "404": {
+                "description": "Not found"
+              },
+              "200": {
+                "description": "A pet"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

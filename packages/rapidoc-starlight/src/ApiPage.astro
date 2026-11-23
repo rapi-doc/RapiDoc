@@ -51,8 +51,7 @@ if (!api) throw new Error(`@rapidoc/starlight: no API is configured at ${Astro.u
   markCurrent(fromHash());
   window.addEventListener('hashchange', () => markCurrent(fromHash()));
   element?.addEventListener('nav-active-change', (event) => {
-    const { elementId, id } = (event as CustomEvent).detail ?? {};
-    if (!markCurrent(elementId ?? id)) markCurrent('overview');
+    if (!markCurrent((event as CustomEvent).detail?.elementId)) markCurrent('overview');
   });
 </script>
 

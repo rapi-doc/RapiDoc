@@ -106,13 +106,18 @@ test("theme-validation", async (t) => {
       navStyles.cssText,
       /color:\s*var\(--sidebar-accent-foreground\);\s*background:\s*var\(--sidebar-accent\);/,
     );
+    // The current item is a filled block, its text in the accent and its weight unchanged
     assert.match(
       navStyles.cssText,
-      /border-inline-start:\s*4px solid var\(--sidebar-primary\);\s*color:\s*var\(--sidebar-primary\);/,
+      /color:\s*var\(--sidebar-primary\);\s*background:\s*var\(--sidebar-active-background\);\s*\}/,
     );
-
-    // Active items always use the left-bar marker style
-    assert.match(navStyles.cssText, /\.left-bar\.active/);
+    assert.match(
+      themeTokens.cssText,
+      /--sidebar-active-background:\s*color-mix\(in srgb, var\(--sidebar-primary\) 14%, transparent\);/,
+    );
+    // the accent as text: the readable variant, not the fill color
+    assert.match(themeTokens.cssText, /--sidebar-primary:\s*var\(--primary-text\);/);
+    assert.doesNotMatch(navStyles.cssText, /\.left-bar\.active/);
     assert.doesNotMatch(navStyles.cssText, /\.colored-block\.active/);
   });
 

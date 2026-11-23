@@ -62,7 +62,8 @@ UI helpers:
 - `highlighter.js`: `highlightAllCode`, `scheduleHighlight` (CSS Custom Highlight API).
 - `markdown-utils.js`: `configureMarkdown` and token helpers for the global `marked`.
 - `sanitize.js`: `sanitizeHTML`.
-- `bind-navbar.js`: `bindNavBar` ties a static `getNavBarHtml` sidebar to `<rapi-doc>`.
+- `bind-navbar.js`: `bindNavBar` ties a static `getNavBarHtml` sidebar to `<rapi-doc>`. The active
+  item follows `nav-active-change`'s `detail.elementId`, so a tag's section highlights the tag.
 - `auto-color-scheme.js`: `AutoColorSchemeController`, `resolvePageColorScheme`.
 - `oauth-utils.js`: PKCE (`randomUrlSafe`, `pkceChallenge`), `readOAuthReply`,
   `isExpectedOAuthReply`.
@@ -186,7 +187,8 @@ UI helpers:
 
 - `ProcessSpec` fetches the spec and external `$ref`s, logs load errors with `console.info`, and
   mutates the spec it processes: `x-ref` during dereference, `paths` replaced by `filterPaths` (the operations `filter-operations` shows, `[filter-operations.js]`),
-  `callbacks` filtered, relative `servers[*].url` prefixed with `location.origin`,
+  `callbacks` filtered, relative `servers[*].url` made absolute against the spec's address, or the page's for a spec
+  without one (`[spec-parser.js:resolveServerUrl]`; unchanged outside a browser),
   `computedUrl` added.
 - `mock-interceptor.js` replaces `window.fetch` and `XMLHttpRequest.prototype` methods while
   active and keeps routes and config in module state.

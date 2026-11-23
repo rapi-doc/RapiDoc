@@ -52,7 +52,6 @@ export default css`
       color: var(--foreground);
     }
 
-    &.tab-active,
     &.active {
       color: var(--primary);
       border-bottom-color: var(--primary);

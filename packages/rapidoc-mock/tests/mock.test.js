@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { createMockApp, startMockServer, tokenScopes } from "../src/index.js";
+import { tokenScopes } from "../src/auth.js";
+import { createMockApp, startMockServer } from "../src/index.js";
 import { parsePrefer } from "../src/responses.js";
 import { AUDIENCE, client, FIXTURES, quiet, startIssuer } from "./helpers.js";
 
@@ -133,11 +134,64 @@ describe("rapidoc mock", () => {
     });
   });
 
+  describe("a security requirement for a scheme the spec does not define", () => {
+    const doc = {
+      openapi: "3.1.0",
+      info: { title: "Typo", version: "1" },
+      components: { securitySchemes: { apiKey: { type: "apiKey", in: "header", name: "X-Key" } } },
+      paths: {
+        "/closed": {
+          get: { security: [{ apikey: [] }], responses: { 200: { description: "ok" } } },
+        },
+        "/either": {
+          get: {
+            security: [{ constructor: [] }, { apiKey: [] }],
+            responses: { 200: { description: "ok" } },
+          },
+        },
+        "/open": { get: { security: [], responses: { 200: { description: "ok" } } } },
+      },
+    };
+
+    it("answers 401, never leaves the operation open, and warns once at start naming both", async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-mock-"));
+      try {
+        const file = path.join(dir, "typo.json");
+        fs.writeFileSync(file, JSON.stringify(doc));
+        const warnings = [];
+        const { app } = await createMockApp({
+          apis: [{ id: "typo", fullPath: file }],
+          log: () => {},
+          warn: (line) => warnings.push(line),
+        });
+        const call = client(app);
+        const closed = await call("GET", "/typo/closed", { headers: { "x-key": "k" } });
+        assert.equal(closed.status, 401);
+        assert.match(closed.data.detail, /security scheme "apikey" is not defined/);
+        assert.equal((await call("GET", "/typo/either")).status, 401);
+        assert.equal(
+          (await call("GET", "/typo/either", { headers: { "x-key": "k" } })).status,
+          200,
+          "another requirement still lets the caller in",
+        );
+        assert.equal((await call("GET", "/typo/open")).status, 200);
+
+        const about = warnings.filter((line) => line.includes("is not defined"));
+        assert.equal(about.length, 2, "one line per unknown scheme");
+        assert.match(about[0], /typo: security scheme "apikey".*GET \/closed/);
+        assert.match(about[1], /security scheme "constructor".*GET \/either/);
+        await call("GET", "/typo/closed");
+        assert.equal(warnings.filter((line) => line.includes("is not defined")).length, 2);
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
+    });
+  });
+
   describe("without an issuer", () => {
     it("accepts any bearer token and still asks for one", async () => {
-      const { app, verifier } = await createMockApp({ apis: [orders], ...quiet });
+      const { app } = await createMockApp({ apis: [orders], ...quiet });
       const open = client(app);
-      assert.equal(verifier, null);
       assert.equal((await open("GET", "/orders/orders")).status, 401);
       assert.equal((await open("GET", "/orders/orders", { token: "anything" })).status, 200);
     });
@@ -392,6 +446,24 @@ describe("rapidoc mock", () => {
       }
     });
 
+    it("exports the public API from the entry and the CLI's helpers from /internal only", async () => {
+      const entry = await import("@rapidoc/mock");
+      assert.deepEqual(Object.keys(entry).sort(), [
+        "DEFAULT_PORT",
+        "createMockApp",
+        "startMockServer",
+      ]);
+      const internal = await import("@rapidoc/mock/internal");
+      assert.deepEqual(Object.keys(internal).sort(), [
+        "configFor",
+        "exampleError",
+        "statefulFindings",
+        "statefulReport",
+      ]);
+      const made = await createMockApp({ apis: [orders], ...quiet });
+      assert.deepEqual(Object.keys(made).sort(), ["apis", "app", "skipped"]);
+    });
+
     it("starts on a port and stops", async () => {
       const server = await startMockServer({
         apis: [orders],
@@ -400,6 +472,7 @@ describe("rapidoc mock", () => {
         ...quiet,
       });
       try {
+        assert.deepEqual(Object.keys(server).sort(), ["apis", "close", "port", "skipped", "url"]);
         const res = await fetch(`${server.url}/orders/health`);
         assert.equal(res.status, 200);
       } finally {

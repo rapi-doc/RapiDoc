@@ -160,11 +160,6 @@ function normalizeConfig(options = {}, current = {}) {
       options.statusCode !== undefined
         ? normalizeStatus(options.statusCode)
         : current.statusCode || "",
-    // For codes without a prefix (cycle:, random:, first:); cycle when unset
-    statusStrategy:
-      options.statusStrategy !== undefined
-        ? options.statusStrategy || "cycle"
-        : current.statusStrategy || "cycle",
     delay: options.delay !== undefined ? Number(options.delay) || 0 : current.delay || 0,
     log: options.log !== undefined ? options.log !== "false" : current.log !== false,
   };
@@ -313,11 +308,11 @@ function matchRoute(method, urlStr) {
 }
 
 /**
- * Chooses the status code based on config and strategy (first, cycle, random).
+ * Chooses the status code from the configured codes: in turn per operation, or as their prefix says
+ * (`cycle:`, `random:`, `first:`).
  */
-function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses = {}, cycle) {
-  // A `cycle:` / `random:` / `first:` prefix on the codes wins over the element's strategy
-  const { codes } = parseStatusCodes(configuredCodesStr, strategy);
+function selectStatusCode(configuredCodesStr, endpointKey, responses = {}, cycle) {
+  const { codes } = parseStatusCodes(configuredCodesStr);
 
   if (codes.length === 0) {
     // Look for 2xx response defined in spec
@@ -331,7 +326,7 @@ function selectStatusCode(configuredCodesStr, strategy, endpointKey, responses =
   // The call count per operation, for cycle; it starts again when the codes change (updateMockConfig)
   const index = cycle?.get(endpointKey) || 0;
   cycle?.set(endpointKey, index + 1);
-  return pickStatusCode(configuredCodesStr, index, strategy);
+  return pickStatusCode(configuredCodesStr, index);
 }
 
 /**
@@ -449,7 +444,6 @@ function answer(match) {
   const { config, cycle } = match.mock;
   const statusCode = selectStatusCode(
     codesFor(config.statusCode, match.route.routeKey),
-    config.statusStrategy,
     match.route.routeKey,
     match.route.responses,
     cycle,
@@ -641,9 +635,8 @@ export function updateMockConfig(options = {}) {
   const mock = mocks.get(options.owner || DEFAULT_OWNER);
   if (!mock) return;
   mock.config = normalizeConfig(options, mock.config);
-  // New codes or strategy: each operation's cycle starts again from its first code
-  if (options.statusCode !== undefined || options.statusStrategy !== undefined)
-    mock.cycle = new Map();
+  // New codes: each operation's cycle starts again from its first code
+  if (options.statusCode !== undefined) mock.cycle = new Map();
 }
 
 /** Whether `owner`'s mock is enabled; without an owner, whether any mock is. */

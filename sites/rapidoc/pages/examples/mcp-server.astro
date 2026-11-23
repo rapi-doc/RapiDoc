@@ -84,7 +84,7 @@ const sampleSpecUrl = '/specs/petstore.yaml';
             <strong>Safety annotations</strong>: MCP <code>readOnlyHint</code>, <code>destructiveHint</code> and <code>idempotentHint</code> on every tool, so hosts can ask before <code>delete_pet</code>
           </li>
           <li>
-            <strong>Auth from <code>securitySchemes</code></strong>: <code>api_key</code> and <code>petstore_auth</code> are applied by the runtime from <code>API_KEY</code> and <code>PETSTORE_AUTH</code>, never asked of the model
+            <strong>Auth from <code>securitySchemes</code></strong>: <code>api_key</code> and <code>petstore_auth</code> are applied by the runtime from <code>MCP_AUTH_API_KEY</code> and <code>MCP_AUTH_PETSTORE_AUTH</code>, never asked of the model
           </li>
         </ul>
       </div>

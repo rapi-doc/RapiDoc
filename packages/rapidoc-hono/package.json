@@ -53,7 +53,7 @@
     "hono": "^4.13.16"
   },
   "peerDependencies": {
-    "hono": ">=4.0.0"
+    "hono": "^4"
   },
   "engines": {
     "node": ">=22.12.0"

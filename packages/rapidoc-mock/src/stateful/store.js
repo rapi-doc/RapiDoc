@@ -8,10 +8,15 @@
  *
  * Sessions: `store.session(id)` is a view with its own copy of the seed state, made when it first writes, so
  * parallel tests on one server never see each other's data. `store.session()` (no id) is the default state.
+ * A store keeps the state of at most `maxSessions` sessions (1000): one more, and the session used longest
+ * ago loses its copy and reads the seed state again, so a mock that runs for weeks does not grow without end.
  * Records go in and come out as copies: a caller can't change stored data by holding on to an object.
  */
 
 const copy = (value) => (value === undefined ? undefined : structuredClone(value));
+
+/** How many sessions keep their own state, per API. */
+export const MAX_SESSIONS = 1000;
 
 /** The value at a dotted path of a record: `metadata.name` of a Kubernetes object. */
 export function valueAt(record, path) {
@@ -41,8 +46,11 @@ const keyOf = (value) => String(value);
 /**
  * @param {Record<string, { key: string | null, keyAs?: "number" }>} resources - The classifier's resources
  *   (classifySpec); `keyAs: "number"`: the path takes a number for a key stored as text
+ * @param {object} [options]
+ * @param {number} [options.maxSessions] - Sessions that keep their own state (default 1000); the one used
+ *   longest ago is dropped for a new one
  */
-export function createStore(resources) {
+export function createStore(resources, { maxSessions = MAX_SESSIONS } = {}) {
   const names = Object.keys(resources);
   /** @type {Map<string, Map<string, object>>} the seed state: collection -> key -> record */
   let seed = new Map(names.map((name) => [name, new Map()]));
@@ -50,6 +58,22 @@ export function createStore(resources) {
   let initial = seed;
   /** @type {Map<string, Map<string, Map<string, object>>>} session id -> its own state */
   const sessions = new Map();
+  /** A session's state, marked as the one used last (a Map keeps its keys in the order they were set). */
+  const touch = (id) => {
+    const state = sessions.get(id);
+    if (state && sessions.size > 1) {
+      sessions.delete(id);
+      sessions.set(id, state);
+    }
+    return state;
+  };
+  /** Gives a session its state, dropping the sessions used longest ago when there are too many. */
+  const keep = (id, state) => {
+    sessions.delete(id);
+    sessions.set(id, state);
+    while (sessions.size > Math.max(1, maxSessions)) sessions.delete(sessions.keys().next().value);
+    return state;
+  };
 
   const cloneState = (state) =>
     new Map([...state].map(([name, records]) => [name, new Map(copy([...records]))]));
@@ -77,11 +101,10 @@ export function createStore(resources) {
   };
 
   const view = (id) => {
-    const reading = () => (id === undefined ? seed : sessions.get(id) || seed);
+    const reading = () => (id === undefined ? seed : touch(id) || seed);
     const writing = () => {
       if (id === undefined) return seed;
-      if (!sessions.has(id)) sessions.set(id, cloneState(seed));
-      return sessions.get(id);
+      return touch(id) || keep(id, cloneState(seed));
     };
     const keyField = (name) => resources[name]?.key;
 
@@ -155,7 +178,7 @@ export function createStore(resources) {
         if (unknown.length) throw new Error(`Unknown collection "${unknown[0]}"`);
         const state = new Map(names.map((name) => [name, new Map()]));
         if (id === undefined) seed = state;
-        else sessions.set(id, state);
+        else keep(id, state);
         for (const name of names) {
           for (const record of data[name] || []) this.insert(name, record);
         }

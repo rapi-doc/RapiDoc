@@ -238,7 +238,7 @@ describe("mcp: workflows compiled into the manifest", () => {
     assert.deepEqual(steps[1].operation.security, [{ key: [] }]);
   });
 
-  it("numbers a workflow tool whose name clashes with an operation's", () => {
+  it("names a workflow tool and an operation's that clash by what each is, in any order", () => {
     const doc = {
       ...arazzo,
       workflows: [
@@ -246,9 +246,24 @@ describe("mcp: workflows compiled into the manifest", () => {
       ],
     };
     const { tools } = buildMcpManifest(petstore, { arazzo: doc });
-    assert.deepEqual(
-      tools.filter((t) => t.name.startsWith("get_pet_by_id")).map((t) => t.name),
-      ["get_pet_by_id", "get_pet_by_id_2"],
+    const clashing = tools.filter((t) => t.name.startsWith("get_pet_by_id"));
+    assert.equal(clashing.length, 2);
+    assert.equal(new Set(clashing.map((t) => t.name)).size, 2);
+    for (const t of clashing) assert.match(t.name, /^get_pet_by_id_[0-9a-f]{8}$/);
+    // The workflow's name is the same when the operations are listed the other way round
+    const reversed = {
+      ...petstore,
+      paths: Object.fromEntries(Object.entries(petstore.paths).reverse()),
+    };
+    const again = buildMcpManifest(reversed, { arazzo: doc }).tools;
+    const nameOf = (list, pick) => list.find(pick).name;
+    assert.equal(
+      nameOf(again, (t) => t.workflow === "getPetById"),
+      nameOf(tools, (t) => t.workflow === "getPetById"),
+    );
+    assert.equal(
+      nameOf(again, (t) => t.operation?.path === "/pet/{petId}" && t.operation.method === "GET"),
+      nameOf(tools, (t) => t.operation?.path === "/pet/{petId}" && t.operation.method === "GET"),
     );
   });
 
@@ -263,7 +278,7 @@ describe("mcp: workflows compiled into the manifest", () => {
     assert.deepEqual(
       manifest.tools.map((t) => t.name),
       ["get_pet_by_id"],
-      "no operation tools, so no numbering either",
+      "no operation tools, so no clash either",
     );
     assert.ok(manifest.tools[0].workflow);
     assert.deepEqual(manifest.resources, []);
@@ -963,11 +978,11 @@ describe("mcp: x-operation steps", () => {
     }
   });
 
-  it("documents EXTERNAL_HOSTS in the export when a URL is computed at run time", () => {
+  it("documents MCP_EXTERNAL_HOSTS in the export when a URL is computed at run time", () => {
     const dynamic = doc({ "x-operation": { url: "$steps.getPet.outputs.photo", method: "get" } });
     const fixed = doc({ "x-operation": { url: "https://cdn.example.com/x", method: "get" } });
     const readme = (d) => generateMcpServer(petstore, { arazzo: d }).files["README.md"];
-    assert.ok(readme(dynamic).includes("`EXTERNAL_HOSTS`"));
+    assert.ok(readme(dynamic).includes("`MCP_EXTERNAL_HOSTS`"));
     assert.ok(!readme(fixed).includes("EXTERNAL_HOSTS"));
     assert.ok(
       generateMcpServer(petstore, { arazzo: dynamic }).files["server.ts"].includes(
@@ -977,13 +992,14 @@ describe("mcp: x-operation steps", () => {
   });
 });
 
-describe("mcp: EXTERNAL_HOSTS", () => {
+describe("mcp: MCP_EXTERNAL_HOSTS", () => {
   it("reads the comma-separated hosts, blanks dropped", () => {
     assert.deepEqual(externalHostsFromEnv({}), []);
-    assert.deepEqual(externalHostsFromEnv({ EXTERNAL_HOSTS: " cdn.example.com, ,a.test:8443 " }), [
-      "cdn.example.com",
-      "a.test:8443",
-    ]);
-    assert.deepEqual(externalHostsFromEnv({ EXTERNAL_HOSTS: "*" }), ["*"]);
+    assert.deepEqual(
+      externalHostsFromEnv({ MCP_EXTERNAL_HOSTS: " cdn.example.com, ,a.test:8443 " }),
+      ["cdn.example.com", "a.test:8443"],
+    );
+    assert.deepEqual(externalHostsFromEnv({ MCP_EXTERNAL_HOSTS: "*" }), ["*"]);
+    assert.deepEqual(externalHostsFromEnv({ EXTERNAL_HOSTS: "*" }), []);
   });
 });

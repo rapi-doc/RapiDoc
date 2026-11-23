@@ -58,26 +58,31 @@ export default {
       );
     }
 
-    const { settings } = server;
+    const { summary } = server;
     info(`\n${icon("🌐")}Serving ${distDir}`);
     info(`   • URL:      ${server.url}`);
-    if (server.mcp?.off) info(`   • MCP:      off (RAPIDOC_MCP=off)`);
-    else if (server.mcp?.count)
-      info(`   • MCP:      ${server.url.replace(/\/$/, "")}/mcp  (${server.mcp.count} tools)`);
-    if (settings.mountPath !== settings.basePath) {
+    if (!summary.mcp.enabled) info(`   • MCP:      off (RAPIDOC_MCP=off)`);
+    else if (summary.mcp.tools)
+      info(`   • MCP:      ${server.url.replace(/\/$/, "")}/mcp  (${summary.mcp.tools} tools)`);
+    if (summary.mountPath !== summary.basePath) {
       info(
-        `   • Paths:    requests arrive under ${settings.mountPath || "/"}; links use ${settings.basePath || "/"}`,
+        `   • Paths:    requests arrive under ${summary.mountPath || "/"}; links use ${summary.basePath || "/"}`,
       );
     }
-    if (settings.mode === "static") {
+    if (summary.mode === "static") {
       info("   • Access:   everything public (no sign-in configured)");
     } else {
-      if (settings.auth) info(`   • Sign-in:  ${settings.auth.issuer}`);
-      const zones = Object.keys(settings.manifest.access.zones).filter((zone) => zone !== "public");
+      if (summary.issuer) info(`   • Sign-in:  ${summary.issuer}`);
       info(
-        `   • Access:   ${Object.keys(settings.manifest.files).length} protected file(s) in ${zones.length} zone(s)`,
+        `   • Access:   ${summary.access.files} protected file(s) in ${summary.access.zones} zone(s)`,
       );
-      if (settings.auth && !settings.publicUrl) {
+      if (summary.issuer && !summary.providerReady) {
+        warn(
+          "The sign-in provider can't be reached: public pages are served, and sign-in will work once it answers.",
+          "   ",
+        );
+      }
+      if (summary.issuer && !summary.publicUrl) {
         warn(
           "RAPIDOC_PUBLIC_URL is not set: the sign-in redirect URL is taken from each request.",
           "   ",

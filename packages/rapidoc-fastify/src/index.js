@@ -1,5 +1,5 @@
 // @rapidoc/fastify: a Fastify plugin over the responder of @rapidoc/embed.
-import { createResponder, embedRoutes, rapidocManifest, uiPathOf } from "@rapidoc/embed";
+import { createResponder, embedRoutes, rapidocManifest } from "@rapidoc/embed";
 import { readAsset } from "@rapidoc/embed/node";
 
 /**
@@ -11,26 +11,36 @@ export async function rapidoc(fastify, options = {}) {
   const { nonce, prefix: _prefix, ...rest } = options;
   if (rest.enabled === false) return;
   const respond = createResponder(rest, { readAsset });
-  const prefix = (fastify.prefix ?? "").replace(/\/+$/, "");
-  const publicUiPath = rest.publicUiPath ?? rest.publicPath ?? `${prefix}${uiPathOf(rest)}`;
+  const mount = fastify.prefix ?? "";
+  const config = fastify.initialConfig ?? {};
+  const ignoresTrailingSlash =
+    config.routerOptions?.ignoreTrailingSlash ?? config.ignoreTrailingSlash ?? false;
 
   for (const route of embedRoutes(rest)) {
-    fastify.route({
-      method: ["GET", "HEAD"],
-      url: route.path,
-      schema: { hide: true },
-      async handler(request, reply) {
-        const response = await respond({
-          method: request.method,
-          path: route.path,
-          ifNoneMatch: request.headers["if-none-match"],
-          publicUiPath,
-          nonce: typeof nonce === "function" ? nonce(request, reply) : nonce,
-        });
-        reply.code(response.status).headers(response.headers);
-        return reply.send(response.body ?? "");
-      },
-    });
+    // The contract serves the page at `{uiPath}/` too. At the root of the plugin Fastify adds that route
+    // itself (`prefixTrailingSlash`), and an instance that ignores trailing slashes needs no second one.
+    const urls =
+      route.kind === "page" && route.path !== "/" && !ignoresTrailingSlash
+        ? [route.path, `${route.path}/`]
+        : [route.path];
+    for (const url of urls) {
+      fastify.route({
+        method: ["GET", "HEAD"],
+        url,
+        schema: { hide: true },
+        async handler(request, reply) {
+          const response = await respond({
+            method: request.method,
+            path: route.path,
+            mount,
+            ifNoneMatch: request.headers["if-none-match"],
+            nonce: typeof nonce === "function" ? nonce(request, reply) : nonce,
+          });
+          reply.code(response.status).headers(response.headers);
+          return reply.send(response.body ?? "");
+        },
+      });
+    }
   }
 }
 

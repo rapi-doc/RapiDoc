@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { renderTemplateToString } from "@rapidoc/prerender";
+import { renderTemplateToString } from "../../packages/rapidoc-prerender/src/internal.js";
 import { typeLabel, schemaToAST, getTypeInfo } from "~/utils/schema-utils";
 import { inputParametersTemplate } from "~/templates/request-params-template";
 

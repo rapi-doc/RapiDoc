@@ -252,7 +252,9 @@ export const SiteSchema = z.strictObject({
   url: z
     .url()
     .optional()
-    .describe("Public URL of the portal, for canonical links and the sitemap."),
+    .describe(
+      "Public URL of the portal. Canonical links and the sitemap need it: without it a build has neither.",
+    ),
   logo: z
     .strictObject({
       src: imageSrc.optional().describe("Image in public/, or { light, dark }."),

@@ -1,7 +1,7 @@
 ---
 /**
  * The theming attributes, tried out on a sketch of <rapi-doc>: controls for theme, color-scheme, radius,
- * scale and nav-item-spacing, a wireframe that shows only what they change, and the matching HTML. A
+ * and scale, a wireframe that shows only what they change, and the matching HTML. A
  * schematic on purpose, so the reader looks at the parts that change; the real element with every setting
  * is on /examples/themes.
  *
@@ -56,9 +56,8 @@ const scale = Object.fromEntries(
     { font: prop(d, '--font-size-regular'), sidebar: prop(d, '--sidebar-width') },
   ]),
 );
-const navSpacing = Object.fromEntries(
-  Object.entries(rules('nav-item-spacing')).map(([k, d]) => [k, prop(d, '--sidebar-item-padding')?.split(/\s+/)[0]]),
-);
+// The sidebar's operation rows: one padding (--sidebar-item-padding), the same at every setting
+const navPad = (cssText.match(/--sidebar-item-padding:\s*([^;\s]+)/) || [])[1] ?? '0.3125rem';
 
 // Allowed values and defaults, from the element's declarations
 const manifest = readElementApi(API_ELEMENTS[0]);
@@ -74,16 +73,14 @@ const controls = [
   { name: 'color-scheme', label: 'Color scheme', values: valuesOf('color-scheme').filter((v) => v === 'dark' || v === 'light') },
   { name: 'radius', label: 'Radius', values: valuesOf('radius') },
   { name: 'scale', label: 'Scale', values: valuesOf('scale') },
-  { name: 'nav-item-spacing', label: 'Sidebar spacing', values: valuesOf('nav-item-spacing') },
 ];
 const initial = {
   theme: defaultOf('theme') || 'amber',
   'color-scheme': defaultOf('color-scheme') || 'dark',
   radius: defaultOf('radius'),
   scale: defaultOf('scale'),
-  'nav-item-spacing': defaultOf('nav-item-spacing'),
 };
-const config = { palette, customBase, radius, scale, navSpacing, initial, order: ['theme', ...controls.map((c) => c.name)] };
+const config = { palette, customBase, radius, scale, navPad, initial, order: ['theme', ...controls.map((c) => c.name)] };
 const uid = `td-${Math.random().toString(36).slice(2, 8)}`;
 ---
 
@@ -194,7 +191,7 @@ const uid = `td-${Math.random().toString(36).slice(2, 8)}`;
     customBase: { dark: Palette; light: Palette };
     radius: Record<string, string>;
     scale: Record<string, { font: string; sidebar: string }>;
-    navSpacing: Record<string, string>;
+    navPad: string;
     initial: Record<string, string>;
     order: string[];
   }
@@ -230,7 +227,7 @@ const uid = `td-${Math.random().toString(36).slice(2, 8)}`;
       const s = cfg.scale[state.scale];
       frame.style.setProperty('--scale', String(parseFloat(s?.font ?? '14px') / 14));
       frame.style.setProperty('--sidebar-width', s?.sidebar ?? '18.75rem');
-      frame.style.setProperty('--nav-pad', cfg.navSpacing[state['nav-item-spacing']] ?? '0.4375rem');
+      frame.style.setProperty('--nav-pad', cfg.navPad);
       frame.dataset.scheme = scheme;
       for (const sw of root.querySelectorAll<HTMLElement>('[data-swatch]')) {
         sw.style.background = cfg.palette[sw.dataset.swatch!][scheme]['--primary'];
