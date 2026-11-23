@@ -11,7 +11,7 @@ site:
     text: Portal
   favicon: /rapidoc-leaves.svg
   banner:
-    message: RapiDoc Portal 1.0 is here, stable and ready for production.
+    message: RapiDoc Portal 1.0 is here, in sync with RapiDoc 15.
     href: /docs/getting-started/whats-new/
     background: "#f6a821"
     color: "#1c1917"
