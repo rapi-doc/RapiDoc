@@ -284,7 +284,7 @@ export default css`
     padding: 0 10px 6px;
     margin-top: 22px;
     font-size: var(--font-size-xs);
-    font-weight: 650;
+    font-weight: 600;
     line-height: 1.4;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -547,7 +547,7 @@ export default css`
   .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-tag {
     min-height: 30px;
     font-size: var(--font-size-xs);
-    font-weight: 650;
+    font-weight: 600;
     letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--sidebar-label-foreground);
