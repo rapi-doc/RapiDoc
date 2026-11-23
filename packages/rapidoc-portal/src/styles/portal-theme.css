@@ -452,9 +452,8 @@ a.portal-doc-card:hover .portal-doc-card-arrow {
 /* The current page: a filled block (PortalSidebarSublist ticks it on the guide line and puts its
    icon in the accent), as in the API pages' sidebar. */
 .sidebar-pane a[aria-current="page"] {
-  color: var(--portal-fg);
+  color: var(--portal-primary-text);
   background-color: var(--portal-primary-tint);
-  font-weight: 550;
 }
 
 /* Starlight's filled buttons (hero actions, LinkButton) */

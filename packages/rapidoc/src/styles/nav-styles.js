@@ -347,9 +347,9 @@ export default css`
   .nav-bar-path.active,
   .nav-bar-h1.active,
   .nav-bar-h2.active {
-    color: var(--sidebar-accent-foreground);
-    background: color-mix(in srgb, var(--sidebar-primary) 14%, transparent);
-    font-weight: 550;
+    /* the accent, not a heavier weight: the text keeps its width, so nothing shifts */
+    color: var(--sidebar-primary);
+    background: var(--sidebar-active-background);
   }
 
   /* --- Level 2: rows with an icon --- */
@@ -558,7 +558,6 @@ export default css`
   .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-tag.active,
   .tags-as-labels .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag {
     color: var(--sidebar-primary);
-    font-weight: 700;
   }
   .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-tag .nav-bar-tag-icon {
     width: 24px;

@@ -424,7 +424,11 @@ export default css`
     --sidebar-foreground: var(--foreground);
     /* Section labels: the sidebar's text faded toward its background, still 4.5:1 at 11px */
     --sidebar-label-foreground: color-mix(in srgb, var(--sidebar-foreground) 70%, var(--sidebar));
-    --sidebar-primary: var(--primary);
+    /* The accent in the sidebar: the current item's text and icon, its tick on the guide line. As text, so
+       the readable variant of the accent (--primary is made for fills and can be too faint as text) */
+    --sidebar-primary: var(--primary-text);
+    /* Behind the current item */
+    --sidebar-active-background: color-mix(in srgb, var(--sidebar-primary) 14%, transparent);
     --sidebar-accent-foreground: var(--foreground);
     --sidebar-border: var(--border);
     --sidebar-ring: var(--ring);

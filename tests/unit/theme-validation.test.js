@@ -106,11 +106,17 @@ test("theme-validation", async (t) => {
       navStyles.cssText,
       /color:\s*var\(--sidebar-accent-foreground\);\s*background:\s*var\(--sidebar-accent\);/,
     );
-    // The current item is a filled block in the accent color, the same in every mode
+    // The current item is a filled block, its text in the accent and its weight unchanged
     assert.match(
       navStyles.cssText,
-      /background:\s*color-mix\(in srgb, var\(--sidebar-primary\) 14%, transparent\);/,
+      /color:\s*var\(--sidebar-primary\);\s*background:\s*var\(--sidebar-active-background\);\s*\}/,
     );
+    assert.match(
+      themeTokens.cssText,
+      /--sidebar-active-background:\s*color-mix\(in srgb, var\(--sidebar-primary\) 14%, transparent\);/,
+    );
+    // the accent as text: the readable variant, not the fill color
+    assert.match(themeTokens.cssText, /--sidebar-primary:\s*var\(--primary-text\);/);
     assert.doesNotMatch(navStyles.cssText, /\.left-bar\.active/);
     assert.doesNotMatch(navStyles.cssText, /\.colored-block\.active/);
   });

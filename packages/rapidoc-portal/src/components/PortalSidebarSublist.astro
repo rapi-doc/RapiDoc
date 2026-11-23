@@ -163,12 +163,11 @@ const showIcon = (entry: any) => Boolean(entry.icon) && depth <= 1;
       color: var(--portal-fg);
     }
 
-    /* The current page: a filled block */
+    /* The current page: a filled block with the text in the accent (the weight stays, so nothing shifts) */
     .portal-sidebar-row[aria-current='page'],
     .portal-sidebar-row[aria-current='page']:hover {
-      color: var(--portal-fg);
+      color: var(--portal-primary-text);
       background-color: var(--portal-primary-tint);
-      font-weight: 550;
     }
 
     /* Level 3 and deeper: under a guide line, tighter rows, the current page ticked on the line */

@@ -33,7 +33,7 @@ The current item is a **filled block** in the accent color, in every render styl
 | `nav-item-spacing` | Remove it: it no longer has an effect. Each level has its own spacing. To change the operation rows' padding, set `--sidebar-item-padding` (now `0.3125rem 0.625rem`). |
 | `show-method-in-nav-bar` | The default is now `as-colored-text` (it was `false`), and the method comes before the summary. Set `show-method-in-nav-bar="false"` to keep the summary alone. |
 | CSS on `::part(section-navbar-tag-group)` | A tag group's header is a section label now, also `part="section-navbar-label"`. It has no arrow and no `aria-expanded`. |
-| CSS that relied on the left bar of the current item | The current item has a background instead: `color-mix(in srgb, var(--sidebar-primary) 14%, transparent)`. Restyle it with `::part(section-navbar-active-item)`. |
+| CSS that relied on the left bar of the current item | The current item has a background instead, `--sidebar-active-background` (new), with its text in `--sidebar-primary`, which now defaults to the readable accent (`--primary-text`, was `--primary`). Restyle it with those, or with `::part(section-navbar-active-item)`. |
 | Tag names that need their own case (`OAuth`, `iOS`) | Without tag groups the tags are upper-case. Keep their case with `rapi-doc::part(section-navbar-tag) { text-transform: none; }`. |
 | CSS on `::part(section-navbar-operations-top)`, or the sidebar's Expand all and Collapse all controls | Removed. The "Operations" row was already hidden in v14: tag groups or tags are the labels now. The `operations-top` slot and the `#operations-top` anchor in the content are unchanged. |
 | Deprecated operations in the sidebar | Their label is struck through and dimmed (class `deprecated` on the row), as in the static sidebar. The row is no longer faded as a whole. |
@@ -95,11 +95,12 @@ Markdown descriptions may contain HTML. v15 keeps a fixed list of elements and a
 
 The links RapiDoc builds from the spec follow the same rule: `externalDocs.url`, `contact.url`, `license.url` and `termsOfService` are links only when they are web or mail addresses, and an OAuth `authorizationUrl` opens only when it is `http` or `https`.
 
-## 7. New CSS variable
+## 7. New CSS variables
 
 | Variable | Default | What |
 | :-- | :-- | :-- |
 | `--sidebar-label-foreground` | `color-mix(in srgb, var(--sidebar-foreground) 70%, var(--sidebar))` | Color of the section labels, and of the tags without tag groups |
+| `--sidebar-active-background` | `color-mix(in srgb, var(--sidebar-primary) 14%, transparent)` | Background of the current item; its text is in `--sidebar-primary` |
 
 ## 8. New CSS parts
 
