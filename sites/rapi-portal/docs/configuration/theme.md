@@ -59,6 +59,8 @@ The supported way in is the portal's CSS variables, for example:
 }
 ```
 
+Text colors are `--portal-fg` (body text), `--portal-muted` (sidebar links and secondary text) and `--portal-sidebar-label` (the sidebars' group headings, a step fainter than the links). Set a new pair for each scheme, and keep each at 4.5:1 or more on `--portal-bg`.
+
 This site uses that to put its pages in the colors of the `amber` theme of its API reference ([below](#api-reference-colors)).
 
 Other selectors work too, but the portal's markup can change between releases.

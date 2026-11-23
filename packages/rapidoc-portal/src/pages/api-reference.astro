@@ -180,7 +180,7 @@ const rapidocAttributes = {
   }
   /* The guides' sidebar colors: links muted and brighter on hover (`.sidebar-pane a` in
      styles/portal-theme.css), tags in a group in Starlight's group-label color. Section labels (and
-     the tags, without tag groups) keep RapiDoc's muted upper case. Accent text keeps WCAG AA
+     the tags, without tag groups) are a step fainter, in --portal-sidebar-label, as in the guides. Accent text keeps WCAG AA
      contrast. Method colors are RapiDoc's own. */
   .portal-api-nav {
     --sidebar: var(--portal-bg);
@@ -188,7 +188,7 @@ const rapidocAttributes = {
     /* the portal's tint for accent text: the pair keeps 4.5:1, as in the guides' sidebar */
     --sidebar-active-background: var(--portal-primary-tint);
     --sidebar-foreground: var(--portal-muted);
-    --sidebar-label-foreground: var(--portal-muted);
+    --sidebar-label-foreground: var(--portal-sidebar-label);
     --sidebar-accent-foreground: var(--portal-fg);
   }
   .portal-api-nav.portal-sidebar .nav-scroll:not(.tags-as-labels) .nav-bar-tag:not(.active) {
@@ -206,8 +206,9 @@ const rapidocAttributes = {
   }
   .portal-api-preset .portal-api-nav {
     --sidebar-primary: var(--primary-text, var(--primary));
-    --sidebar-foreground: color-mix(in srgb, var(--foreground) 72%, var(--sidebar));
-    --sidebar-label-foreground: var(--sidebar-foreground);
+    --sidebar-foreground: color-mix(in srgb, var(--foreground) 86%, var(--sidebar));
+    /* A step fainter than the links, as RapiDoc draws its labels without the portal */
+    --sidebar-label-foreground: color-mix(in srgb, var(--foreground) 70%, var(--sidebar));
     --sidebar-accent-foreground: var(--foreground);
   }
   .portal-api-preset .portal-api-nav.portal-sidebar .nav-scroll:not(.tags-as-labels) .nav-bar-tag:not(.active) {

@@ -27,6 +27,8 @@
   --portal-fg: #cccccc;
   --portal-heading: oklch(0.97 0.005 272.84);
   --portal-muted: oklch(0.74 0.02 272.84);
+  /* The sidebars' group headings and section labels: a step fainter than the links (--portal-muted), still 4.5:1 */
+  --portal-sidebar-label: oklch(0.65 0.02 272.84);
   --portal-hover-bg: rgba(255, 255, 255, 0.06);
   --portal-primary: __PORTAL_PRIMARY_COLOR__;
   --portal-primary-text: __PORTAL_PRIMARY_TEXT_DARK__;
@@ -79,6 +81,7 @@
   --portal-fg: #555555;
   --portal-heading: #111827;
   --portal-muted: #5b5f6b;
+  --portal-sidebar-label: #727683;
   --portal-hover-bg: rgba(0, 0, 0, 0.05);
   --portal-primary-text: __PORTAL_PRIMARY_TEXT_LIGHT__;
   --portal-card-bg: #ffffff;
