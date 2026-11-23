@@ -10,7 +10,7 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
     import 'rapidoc/flow';
 
     // The Real server / Mock switch: turns <rapi-doc>'s in-browser mock on or off.
-    // <rapi-flow> follows it (its run button reads "Run workflow (Mock)").
+    // <rapi-flow> follows it (its run button reads "RUN WORKFLOW (Mock)").
     const doc = document.querySelector('rapi-doc');
     for (const button of document.querySelectorAll<HTMLButtonElement>('.server-switch button')) {
       button.addEventListener('click', () => {

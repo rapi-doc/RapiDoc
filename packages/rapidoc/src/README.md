@@ -104,7 +104,7 @@ other member is internal; templates call internal members freely through `this`.
   shown only when a mock answers: with the tied `<rapi-doc>`'s `mock-server="true"` the codes are
   set on its `mock-server-status-code` for the run and restored after; with
   `server-is-mock="true"` (a mock server such as `rapidoc mock`) they go out as `Prefer: code=`.
-  Either way the button reads "Run workflow (Mock) →" and the log heading says "(mocked responses)" when every entry was mocked, else each mocked entry says `mocked`. Credentials are the tied `<rapi-doc>`'s
+  Either way the button reads "RUN WORKFLOW (Mock)" and the log heading says "(mocked responses)" when every entry was mocked, else each mocked entry says `mocked`. Credentials are the tied `<rapi-doc>`'s
   entered ones (API keys, Basic, Bearer and OAuth tokens); a standalone element shows one
   password field per security scheme of the first source instead (kept in memory only).
   A workflow the runtime cannot run says why instead of a form.

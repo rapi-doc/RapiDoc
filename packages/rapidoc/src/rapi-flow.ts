@@ -172,7 +172,7 @@ export default class RapiFlow extends LitElement {
    * <span class="mono yellow">true</span> says the server runs go to is a mock that picks its
    * response status from a <span class="mono yellow">Prefer: code=</span> header, such as
    * <span class="mono yellow">rapidoc mock</span> or Prism. The run panel then shows Mock Response
-   * Status, sent with each step's request, and the button reads "Run workflow (Mock)". Not needed
+   * Status, sent with each step's request, and the button reads "RUN WORKFLOW (Mock)". Not needed
    * when the paired elements have <span class="mono yellow">mock-server="true"</span>; against a real API, leave it off: the header is ignored.
    * @group Run
    */
@@ -204,6 +204,8 @@ export default class RapiFlow extends LitElement {
   private specObjects: Map<string, any> = new Map();
   // Running a workflow: the inputs form, the step whose request is in flight, and a log
   @state() private runState: "idle" | "running" | "done" = "idle";
+  /** Set when a run starts: the first log entry (or the reason it could not run) is scrolled into view */
+  private revealRunOutput = false;
   @state() private runInputs: Record<string, string> = {};
   /**
    * Status codes a mock answers with during a run, by step id, `*` for every other step; each a
@@ -580,6 +582,7 @@ export default class RapiFlow extends LitElement {
       }
       .run-actions {
         display: flex;
+        justify-content: flex-end;
         gap: 0.5rem;
         margin-top: 0.75rem;
       }
@@ -792,6 +795,7 @@ export default class RapiFlow extends LitElement {
   }
 
   updated(changed) {
+    if (this.revealRunOutput) this.scrollToRunOutput();
     if (changed.has("theme")) {
       const normalized = normalizeTheme(this.theme).theme;
       if (normalized !== this.theme) this.theme = normalized;
@@ -1425,6 +1429,7 @@ export default class RapiFlow extends LitElement {
     this.runResult = null;
     this.runSentInputs = null;
     this.runProblem = "";
+    this.revealRunOutput = true;
     if (!prepared.runtime) {
       this.runProblem = prepared.problem;
       this.runState = "done";
@@ -1687,13 +1692,29 @@ export default class RapiFlow extends LitElement {
       )}
       ${this.renderStatusCodes(graph)}
       <div class="run-actions">
+        ${running ? html`<button type="button" class="btn btn-outline run-stop" part="run-stop" @click=${() => this.runAbort?.abort()}>STOP</button>` : nothing}
+        ${this.runState === "done" ? html`<button type="button" class="btn btn-outline run-clear" @click=${() => this.resetRun()}>CLEAR LOGS</button>` : nothing}
         <button type="submit" class="btn btn-primary run-button" part="run-button" ?disabled=${running} title=${mocked ? mockTitle : nothing}>
-          ${running ? "Running…" : `Run workflow${mocked ? " (Mock)" : ""} →`}
+          ${running ? "RUNNING..." : `RUN WORKFLOW${mocked ? " (Mock)" : ""}`}
         </button>
-        ${running ? html`<button type="button" class="btn btn-outline run-stop" part="run-stop" @click=${() => this.runAbort?.abort()}>Stop</button>` : nothing}
-        ${this.runState === "done" ? html`<button type="button" class="btn btn-outline run-clear" @click=${() => this.resetRun()}>Clear</button>` : nothing}
       </div>
     </form>`;
+  }
+
+  /**
+   * Brings the run's output into view once it appears: the log as soon as its first entry is in, or the
+   * reason the run could not start. The log grows below the inputs, often under the fold, so without
+   * this a reader who clicks Run workflow sees nothing happen. Scrolls only when the output is not
+   * already on screen, and without animation for a reader who asks for reduced motion.
+   */
+  private scrollToRunOutput() {
+    const target = this.shadowRoot?.querySelector(".run-log-head, .run-problem");
+    if (!target) return;
+    this.revealRunOutput = false;
+    const { top, bottom } = target.getBoundingClientRect();
+    if (top >= 0 && bottom <= window.innerHeight) return;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ block: "start", behavior: reduced ? "auto" : "smooth" });
   }
 
   /** One log entry; `showMocked` tags a mocked response (when the heading does not say all are). */

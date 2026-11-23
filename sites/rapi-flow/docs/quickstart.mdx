@@ -43,7 +43,7 @@ At the end, a workflow is drawn above its API reference, and you run it against 
 
 2. **Open it in a browser.** The `adoptPet` workflow is drawn as one box per step: find an available pet, check it, order it, read the order back. Each box shows the operation it calls, the values it passes on and where it goes on success or failure. The picker at the top of `<rapi-flow>` switches between the file's four workflows; `workflow-id` picks the one shown first. Click a step, then scroll down: the reference below shows its operation.
 
-3. **Press Run workflow (Mock).** Leave the inputs as they are. The **Execution Log** adds a row for each step: the step, its method and URL, `HTTP 200` and ✓. Open a row to see the response (and, for `placeOrder`, the request body). At the end, the workflow's outputs appear: the pet's name, and the order's id and status.
+3. **Press RUN WORKFLOW (Mock).** Leave the inputs as they are. The **Execution Log** adds a row for each step: the step, its method and URL, `HTTP 200` and ✓. Open a row to see the response (and, for `placeOrder`, the request body). At the end, the workflow's outputs appear: the pet's name, and the order's id and status.
 
 4. **Make a step retry.** Open **Mock Response Status**, type `503, 200` in the `placeOrder` row and run again. The first attempt at `placeOrder` gets a 503, and its row shows ✗ and `→ retry`. The step's `retry` action waits two seconds, and the second attempt gets a 200: its row shows ✓, and opening it shows `attempt 2`.
 
