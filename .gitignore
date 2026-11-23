@@ -40,3 +40,6 @@ packages/rapidoc-portal/tests/layout/screenshots/
 
 # The RapiMock site's spec check, built from sites/rapi-mock/spec-check (npm run build:spec-check)
 sites/rapi-mock/public/spec-check/
+
+# rapidocui.com /docs/compare: the comparison tables as Markdown, generated from page-data before every preview and build (sites/rapidoc/scripts/compare-markdown.mjs)
+sites/rapidoc/docs/compare.md
