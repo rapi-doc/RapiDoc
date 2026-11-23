@@ -167,6 +167,7 @@ navigation:
           - { slug: rapidoc/get-started/quickstart, label: "Quickstart" }
           - { slug: rapidoc/get-started/openapi-support, label: "Loading Your Spec" }
           - { slug: rapidoc/guides, label: "Common Tasks" }
+          - { slug: compare, label: "How RapiDoc Compares" }
       - label: "API Reference"
         items:
           - { slug: rapidoc/reference, label: "Attributes" }

@@ -68,7 +68,7 @@ function comparisonMarkdown({ data, title, page }) {
 }
 
 const page = `---
-title: How RapiDoc compares
+title: How RapiDoc Compares
 description: RapiDoc, RapiDoc Portal and RapiMock compared with Redocly, Scalar, Swagger, Mintlify, ReadMe, Zudoku, Docusaurus, Prism, WireMock, Mockoon, Postman and Microcks, feature by feature.
 ---
 
