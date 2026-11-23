@@ -1,0 +1,233 @@
+---
+/**
+ * A feature comparison of one RapiDoc product against others: a check, a dash or a cross in each cell,
+ * with a short note where the answer needs one, a legend, and the date and sources it was checked
+ * against. The data is a `Comparison` from page-data/ (one file per product), so the page, its
+ * structured data and llms.txt can all read the same rows.
+ */
+import Icon from './Icon.astro';
+import type { Comparison, Verdict } from '../page-data/comparison-types';
+
+interface Props {
+  data: Comparison;
+}
+
+const { data } = Astro.props;
+
+const MARK: Record<Verdict, { icon: string; label: string }> = {
+  yes: { icon: 'check', label: 'Yes' },
+  partial: { icon: 'minus', label: 'Partly' },
+  no: { icon: 'x', label: 'No' },
+};
+
+const checked = new Date(`${data.checked}T00:00:00Z`).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<div class="rd-compare not-content">
+  <div class="rd-compare-scroll">
+    <table class="rd-compare-table">
+      <caption class="sr-only">{data.caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="rd-compare-feature"><span class="sr-only">Feature</span></th>
+          {
+            data.products.map((product) => (
+              <th scope="col" class:list={['rd-compare-product', { ours: product.key === data.ours }]}>
+                {product.name}
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+      <tbody>
+        {
+          data.rows.map((row) => (
+            <tr>
+              <th scope="row" class="rd-compare-feature">
+                {row.feature}
+                {row.detail && <span class="rd-compare-detail">{row.detail}</span>}
+              </th>
+              {data.products.map((product) => {
+                const cell = row.cells[product.key];
+                const mark = MARK[cell.verdict];
+                return (
+                  <td class:list={[`v-${cell.verdict}`, { ours: product.key === data.ours }]}>
+                    <span class="rd-compare-mark" title={cell.note ?? mark.label}>
+                      <Icon name={mark.icon} size={16} aria-hidden="true" />
+                      <span class="sr-only">{mark.label}</span>
+                    </span>
+                    {cell.note && <span class="rd-compare-note">{cell.note}</span>}
+                  </td>
+                );
+              })}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rd-compare-legend">
+    <span><Icon name="check" size={14} aria-hidden="true" /> Yes</span>
+    <span><Icon name="minus" size={14} aria-hidden="true" /> Partly, by hand, or on a paid plan</span>
+    <span><Icon name="x" size={14} aria-hidden="true" /> No</span>
+  </div>
+
+  <details class="rd-compare-sources">
+    <summary>Checked on {checked} against each product's documentation. Sources</summary>
+    <ul>
+      {
+        data.products
+          .filter((product) => data.sources[product.key]?.length)
+          .map((product) => (
+            <li>
+              <strong>{product.name}:</strong>{' '}
+              {data.sources[product.key].map((source, i) => (
+                <>
+                  {i > 0 && ', '}
+                  <a href={source.url} rel="noopener" target="_blank">
+                    {source.label}
+                  </a>
+                </>
+              ))}
+            </li>
+          ))
+      }
+    </ul>
+    <p>{data.correction}</p>
+  </details>
+</div>
+
+<style>
+  .rd-compare {
+    width: 100%;
+    margin: 24px 0 0;
+  }
+  .rd-compare-scroll {
+    /* Holds the screen-reader labels (position: absolute), so they scroll with the table, not the page */
+    position: relative;
+    overflow-x: auto;
+    border: 1px solid var(--rd-border);
+    border-radius: var(--rd-radius-md);
+    background: var(--rd-surface-card);
+  }
+  .rd-compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .rd-compare-table th,
+  .rd-compare-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--rd-border);
+    vertical-align: middle;
+  }
+  .rd-compare-table tbody tr:last-child > * {
+    border-bottom: none;
+  }
+  .rd-compare-product {
+    min-width: 116px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--rd-text-muted);
+    line-height: 1.3;
+  }
+  .rd-compare-product.ours {
+    color: var(--rd-text-bright);
+  }
+  .rd-compare-feature {
+    min-width: 220px;
+    text-align: left;
+    font-weight: 500;
+    color: var(--rd-text-primary);
+  }
+  .rd-compare-detail {
+    display: block;
+    margin-top: 2px;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: var(--rd-text-muted);
+  }
+  .rd-compare-table td {
+    text-align: center;
+    color: var(--rd-text-muted);
+  }
+  /* Our column: a lighter band, as the eye's anchor */
+  .rd-compare-table .ours {
+    background: color-mix(in srgb, var(--rd-text-bright) 5%, transparent);
+  }
+  .rd-compare-mark {
+    display: inline-flex;
+  }
+  .v-yes .rd-compare-mark {
+    color: var(--rd-text-bright);
+  }
+  .v-no .rd-compare-mark {
+    color: color-mix(in srgb, var(--rd-text-muted) 70%, transparent);
+  }
+  .rd-compare-note {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--rd-text-muted);
+  }
+  .rd-compare-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 24px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--rd-text-muted);
+  }
+  .rd-compare-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rd-compare-sources {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--rd-text-muted);
+    text-align: center;
+  }
+  .rd-compare-sources summary {
+    cursor: pointer;
+  }
+  .rd-compare-sources ul,
+  .rd-compare-sources p {
+    max-width: 760px;
+    margin: 12px auto 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+    line-height: 1.6;
+  }
+  .rd-compare-sources a {
+    color: var(--rd-text-primary);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    .rd-compare-table th,
+    .rd-compare-table td {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    .rd-compare-feature {
+      min-width: 160px;
+    }
+  }
+</style>

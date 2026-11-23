@@ -7,6 +7,8 @@ import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
+import ComparisonTable from '../components/ComparisonTable.astro';
+import { rapiMockComparison } from '../page-data/rapi-mock-comparison';
 
 const MOCK_DOCS = 'https://mock.rapidocui.com';
 // The spec check opened on its example spec, City Library: what the Mock UI picture shows
@@ -313,6 +315,19 @@ const comparison = [
         of a record, and needs a few lines of config for other styles:
         <a href={`${MOCK_DOCS}/docs/state/api-styles/`}>see which, with examples</a>.
       </p>
+    </section>
+
+    <section class="rd-section" id="compare">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Compare</div>
+        <h2 class="rd-section-title">How RapiMock Compares</h2>
+        <p class="rd-section-desc">
+          RapiMock does one job: a mock that behaves like your API, from the spec alone, with its security and its
+          data. Other tools do more in other places, such as recording traffic, other protocols or a hosted service,
+          and the table says where.
+        </p>
+      </div>
+      <ComparisonTable data={rapiMockComparison} />
     </section>
 
     <section class="rd-next-steps">
