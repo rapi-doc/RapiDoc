@@ -1,5 +1,6 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { productPageData } from '../utils/structuredData';
 import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
@@ -62,6 +63,7 @@ const mockServerHtmlSnippet = `<rapi-flow
 ---
 
 <GlobalLayout
+  structuredData={productPageData('rapi-flow')}
   title="RapiFlow: Draw and Run Arazzo Workflows | RapiDoc"
   description="Draw the multi-step journeys through your API from an Arazzo spec, run them in the browser against a mock or the real API, and reuse them as MCP tools."
   keywords="Arazzo, API workflows, rapi-flow, OpenAPI workflows, workflow diagram, API mock, MCP tools, RapiDoc"

@@ -1,5 +1,6 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { productPageData } from '../utils/structuredData';
 import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
@@ -204,6 +205,7 @@ const attributes = [
 ---
 
 <GlobalLayout
+  structuredData={productPageData('rapidoc-mini')}
   title="RapiDoc Mini: Embed API Endpoints in Posts and Guides | RapiDoc"
   description="Embed lightweight, contextual OpenAPI documentation snippets and single endpoints directly inside blogs, tutorials, dashboards, and developer portals."
   keywords="RapiDoc Mini, rapi-doc-mini, OpenAPI widget, embed API docs, micro API documentation"

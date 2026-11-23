@@ -52,3 +52,7 @@ The sidebar group is added after your own `sidebar` entries. If your config has 
 - The plugin sets `render-style="focused"`, `show-header="false"`, `show-side-nav="false"`, `auto-height="true"` and `color-scheme="auto"`. Change any of them through `options`.
 - API pages are not in the site search (Pagefind): their content is drawn in the browser.
 - Starlight 0.32 or later; Astro 5 or later. MIT.
+
+---
+
+Part of the [RapiDoc family](https://rapidocui.com) of open-source tools for OpenAPI and Arazzo: [RapiDoc](https://rapidocui.com/rapidoc/) (`<rapi-doc>`), [RapiFlow](https://flow.rapidocui.com/), [RapiDoc Portal](https://portal.rapidocui.com/), [RapiMock](https://mock.rapidocui.com/), [RapiPdf](https://rapidocui.com/rapipdf/), the [RapiDoc CLI](https://rapidocui.com/cli/) and [integrations](https://rapidocui.com/integrations/) for Express, Fastify, Hono, FastAPI, ASP.NET Core, Go, Starlight, VitePress and Docusaurus.

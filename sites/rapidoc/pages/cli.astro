@@ -2,6 +2,7 @@
 // The RapiDoc CLI product page: what the `rapidoc` command does for a plain spec, and for a portal. The
 // details are in the CLI section of the docs (content/docs/cli/, a page per command) and the portal docs.
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { productPageData } from '../utils/structuredData';
 import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
@@ -76,6 +77,7 @@ const portalCommands = [
 ---
 
 <GlobalLayout
+  structuredData={productPageData('cli')}
   title="RapiDoc CLI: Preview, Validate, Lint, Bundle and Mock OpenAPI Specs | RapiDoc"
   description="The rapidoc command (@rapidoc/cli) previews, validates, lints and bundles OpenAPI specs, writes them as PDFs, mocks them and turns them into MCP servers, and builds developer portals."
   keywords="RapiDoc CLI, rapidoc command, OpenAPI CLI, OpenAPI linter, OpenAPI validator, OpenAPI bundler, OpenAPI mock server"

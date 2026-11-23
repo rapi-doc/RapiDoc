@@ -1,7 +1,24 @@
 {
   "name": "@rapidoc/portal",
   "version": "0.2.6",
-  "description": "Docs-as-code developer portal framework for OpenAPI and Markdoc with RapiDoc",
+  "description": "RapiDoc Portal: a docs-as-code developer portal from OpenAPI specs and Markdown or Markdoc guides, with search, Arazzo workflows, llms.txt, MCP and optional single sign-on",
+  "keywords": [
+    "api-catalog",
+    "api-documentation",
+    "api-portal",
+    "api-reference",
+    "arazzo",
+    "astro",
+    "developer-portal",
+    "docs-as-code",
+    "llms-txt",
+    "markdoc",
+    "mcp",
+    "openapi",
+    "rapidoc",
+    "sso",
+    "swagger"
+  ],
   "homepage": "https://portal.rapidocui.com",
   "bugs": {
     "url": "https://github.com/rapi-doc/RapiDoc/issues"

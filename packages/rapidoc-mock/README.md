@@ -96,3 +96,7 @@ These two functions and `DEFAULT_PORT` (`4010`) are the package's public API, co
 ## Built on
 
 [openapi-backend](https://github.com/openapistack/openapi-backend) (routing, request validation) and [json-schema-faker](https://github.com/json-schema-faker/json-schema-faker) (data), each behind one file in `src/engine/`.
+
+---
+
+Part of the [RapiDoc family](https://rapidocui.com) of open-source tools for OpenAPI and Arazzo: [RapiDoc](https://rapidocui.com/rapidoc/) (`<rapi-doc>`), [RapiFlow](https://flow.rapidocui.com/), [RapiDoc Portal](https://portal.rapidocui.com/), [RapiMock](https://mock.rapidocui.com/), [RapiPdf](https://rapidocui.com/rapipdf/), the [RapiDoc CLI](https://rapidocui.com/cli/) and [integrations](https://rapidocui.com/integrations/) for Express, Fastify, Hono, FastAPI, ASP.NET Core, Go, Starlight, VitePress and Docusaurus.

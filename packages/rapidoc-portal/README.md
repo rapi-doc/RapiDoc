@@ -46,7 +46,7 @@ The schema is strict: an unknown key fails the build with its path, e.g. `naviga
 site:
   title: Cosmo Cargo Inc.
   description: Interstellar shipping APIs.
-  url: https://cosmocargo.dev # needed for canonical URLs and the sitemap (a build without it has neither); a path (https://acme.com/developers) is where the portal is served
+  url: https://cosmocargo.dev # needed for canonical URLs, the sitemap and a robots.txt naming it (a build without it has none); a path (https://acme.com/developers) is where the portal is served
   logo:
     src: /logo.svg # in public/; or { light: ..., dark: ... }
     text: COSMO CARGO # wordmark next to the image
@@ -282,7 +282,7 @@ src/
 │   ├── dev-server.js          startDevServer(): workspace → astro dev → watch → cleanup
 │   ├── temp-workspace.js      Create / remove <project>/.rapidoc-temp/<run>/
 │   ├── sync-docs.js           Copy + normalize docs into the workspace
-│   ├── sync-assets.js         Specs, rapidoc-min.js (fails if stale), search index, robots.txt (noindex)
+│   ├── sync-assets.js         Specs, rapidoc-min.js (fails if stale), search index, robots.txt
 │   ├── llms.js                /docs/<page>.md, /llms.txt, /llms-full.txt (`llms`)
 │   ├── mcp-output.js          dist/mcp/<api>.json and dist/mcp/workflows/<id>.json for rapidoc serve's /mcp
 │   ├── page-head.js           Head entries (fonts, og:image, robots, `head`), Open Graph, titles from titleTemplate
@@ -309,3 +309,7 @@ npm run test:portal     # portal, CLI and create-rapidoc tests (builds rapidoc f
 ```
 
 The tests build `cosmo-cargo/` in the sibling `../rapi-portal-demo` checkout; set `RAPIDOC_DEMO_PORTAL_DIR` to use another location.
+
+---
+
+Part of the [RapiDoc family](https://rapidocui.com) of open-source tools for OpenAPI and Arazzo: [RapiDoc](https://rapidocui.com/rapidoc/) (`<rapi-doc>`), [RapiFlow](https://flow.rapidocui.com/), [RapiDoc Portal](https://portal.rapidocui.com/), [RapiMock](https://mock.rapidocui.com/), [RapiPdf](https://rapidocui.com/rapipdf/), the [RapiDoc CLI](https://rapidocui.com/cli/) and [integrations](https://rapidocui.com/integrations/) for Express, Fastify, Hono, FastAPI, ASP.NET Core, Go, Starlight, VitePress and Docusaurus.
