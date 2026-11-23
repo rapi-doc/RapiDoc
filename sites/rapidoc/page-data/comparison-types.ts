@@ -1,20 +1,28 @@
-// The shape of a product comparison (components/ComparisonTable.astro). One data file per product,
-// e.g. page-data/rapi-mock-comparison.ts. Every verdict about another product is checked against that
-// product's own documentation, listed in `sources`, and `checked` says when.
+// The shape of a product comparison (components/ComparisonTable.astro). One data file per product:
+// page-data/rapidoc-comparison.ts, page-data/rapi-mock-comparison.ts. Every cell about another product
+// is checked against that product's own documentation, listed in `sources`, and `checked` says when.
 
-/** yes: supported. partial: by hand, a plugin, a paid plan, or part of the row. no: not supported. */
-export type Verdict = 'yes' | 'partial' | 'no';
+/**
+ * yes: included (and open source, for ours). partial: part of it, by hand, or only a basic part free.
+ * paid: needs the vendor's paid or hosted plan. no: not offered.
+ */
+export type Verdict = 'yes' | 'partial' | 'paid' | 'no';
 
 export interface Cell {
   verdict: Verdict;
-  /** A few words where the verdict needs them: the limit, the plan, how */
+  /** A few words: what it is, or the limit */
+  text?: string;
+  /** A second, smaller line */
   note?: string;
+  /** Makes `text` a link (used in our column, to the docs) */
+  href?: string;
 }
 
 export interface ComparisonProduct {
   key: string;
   name: string;
-  url: string;
+  /** Under our product's name in the header, e.g. "MIT · open source" */
+  sub?: string;
 }
 
 export interface ComparisonRow {
@@ -26,16 +34,17 @@ export interface ComparisonRow {
 }
 
 export interface Comparison {
-  /** The key of our product: its column is marked */
+  /** The key of our product: its column comes first and is marked */
   ours: string;
   /** For screen readers, and the table's description */
   caption: string;
   products: ComparisonProduct[];
-  rows: ComparisonRow[];
+  /** Rows in groups; a group's title is a heading row */
+  groups: { title?: string; rows: ComparisonRow[] }[];
+  /** The legend's wording, where a comparison needs its own */
+  legend?: Partial<Record<Verdict, string>>;
   /** The day the other products' docs were checked, as YYYY-MM-DD */
   checked: string;
   /** The pages each verdict was checked against, by product key */
   sources: Record<string, { label: string; url: string }[]>;
-  /** How to report a wrong cell */
-  correction: string;
 }

@@ -1,9 +1,12 @@
 ---
 /**
- * A feature comparison of one RapiDoc product against others: a check, a dash or a cross in each cell,
- * with a short note where the answer needs one, a legend, and the date and sources it was checked
- * against. The data is a `Comparison` from page-data/ (one file per product), so the page, its
- * structured data and llms.txt can all read the same rows.
+ * A feature comparison of one RapiDoc product against others, in groups of rows. Each cell is a mark
+ * (included, partly, needs a paid or hosted plan, not offered) with a few words and an optional note.
+ * Our product's column is darker, with neon edges like the RapiDoc sidebar. Under the table: the legend,
+ * then the date the other products were checked and the pages each was checked against.
+ *
+ * The data is a `Comparison` from page-data/ (one file per product: rapidoc-comparison.ts,
+ * rapi-mock-comparison.ts), so the rows can be read by other pages and outputs too.
  */
 import Icon from './Icon.astro';
 import type { Comparison, Verdict } from '../page-data/comparison-types';
@@ -13,11 +16,21 @@ interface Props {
 }
 
 const { data } = Astro.props;
+const ours = data.products.find((p) => p.key === data.ours)!;
+const others = data.products.filter((p) => p.key !== data.ours);
 
 const MARK: Record<Verdict, { icon: string; label: string }> = {
-  yes: { icon: 'check', label: 'Yes' },
-  partial: { icon: 'minus', label: 'Partly' },
-  no: { icon: 'x', label: 'No' },
+  yes: { icon: 'check', label: 'Included' },
+  partial: { icon: 'tilde', label: 'Partly' },
+  paid: { icon: 'cloud', label: 'Needs a paid or hosted plan' },
+  no: { icon: 'minus', label: 'Not offered' },
+};
+const legend: Record<Verdict, string> = {
+  yes: 'Included, open source',
+  partial: 'Partly, or by hand',
+  paid: 'Needs a paid or hosted plan',
+  no: 'Not offered',
+  ...data.legend,
 };
 
 const checked = new Date(`${data.checked}T00:00:00Z`).toLocaleDateString('en-US', {
@@ -28,206 +41,441 @@ const checked = new Date(`${data.checked}T00:00:00Z`).toLocaleDateString('en-US'
 });
 ---
 
-<div class="rd-compare not-content">
-  <div class="rd-compare-scroll">
-    <table class="rd-compare-table">
-      <caption class="sr-only">{data.caption}</caption>
-      <thead>
-        <tr>
-          <th scope="col" class="rd-compare-feature"><span class="sr-only">Feature</span></th>
-          {
-            data.products.map((product) => (
-              <th scope="col" class:list={['rd-compare-product', { ours: product.key === data.ours }]}>
-                {product.name}
-              </th>
-            ))
-          }
-        </tr>
-      </thead>
-      <tbody>
+<div
+  class:list={['rd-table-card', 'not-content', { 'rd-many': others.length > 3 }]}
+  style={`--rd-other-cols: ${others.length}`}
+>
+  <div class="rd-table-responsive">
+    <div class="rd-compare-wrap">
+      <table class="rd-compare-table">
+        <caption class="rd-sr-only">{data.caption}</caption>
+        <colgroup>
+          <col class="rd-colw-feature" />
+          <col class="rd-colw-ours" />
+          <col span={others.length} />
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="rd-th-feature" scope="col">Capability</th>
+            <th class="rd-col-ours" scope="col">
+              <span class="rd-ours-head">
+                <img src="/assets/images/rapidoc-leaves.svg" alt="" width="20" height="20" />
+                {ours.name}
+              </span>
+              {ours.sub && <span class="rd-ours-sub">{ours.sub}</span>}
+            </th>
+            {others.map((p) => <th scope="col">{p.name}</th>)}
+          </tr>
+        </thead>
         {
-          data.rows.map((row) => (
-            <tr>
-              <th scope="row" class="rd-compare-feature">
-                {row.feature}
-                {row.detail && <span class="rd-compare-detail">{row.detail}</span>}
-              </th>
-              {data.products.map((product) => {
-                const cell = row.cells[product.key];
-                const mark = MARK[cell.verdict];
-                return (
-                  <td class:list={[`v-${cell.verdict}`, { ours: product.key === data.ours }]}>
-                    <span class="rd-compare-mark" title={cell.note ?? mark.label}>
-                      <Icon name={mark.icon} size={16} aria-hidden="true" />
-                      <span class="sr-only">{mark.label}</span>
-                    </span>
-                    {cell.note && <span class="rd-compare-note">{cell.note}</span>}
-                  </td>
-                );
-              })}
-            </tr>
+          data.groups.map((group) => (
+            <tbody>
+              {group.title && (
+                <tr class="rd-group-row">
+                  <th scope="colgroup" class="rd-group-title">
+                    {group.title}
+                  </th>
+                  <td class="rd-col-ours" />
+                  <td colspan={others.length} />
+                </tr>
+              )}
+              {group.rows.map((row) => (
+                <tr>
+                  <th scope="row" class="rd-td-feature">
+                    <strong>{row.feature}</strong>
+                    {row.detail && <span>{row.detail}</span>}
+                  </th>
+                  {[ours, ...others].map((p) => {
+                    const cell = row.cells[p.key];
+                    const mark = MARK[cell.verdict];
+                    return (
+                      <td class:list={{ 'rd-col-ours': p.key === data.ours }}>
+                        <div class="rd-cell">
+                          <span class={`rd-status rd-status--${cell.verdict}`} role="img" aria-label={mark.label}>
+                            <Icon name={mark.icon} size={14} />
+                          </span>
+                          {(cell.text || cell.note) && (
+                            <div class="rd-cell-body">
+                              {cell.text && (
+                                <span class="rd-cell-text">
+                                  {cell.href ? <a href={cell.href}>{cell.text}</a> : cell.text}
+                                </span>
+                              )}
+                              {cell.note && <span class="rd-cell-note">{cell.note}</span>}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
           ))
         }
-      </tbody>
-    </table>
+      </table>
+      <!-- Our column's glowing edges, drawn once over the whole column -->
+      <div class="rd-ours-edges" aria-hidden="true"></div>
+    </div>
   </div>
-
-  <div class="rd-compare-legend">
-    <span><Icon name="check" size={14} aria-hidden="true" /> Yes</span>
-    <span><Icon name="minus" size={14} aria-hidden="true" /> Partly, by hand, or on a paid plan</span>
-    <span><Icon name="x" size={14} aria-hidden="true" /> No</span>
-  </div>
-
-  <details class="rd-compare-sources">
-    <summary>Checked on {checked} against each product's documentation. Sources</summary>
-    <ul>
-      {
-        data.products
-          .filter((product) => data.sources[product.key]?.length)
-          .map((product) => (
-            <li>
-              <strong>{product.name}:</strong>{' '}
-              {data.sources[product.key].map((source, i) => (
-                <>
-                  {i > 0 && ', '}
-                  <a href={source.url} rel="noopener" target="_blank">
-                    {source.label}
-                  </a>
-                </>
-              ))}
-            </li>
-          ))
-      }
-    </ul>
-    <p>{data.correction}</p>
-  </details>
 </div>
 
-<style>
-  .rd-compare {
-    width: 100%;
-    margin: 24px 0 0;
+<div class="rd-compare-legend">
+  {
+    (Object.keys(MARK) as Verdict[]).map((verdict) => (
+      <span>
+        <span class={`rd-status rd-status--${verdict}`}>
+          <Icon name={MARK[verdict].icon} size={12} />
+        </span>
+        {legend[verdict]}
+      </span>
+    ))
   }
-  .rd-compare-scroll {
-    /* Holds the screen-reader labels (position: absolute), so they scroll with the table, not the page */
-    position: relative;
-    overflow-x: auto;
+</div>
+
+<details class="rd-compare-sources">
+  <summary>Other products as described in their own documentation on {checked}. Sources</summary>
+  <ul>
+    {
+      others
+        .filter((p) => data.sources[p.key]?.length)
+        .map((p) => (
+          <li>
+            <strong>{p.name}:</strong>{' '}
+            {data.sources[p.key].map((source, i) => (
+              <>
+                {i > 0 && ', '}
+                <a href={source.url} rel="noopener" target="_blank">
+                  {source.label}
+                </a>
+              </>
+            ))}
+          </li>
+        ))
+    }
+  </ul>
+  <p>
+    Products change. If a cell is out of date, <a href="https://github.com/rapi-doc/RapiDoc/issues/new"
+      >open an issue</a
+    > with a link to the page that shows it, and we will fix the table.
+  </p>
+</details>
+
+<style>
+  /* The table is lighter than the page; our column is darker, with neon edges */
+  .rd-table-card {
+    --rd-cap-w: 210px;
+    /* 30% next to three other products, less as there are more */
+    --rd-ours-w: calc(39% - var(--rd-other-cols) * 3%);
+    background: rgba(255, 255, 255, 0.045);
     border: 1px solid var(--rd-border);
-    border-radius: var(--rd-radius-md);
-    background: var(--rd-surface-card);
+    border-radius: var(--rd-radius-lg);
+    overflow: hidden;
+    backdrop-filter: blur(14px);
+    box-shadow: var(--rd-shadow-panel);
+  }
+  .rd-table-responsive {
+    overflow-x: auto;
+  }
+  /* On wide screens the table fits the page; below 900px it scrolls sideways (see the end) */
+  .rd-compare-wrap {
+    position: relative;
   }
   .rd-compare-table {
     width: 100%;
-    border-collapse: collapse;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: left;
+    font-size: 13.5px;
+  }
+  .rd-colw-feature {
+    width: var(--rd-cap-w);
+  }
+  .rd-colw-ours {
+    width: var(--rd-ours-w);
+  }
+  .rd-compare-table thead th {
+    padding: 18px 20px;
+    font-weight: 700;
     font-size: 14px;
-  }
-  .rd-compare-table th,
-  .rd-compare-table td {
-    padding: 14px 16px;
+    color: var(--rd-text-soft);
     border-bottom: 1px solid var(--rd-border);
-    vertical-align: middle;
+    background: rgba(255, 255, 255, 0.03);
+    vertical-align: bottom;
   }
-  .rd-compare-table tbody tr:last-child > * {
+  .rd-compare-table td,
+  .rd-compare-table tbody th {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rd-border);
+    color: var(--rd-text-muted);
+    vertical-align: top;
+    text-align: left;
+    font-weight: 400;
+  }
+  .rd-compare-table tbody:last-child tr:last-child > * {
     border-bottom: none;
   }
-  .rd-compare-product {
-    min-width: 116px;
-    text-align: center;
-    font-weight: 600;
-    color: var(--rd-text-muted);
-    line-height: 1.3;
+
+  /* The capability column stays in view when the table scrolls sideways */
+  .rd-th-feature,
+  .rd-td-feature {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #141a29;
   }
-  .rd-compare-product.ours {
+  .rd-compare-table thead .rd-th-feature {
+    background: #161c2b;
+  }
+  .rd-td-feature strong {
+    display: block;
     color: var(--rd-text-bright);
+    font-size: 14px;
+    font-weight: 600;
   }
-  .rd-compare-feature {
-    min-width: 220px;
-    text-align: left;
-    font-weight: 500;
-    color: var(--rd-text-primary);
-  }
-  .rd-compare-detail {
+  .rd-td-feature span {
     display: block;
     margin-top: 2px;
-    font-size: 12.5px;
-    font-weight: 400;
-    color: var(--rd-text-muted);
-  }
-  .rd-compare-table td {
-    text-align: center;
-    color: var(--rd-text-muted);
-  }
-  /* Our column: a lighter band, as the eye's anchor */
-  .rd-compare-table .ours {
-    background: color-mix(in srgb, var(--rd-text-bright) 5%, transparent);
-  }
-  .rd-compare-mark {
-    display: inline-flex;
-  }
-  .v-yes .rd-compare-mark {
-    color: var(--rd-text-bright);
-  }
-  .v-no .rd-compare-mark {
-    color: color-mix(in srgb, var(--rd-text-muted) 70%, transparent);
-  }
-  .rd-compare-note {
-    display: block;
-    margin-top: 4px;
     font-size: 12px;
-    line-height: 1.35;
     color: var(--rd-text-muted);
   }
+
+  /* Group rows: the title stays in view with the capability column */
+  .rd-group-row > * {
+    padding: 22px 20px 8px;
+    border-bottom: 1px solid var(--rd-border);
+  }
+  .rd-group-row .rd-group-title {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #141a29;
+  }
+  .rd-compare-table .rd-group-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rd-accent-light);
+  }
+
+  /* Our column: darker than the rest, with a faint accent border */
+  .rd-compare-table .rd-col-ours {
+    background: #070a12;
+    color: var(--rd-text);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 1px 0 0 color-mix(in srgb, var(--rd-accent) 22%, transparent),
+      inset -1px 0 0 color-mix(in srgb, var(--rd-accent) 22%, transparent);
+  }
+
+  /* Neon edges, like the RapiDoc sidebar: a 1px line, brightest in the middle and fading towards the
+     ends, with a soft glow on the outside only. Each edge is a strip outside the column: the line on
+     its inner side, the glow fading outwards, both faded at the ends by a mask. */
+  .rd-ours-edges {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--rd-cap-w);
+    width: var(--rd-ours-w);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .rd-ours-edges::before,
+  .rd-ours-edges::after {
+    content: "";
+    position: absolute;
+    top: 6%;
+    bottom: 6%;
+    width: 18px;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  }
+  .rd-ours-edges::before {
+    right: 100%;
+    background:
+      linear-gradient(to left, var(--rd-accent) 0 1px, transparent 1px),
+      linear-gradient(to left, color-mix(in srgb, var(--rd-accent) 22%, transparent), transparent);
+  }
+  .rd-ours-edges::after {
+    left: 100%;
+    background:
+      linear-gradient(to right, var(--rd-accent) 0 1px, transparent 1px),
+      linear-gradient(to right, color-mix(in srgb, var(--rd-accent) 22%, transparent), transparent);
+  }
+  .rd-ours-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--rd-text-bright);
+    letter-spacing: -0.01em;
+  }
+  .rd-ours-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--rd-accent-light);
+  }
+
+  /* A cell: status mark, text, optional note */
+  .rd-cell {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .rd-cell-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .rd-cell-text {
+    color: var(--rd-text);
+    line-height: 1.45;
+  }
+  .rd-col-ours .rd-cell-text {
+    color: var(--rd-text-bright);
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .rd-col-ours .rd-cell-text a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--rd-accent-border);
+    text-underline-offset: 3px;
+  }
+  .rd-col-ours .rd-cell-text a:hover {
+    color: var(--rd-accent-light);
+    text-decoration-color: currentColor;
+  }
+  .rd-cell-note {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--rd-text-muted);
+  }
+
+  .rd-status {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+  .rd-status--yes {
+    color: var(--rd-green-light);
+    background: color-mix(in srgb, var(--rd-green) 16%, transparent);
+  }
+  .rd-col-ours .rd-status--yes {
+    color: var(--rd-on-accent);
+    background: var(--rd-accent);
+    box-shadow: 0 0 10px var(--rd-accent-glow);
+  }
+  .rd-status--partial {
+    color: var(--rd-amber-light);
+    background: color-mix(in srgb, var(--rd-amber) 14%, transparent);
+  }
+  .rd-status--paid,
+  .rd-status--no {
+    color: var(--rd-red-light);
+    background: color-mix(in srgb, var(--rd-red) 14%, transparent);
+  }
+
+  /* Many products: narrower first columns, and in the other products' cells the mark above the text,
+     so each column keeps room for its words */
+  .rd-many {
+    --rd-cap-w: 180px;
+    --rd-ours-w: 22%;
+  }
+  .rd-many .rd-compare-table td,
+  .rd-many .rd-compare-table tbody th,
+  .rd-many .rd-compare-table thead th {
+    padding-inline: 14px;
+  }
+  .rd-many td:not(.rd-col-ours) .rd-cell {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Narrow screens: the table scrolls sideways, with the capability column in view */
+  @media (max-width: 900px) {
+    .rd-compare-wrap {
+      min-width: calc(960px + (var(--rd-other-cols) - 3) * 150px);
+    }
+    .rd-many {
+      --rd-ours-w: 26%;
+    }
+  }
+
+  /* Phones: a narrow sticky capability column, so a product column fits beside it */
+  @media (max-width: 640px) {
+    .rd-table-card {
+      --rd-cap-w: 120px;
+    }
+    .rd-th-feature,
+    .rd-td-feature {
+      padding-inline: 14px;
+    }
+    .rd-td-feature span {
+      display: none;
+    }
+    .rd-compare-wrap {
+      min-width: calc(820px + (var(--rd-other-cols) - 3) * 170px);
+    }
+  }
+
   .rd-compare-legend {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px 24px;
-    margin-top: 16px;
-    font-size: 13px;
+    gap: 10px 24px;
+    margin-top: 20px;
+    font-size: 12.5px;
     color: var(--rd-text-muted);
   }
-  .rd-compare-legend span {
+  .rd-compare-legend > span {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
+  .rd-compare-legend .rd-status {
+    width: 18px;
+    height: 18px;
+  }
+
   .rd-compare-sources {
-    margin-top: 12px;
-    font-size: 13px;
-    color: var(--rd-text-muted);
+    margin: 10px auto 0;
+    max-width: 820px;
     text-align: center;
+    font-size: 12px;
+    color: var(--rd-text-dim);
   }
   .rd-compare-sources summary {
     cursor: pointer;
   }
   .rd-compare-sources ul,
   .rd-compare-sources p {
-    max-width: 760px;
-    margin: 12px auto 0;
+    margin: 12px 0 0;
     padding: 0;
     list-style: none;
     text-align: left;
-    line-height: 1.6;
+    line-height: 1.7;
+    color: var(--rd-text-muted);
   }
   .rd-compare-sources a {
-    color: var(--rd-text-primary);
+    color: var(--rd-text-soft);
   }
-  .sr-only {
+  .rd-sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip: rect(0 0 0 0);
     white-space: nowrap;
-  }
-  @media (max-width: 640px) {
-    .rd-compare-table th,
-    .rd-compare-table td {
-      padding: 10px 12px;
-      font-size: 13px;
-    }
-    .rd-compare-feature {
-      min-width: 160px;
-    }
   }
 </style>

@@ -1,186 +1,213 @@
 // RapiMock against other mock servers, on the /rapi-mock/ page (components/ComparisonTable.astro).
 // Every cell about another product was checked against its own documentation on `checked`; the pages
-// are in `sources`. Where a product's docs say nothing either way, the cell is "no" with the note
-// "Not documented". WireMock is the open-source WireMock; WireMock Cloud is named in the notes.
+// are in `sources`. Where a product's docs say nothing either way, the cell is "no" with the text
+// "Not documented". WireMock is the open-source WireMock; WireMock Cloud is named in the cells.
 
 import type { Comparison } from './comparison-types';
+
+const MOCK_DOCS = 'https://mock.rapidocui.com/docs';
 
 export const rapiMockComparison: Comparison = {
   ours: 'rapimock',
   caption: 'RapiMock compared with Prism, WireMock, Mockoon, Postman mock servers and Microcks',
   checked: '2026-11-23',
   products: [
-    { key: 'rapimock', name: 'RapiMock', url: 'https://mock.rapidocui.com/' },
-    { key: 'prism', name: 'Prism', url: 'https://github.com/stoplightio/prism' },
-    { key: 'wiremock', name: 'WireMock', url: 'https://wiremock.org/' },
-    { key: 'mockoon', name: 'Mockoon', url: 'https://mockoon.com/' },
-    { key: 'postman', name: 'Postman mocks', url: 'https://learning.postman.com/docs/design-apis/mock-apis/overview/' },
-    { key: 'microcks', name: 'Microcks', url: 'https://microcks.io/' },
+    { key: 'rapimock', name: 'RapiMock', sub: 'MIT · open source' },
+    { key: 'prism', name: 'Prism' },
+    { key: 'wiremock', name: 'WireMock' },
+    { key: 'mockoon', name: 'Mockoon' },
+    { key: 'postman', name: 'Postman mocks' },
+    { key: 'microcks', name: 'Microcks' },
   ],
-  rows: [
+  groups: [
     {
-      feature: 'Mock straight from an OpenAPI spec',
-      detail: 'Point it at the spec; no stubs to write',
-      cells: {
-        rapimock: { verdict: 'yes', note: '3.0, 3.1, 3.2' },
-        prism: { verdict: 'yes', note: '2.0, 3.0, 3.1' },
-        wiremock: { verdict: 'partial', note: 'Cloud only; stubs by hand' },
-        mockoon: { verdict: 'partial', note: 'Imported; partial mapping' },
-        postman: { verdict: 'partial', note: 'Via a generated collection' },
-        microcks: { verdict: 'yes', note: 'Needs examples' },
-      },
+      title: 'From the spec',
+      rows: [
+        {
+          feature: 'Mock straight from the spec',
+          detail: 'Point it at the spec; no stubs to write',
+          cells: {
+            rapimock: { verdict: 'yes', text: 'OpenAPI 3.0, 3.1 and 3.2', href: `${MOCK_DOCS}/getting-started/quickstart/` },
+            prism: { verdict: 'yes', text: 'OpenAPI 2.0, 3.0 and 3.1' },
+            wiremock: { verdict: 'paid', text: 'In WireMock Cloud', note: 'Stubs by hand in open source' },
+            mockoon: { verdict: 'partial', text: 'Imported, partly mapped' },
+            postman: { verdict: 'partial', text: 'Through a generated collection' },
+            microcks: { verdict: 'yes', text: 'Needs examples in the spec' },
+          },
+        },
+        {
+          feature: 'Data from the schemas',
+          detail: 'Realistic values where there is no example',
+          cells: {
+            rapimock: { verdict: 'yes', text: 'Generated per field', note: 'The same on every run for a seed' },
+            prism: { verdict: 'yes', text: 'Dynamic mode' },
+            wiremock: { verdict: 'partial', text: 'Faker templates by hand' },
+            mockoon: { verdict: 'partial', text: 'Once, at import' },
+            postman: { verdict: 'partial', text: 'Faker variables by hand' },
+            microcks: { verdict: 'partial', text: 'Templates by hand' },
+          },
+        },
+        {
+          feature: 'Request validation',
+          detail: 'A bad request gets a 400 that says why',
+          cells: {
+            rapimock: { verdict: 'yes', text: 'Parameters and bodies' },
+            prism: { verdict: 'yes', text: 'Parameters and bodies' },
+            wiremock: { verdict: 'paid', text: 'In WireMock Cloud' },
+            mockoon: { verdict: 'no' },
+            postman: { verdict: 'no', text: 'Not documented' },
+            microcks: { verdict: 'partial', text: 'Parameters only' },
+          },
+        },
+        {
+          feature: 'Tokens and OAuth scopes',
+          detail: "Checked against your issuer and the spec's security",
+          cells: {
+            rapimock: {
+              verdict: 'yes',
+              text: 'JWTs verified, scopes checked',
+              note: '401 or 403 as the real API would',
+              href: `${MOCK_DOCS}/responses/tokens-and-scopes/`,
+            },
+            prism: { verdict: 'partial', text: 'Missing credentials only' },
+            wiremock: { verdict: 'partial', text: 'Header rules by hand' },
+            mockoon: { verdict: 'partial', text: 'Header rules by hand' },
+            postman: { verdict: 'no', text: 'Not documented' },
+            microcks: { verdict: 'partial', text: 'Header pattern only' },
+          },
+        },
+      ],
     },
     {
-      feature: 'Data generated from the schemas',
-      detail: 'Realistic values where the spec has no example',
-      cells: {
-        rapimock: { verdict: 'yes' },
-        prism: { verdict: 'yes' },
-        wiremock: { verdict: 'partial', note: 'Faker templates by hand' },
-        mockoon: { verdict: 'partial', note: 'Once, at import' },
-        postman: { verdict: 'partial', note: 'Faker variables by hand' },
-        microcks: { verdict: 'partial', note: 'Templates by hand' },
-      },
+      title: 'State and tests',
+      rows: [
+        {
+          feature: 'State between requests',
+          detail: 'What you create, you can read, change and delete',
+          cells: {
+            rapimock: { verdict: 'yes', text: 'Worked out from the spec', href: `${MOCK_DOCS}/state/overview/` },
+            prism: { verdict: 'no', text: 'On its roadmap' },
+            wiremock: { verdict: 'partial', text: 'An extension', note: 'Or WireMock Cloud Enterprise' },
+            mockoon: { verdict: 'yes', text: 'CRUD routes you set up' },
+            postman: { verdict: 'partial', text: 'Handlers you write' },
+            microcks: { verdict: 'partial', text: 'Scripts you write' },
+          },
+        },
+        {
+          feature: 'Separate data per test',
+          detail: 'Parallel tests do not see each other',
+          cells: {
+            rapimock: { verdict: 'yes', text: 'X-Mock-Session header', href: `${MOCK_DOCS}/state/sessions/` },
+            prism: { verdict: 'no', text: 'No state' },
+            wiremock: { verdict: 'no', text: 'Not documented' },
+            mockoon: { verdict: 'no', text: 'Not documented' },
+            postman: { verdict: 'no', text: 'Not documented' },
+            microcks: { verdict: 'no', text: 'Not documented' },
+          },
+        },
+        {
+          feature: 'Control API',
+          detail: 'Reset, read and set the data from any language',
+          cells: {
+            rapimock: { verdict: 'yes', text: 'Under /__mock', href: `${MOCK_DOCS}/reference/control-api/` },
+            prism: { verdict: 'no' },
+            wiremock: { verdict: 'yes', text: 'Admin API' },
+            mockoon: { verdict: 'yes', text: 'Admin API' },
+            postman: { verdict: 'no', text: 'Not documented' },
+            microcks: { verdict: 'partial', text: 'No state reset' },
+          },
+        },
+        {
+          feature: 'A UI to look inside',
+          detail: 'Its records and what each operation does',
+          cells: {
+            rapimock: { verdict: 'yes', text: 'Mock UI in the browser', href: `${MOCK_DOCS}/mock-ui/tour/` },
+            prism: { verdict: 'no' },
+            wiremock: { verdict: 'paid', text: 'In WireMock Cloud' },
+            mockoon: { verdict: 'partial', text: 'Logs in the desktop app' },
+            postman: { verdict: 'yes', text: 'Logs and state' },
+            microcks: { verdict: 'yes', text: 'Web console' },
+          },
+        },
+        {
+          feature: 'Latency and faults',
+          cells: {
+            rapimock: { verdict: 'partial', text: 'A delay, and error responses on request', note: 'No connection faults' },
+            prism: { verdict: 'no' },
+            wiremock: { verdict: 'yes', text: 'Delays and connection faults' },
+            mockoon: { verdict: 'partial', text: 'Latency' },
+            postman: { verdict: 'yes', text: 'Delays, errors, chaos mode' },
+            microcks: { verdict: 'partial', text: 'Delays' },
+          },
+        },
+      ],
     },
     {
-      feature: 'Validates requests against the spec',
-      detail: 'A bad request gets a 400 that says why',
-      cells: {
-        rapimock: { verdict: 'yes' },
-        prism: { verdict: 'yes' },
-        wiremock: { verdict: 'partial', note: 'Cloud only' },
-        mockoon: { verdict: 'no' },
-        postman: { verdict: 'no', note: 'Not documented' },
-        microcks: { verdict: 'partial', note: 'Parameters only' },
-      },
+      title: 'Beyond the spec',
+      rows: [
+        {
+          feature: 'Record or proxy a real API',
+          cells: {
+            rapimock: { verdict: 'no' },
+            prism: { verdict: 'partial', text: 'Proxy, no recording' },
+            wiremock: { verdict: 'yes', text: 'Proxy, record and play back' },
+            mockoon: { verdict: 'yes', text: 'Proxy and recording' },
+            postman: { verdict: 'no', text: 'Not documented' },
+            microcks: { verdict: 'partial', text: 'Proxy; HAR import' },
+          },
+        },
+        {
+          feature: 'GraphQL, gRPC or AsyncAPI',
+          cells: {
+            rapimock: { verdict: 'no' },
+            prism: { verdict: 'no' },
+            wiremock: { verdict: 'partial', text: 'GraphQL and gRPC extensions' },
+            mockoon: { verdict: 'no' },
+            postman: { verdict: 'partial', text: 'gRPC' },
+            microcks: { verdict: 'yes', text: 'All three' },
+          },
+        },
+        {
+          feature: 'MCP for AI agents',
+          detail: 'Agents call the mocked API as tools',
+          cells: {
+            rapimock: { verdict: 'partial', text: 'rapidoc mcp serve, pointed at the mock' },
+            prism: { verdict: 'no' },
+            wiremock: { verdict: 'paid', text: 'WireMock Cloud Enterprise' },
+            mockoon: { verdict: 'partial', text: 'Starts and stops mocks only' },
+            postman: { verdict: 'no' },
+            microcks: { verdict: 'yes', text: 'Mocks as MCP tools' },
+          },
+        },
+      ],
     },
     {
-      feature: "Checks tokens and OAuth scopes",
-      detail: "Verifies JWTs against your issuer and the spec's security",
-      cells: {
-        rapimock: { verdict: 'yes' },
-        prism: { verdict: 'partial', note: 'Missing credentials only' },
-        wiremock: { verdict: 'partial', note: 'Header rules by hand' },
-        mockoon: { verdict: 'partial', note: 'Header rules by hand' },
-        postman: { verdict: 'no', note: 'Not documented' },
-        microcks: { verdict: 'partial', note: 'Header pattern only' },
-      },
-    },
-    {
-      feature: 'Keeps state between requests',
-      detail: 'What you create, you can read, change and delete',
-      cells: {
-        rapimock: { verdict: 'yes', note: 'Worked out from the spec' },
-        prism: { verdict: 'no', note: 'On its roadmap' },
-        wiremock: { verdict: 'partial', note: 'Extension, or Cloud Enterprise' },
-        mockoon: { verdict: 'yes', note: 'CRUD routes you set up' },
-        postman: { verdict: 'partial', note: 'Handlers you write' },
-        microcks: { verdict: 'partial', note: 'Scripts you write' },
-      },
-    },
-    {
-      feature: 'Separate data for parallel tests',
-      detail: 'Each test session sees only its own changes',
-      cells: {
-        rapimock: { verdict: 'yes', note: 'X-Mock-Session header' },
-        prism: { verdict: 'no', note: 'No state' },
-        wiremock: { verdict: 'no', note: 'Not documented' },
-        mockoon: { verdict: 'no', note: 'Not documented' },
-        postman: { verdict: 'no', note: 'Not documented' },
-        microcks: { verdict: 'no', note: 'Not documented' },
-      },
-    },
-    {
-      feature: 'Control API for tests',
-      detail: 'Reset, read and set the data from any language',
-      cells: {
-        rapimock: { verdict: 'yes' },
-        prism: { verdict: 'no' },
-        wiremock: { verdict: 'yes' },
-        mockoon: { verdict: 'yes' },
-        postman: { verdict: 'no', note: 'Not documented' },
-        microcks: { verdict: 'partial', note: 'No state reset' },
-      },
-    },
-    {
-      feature: 'Web UI to look inside',
-      detail: 'The records it holds and what each operation does',
-      cells: {
-        rapimock: { verdict: 'yes' },
-        prism: { verdict: 'no' },
-        wiremock: { verdict: 'partial', note: 'Cloud only' },
-        mockoon: { verdict: 'partial', note: 'Desktop app' },
-        postman: { verdict: 'yes' },
-        microcks: { verdict: 'yes' },
-      },
-    },
-    {
-      feature: 'Latency and faults',
-      cells: {
-        rapimock: { verdict: 'partial', note: 'Delay, and error responses on request' },
-        prism: { verdict: 'no' },
-        wiremock: { verdict: 'yes' },
-        mockoon: { verdict: 'partial', note: 'Latency' },
-        postman: { verdict: 'yes' },
-        microcks: { verdict: 'partial', note: 'Delays' },
-      },
-    },
-    {
-      feature: 'Record or proxy a real API',
-      cells: {
-        rapimock: { verdict: 'no' },
-        prism: { verdict: 'partial', note: 'Proxy, no recording' },
-        wiremock: { verdict: 'yes' },
-        mockoon: { verdict: 'yes' },
-        postman: { verdict: 'no', note: 'Not documented' },
-        microcks: { verdict: 'partial', note: 'Proxy; HAR import' },
-      },
-    },
-    {
-      feature: 'GraphQL, gRPC or AsyncAPI',
-      cells: {
-        rapimock: { verdict: 'no' },
-        prism: { verdict: 'no' },
-        wiremock: { verdict: 'partial', note: 'GraphQL, gRPC extensions' },
-        mockoon: { verdict: 'no' },
-        postman: { verdict: 'partial', note: 'gRPC' },
-        microcks: { verdict: 'yes' },
-      },
-    },
-    {
-      feature: 'MCP for AI agents',
-      detail: 'Agents call the mocked API as tools',
-      cells: {
-        rapimock: { verdict: 'partial', note: 'rapidoc mcp serve pointed at the mock' },
-        prism: { verdict: 'no' },
-        wiremock: { verdict: 'partial', note: 'Cloud Enterprise' },
-        mockoon: { verdict: 'partial', note: 'Starts and stops mocks only' },
-        postman: { verdict: 'no' },
-        microcks: { verdict: 'yes' },
-      },
-    },
-    {
-      feature: 'Open source and free',
-      cells: {
-        rapimock: { verdict: 'yes', note: 'MIT' },
-        prism: { verdict: 'yes', note: 'Apache-2.0' },
-        wiremock: { verdict: 'yes', note: 'Apache-2.0; Cloud is paid' },
-        mockoon: { verdict: 'yes', note: 'MIT; Pro is paid' },
-        postman: { verdict: 'no', note: 'Free plan' },
-        microcks: { verdict: 'yes', note: 'Apache-2.0' },
-      },
-    },
-    {
-      feature: 'Hosted URL a team shares',
-      detail: 'A managed service, nothing to run',
-      cells: {
-        rapimock: { verdict: 'no', note: 'Run it on your server' },
-        prism: { verdict: 'partial', note: 'Stoplight, paid' },
-        wiremock: { verdict: 'partial', note: 'Cloud; free tier is limited' },
-        mockoon: { verdict: 'partial', note: 'Enterprise' },
-        postman: { verdict: 'yes' },
-        microcks: { verdict: 'no', note: 'Self-hosted' },
-      },
+      title: 'License and hosting',
+      rows: [
+        {
+          feature: 'License',
+          cells: {
+            rapimock: { verdict: 'yes', text: 'MIT', note: 'No paid tier' },
+            prism: { verdict: 'yes', text: 'Apache 2.0' },
+            wiremock: { verdict: 'partial', text: 'Apache 2.0', note: 'WireMock Cloud is commercial' },
+            mockoon: { verdict: 'partial', text: 'MIT', note: 'Pro and Enterprise are paid' },
+            postman: { verdict: 'paid', text: 'Proprietary', note: 'With a free plan' },
+            microcks: { verdict: 'yes', text: 'Apache 2.0' },
+          },
+        },
+        {
+          feature: 'Hosted URL a team shares',
+          detail: 'A managed service, nothing to run',
+          cells: {
+            rapimock: { verdict: 'no', text: 'Run it on your own server' },
+            prism: { verdict: 'paid', text: 'Stoplight platform' },
+            wiremock: { verdict: 'paid', text: 'WireMock Cloud', note: 'Free tier with limits' },
+            mockoon: { verdict: 'paid', text: 'Enterprise' },
+            postman: { verdict: 'yes', text: 'On every plan' },
+            microcks: { verdict: 'no', text: 'Self-hosted' },
+          },
+        },
+      ],
     },
   ],
   sources: {
@@ -223,6 +250,4 @@ export const rapiMockComparison: Comparison = {
       { label: 'MCP endpoints', url: 'https://microcks.io/documentation/explanations/mcp-endpoints/' },
     ],
   },
-  correction:
-    'Products change. If a cell is out of date, open an issue at github.com/rapi-doc/RapiDoc with a link to the page that shows it, and we will fix the table.',
 };
