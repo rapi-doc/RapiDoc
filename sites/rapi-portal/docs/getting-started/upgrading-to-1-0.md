@@ -4,7 +4,7 @@ description: Every change to make when moving a RapiDoc Portal from 0.2 to 1.0, 
 tableOfContents: false
 ---
 
-1.0 is the first stable release. Before it, names that were wrong or unclear were corrected once, with no old spellings kept: a name from 0.2 that is not listed as unchanged below is an error in 1.0, and the error says what to write. This page lists every change.
+1.0 brings the portal in sync with RapiDoc 15 and the rest of the family. On the way, names that were wrong or unclear were corrected once, with no old spellings kept: a name from 0.2 that is not listed as unchanged below is an error in 1.0, and the error says what to write. This page lists every change.
 
 Update the packages together:
 

@@ -1,9 +1,9 @@
 ---
 title: What's new in 1.0
-description: RapiDoc Portal 1.0 is the first stable release, ready for production. What the version promise covers, how to upgrade from 0.x, and the new sidebar.
+description: RapiDoc Portal 1.0, in sync with RapiDoc 15 and the rest of the family. What the version promise covers, how to upgrade from 0.x, and the new sidebar.
 ---
 
-RapiDoc Portal **1.0** is the first stable release, ready for production. It has been out since RapiDoc 12.1.0; with 1.0 its versions make a promise: **a change that breaks your portal comes only in a new major version.**
+RapiDoc Portal **1.0** comes with RapiDoc 15: the portal, the CLI, the server, the mock and the integrations were reviewed end to end together with `<rapi-doc>`, and now share the same names, one sidebar and the same safer defaults. It marks a new start for the family, and with it the portal's versions make a promise: **a change that breaks your portal comes only in a new major version.**
 
 ## What the promise covers
 

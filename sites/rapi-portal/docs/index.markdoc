@@ -15,7 +15,7 @@ npm run dev
 The starter is a portal with an example API, a `rapidoc.config.yaml` and two guides, on `http://localhost:4321`. Already have a repository with OpenAPI files? Run `npx @rapidoc/cli init` there instead. [Read the quickstart](/docs/getting-started/quickstart/).
 
 {% callout type="rocket" title="RapiDoc Portal 1.0" %}
-The first stable release, ready for production: from here on, a change that breaks your portal comes only in a new major version. [See what's new in 1.0](/docs/getting-started/whats-new/).
+In sync with RapiDoc 15, end to end: the same names, one sidebar and safer defaults across the family. From here on, a change that breaks your portal comes only in a new major version. [See what's new in 1.0](/docs/getting-started/whats-new/).
 {% /callout %}
 
 ## Find your way
