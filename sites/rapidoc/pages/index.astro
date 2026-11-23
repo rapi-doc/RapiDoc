@@ -3,6 +3,7 @@
 // /rapidoc/); this page says what each one is for and leads there. Its content and images follow
 // home-page-content-plan.md; the images are drawn by scripts/home-*.mjs.
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { homePageData } from '../utils/structuredData';
 import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
@@ -128,6 +129,7 @@ const startCode = RAPIDOC_SNIPPET;
 ---
 
 <GlobalLayout
+  structuredData={homePageData()}
   title="RapiDoc: API Documentation Tools for OpenAPI"
   description="The RapiDoc family turns an OpenAPI spec into an interactive API reference, embedded endpoints, a PDF, a mock server and a developer portal, and draws and runs the workflows of an Arazzo spec."
   keywords="RapiDoc, OpenAPI, Swagger, API documentation, API reference, web component, mock server, developer portal, Arazzo, OpenAPI PDF"

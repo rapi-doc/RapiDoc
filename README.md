@@ -3,57 +3,104 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"/>
-
-</p>        
+  <a href="https://www.npmjs.com/package/rapidoc"><img alt="npm" src="https://img.shields.io/npm/v/rapidoc?style=flat-square&label=rapidoc"/></a>
+  <a href="https://www.npmjs.com/package/@rapidoc/portal"><img alt="npm" src="https://img.shields.io/npm/v/@rapidoc/portal?style=flat-square&label=%40rapidoc%2Fportal"/></a>
+  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square"/>
+</p>
 
 # RapiDoc
 
-**Custom Element for OpenAPI / Swagger Spec Viewing**
+**Open-source tools for OpenAPI and Arazzo: interactive API references, embedded endpoints, PDFs, a mock server, workflows and developer portals.**
 
-RapiDoc is a fast, responsive, and customizable Web Component that renders beautiful, interactive API documentation from OpenAPI (Swagger) specifications.
+RapiDoc started as `<rapi-doc>`, a web component that turns an OpenAPI spec into an interactive API reference. It is now a family of tools that share one spec reader, one look and one set of names, from a single HTML element to a complete developer portal with sign-in. Everything here is MIT-licensed. Website: [rapidocui.com](https://rapidocui.com).
 
----
+## The RapiDoc family
 
-## Features
+| Product | What it does | Package | Docs |
+| :-- | :-- | :-- | :-- |
+| **RapiDoc** `<rapi-doc>` | Interactive API reference from an OpenAPI 3.0, 3.1 or Swagger 2.0 spec, with Try, an in-browser mock, themes and MCP server export. One HTML element, no runtime dependencies. | [`rapidoc`](https://www.npmjs.com/package/rapidoc) | [rapidocui.com/docs](https://rapidocui.com/docs/rapidoc/get-started/quickstart/) |
+| **RapiDoc Mini** `<rapi-doc-mini>` | A few operations, with Try, inside a blog post, guide or dashboard. | [`rapidoc`](https://www.npmjs.com/package/rapidoc) | [Docs](https://rapidocui.com/docs/rapidoc-mini/) |
+| **RapiFlow** `<rapi-flow>` | Draws the workflows of an Arazzo spec next to the API reference and runs them in the browser, against the API or a mock. | [`rapidoc`](https://www.npmjs.com/package/rapidoc) (`rapidoc/flow`) | [flow.rapidocui.com](https://flow.rapidocui.com/) |
+| **RapiDoc Portal** | A docs-as-code developer portal: OpenAPI specs and Markdown or Markdoc guides become one static site with an API catalog, references, search, workflows, MCP manifests and `llms.txt`, plus optional single sign-on (OpenID Connect) with access rules. | [`@rapidoc/portal`](https://www.npmjs.com/package/@rapidoc/portal), [`@rapidoc/server`](https://www.npmjs.com/package/@rapidoc/server) | [portal.rapidocui.com](https://portal.rapidocui.com/) |
+| **RapiMock** | A mock server from an OpenAPI spec: request validation, token and scope checks, state between requests, a UI to look inside, and endpoints for tests in any language. | [`@rapidoc/mock`](https://www.npmjs.com/package/@rapidoc/mock) | [mock.rapidocui.com](https://mock.rapidocui.com/) |
+| **RapiPdf** `<rapi-pdf>` | Turns an OpenAPI spec into a PDF, in the browser or in Node. | [`rapipdf`](https://www.npmjs.com/package/rapipdf) | [Docs](https://rapidocui.com/docs/rapipdf/) |
+| **RapiDoc CLI** | The `rapidoc` command: preview, validate, lint and bundle specs, write PDFs, run the mock, turn specs into MCP servers, and build portals. | [`@rapidoc/cli`](https://www.npmjs.com/package/@rapidoc/cli) | [Docs](https://rapidocui.com/docs/cli/) |
+| **Integrations** | RapiDoc for Express, Fastify, Hono, FastAPI, ASP.NET Core, Go, Starlight, VitePress and Docusaurus. | [below](#integrations) | [Docs](https://rapidocui.com/docs/integrations/front-end/) |
 
-- **OpenAPI Support:** Full support for OpenAPI 3.0.x, 3.1.x, and Swagger 2.0.
-- **Framework Agnostic:** Works with plain HTML, React, Vue, Angular, Svelte, or Lit.
-- **Built-in API Console:** Call and test APIs directly from the documentation.
-- **Usability First:**
-  - Models and examples expanded by default — no endless clicking to reveal schemas.
-  - Pre-populated sample data in request fields.
-  - Side-by-side request and response view for quick comparison.
-- **Branding & Theming:**
-  - Dark and Light themes out of the box.
-  - Easily customizable brand colors, typography, logos, and header styling.
-- **Customizable Layouts:**
-  - Three distinct rendering styles: `read`, `view`, and `focused`.
-  - Inject custom content using web component slots (`fixed-header`, `overview`, `servers`, `auth`).
-- **Fast & Lightweight:** Built using [Lit](https://lit.dev/) with zero unnecessary overhead.
+**See it running:** the [examples](https://rapidocui.com/examples/) on rapidocui.com, and [Rapid Parcels](https://parcels.rapidocui.com/), a demo developer portal with several APIs, guides, workflows and sign-in.
 
 ---
 
-## Quick Usage
-
-Include the script in your HTML page and use the `<rapi-doc>` custom element:
+## RapiDoc in one HTML file
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
-</head>
-<body>
-  <rapi-doc
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
-    theme="dark"
-    render-style="read"
-  ></rapi-doc>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <rapi-doc spec-url="https://petstore3.swagger.io/api/v3/openapi.json" color-scheme="dark"></rapi-doc>
+  </body>
 </html>
 ```
+
+- **OpenAPI 3.0, 3.1 and Swagger 2.0,** with large specs (thousands of operations) kept fast by three render styles: `read`, `view` and `focused`.
+- **Try every operation** from the page, with API keys, HTTP Basic, bearer tokens and OAuth 2.0, or answer requests in the page with the built-in mock (`mock-server`).
+- **Any framework:** plain HTML, React, Vue, Angular, Svelte or Lit. `<rapi-doc>` is a standard custom element, with TypeScript types for React and Vue.
+- **Your brand:** light and dark color schemes, theme presets, CSS custom properties, CSS parts and slots for your own markup.
+- **For AI agents:** an Export MCP Server button turns the spec on the page into an MCP server project.
+- **Accessible:** the sidebar works with a keyboard and a screen reader.
+
+Every attribute, method and event: [the reference](https://rapidocui.com/docs/rapidoc/reference/).
+
+---
+
+## A developer portal with RapiDoc Portal
+
+```bash
+npm create rapidoc@latest my-portal
+cd my-portal && npm install
+npx rapidoc dev        # http://localhost:4321
+npx rapidoc build      # a static site in ./dist
+```
+
+Specs go in `specs/`, guides in `docs/`, and `rapidoc.config.yaml` ties them together:
+
+```yaml
+site:
+  title: Acme Developer Portal
+  url: https://developers.acme.com
+navigation:
+  - label: Guides
+    items:
+      - getting-started         # docs/getting-started.md
+  - label: Orders API
+    api: orders
+apis:
+  - id: orders
+    spec: ./specs/orders.yaml   # the reference page at /apis/orders
+```
+
+- **Guides and references in one site,** with one sidebar, one search and live API operations inside guides (`{% api-operation %}`).
+- **Arazzo workflows** drawn and runnable in a guide (`{% workflow %}`).
+- **For AI agents:** every page as Markdown, `llms.txt` and `llms-full.txt`, MCP manifests for each API, and a `/mcp` endpoint with `rapidoc serve`.
+- **Sign-in and access rules:** with an OpenID Connect provider, `rapidoc serve` keeps pages, specs and search results for signed-in readers, groups or emails.
+- **Static output** for any host: GitHub Pages, Netlify, S3, Nginx.
+- **Coming from Redocly or Zudoku?** `npx rapidoc migrate --from redocly|zudoku` converts the config.
+
+Quickstart and configuration: [portal.rapidocui.com](https://portal.rapidocui.com/docs/getting-started/quickstart/).
+
+---
+
+## A mock server with RapiMock
+
+```bash
+npx @rapidoc/cli mock ./openapi.yaml
+```
+
+Validates requests against the spec, checks tokens and OAuth scopes, keeps state between requests (`--stateful`), and has a UI to look inside. Docs: [mock.rapidocui.com](https://mock.rapidocui.com/).
 
 ---
 
@@ -86,277 +133,14 @@ Building one for another framework or language? Start from [`@rapidoc/embed`](pa
 
 ---
 
-## Generating a Developer Portal with RapiDoc Portal
+## Contributing
 
-Beyond embedding `<rapi-doc>` in a page, this repository ships **RapiDoc Portal**: a docs-as-code engine that turns a folder of OpenAPI specs and guides into a complete static developer portal (home page, API catalog, interactive API references, guides and full-text search).
-
-### 1. Create a portal project
-
-```bash
-npm create rapidoc@latest my-portal
-cd my-portal && npm install
-```
-
-Already using the CLI, or adding a portal to a repo that has OpenAPI files? `npx rapidoc init [dir]` scaffolds the same project and builds `apis:` from the specs it finds there. The project depends on `@rapidoc/cli` (the `rapidoc` command) and `@rapidoc/portal` (the engine it runs for `dev` and `build`).
-
-This scaffolds:
-
-```text
-my-portal/
-├── rapidoc.config.yaml     # Site, header, navigation tabs, theme, APIs
-├── specs/api.yaml          # Your OpenAPI 3.x / Swagger 2.0 specs
-└── docs/                   # Guides in Markdown (.md), MDX (.mdx) or Markdoc (.markdoc); docs/index.* is the home page
-```
-
-### 2. Describe your portal
-
-Add specs to `specs/` and guides to `docs/`, then wire them up in `rapidoc.config.yaml`:
-
-```yaml
-site:
-  title: Acme Developer Portal
-navigation:                     # the header tabs; a documentation tab has its own sidebar
-  - label: Guides
-    items:
-      - getting-started         # docs/getting-started.md
-  - label: Orders API
-    api: orders
-  - label: API Catalog
-    catalog: true
-apis:
-  - id: orders
-    spec: ./specs/orders.yaml   # reference page at /apis/orders
-    category: Commerce          # groups APIs on the /catalog page
-```
-
-Every key is checked: a typo fails the build with its location. Coming from Redocly or Zudoku? `npx rapidoc migrate --from redocly|zudoku` converts its config. The full reference is in [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md#configuration-rapidocconfigyaml).
-
-### 3. Preview locally
-
-```bash
-npx rapidoc dev        # http://localhost:4321, reloads as you edit docs, specs or config
-```
-
-### 4. Build and host
-
-```bash
-npx rapidoc build      # static site in ./dist
-```
-
-Upload `dist/` to any static host (GitHub Pages, Netlify, S3, Nginx). Check specs before publishing with `npx rapidoc validate ./specs/orders.yaml`.
-
-### What happens during a build
-
-1. `rapidoc.config.yaml` is loaded and validated.
-2. A temporary Astro project is created in `my-portal/.rapidoc-temp/` (one folder per run) with normalized copies of your guides, your specs, the `rapidoc-min.js` bundle and a search index.
-3. Astro + Starlight render the guides and the home page; the portal's own pages render the API catalog and one RapiDoc reference page per API.
-4. The static site is written to `dist/`.
-5. The temporary project is deleted, so your project is left exactly as it was apart from `dist/`.
-
-See [`packages/rapidoc-portal/README.md`](packages/rapidoc-portal/README.md) for the full configuration reference, the guide syntax (Markdoc tags, MDX components) and the programmatic API. The `rapi-portal-demo` repository holds the example portals used to dog-food these packages.
-
----
-
-## Repository Architecture
-
-This repository is structured as a **Monorepo** using workspaces, compatible with **Node/npm**, **pnpm**, and **Bun**:
-
-```text
-rapidoc/
-├── packages/
-│   ├── rapidoc/                 # Core Web Component library (published as "rapidoc")
-│   │   ├── src/                 # Web component source code (Lit + modern ESM)
-│   │   ├── dist/                # Production bundle (rapidoc-min.js)
-│   │   ├── package.json         # Library package config
-│   │   └── vite.config.mjs      # Dedicated library build config
-│   │
-│   ├── rapidoc-cli/             # The `rapidoc` command (@rapidoc/cli): init, dev, build, validate, migrate
-│   │   ├── src/                 # CLI source code
-│   │   └── package.json
-│   │
-│   ├── rapidoc-portal/          # Docs-as-code developer portal engine (@rapidoc/portal)
-│   │   ├── src/engine/          # Build & dev pipeline (temp workspace, Astro + Starlight)
-│   │   ├── src/pages/           # Portal pages: home, catalog, API reference
-│   │   └── package.json
-│   │
-│   └── create-rapidoc/          # Project scaffolder (npm create rapidoc)
-│       └── package.json
-│
-├── docs/                        # Astro documentation & showcase site (GitHub Pages)
-│   ├── src/                     # Astro pages, components, and layouts
-│   │   ├── pages/examples/      # Public showcase pages (code-highlight, petstore, etc.)
-│   │   └── pages/tests/         # Internal test & edge-case pages
-│   ├── public/
-│   │   ├── specs/               # PUBLIC showcase specs (used by /examples)
-│   │   └── specs-test/          # INTERNAL test specs (edge cases & parser fixtures)
-│   │       └── parser/          # Malformed & validation test specs
-│   ├── astro.config.mjs         # Astro site configuration
-│   └── package.json             # Workspace package "docs"
-│
-├── tests/                       # See tests/README.md
-│
-├── package.json                 # Monorepo root configuration (workspaces)
-└── README.md
-```
-
----
-
-## Development & Build Instructions
-
-### Prerequisites
-- **Node.js**: `>= 22.12.0` (or [Bun](https://bun.sh/))
-- **npm** (or `bun`)
-
-### 1. Installation
-Clone the repository and install dependencies across all workspaces:
-```bash
-git clone https://github.com/rapi-doc/RapiDoc.git
-cd RapiDoc
-npm install
-```
-
-### 2. Development Server & Live Debugging
-Start the local documentation and interactive examples showcase:
-```bash
-# Start dev server (http://localhost:4321)
-npm run dev
-
-# Stop background dev server
-npm run stop
-```
-- Open `http://localhost:4321` in your browser.
-- **Live Unminified ES Modules:** In development mode (`npm run dev`), the Astro dev server bypasses pre-compiled production bundles and serves live ES modules directly from `packages/rapidoc/src/index.js`.
-- **Full DevTools & Console Visibility:** All `console.log`, `console.warn`, `console.error`, and `debugger` breakpoints remain completely intact with original file names and exact line numbers (e.g., `rapidoc.js:516`).
-- **Instant Browser Reloading:** Component changes in `packages/rapidoc/src/` trigger immediate hot reloads without waiting for a full Rollup/Vite compilation cycle.
-
----
-
-### 3. Build Process & Workspace Integration
-
-This monorepo contains multiple packages: the core Web Component library (**`packages/rapidoc`**) and the documentation showcase site (**`docs`**). The build system coordinates them as follows:
-
-#### Core Library Production Build (`npm run build:rapidoc`)
-- **Workspace:** `packages/rapidoc`
-- **Output:** `packages/rapidoc/dist/rapidoc-min.js`
-- Compiles the RapiDoc custom element in library mode using [Vite 6](https://vitejs.dev/).
-- Inlines and bundles runtime dependencies (`lit`, `@scalar/openapi-parser`, `marked`, `microlighter`, `github-slugger`) into a standalone bundle with **zero runtime external dependencies**.
-- Minifies Lit templates using `@lit-labs/rollup-plugin-minify-html-literals`.
-- Strips `console.*` and `debugger` calls via a custom esbuild transform for optimal performance and clean production distribution.
-- Injects the license and version header banner.
-
-#### Core Library Development Build (`npm run build:rapidoc:dev`)
-- **Workspace:** `packages/rapidoc`
-- **Output:** `packages/rapidoc/dist/rapidoc-min.js` + `packages/rapidoc/dist/rapidoc-min.js.map`
-- Compiles the standalone library bundle with `mode: 'development'`.
-- Disables template and esbuild minification, preserves all `console` and `debugger` statements, and emits full external source maps.
-- Useful when you need to test the bundled `<rapi-doc>` script tag artifact in external standalone HTML pages or apps with full DevTools logging.
-
-#### Full Monorepo Build (`npm run build`)
-- **Scope:** Root monorepo
-- Sequentially executes `npm run build:rapidoc` followed by `npm run build:docs`.
-
----
-
-### 4. How Astro Docs Consumes RapiDoc (`rapidoc-min.js`)
-
-Astro documentation and example pages include the component via `<script type="module" src="/rapidoc/rapidoc-min.js"></script>`. How this URL is resolved depends on whether you are developing locally or generating a production build:
-
-1. **During Local Development (`npm run dev`):**
-   - The Astro dev server middleware (in `docs/astro.config.mjs`) **intercepts** all requests for `/rapidoc/rapidoc-min.js` (and `/rapidoc/rapidoc.js`).
-   - Instead of reading any pre-built static file, it directly imports and serves `packages/rapidoc/src/index.js` live through Vite's module pipeline.
-   - You get instant HMR, unminified source code, active `console.*` logging, and sourcemaps with exact line numbers in browser DevTools. Neither `dist/` nor `generated-docs/` is served during development.
-
-2. **During Production Site Build (`npm run build:docs` / `npm run build`):**
-   - The custom `build-rapidoc` Vite plugin in `docs/astro.config.mjs` runs during build initialization:
-     1. It verifies that `packages/rapidoc/dist/rapidoc-min.js` is compiled (triggering a Vite library build if missing).
-     2. It copies `packages/rapidoc/dist/rapidoc-min.js` into **`docs/dist/rapidoc/rapidoc-min.js`**, so that the static site deployed to GitHub Pages serves the production bundle.
-     3. If the local **`docs/generated-docs/`** directory exists, it also synchronizes `rapidoc-min.js` into **`docs/generated-docs/rapidoc/rapidoc-min.js`** to keep the static snapshot folder up to date with the newly built component.
-
----
-
-### 5. NPM Command Reference
-
-All primary commands can be run from the root of the repository:
-
-#### Development & Live Preview
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run dev` | `docs` | Launches Astro documentation & showcase dev server (`http://localhost:4321`) with live unminified RapiDoc ESM directly from source. |
-| `npm run stop` | `docs` | Terminates background Astro dev server processes. |
-| `npm run preview` | `docs` | Previews the production build of the documentation site (`docs/dist`) locally. |
-
-#### Building
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run build` | Monorepo | Sequentially builds production RapiDoc library bundle and the Astro documentation site. |
-| `npm run build:rapidoc` | `rapidoc` | Compiles production, minified Web Component bundle to `packages/rapidoc/dist/rapidoc-min.js`. |
-| `npm run build:rapidoc:dev` | `rapidoc` | Compiles unminified Web Component bundle with source maps & console logs to `packages/rapidoc/dist/`. |
-| `npm run build:docs` | `docs` | Builds the production Astro documentation site into `docs/dist/` (and syncs bundle to `generated-docs/`). |
-| `npm run build:size` | `rapidoc` | Builds RapiDoc with `ANALYZE=true` and opens an interactive bundle visualizer (`dist/stats.html`). |
-
-#### Testing & Benchmarks
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run test:unit` | Monorepo | Runs Node.js native unit tests (`tests/unit/*.test.js`) for schema parsers and AST converters. |
-| `npm run test:perf` | Monorepo | Runs spec parsing, circular ref, and dereferencing benchmarks (`tests/perf/benchmark.js`). |
-| `npm run test:render` | Monorepo | Measures headless browser rendering performance across render styles using Puppeteer (`tests/perf/render-benchmark.js`). |
-
-#### Code Quality & Formatting
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run lint` | Monorepo | Runs oxlint (default rules, no config) across packages, docs, tests and scripts. |
-| `npm run format` | Monorepo | Checks formatting with oxfmt (default style, no config) across packages, docs, tests and scripts. |
-| `npm run format-fix` | Monorepo | Formats the same files with oxfmt. |
-
-#### Publishing
-| Command | Workspace | Description |
-|---|---|---|
-| `npm run publish:rapidoc` | `rapidoc` | Publishes the `rapidoc` package to the npm registry. |
-
----
-
-## Documentation Site & GitHub Pages Deployment
-
-The documentation site is built with modern **Astro** using clean, extensionless URLs (`/api`, `/examples`, `/list`, `/quickstart`).
-
-### Deployment via GitHub Actions
-When code is pushed to `master` or `main`, the [deploy-docs.yml](.github/workflows/deploy-docs.yml) GitHub Action automatically:
-1. Compiles the `rapidoc` library bundle (`packages/rapidoc/dist/rapidoc-min.js`).
-2. Builds the Astro documentation site into `docs/dist/` (`npm run build`).
-3. Deploys the static output directory (`docs/dist/`) directly to **GitHub Pages** using `@actions/deploy-pages`.
-
-> **Note on GitHub Pages Configuration:**
-> In repository settings under **Settings → Pages**, set **Source** to **GitHub Actions**. This keeps the repository clean by eliminating the need to commit compiled static HTML files into git branches.
-
----
-
-## Specs Organization
-
-OpenAPI specs are organized inside `docs/public/` based on their visibility and purpose:
-
-* **`docs/public/specs/`**: Public showcase specs referenced in [example-list.yaml](docs/src/data/example-list.yaml) and displayed on `rapidocui.com` (e.g., `petstore.yaml`, `code-highlight.yaml`, `auth.yaml`).
-* **`docs/public/specs-test/`**: Internal edge-case and boundary specs used for UI verification and regression tests (e.g., `circular-refs.yaml`, `xxx-of-combinations.yaml`).
-* **`docs/public/specs-test/parser/`**: Malformed or invalid specs used to test CLI validation and error reporting (e.g., `invalid-syntax.yaml`, `missing-info.yaml`, `broken-ref.yaml`).
-
----
-
-## Roadmap
-
-- [x] Modernize project dependencies (Vite + Astro + Node 22+)
-- [x] Restructure as a multi-package Monorepo
-- [ ] Build `rapidoc-cli` for OpenAPI linting and local zero-config previews
-- [ ] Build `rapidoc-portal`, a docs-as-code developer portal engine (Astro + Starlight)
-- [ ] Automated visual regression testing suite with Playwright
-- [ ] Web Content Accessibility Guidelines (WCAG 2.1) compliance enhancements
-
----
+This repository holds every package of the family, the four websites and their tests. How to set it up, build, test and release: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Sponsors
 
 - Hosting sponsored by [Simafri](https://www.simafri.com/en/managed-vps/) (managed VPS)
 - AI coding tools sponsored by [Anthropic](https://www.anthropic.com) (Claude)
-
----
 
 ## License
 

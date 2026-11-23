@@ -25,7 +25,7 @@ site:
 | :--- | :--- |
 | `title` | **Required.** The site name, in the browser tab and as the wordmark when there is no logo. |
 | `description` | Default meta description of the pages. |
-| `url` | Public URL of the portal. Canonical links and the sitemap need it: without it the pages have no canonical link, the build writes no sitemap, and it prints a note saying so. A path in it is where the portal is served; see [Serving under a path](#serving-under-a-path). `rapidoc serve` also uses it as the default external URL. |
+| `url` | Public URL of the portal. Canonical links and the sitemap need it: with it the build also writes a `robots.txt` that names the sitemap, so search engines and AI crawlers find every page (a `robots.txt` in your `public/` folder replaces it). Without it the pages have no canonical link, the build writes no sitemap, and it prints a note saying so. A path in it is where the portal is served; see [Serving under a path](#serving-under-a-path). `rapidoc serve` also uses it as the default external URL. |
 | `logo` | The header logo; see below. |
 | `favicon` | Icon in `public/`, e.g. `/favicon.svg`. |
 | `image` | Preview image for links shared in Slack, X or LinkedIn (`og:image`): a file in `public/` or a URL. A file needs `url`. 1200 × 630 works best. |

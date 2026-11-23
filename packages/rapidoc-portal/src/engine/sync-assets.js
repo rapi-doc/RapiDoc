@@ -170,13 +170,21 @@ export function copyRapidocBundle(publicDir) {
 }
 
 /**
- * With `site.noindex`, writes a public/robots.txt that keeps every crawler out, unless the project has its
- * own robots.txt.
+ * Writes public/robots.txt, unless the project has its own: with `site.noindex` it keeps every crawler out;
+ * with `site.url` it lets them in and names the sitemap, so search engines and AI crawlers find every page.
+ * Without either there is no sitemap to name, and no file.
  */
 export function writeRobotsTxt(portalConfig, publicDir) {
+  const { noindex, url } = portalConfig.site;
   const file = path.join(publicDir, "robots.txt");
-  if (portalConfig.site.noindex && !fs.existsSync(file))
+  if (fs.existsSync(file) || (!noindex && !url)) return;
+  fs.mkdirSync(publicDir, { recursive: true }); // a project without public/ has no folder yet
+  if (noindex) {
     fs.writeFileSync(file, "User-agent: *\nDisallow: /\n", "utf8");
+  } else if (url) {
+    const sitemap = new URL("sitemap-index.xml", `${url.replace(/\/+$/, "")}/`).href;
+    fs.writeFileSync(file, `User-agent: *\nAllow: /\n\nSitemap: ${sitemap}\n`, "utf8");
+  }
 }
 
 /**

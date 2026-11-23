@@ -79,3 +79,7 @@ The contract has a version of its own (`CONTRACT_VERSION`), which is not this pa
 - `@rapidoc/embed/conformance/`: the [contract and its fixtures](./conformance/README.md), for integrations written in other languages.
 
 Node.js 22.12 or later. MIT.
+
+---
+
+Part of the [RapiDoc family](https://rapidocui.com) of open-source tools for OpenAPI and Arazzo: [RapiDoc](https://rapidocui.com/rapidoc/) (`<rapi-doc>`), [RapiFlow](https://flow.rapidocui.com/), [RapiDoc Portal](https://portal.rapidocui.com/), [RapiMock](https://mock.rapidocui.com/), [RapiPdf](https://rapidocui.com/rapipdf/), the [RapiDoc CLI](https://rapidocui.com/cli/) and [integrations](https://rapidocui.com/integrations/) for Express, Fastify, Hono, FastAPI, ASP.NET Core, Go, Starlight, VitePress and Docusaurus.

@@ -2,6 +2,7 @@
 // The RapiDoc Portal feature page: what a portal is made of and how to start one. Its documentation is on
 // portal.rapidocui.com (sites/rapi-portal), which is itself built with it.
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { productPageData } from '../utils/structuredData';
 import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
@@ -57,6 +58,7 @@ const features = [
 ---
 
 <GlobalLayout
+  structuredData={productPageData('portal')}
   title="RapiDoc Portal: Developer Portals from OpenAPI | RapiDoc"
   description="RapiDoc Portal turns OpenAPI specs and Markdown guides into a developer portal: docs as code, static output, search, and optional single sign-on (SSO)."
   keywords="RapiDoc Portal, developer portal, API portal, docs as code, OpenAPI, API catalog, SSO, static site"

@@ -3,7 +3,7 @@
 site:
   title: RapiDoc
   url: https://rapidocui.com
-  description: A web component for viewing OpenAPI 3.0, 3.1 and Swagger specifications, with an interactive console.
+  description: The RapiDoc family turns an OpenAPI spec into an interactive API reference, embedded endpoints, a PDF, a mock server and a developer portal, and draws and runs the workflows of an Arazzo spec.
   favicon: /favicon.svg
   logo:
     src:
@@ -271,3 +271,8 @@ navigation:
           - { slug: integrations/go, label: "Go" }
       - { slug: integrations/docs-sites, label: "Documentation Sites" }
       - { slug: integrations/build-your-own, label: "Build an Integration" }
+
+llms:
+  # The introduction of /llms.txt: this site, then the whole family, so AI agents find the other sites
+  description: >-
+    RapiDoc turns an OpenAPI spec into an interactive API reference, embedded endpoints, a PDF, a mock server and a developer portal, and draws and runs the workflows of an Arazzo spec. It is a family of open-source (MIT) tools for OpenAPI and Arazzo, each with its own llms.txt: RapiDoc, the <rapi-doc> web component for interactive API references with Try, an in-browser mock and MCP server export (https://rapidocui.com/llms.txt); RapiDoc Portal, a docs-as-code developer portal built from OpenAPI specs and Markdown guides, with single sign-on and access rules (https://portal.rapidocui.com/llms.txt); RapiMock, a stateful mock server with request validation and token checks (https://mock.rapidocui.com/llms.txt); RapiFlow, the <rapi-flow> web component that draws Arazzo workflows and runs them in the browser (https://flow.rapidocui.com/llms.txt); plus RapiDoc Mini, RapiPdf (OpenAPI to PDF), the RapiDoc CLI (lint, validate, bundle, mock, MCP) and RapiDoc for Express, Fastify, Hono, FastAPI, Starlight, VitePress, Docusaurus and ASP.NET Core.

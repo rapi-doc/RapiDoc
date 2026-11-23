@@ -3,6 +3,7 @@
 // (the element, rapipdf/node and `rapidoc pdf`). The demo's element is bundled from
 // packages/rapipdf/src (the `rapipdf` alias in astro.config.mjs).
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { productPageData } from '../utils/structuredData';
 import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
@@ -63,6 +64,7 @@ const contents = [
 ---
 
 <GlobalLayout
+  structuredData={productPageData('rapipdf')}
   title="RapiPdf: Turn an OpenAPI Spec into a PDF | RapiDoc"
   description="<rapi-pdf> turns an OpenAPI 3.x or Swagger 2.0 spec into a PDF in the browser; rapipdf/node and rapidoc pdf make the same PDF in Node and on the command line."
   keywords="RapiPdf, rapi-pdf, OpenAPI PDF, Swagger PDF, API documentation PDF, openapi to pdf"

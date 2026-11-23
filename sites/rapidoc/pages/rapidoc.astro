@@ -1,5 +1,6 @@
 ---
 import GlobalLayout from '../layouts/GlobalLayout.astro';
+import { productPageData } from '../utils/structuredData';
 import { Code } from 'astro:components';
 import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -190,6 +191,7 @@ const compareProducts = [
 ---
 
 <GlobalLayout
+  structuredData={productPageData('rapidoc')}
   title="RapiDoc: Interactive API Reference from OpenAPI | RapiDoc"
   description="Generate beautiful, interactive, and customizable API documentation from OpenAPI 3.0 & 3.1 and Swagger specs with zero build steps using native Web Components."
   keywords="OpenAPI, Swagger, API documentation, Web Component, OpenAPI 3.1, REST API, API Console, RapiDoc, API Explorer"

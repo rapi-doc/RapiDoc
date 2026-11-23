@@ -16,19 +16,22 @@ interface Props {
   noindex?: boolean;
   /** Loads Prism, which highlights <code class="language-*"> blocks on the page. */
   prism?: boolean;
+  /** schema.org JSON-LD for the page (utils/structuredData.ts), for search engines and AI agents */
+  structuredData?: object;
 }
 
 const {
   title,
   gaTitle,
   contentGroup,
-  description = 'RapiDoc is a modern, fast, and customizable web component for viewing OpenAPI 3.0 & 3.1 and Swagger API specifications with an interactive console.',
+  description = 'The RapiDoc family turns an OpenAPI spec into an interactive API reference, embedded endpoints, a PDF, a mock server and a developer portal, and draws and runs the workflows of an Arazzo spec.',
   keywords = 'OpenAPI, Swagger, API documentation, Web Component, OpenAPI 3.1, REST API, API Console, RapiDoc',
   image = '/assets/images/rapidoc-leaves.png',
   imageLarge = false,
   canonicalUrl,
   noindex = false,
   prism = false,
+  structuredData,
 } = Astro.props;
 
 // Compute hierarchical page title info for SEO and Google Analytics
@@ -102,6 +105,8 @@ const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.start
         <script is:inline src="/assets/prismjs/prism.js"></script>
       </>
     )}
+
+    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
 
     <slot name="head" />
     <GoogleAnalytics title={effectiveGaTitle} contentGroup={effectiveContentGroup} />

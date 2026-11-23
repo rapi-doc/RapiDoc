@@ -28,7 +28,7 @@ One file, from a CDN or your own server:
 
 ```html
 <script src="https://unpkg.com/rapipdf/dist/rapipdf-min.js"></script>
-<rapi-pdf spec-url="https://petstore.swagger.io/v2/swagger.json"></rapi-pdf>
+<rapi-pdf spec-url="https://petstore3.swagger.io/api/v3/openapi.json"></rapi-pdf>
 ```
 
 With a bundler, `import "rapipdf"` registers the element. This build is a few kilobytes and fetches the PDF generator the first time a PDF is asked for.
@@ -85,3 +85,7 @@ npm run test:rapipdf
 # development page on a Vite dev server
 npm run dev --workspace=rapipdf
 ```
+
+---
+
+Part of the [RapiDoc family](https://rapidocui.com) of open-source tools for OpenAPI and Arazzo: [RapiDoc](https://rapidocui.com/rapidoc/) (`<rapi-doc>`), [RapiFlow](https://flow.rapidocui.com/), [RapiDoc Portal](https://portal.rapidocui.com/), [RapiMock](https://mock.rapidocui.com/), [RapiPdf](https://rapidocui.com/rapipdf/), the [RapiDoc CLI](https://rapidocui.com/cli/) and [integrations](https://rapidocui.com/integrations/) for Express, Fastify, Hono, FastAPI, ASP.NET Core, Go, Starlight, VitePress and Docusaurus.

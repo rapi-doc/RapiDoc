@@ -31,7 +31,10 @@ describe("E2E: <rapi-doc> 15 element API", () => {
         new Promise((resolve, reject) => {
           const doc = document.getElementById("thedoc");
           // fail, never hang, when no event comes
-          const timer = setTimeout(() => reject(new Error(`no nav-active-change after ${source}`)), 5000);
+          const timer = setTimeout(
+            () => reject(new Error(`no nav-active-change after ${source}`)),
+            5000,
+          );
           doc.addEventListener(
             "nav-active-change",
             (e) => {

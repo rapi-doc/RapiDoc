@@ -1,35 +1,50 @@
-## Pull Request Guidelines
+# Contributing to RapiDoc
 
-- Fork this repository to your own account. Do not create branches here.
-- **DO NOT** include files inside `dist` directory.
-- Rebase before creating a PR to keep commit history clear.
-- Make sure that running `yarn build` output do not emit any warnings or errors
+This repository is an npm workspaces monorepo: every package of the RapiDoc family, the four websites built from them, and their tests. [`AGENTS.md`](AGENTS.md) is the full guide, for people and coding agents alike: package boundaries, every command, conventions and the release process. Each package has its own `AGENTS.md` too.
 
-### When adding/modifying/renaming any attribute method or event 
-  **MUST HAVE**
-  - Must be supported with an issue and provide little description about it, including the name, allowed values, defaults etc
-  - Add relevant documentation in `./docs/api.html`
-  
-  **NICE TO HAVE**
-  - If adding new dependency, be considerate of the bundle size since we bundle everything in a single file (`rapidoc-min.js`), like to keep its size down
-  - It is a good idea to show case it using an example  
-    - examples go under `./docs/examples` folder
-    - if your example is using a new spec then add in `./docs/specs` folder
-    - include a reference to the example  in `./docs/list.html` file
+## Set up
 
-## Prerequisites
-`Node 10.15.3+` and `yarn 1.22.4+` and `npm 6.14.4+` are required. Note: we use yarn to lock dependency versions, so you should install dependencies using `yarn` instead of `npm`.
+Node.js 22.12 or later.
 
-For development 
-```shell
+```bash
 git clone https://github.com/rapi-doc/RapiDoc.git
-yarn install
-yarn serve
-# open http://localhost:8080
+cd RapiDoc
+npm install
 ```
 
-To Generate Production bundle:
-```shell
-yarn build
-# yarn build_windows (if you use windows)
+## Where things are
+
+```text
+packages/        every npm package: rapidoc (the web components), the CLI, portal, server, mock,
+                 prerender, mcp, rapipdf, create-rapidoc, @rapidoc/embed and the integrations
+integrations/    RapiDoc for Python (FastAPI, Starlette) and ASP.NET Core, each with its own toolchain
+sites/           rapidocui.com (sites/rapidoc) and the RapiFlow, RapiMock and RapiDoc Portal sites,
+                 each built with RapiDoc Portal from this repository
+tests/           unit, component, end-to-end and performance tests of the core
+brand/           logos and product names
 ```
+
+## Work on it
+
+| Command | What it does |
+| :-- | :-- |
+| `npm run dev` | The four sites' dev servers (rapidocui.com on http://localhost:4329) |
+| `npm run build:rapidoc` | Builds `rapidoc-min.js` and `rapidoc-flow-min.js`; the sites and the portal load these |
+| `npm run build:prerender`, `npm run build:mcp` | Rebuild `@rapidoc/prerender` and `@rapidoc/mcp` after changing the core's templates or MCP code |
+| `npm run test:unit` | Unit tests of the core |
+| `npm run test:portal` | Portal, CLI, server, mock, `create-rapidoc`, embed and integration tests |
+| `npm run test:all` | Unit, component and end-to-end tests |
+| `npm run lint`, `npm run format-fix` | oxlint and oxfmt, with their defaults |
+
+The full tables are in [`AGENTS.md`](AGENTS.md#3-build-dev-and-test-commands).
+
+## Pull requests
+
+- Work in a fork of this repository; don't create branches here. Rebase on `master` before you open the pull request.
+- A new or changed attribute, method or event starts with an issue: its name, allowed values and default. Its documentation is the doc comment in the element's source (see [`packages/rapidoc/AGENTS.md`](packages/rapidoc/AGENTS.md)). Mind the bundle size: everything is bundled into `rapidoc-min.js`.
+- Run `npm run test:unit`, `npm run lint` and `npm run format-fix` before you open one, and `npm run test:portal` after changing the portal, CLI, server or mock.
+- A change to a published package adds a changeset: `npm run changeset`, with one changelog line in the user's terms.
+- Don't commit build output (`dist/` folders).
+- Name the products as [`brand/README.md`](brand/README.md) sets out: RapiDoc, RapiDoc Mini, RapiFlow, RapiPdf, RapiMock, RapiDoc Portal, RapiDoc CLI.
+
+Releases go through Changesets and the release workflow, never `npm publish` by hand: [`AGENTS.md` §6](AGENTS.md#6-releasing-changesets).

@@ -47,8 +47,8 @@ Include the script in your HTML page and use the `<rapi-doc>` custom element:
 </head>
 <body>
   <rapi-doc
-    spec-url="https://petstore.swagger.io/v2/swagger.json"
-    theme="dark"
+    spec-url="https://petstore3.swagger.io/api/v3/openapi.json"
+    color-scheme="dark"
     render-style="read"
   ></rapi-doc>
 </body>
@@ -324,3 +324,7 @@ any change under `src/`, run `npm run build:rapidoc`; never restore `dist/rapido
 ## License
 
 MIT © [Mrinmoy Majumdar](https://github.com/mrin9)
+
+---
+
+Part of the [RapiDoc family](https://rapidocui.com) of open-source tools for OpenAPI and Arazzo: [RapiDoc](https://rapidocui.com/rapidoc/) (`<rapi-doc>`), [RapiFlow](https://flow.rapidocui.com/), [RapiDoc Portal](https://portal.rapidocui.com/), [RapiMock](https://mock.rapidocui.com/), [RapiPdf](https://rapidocui.com/rapipdf/), the [RapiDoc CLI](https://rapidocui.com/cli/) and [integrations](https://rapidocui.com/integrations/) for Express, Fastify, Hono, FastAPI, ASP.NET Core, Go, Starlight, VitePress and Docusaurus.

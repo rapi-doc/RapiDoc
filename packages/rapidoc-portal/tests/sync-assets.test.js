@@ -3,7 +3,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { isSourceCheckout, newestSourceMtimeMs } from "../src/engine/sync-assets.js";
+import {
+  isSourceCheckout,
+  newestSourceMtimeMs,
+  writeRobotsTxt,
+} from "../src/engine/sync-assets.js";
 
 describe("RapiDoc bundle freshness", () => {
   it("ignores dotfiles and dot-folders when finding the newest source file", () => {
@@ -52,5 +56,45 @@ describe("RapiDoc bundle freshness", () => {
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("robots.txt", () => {
+  const robots = (site, existing) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-robots-"));
+    try {
+      if (existing) fs.writeFileSync(path.join(dir, "robots.txt"), existing);
+      writeRobotsTxt({ site }, dir);
+      const file = path.join(dir, "robots.txt");
+      return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  };
+
+  it("names the sitemap when the site has a URL", () => {
+    assert.equal(
+      robots({ url: "https://docs.example.com" }),
+      "User-agent: *\nAllow: /\n\nSitemap: https://docs.example.com/sitemap-index.xml\n",
+    );
+  });
+
+  it("puts the sitemap under the base path of site.url", () => {
+    assert.match(
+      robots({ url: "https://example.com/docs/" }),
+      /^Sitemap: https:\/\/example\.com\/docs\/sitemap-index\.xml$/m,
+    );
+  });
+
+  it("keeps crawlers out with noindex, and writes nothing without a URL", () => {
+    assert.equal(
+      robots({ url: "https://example.com", noindex: true }),
+      "User-agent: *\nDisallow: /\n",
+    );
+    assert.equal(robots({}), null);
+  });
+
+  it("keeps the project's own robots.txt", () => {
+    assert.equal(robots({ url: "https://example.com" }, "User-agent: *\n"), "User-agent: *\n");
   });
 });
