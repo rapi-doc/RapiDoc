@@ -319,7 +319,7 @@ export default css`
     width: 100%;
     min-width: 0;
     border: none;
-    border-radius: calc(var(--radius) * 2);
+    border-radius: var(--radius);
     color: var(--sidebar-foreground);
     background: transparent;
     font-weight: 400;
@@ -424,7 +424,7 @@ export default css`
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: calc(var(--radius) * 1.5);
+    border-radius: var(--radius);
     color: color-mix(in srgb, var(--sidebar-foreground) 60%, transparent);
     cursor: pointer;
     user-select: none;
