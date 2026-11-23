@@ -14,6 +14,8 @@
   --portal-fg: #cbd5e1;
   --portal-heading: #f1f5f9;
   --portal-muted: #94a3b8;
+  /* The sidebars' group headings, a step fainter than the links: 4.6:1 on the navy */
+  --portal-sidebar-label: #6b7a90;
   --portal-border: rgba(255, 255, 255, 0.1);
   --portal-border-subtle: rgba(255, 255, 255, 0.06);
   --portal-header-border: rgba(255, 255, 255, 0.08);
