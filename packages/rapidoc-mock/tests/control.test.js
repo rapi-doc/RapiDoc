@@ -1,6 +1,8 @@
 // The control API under /__mock: health, and the stored records of the stateful mode.
 import { before, describe, it } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { createMockApp } from "../src/index.js";
 import { FIXTURES, quiet } from "./helpers.js";
@@ -426,6 +428,18 @@ describe("/__mock with --stateful", () => {
     assert.equal((await withLint("POST", "/__mock/lint/pc")).status, 405);
   });
 
+  it("answers 400 for a path with a percent-escape that can't be decoded", async () => {
+    const bad = await call("GET", "/__mock/state/%E0%A4%A");
+    assert.equal(bad.status, 400);
+    assert.match(bad.body.detail, /percent-escape/);
+    assert.equal((await call("GET", "/__mock/%")).status, 400);
+    assert.equal(
+      (await call("GET", "/__mock/state/pc/Owner/%33")).status,
+      200,
+      "a good one is read",
+    );
+  });
+
   it("names the method an endpoint takes, and the endpoints there are", async () => {
     assert.equal((await call("GET", "/__mock/reset")).status, 405);
     assert.equal((await call("POST", "/__mock/state")).status, 405);
@@ -533,6 +547,76 @@ describe("POST /__mock/apis: a spec imported while the mock runs", () => {
         (await send("POST", "/__mock/apis", { text: tiny("Local") }, from(address))).status,
         201,
       );
+    }
+  });
+});
+
+describe("POST /__mock/apis: who may import, and what an imported spec may read", () => {
+  const local = { incoming: { socket: { remoteAddress: "127.0.0.1" } } };
+  const tiny =
+    "openapi: 3.1.0\ninfo: { title: Tiny, version: 1.0.0 }\npaths:\n  /ping:\n    get:\n      responses:\n        '200': { description: OK }\n";
+  let app;
+  const post = (url, headers, body = { text: tiny }) =>
+    app.request(
+      url,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", ...headers },
+        body: JSON.stringify(body),
+      },
+      local,
+    );
+
+  before(async () => {
+    ({ app } = await createMockApp({ apis: [spec("pc", "petclinic.yaml")], ...quiet }));
+  });
+
+  it("refuses a web page of another site, though the browser runs on this machine", async () => {
+    const url = "http://localhost:4010/__mock/apis";
+    for (const headers of [
+      { origin: "https://evil.example" },
+      { origin: "http://localhost:3000" },
+      { origin: "null" },
+      { "sec-fetch-site": "cross-site" },
+      { "sec-fetch-site": "same-site" },
+    ]) {
+      assert.equal((await post(url, headers)).status, 403, JSON.stringify(headers));
+    }
+    // the mock's own page, and a program (no browser headers)
+    assert.equal((await post(url, { origin: "http://localhost:4010" })).status, 201);
+    assert.equal((await post(url, { "sec-fetch-site": "same-origin" })).status, 201);
+    assert.equal((await post(url, {})).status, 201);
+  });
+
+  it("refuses what came through a proxy or was sent to another name", async () => {
+    for (const headers of [
+      { "x-forwarded-for": "203.0.113.9" },
+      { forwarded: "for=203.0.113.9" },
+      { "x-real-ip": "203.0.113.9" },
+    ]) {
+      const refused = await post("http://localhost:4010/__mock/apis", headers);
+      assert.equal(refused.status, 403, JSON.stringify(headers));
+    }
+    assert.equal((await post("http://mock.example.com/__mock/apis", {})).status, 403);
+    assert.equal((await post("http://127.0.0.1:4010/__mock/apis", {})).status, 201);
+  });
+
+  it("does not let an imported spec read another file of this machine", async () => {
+    const folder = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-mock-secret-"));
+    try {
+      const secret = path.join(folder, "secret.yaml");
+      fs.writeFileSync(secret, "password: hunter2\n");
+      const text = `openapi: 3.1.0\ninfo: { title: Leak, version: 1.0.0 }\npaths:\n  /leak:\n    get:\n      responses:\n        '200':\n          description: OK\n          content:\n            application/json:\n              example:\n                $ref: '${secret}'\n`;
+      const refused = await post(
+        "http://localhost:4010/__mock/apis",
+        {},
+        { text, name: "leak.yaml" },
+      );
+      assert.equal(refused.status, 400);
+      assert.ok(!(await refused.text()).includes("hunter2"));
+      assert.equal((await app.request("/leak/leak", {}, local)).status, 404);
+    } finally {
+      fs.rmSync(folder, { recursive: true, force: true });
     }
   });
 });

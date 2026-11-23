@@ -11,7 +11,7 @@
  * validation, no token checks): that is the server's work. Nothing here may import a Node module, hono or
  * openapi-backend: this file is bundled for a browser (the RapiMock site's spec check).
  */
-import { control } from "./control.js";
+import { badPath, control, segmentsOf } from "./control.js";
 import { createResponder } from "./responses.js";
 import { createRuntime } from "./runtime.js";
 import { listOperations } from "./spec.js";
@@ -60,20 +60,23 @@ export async function createBrowserMock(
   /** The control API as a function: what `<rapidoc-mock-ui>` takes as its `source`. */
   async function source({ method = "GET", path, body, session }) {
     const url = new URL(path, "http://mock.invalid");
-    const response = await control(
-      {
-        method,
-        segments: url.pathname.split("/").filter(Boolean).map(decodeURIComponent),
-        query: url.searchParams,
-        session,
-        body: async () => {
-          if (body === undefined) throw new Error("no body");
-          return body;
-        },
-      },
-      apis,
-      runtime,
-    );
+    const segments = segmentsOf(url.pathname);
+    const response = !segments
+      ? badPath()
+      : await control(
+          {
+            method,
+            segments,
+            query: url.searchParams,
+            session,
+            body: async () => {
+              if (body === undefined) throw new Error("no body");
+              return body;
+            },
+          },
+          apis,
+          runtime,
+        );
     return { status: response.status, data: response.body ? JSON.parse(response.body) : null };
   }
 

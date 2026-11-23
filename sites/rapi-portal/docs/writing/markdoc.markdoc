@@ -23,12 +23,12 @@ Sandbox keys start with `sk_test_`.
 
 ````markdoc
 {% tabs %}
-{% tab name="npm" %}
+{% tab label="npm" %}
 ```bash
 npm install @acme/sdk
 ```
 {% /tab %}
-{% tab name="pnpm" %}
+{% tab label="pnpm" %}
 ```bash
 pnpm add @acme/sdk
 ```
@@ -37,17 +37,19 @@ pnpm add @acme/sdk
 ````
 
 {% tabs %}
-{% tab name="npm" %}
+{% tab label="npm" %}
 ```bash
 npm install @acme/sdk
 ```
 {% /tab %}
-{% tab name="pnpm" %}
+{% tab label="pnpm" %}
 ```bash
 pnpm add @acme/sdk
 ```
 {% /tab %}
 {% /tabs %}
+
+`label` is the tab's name, and is required.
 
 ## Steps
 
@@ -93,7 +95,7 @@ See a reference page.
 {% /card %}
 {% /card-grid %}
 
-`columns` defaults to 3. `href` makes the whole card a link; `icon` is a Phosphor icon name.
+`columns` is how many cards go side by side on a wide screen: 1 to 4, default 3. On a narrow screen the cards stack. `href` makes the whole card a link; `icon` is a Phosphor icon name.
 
 ## Badge
 
@@ -106,22 +108,22 @@ Webhooks {% badge text="Beta" variant="caution" /%}
 ## API operation
 
 ```markdoc
-{% api-operation spec="bookstore" path="/books/{bookId}" method="get" /%}
+{% api-operation api="bookstore" path="/books/{bookId}" method="get" /%}
 ```
 
-{% api-operation spec="bookstore" path="/books/{bookId}" method="get" /%}
+{% api-operation api="bookstore" path="/books/{bookId}" method="get" /%}
 
 Embeds one live operation from an API in `apis:`. See [Embedding operations](/docs/writing/embedding-operations/).
 
 ## Workflow
 
 ```markdoc
-{% workflow file="bookstore" id="findBook" title="Find a book" /%}
+{% workflow document="bookstore" id="findBook" title="Find a book" /%}
 ```
 
-{% workflow file="bookstore" id="findBook" title="Find a book" /%}
+{% workflow document="bookstore" id="findBook" title="Find a book" /%}
 
-Draws one workflow of a file in [`workflows:`](/docs/configuration/workflows/): `file` is the entry's id, `id` the `workflowId` in the file (default: its first workflow), `view` is `expanded` (the default) or `compact`, and `title` a caption. The tag shows the workflow runner: the diagram with a panel for the inputs and credentials, and **Run workflow** executes the steps from the browser. The same diagram is also generated at build time, so it shows while the runner loads and without JavaScript.
+Draws one workflow of an Arazzo document in [`workflows:`](/docs/configuration/workflows/): `document` is the entry's id, `id` the `workflowId` in the file (default: its first workflow), `view` is `expanded` (the default) or `compact`, and `title` a caption. The tag shows the workflow runner: the diagram with a panel for the inputs and credentials, and **Run workflow** executes the steps from the browser. The same diagram is also generated at build time, so it shows while the runner loads and without JavaScript.
 
 ## More tags
 

@@ -5,7 +5,6 @@ export {
   HeaderLinkSchema,
   ApiSchema,
 } from "./schema.js";
-export { normalizeConfig, checkReferences } from "./normalizer.js";
 export { ConfigError } from "./errors.js";
 export { loadConfig, resolveConfig, findConfigFile, CONFIG_CANDIDATES } from "./loader.js";
 export {

@@ -8,8 +8,7 @@ properties, and string transforms that reuse the same CSS outside a shadow root.
 
 - `theme-tokens.js` defines the custom properties (shadcn/ui names such as `--background`,
   `--primary`, `--radius`; `--sidebar-*` for navigation; `--h1-font-size`… and `--heading-*`) and
-  switches them on host attributes (`theme`, `color-scheme`, `radius`, `scale`,
-  `nav-item-spacing`). The other stylesheets read those tokens and style component class names.
+  switches them on host attributes (`theme`, `color-scheme`, `radius`, `scale`). The other stylesheets read those tokens and style component class names.
 - `css-bundle.js` composes every stylesheet into `allStyles` and rewrites `:host` selectors for
   Light DOM use.
 
@@ -87,12 +86,16 @@ rule 6).
   `readableAccent` when the stylesheet is built (`withPrimaryText`); a hex theme gets them inline.
 - The `:host(...)` selector shapes written by `presetCss` and the color-scheme block are exactly
   what `getThemeTokensCss` and `getNavCss` match with regular expressions; change both together.
-  `getThemeTokensCss` rewrites only `theme` / `color-scheme` rules, so the `radius`, `scale` and
-  `nav-item-spacing` rules come out as unusable `<scope>([...])` selectors.
+  `getThemeTokensCss` rewrites only `theme` / `color-scheme` rules, so the `radius` and `scale`
+  rules come out as unusable `<scope>([...])` selectors.
 - `ThemeTokens` is first in `allStyles` and in both components' `static get styles()`.
   `CustomStyles` is last in `allStyles` and in `rapidoc.ts`; `rapidoc-mini.ts` does not load it
   and ends with its own inline `css` block.
 - Lit templates are not reformatted by oxfmt; keep the CSS text inside `css` templates as written.
+- `nav-styles.js` is direction-neutral: logical properties (`inline-start` / `inline-end`) for the
+  sidebar's border, paddings, icons and menu button, and `:dir(rtl)` rules for what has no logical
+  form (the collapsed arrow, the slide-over's shadow and slide). It styles `page-direction="rtl"`
+  and a static sidebar on a right-to-left page alike.
 
 ## Side Effects
 

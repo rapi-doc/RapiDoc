@@ -5,13 +5,13 @@ import fs from "node:fs";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
 
+import { getNavBarHtml } from "@rapidoc/prerender";
 import {
   stripMarkup,
   extractDocSections,
   extractPageRecords,
   indexOpenApiSpec,
   buildSearchIndex,
-  searchRecords,
 } from "../src/search/indexer.js";
 import { loadConfig } from "../src/config/loader.js";
 import { buildPortal } from "../src/index.js";
@@ -82,7 +82,70 @@ Content under subsection.`;
     assert.strictEqual(createOrder.type, "api");
     assert.strictEqual(createOrder.title, "Create an order");
     assert.strictEqual(createOrder.category, "BrewCraft Orders API");
-    assert.strictEqual(createOrder.url, "/apis/orders#createOrder");
+    assert.strictEqual(
+      createOrder.url,
+      "/apis/orders/orders#create-order",
+      "the tag's page and the operation's anchor, as the API sidebar links it",
+    );
+  });
+
+  await t.test("indexOpenApiSpec links operations as the API sidebar does", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-search-links-"));
+    const operation = (operationId, tags, extra = {}) => ({ operationId, tags, ...extra });
+    const spec = (extra = {}) => ({
+      openapi: "3.1.0",
+      info: { title: "Links", version: "1" },
+      tags: [{ name: "Order Items" }, { name: "Secret", "x-internal": true }],
+      paths: {
+        "/items": {
+          get: operation("listItems", ["Order Items"], { summary: "List items" }),
+          post: operation("createItem", ["Order Items", "Admin"]),
+        },
+        "/items/{id}": {
+          get: operation("getItem", ["Admin"], { summary: "Get an item" }),
+          delete: operation("deleteItem", ["Order Items"], { "x-internal": true }),
+          patch: operation("patchItem", ["Order Items"], { "x-hidden": true }),
+        },
+        "/hidden-path": { "x-hidden": true, get: operation("hiddenPath", ["Admin"]) },
+        "/secret": { get: operation("secretThing", ["Secret"]) },
+        "/items/{id}/parts": { get: { summary: "List parts", tags: ["Order Items"] } },
+        "/ping": { get: { summary: "Ping the API" } },
+      },
+      ...extra,
+    });
+    try {
+      for (const [name, document] of [
+        ["flat", spec()],
+        ["grouped", spec({ "x-tagGroups": [{ name: "All", tags: ["Order Items", "Admin"] }] })],
+      ]) {
+        const fullPath = path.join(dir, `${name}.json`);
+        fs.writeFileSync(fullPath, JSON.stringify(document));
+        const records = indexOpenApiSpec({
+          id: name,
+          title: name,
+          path: `/apis/${name}`,
+          fullPath,
+        });
+        assert.deepEqual(
+          records.map((r) => r.subtitle),
+          ["GET /items", "POST /items", "GET /items/{id}", "GET /items/{id}/parts", "GET /ping"],
+          `${name}: x-internal and x-hidden operations, paths and tags are left out`,
+        );
+        // Every record's URL is a link of the sidebar the API pages show
+        const sidebar = await getNavBarHtml(fullPath, {
+          basePath: `/apis/${name}`,
+          routingMode: "tag-pages",
+        });
+        const hrefs = new Set([...sidebar.matchAll(/href="([^"]+)"/g)].map((m) => m[1]));
+        for (const record of records) {
+          assert.ok(hrefs.has(record.url), `${name}: ${record.url} is a sidebar link`);
+        }
+        assert.equal(records[0].url, `/apis/${name}/order-items#list-items`);
+        assert.equal(records[4].url, `/apis/${name}#ping-the-api`, "untagged: the API's own page");
+      }
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   await t.test(
@@ -98,22 +161,11 @@ Content under subsection.`;
       const index = buildSearchIndex(config, DEMO_PORTAL_DIR, docFiles);
       assert.ok(index.totalRecords > 15, "Index should contain doc and API records");
 
-      // Test in-memory search
-      const bookingResults = searchRecords(index.records, "booking");
-      assert.ok(bookingResults.length > 0, 'Searching for "booking" should yield results');
-
-      // Test filter 'doc'
-      const docResults = searchRecords(index.records, "container", { filter: "doc" });
+      const types = new Set(index.records.map((record) => record.type));
+      assert.deepEqual([...types].sort(), ["api", "doc"]);
       assert.ok(
-        docResults.every((r) => r.type === "doc"),
-        "All results should be type doc",
-      );
-
-      // Test filter 'api'
-      const apiResults = searchRecords(index.records, "containers", { filter: "api" });
-      assert.ok(
-        apiResults.every((r) => r.type === "api"),
-        "All results should be type api",
+        index.records.some((record) => record.type === "api" && /book/i.test(record.title)),
+        "an operation about booking is in the index",
       );
     },
   );
@@ -209,25 +261,6 @@ Content under subsection.`;
     assert.deepEqual(extractPageRecords(html, "/hidden"), []);
   });
 
-  await t.test("finds a hyphenated name by its plain spelling, and the other way round", () => {
-    const records = [
-      {
-        type: "page",
-        title: "<rapi-doc-mini> API Reference",
-        url: "/api/rapi-doc-mini",
-        content: "",
-      },
-      { type: "doc", title: "RapiDoc Mini", url: "/docs/rapidoc-mini", content: "Embed endpoints" },
-      { type: "doc", title: "Theming", url: "/docs/theming", content: "Colors and fonts" },
-    ];
-    const urls = (query) => searchRecords(records, query).map((record) => record.url);
-    // Every word of the query must be found, in any order and any field
-    assert.deepEqual(urls("rapidoc mini reference"), ["/api/rapi-doc-mini"]);
-    assert.deepEqual(urls("mini rapidoc").sort(), ["/api/rapi-doc-mini", "/docs/rapidoc-mini"]);
-    assert.deepEqual(urls("rapi-doc").sort(), ["/api/rapi-doc-mini", "/docs/rapidoc-mini"]);
-    assert.deepEqual(urls("rapidoc theming"), []);
-  });
-
   await t.test("labels a docs result with the navigation tab its page is in", () => {
     const docsDir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-search-tabs-"));
     try {
@@ -260,11 +293,6 @@ Content under subsection.`;
       assert.equal(labelOf("/docs/sdk/node"), "SDKs");
       // A page no tab lists keeps the plain label
       assert.equal(labelOf("/docs/loose"), "Documentation");
-      // The label is searched too: the tab's name finds its pages
-      assert.deepEqual(
-        searchRecords(records, "sdks").map((record) => record.url),
-        ["/docs/sdk/node", "/docs/sdk/node#setup"],
-      );
     } finally {
       fs.rmSync(docsDir, { recursive: true, force: true });
     }

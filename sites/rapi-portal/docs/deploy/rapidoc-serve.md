@@ -36,15 +36,19 @@ A new release of the portal is a new build: build it in CI, ship `dist/` in the 
 | :--- | :--- | :--- |
 | `RAPIDOC_SESSION_SECRET` | with `auth` | Encrypts the session cookie. 32 or more characters, the same on every instance. Changing it signs everyone out. |
 | `RAPIDOC_AUTH_CLIENT_SECRET` | confidential clients | Leave unset for a public client (PKCE only). |
-| `RAPIDOC_PUBLIC_URL` | recommended | The portal's external URL: the redirect URL, and whether cookies are `Secure`. Default `site.url`, else the request's host. |
+| `RAPIDOC_PUBLIC_URL` | with `auth`, unless `site.url` is set | The portal's external URL: the redirect URL, and whether cookies are `Secure`. Default `site.url`. A portal with sign-in and neither answers only requests to `localhost` (a local run); any other address gets a 500 that says what to set. |
+| `RAPIDOC_FRAME_ANCESTORS` | no | Which sites may show the portal in a frame: the sources of a CSP `frame-ancestors` directive, such as `'self' https://intranet.acme.com`, or `*` for any site. Default `'self'` for a portal with sign-in, so no other site can frame a signed-in reader's pages; any site for a portal without. |
 | `RAPIDOC_AUTH_ISSUER`, `RAPIDOC_AUTH_CLIENT_ID`, `RAPIDOC_AUTH_AUDIENCE` | no | Override `auth.issuer`, `auth.clientId`, `auth.audience`. |
 | `RAPIDOC_MOUNT_PATH` | no | Path requests arrive under, when a proxy strips part of the portal's path. `--mount-path` wins. Default: the path of `site.url`. |
 | `RAPIDOC_MCP` | no | `off` turns off the [MCP endpoint](/docs/tools/mcp-server/): no `/mcp`, no agent tokens, and no "connect an AI agent" section in the user menu. Default `on`. Any other value stops the server. |
 | `PORT`, `HOST` | no | Default `8080` and `0.0.0.0`. `--port` and `--host` win. |
-| `<SCHEME>`, `API_KEY` | no | API keys and HTTP Basic credentials for `/mcp` tool calls, named by the spec's security scheme id. See [MCP server for agents](/docs/tools/mcp-server/#credentials-of-other-kinds). |
-| `EXTERNAL_HOSTS` | no | Hosts, comma-separated (`*` for any), that a workflow step's `x-operation` URL computed at run time may call from `/mcp`, besides the hosts the workflow names (its APIs' servers and URLs written out in its steps). |
+| `MCP_AUTH_<SCHEME>` | no | API keys for `/mcp` tool calls; `<SCHEME>` is the spec's security scheme id in upper snake case. HTTP Basic takes `MCP_AUTH_<SCHEME>_USERNAME` and `MCP_AUTH_<SCHEME>_PASSWORD`. See [MCP server for agents](/docs/tools/mcp-server/#credentials-of-other-kinds). |
+| `MCP_BASE_URL_<API ID>` | no | Where `/mcp` tool calls to an API go, instead of its spec's server (`MCP_BASE_URL` when the portal has one API). Needed when the spec names no full server URL. See [Where the API is](/docs/tools/mcp-server/#where-the-api-is). |
+| `MCP_EXTERNAL_HOSTS` | no | Hosts, comma-separated (`*` for any), that a workflow step's `x-operation` URL computed at run time may call from `/mcp`, besides the hosts the workflow names (its APIs' servers and URLs written out in its steps). |
 
-The server refuses to start, with the reason, when a required value is missing or the provider can't be discovered.
+The server refuses to start, with the reason, when a required value is missing or the sign-in settings are wrong: the issuer answers with a 4xx status, or its discovery document is another issuer's.
+
+A provider that is down does not stop the portal. When the provider can't be reached at start-up (no connection, a timeout, a 5xx answer), the server logs it and starts: public pages are served, and protected pages still send readers to sign-in. The server asks the provider again when a reader signs in, at most once every 5 seconds at first and once a minute after repeated failures. Until the provider answers, sign-in ends on the sign-in error page. Readers who are already signed in keep their session.
 
 ## Behind a proxy that strips part of the path
 

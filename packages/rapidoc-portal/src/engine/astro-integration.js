@@ -170,12 +170,9 @@ export function createAstroConfig(workspace, overrides = {}) {
   return {
     root: workspace.root,
     configFile: false,
-    // The origin of site.url; its path is `base`. Without `site`, Starlight adds no sitemap: what `noindex` wants.
-    site: site.noindex
-      ? undefined
-      : site.url
-        ? new URL(site.url).origin
-        : "https://developer.portal",
+    // The origin of site.url; its path is `base`. Without `site`, pages get no canonical link and Starlight adds
+    // no sitemap: what `noindex` wants, and all a portal without `site.url` can have (build-portal.js says so).
+    site: site.url && !site.noindex ? new URL(site.url).origin : undefined,
     ...(site.basePath && { base: site.basePath }),
     // Route patterns (`from`) are relative to `base`; a redirect target is a link, so it gets the base.
     redirects: Object.fromEntries(

@@ -29,14 +29,36 @@ export function cookieNames(secure) {
 }
 
 /**
+ * What a sealed token is for. Each use has its own key, so a token sealed for one use never opens as
+ * another: the sign-in transaction cookie (which anyone gets from /login) is not a session.
+ */
+export const SEAL_USES = ["session", "sign-in", "api-token", "mcp"];
+
+/**
  * @param {string} secret - RAPIDOC_SESSION_SECRET
  */
 export function createSealer(secret) {
-  const key = crypto.createHash("sha256").update(`rapidoc-session:${secret}`).digest();
+  const keys = new Map(
+    SEAL_USES.map((use) => [
+      use,
+      crypto.createHash("sha256").update(`rapidoc-${use}:${secret}`).digest(),
+    ]),
+  );
+  const keyOf = (use) => {
+    const key = keys.get(use);
+    if (!key) throw new Error(`Unknown seal use "${use}"`);
+    return key;
+  };
 
   return {
-    /** @returns {Promise<string>} */
-    async seal(payload, maxAgeSeconds) {
+    /**
+     * @param {object} payload
+     * @param {number} maxAgeSeconds
+     * @param {"session" | "sign-in" | "api-token" | "mcp"} use
+     * @returns {Promise<string>}
+     */
+    async seal(payload, maxAgeSeconds, use) {
+      const key = keyOf(use);
       const token = await new EncryptJWT(payload)
         .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
         .setIssuedAt()
@@ -45,8 +67,9 @@ export function createSealer(secret) {
       if (token.length > MAX_COOKIE_BYTES) throw new CookieTooLargeError(token.length);
       return token;
     },
-    /** The payload, or null for a missing, tampered or expired token. */
-    async open(token) {
+    /** The payload, or null for a missing, tampered or expired token, or one sealed for another use. */
+    async open(token, use) {
+      const key = keyOf(use);
       if (!token) return null;
       try {
         const { payload } = await jwtDecrypt(token, key, {

@@ -20,6 +20,13 @@ export default {
       default: 4321,
       description: "Server port",
     },
+    host: {
+      type: "string",
+      value: "host",
+      default: "localhost",
+      description:
+        "Address to listen on (0.0.0.0 shares the portal with your network; access rules are not enforced by dev)",
+    },
     open: { type: "boolean", description: "Open the portal in the browser once the server is up" },
     debug: {
       type: "boolean",
@@ -39,7 +46,10 @@ export default {
     try {
       devServer = await startDevServer(targetDir, {
         // Astro moves to the next free port by itself; in a terminal we ask first.
-        port: await choosePort(values.port, { host: "localhost" }),
+        port: await choosePort(values.port, {
+          host: values.host === "localhost" ? "127.0.0.1" : values.host,
+        }),
+        host: values.host,
         keepWorkspace: values.debug,
       });
     } catch (err) {

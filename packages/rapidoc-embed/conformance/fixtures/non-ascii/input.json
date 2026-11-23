@@ -1,0 +1,21 @@
+{
+  "description": "Characters outside ASCII in the title, an attribute and the inline spec are written as they are (UTF-8), not as escapes.",
+  "page": "host",
+  "options": {
+    "title": "Café API – référence 日本語 😀",
+    "options": {
+      "headingText": "Überblick",
+      "serverUrl": {
+        "name": "Zoë"
+      }
+    },
+    "spec": {
+      "openapi": "3.1.0",
+      "info": {
+        "title": "Café 日本語 😀",
+        "version": "1.0.0"
+      },
+      "paths": {}
+    }
+  }
+}

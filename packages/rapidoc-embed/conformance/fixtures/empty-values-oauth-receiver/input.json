@@ -1,0 +1,9 @@
+{
+  "description": "The OAuth return page with empty lang, nonce and assets: the defaults apply.",
+  "page": "oauth-receiver",
+  "options": {
+    "lang": "",
+    "nonce": "",
+    "assets": ""
+  }
+}

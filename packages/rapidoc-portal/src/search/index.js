@@ -1,7 +1,1 @@
-export {
-  stripMarkup,
-  extractDocSections,
-  indexOpenApiSpec,
-  buildSearchIndex,
-  searchRecords,
-} from "./indexer.js";
+export { stripMarkup, extractDocSections, indexOpenApiSpec, buildSearchIndex } from "./indexer.js";

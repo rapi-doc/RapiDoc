@@ -1,7 +1,7 @@
 ---
 /**
- * {% api-operation spec="<api id>" path="/orders" method="post" title="..." /%}: one operation of a
- * portal API, interactive, rendered by <rapi-doc-mini>. `spec` is the `id` of an entry in `apis:`;
+ * {% api-operation api="<api id>" path="/orders" method="post" title="..." /%}: one operation of a
+ * portal API, interactive, rendered by <rapi-doc-mini>. `api` is the `id` of an entry in `apis:`;
  * `version` picks one of its versions (default: the first). `collapsed=true` shows only the method and
  * path until the reader clicks them.
  *
@@ -14,7 +14,7 @@ import { OAUTH_RECEIVER_PATH } from '../../engine/sync-assets.js';
 import { withBase } from '../../components/base-path.js';
 
 interface Props {
-  spec: string;
+  api: string;
   path: string;
   method?: string;
   title?: string;
@@ -22,15 +22,15 @@ interface Props {
   collapsed?: boolean;
 }
 
-const { spec, path, method = 'get', title, version, collapsed = false } = Astro.props;
+const { api: apiId, path, method = 'get', title, version, collapsed = false } = Astro.props;
 const apis = portalConfig.apis || [];
-const api = apis.find((a: any) => a.id === spec);
+const api = apis.find((a: any) => a.id === apiId);
 const apiVersion = version === undefined ? api?.versions[0] : api?.versions.find((v: any) => v.version === version);
 
 if (!api) {
-  console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: no API with id "${spec}" in apis:`);
+  console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: no API with id "${apiId}" in apis:`);
 } else if (!apiVersion) {
-  console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: API "${spec}" has no version "${version}"`);
+  console.warn(`[rapidoc-portal] api-operation on ${Astro.url.pathname}: API "${apiId}" has no version "${version}"`);
 }
 
 const specUrl = withBase(apiVersion?.specUrl);
@@ -40,7 +40,7 @@ const rapidoc = portalConfig.rapidoc || {};
 
 {
   apiVersion ? (
-    <figure class="portal-api-operation not-content" data-api={spec} data-version={version} data-method={method.toUpperCase()} data-path={path}>
+    <figure class="portal-api-operation not-content" data-api={apiId} data-version={version} data-method={method.toUpperCase()} data-path={path}>
       {title && <figcaption>{title}</figcaption>}
       <rapi-doc-mini
         spec-url={specUrl}
@@ -59,11 +59,11 @@ const rapidoc = portalConfig.rapidoc || {};
     <Aside type="caution" title="API operation not found">
       {api ? (
         <>
-          API <code>{spec}</code> has no version <code>{version}</code>. Its versions: {api.versions.map((v: any) => v.version).join(', ')}.
+          API <code>{apiId}</code> has no version <code>{version}</code>. Its versions: {api.versions.map((v: any) => v.version).join(', ')}.
         </>
       ) : (
         <>
-          No API with id <code>{spec}</code> in <code>apis:</code> of <code>rapidoc.config.yaml</code>
+          No API with id <code>{apiId}</code> in <code>apis:</code> of <code>rapidoc.config.yaml</code>
           {apis.length > 0 && <>. Available ids: {apis.map((a: any) => a.id).join(', ')}</>}.
         </>
       )}

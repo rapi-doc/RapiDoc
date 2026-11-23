@@ -32,11 +32,10 @@ other member is internal; templates call internal members freely through `this`.
 - `<rapi-doc>` (`[rapidoc.ts:RapiDoc]`):
   - Documented methods: `loadSpec`, `scrollToPath`, `setApiKey`, `setHttpUserNameAndPassword`,
     `setApiServer`, `generateMcpServer`, `downloadMcpServer`, `getMcpBudget`.
-  - Portal hooks: `bindNavBar(sidebar, options)`, `scrollTo(elementId)` (alias of `scrollToPath`;
-    it shadows `Element.prototype.scrollTo`, so `el.scrollTo({ top })` does not scroll),
-    `expandAndGotoOperation`, `getTargetElement`, `resolveOperationAlias`.
+  - Portal hooks: `bindNavBar(sidebar, options)`, `expandAndGotoOperation`, `getTargetElement`,
+    `resolveOperationAlias`. The element does not override `Element.prototype.scrollTo`.
   - Events: `before-render` (from `ProcessSpec`, `detail: { spec }`); `spec-loaded` (`detail` is
-    the live `resolvedSpec`; not bubbling); `nav-active-change` (`detail: { id, elementId,
+    the live `resolvedSpec`; not bubbling); `nav-active-change` (`detail: { elementId, type,
     operationId? }`; bubbles, composed).
 - `<rapi-doc-mini>` (`[rapidoc-mini.ts:RapiDocMini]`): `loadSpec`, `setApiKey`,
   `setHttpUserNameAndPassword`, `removeAllSecurityKeys`, `setApiServer`, `showOperation`
@@ -103,7 +102,7 @@ other member is internal; templates call internal members freely through `this`.
   results are not drawn on the diagram. A Mock Response Status section (folded until a status is set)
   takes the status codes a mock answers with (`503`, or a list used in turn or at random), and is
   shown only when a mock answers: with the tied `<rapi-doc>`'s `mock-server="true"` the codes are
-  set on its `mock-server-status-code` / `-strategy` for the run and restored after; with
+  set on its `mock-server-status-code` for the run and restored after; with
   `server-is-mock="true"` (a mock server such as `rapidoc mock`) they go out as `Prefer: code=`.
   Either way the button reads "Run workflow (Mock) →" and the log heading says "(mocked responses)" when every entry was mocked, else each mocked entry says `mocked`. Credentials are the tied `<rapi-doc>`'s
   entered ones (API keys, Basic, Bearer and OAuth tokens); a standalone element shows one
@@ -141,8 +140,17 @@ other member is internal; templates call internal members freely through `this`.
   otherwise the spec server with that `url`; otherwise `resolvedSpec.servers[0]`.
 - **Section ids.** Operation ids come from `OperationSlugger` (`utils/slugger.js`);
   `[rapidoc.ts:getTargetElement]` also accepts a `data-op-slug`, a `<tag>--<op>` suffix or a
-  method+path alias. `nav-active-change.detail.id` is the alias-resolved request in `scrollToPath`
-  and the observed section's DOM id in `onIntersect`; consumers should not assume the two agree.
+  method+path alias. Every `nav-active-change` is fired by `[rapidoc.ts:dispatchNavActiveChange]`
+  with one detail: `elementId` is the section's DOM id (also when `scrollToPath` was given an
+  alias), `type` is `"operation"`, `"tag"` or `"section"`, and `operationId` is the spec's own
+  operationId, present only for an operation that has one.
+- **Internal state.** `loading`, `focusedElementId`, `searchVal`, `advancedSearchMatches` and
+  `specFileError` are `@state`: reactive, but not attributes and not part of the public API.
+- **Saved keys.** With `persist-auth="true"` the saved keys are applied once per spec load, in
+  `afterSpecParsedAndValidated` before `spec-loaded` fires, never during render.
+- **Mock across a move.** `disconnectedCallback` disables the element's mock;
+  `connectedCallback` enables it again when a spec is already loaded (`[rapidoc.ts:enableMock]`,
+  same in `rapidoc-mini.ts`).
 - **Auto height.** Scroll handling treats the element as page-scrolled when `auto-height="true"`
   or the attribute is present with any value.
 - **DSD hydration** (`[rapidoc.ts:_clearDsdIfNeeded]`). With a pre-rendered shadow root, `render()`
@@ -159,7 +167,7 @@ other member is internal; templates call internal members freely through `this`.
   one capturing `hashchange` listener and first-interaction listeners on `window` (both removed on
   disconnect). Programmatic scrolls add temporary `scroll` / `scrollend` listeners.
 - `[rapidoc.ts:render]` clones the page `<link>` whose `href` contains `css-file` (passed through
-  `CSS.escape`) into the shadow root on each render.
+  `CSS.escape`) into the shadow root once per `css-file` value (the earlier copy is removed when the value changes).
 - `history.replaceState` rewrites the hash on navigation only when `update-route="true"`, passing
   the current `history.state` on, so a router's data there (Vue Router's position and scroll) stays.
 - `mock-server="true"` makes `utils/mock-interceptor.js` replace `window.fetch` and

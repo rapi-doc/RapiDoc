@@ -1,9 +1,11 @@
 import { after, before, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import http from "node:http";
 import { createApp } from "../src/index.js";
 import {
   createBrowser,
+  freePort,
   PORTAL_ORIGIN,
   startIssuer,
   testEnv,
@@ -271,6 +273,27 @@ describe("rapidoc serve: sign-in and access rules", () => {
     assert.equal(noCookie.headers.get("location"), "/_rapidoc/sign-in-error/?reason=expired");
   });
 
+  it("logs the reader's sub, never the email, and the provider's error without control characters", async () => {
+    const lines = [];
+    const logged = await createApp({
+      distDir,
+      env: testEnv(issuer.issuer),
+      log: (line) => lines.push(line),
+    });
+    issuer.signInAs("ann");
+    await createBrowser(logged.app).visit("/_rapidoc/auth/login");
+    assert.ok(lines.includes("signed in: ann"), lines.join("\n"));
+    assert.ok(!lines.some((line) => line.includes("ann@example.com")));
+
+    const forged = `bad\r\n[rapidoc serve] signed in: admin${"x".repeat(500)}`;
+    await createBrowser(logged.app).send(
+      `/_rapidoc/auth/callback?error=${encodeURIComponent(forged)}`,
+    );
+    const line = lines.find((entry) => entry.startsWith("sign-in refused by the provider"));
+    assert.ok(line && !/[\r\n]/.test(line), "one line");
+    assert.ok(line.length < 260, "cut short");
+  });
+
   it("ignores a tampered session cookie", async () => {
     const browser = await signedInBrowser("bob");
     const jar = browser.cookies();
@@ -311,6 +334,19 @@ describe("rapidoc serve: a portal for signed-in readers only", () => {
     fs.rmSync(distDir, { recursive: true, force: true });
   });
 
+  it("does not take the sign-in cookie, which anyone can get, for a session", async () => {
+    const browser = createBrowser(app);
+    const login = await browser.send("/_rapidoc/auth/login");
+    assert.equal(login.status, 302);
+    const signInCookie = browser.cookies().get("rapidoc-signin");
+    assert.ok(signInCookie, "the login route sets the sign-in cookie");
+
+    browser.cookies().set("rapidoc-session", signInCookie);
+    assert.equal((await browser.send("/_rapidoc/auth/me")).status, 401);
+    const page = await browser.send("/docs/partners/", { headers: { accept: "text/html" } });
+    assert.equal(page.status, 302, "a page for signed-in readers still sends to sign-in");
+  });
+
   it("does not reveal whether a page exists to signed-out readers", async () => {
     const browser = createBrowser(app);
     const missing = await browser.send("/docs/does-not-exist/", {
@@ -318,6 +354,32 @@ describe("rapidoc serve: a portal for signed-in readers only", () => {
     });
     assert.equal(missing.status, 302, "same answer as a protected page");
     assert.equal((await browser.send("/does-not-exist.json")).status, 401);
+  });
+
+  it("reports a path with no file as locked to signed-out readers, like a protected one", async () => {
+    const check = async (browser) => {
+      const res = await browser.send("/_rapidoc/access/check", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ paths: ["/docs/intro/", "/docs/partners/", "/docs/nothing-here/"] }),
+      });
+      return (await res.json()).locked;
+    };
+    assert.deepEqual(
+      await check(createBrowser(app)),
+      ["/docs/partners/", "/docs/nothing-here/"],
+      "the answer does not say which of the two exists",
+    );
+
+    issuer.addUser("ann", { name: "Ann Reader", email: "ann@example.com", email_verified: true });
+    issuer.signInAs("ann");
+    const signedIn = createBrowser(app);
+    await signedIn.visit("/_rapidoc/auth/login");
+    assert.deepEqual(
+      await check(signedIn),
+      [],
+      "a reader of the default zone sees what is missing",
+    );
   });
 });
 
@@ -387,13 +449,14 @@ describe("rapidoc serve: a portal under a base path", () => {
   });
 
   it("behind a proxy that strips part of the path, answers under the mount path and links with the base path", async () => {
-    const { app, settings } = await createApp({
+    const { app, summary } = await createApp({
       distDir,
       env: testEnv(issuer.issuer),
       log: quiet,
       mountPath: "/developers",
     });
-    assert.equal(settings.basePath, BASE);
+    assert.equal(summary.basePath, BASE);
+    assert.equal(summary.mountPath, "/developers");
     const browser = createBrowser(app);
     assert.equal((await browser.send("/developers/docs/intro/")).status, 200);
     assert.equal(
@@ -415,12 +478,12 @@ describe("rapidoc serve: a portal under a base path", () => {
   });
 
   it("takes the mount path from RAPIDOC_MOUNT_PATH", async () => {
-    const { settings } = await createApp({
+    const { summary } = await createApp({
       distDir,
       env: testEnv(issuer.issuer, { RAPIDOC_MOUNT_PATH: "developers/" }),
       log: quiet,
     });
-    assert.equal(settings.mountPath, "/developers");
+    assert.equal(summary.mountPath, "/developers");
   });
 });
 
@@ -442,14 +505,257 @@ describe("rapidoc serve: startup", () => {
     }
   });
 
-  it("fails clearly when the provider cannot be discovered", async () => {
+  it("fails at start when the issuer is wrong: another issuer's document, or a 4xx answer", async () => {
     const distDir = writeFixtureBuild();
+    const issuer = await startIssuer();
     try {
+      // The document is found, but it is the document of http://localhost:<port>
+      const otherName = issuer.issuer.replace("localhost", "127.0.0.1");
       await assert.rejects(
-        createApp({ distDir, env: testEnv("http://127.0.0.1:9/"), log: quiet }),
-        /could not be discovered/,
+        createApp({ distDir, env: testEnv(otherName), log: quiet }),
+        (err) => err.name === "SettingsError" && /could not be discovered/.test(err.message),
+      );
+      await assert.rejects(
+        createApp({ distDir, env: testEnv(`${issuer.issuer}/no-such-tenant`), log: quiet }),
+        (err) =>
+          err.name === "SettingsError" && /could not be discovered.*HTTP 404/.test(err.message),
       );
     } finally {
+      await issuer.close();
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("starts while the provider is unreachable, serves public pages, and signs in once it is up", async () => {
+    const distDir = writeFixtureBuild();
+    const port = await freePort();
+    const lines = [];
+    let issuer;
+    try {
+      const { app, summary } = await createApp({
+        distDir,
+        env: testEnv(`http://localhost:${port}`),
+        log: (line) => lines.push(line),
+      });
+      assert.equal(summary.providerReady, false);
+      assert.equal(summary.issuer, `http://localhost:${port}`);
+      assert.ok(
+        lines.some((line) => line.includes("can't be reached")),
+        lines.join("\n"),
+      );
+
+      const browser = createBrowser(app);
+      assert.equal((await browser.send("/docs/intro/")).status, 200, "public pages are served");
+      const refused = await browser.send("/docs/partners/", { headers: { accept: "text/html" } });
+      assert.equal(refused.status, 302, "protected pages still go to sign-in");
+      assert.ok(refused.headers.get("location").startsWith("/_rapidoc/auth/login?"));
+      assert.equal((await browser.send("/specs/billing.json")).status, 401);
+
+      issuer = await startIssuer({ port });
+      issuer.addUser("ann", { name: "Ann Reader", email: "ann@example.com", email_verified: true });
+      issuer.signInAs("ann");
+      const { response, url } = await browser.visit("/docs/partners/", {
+        headers: { accept: "text/html" },
+      });
+      assert.equal(url.href, `${PORTAL_ORIGIN}/docs/partners/`, "signed in, back at the page");
+      assert.equal(response.status, 200);
+      assert.ok(lines.some((line) => line.includes("sign-in works again")));
+    } finally {
+      await issuer?.close();
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("while the provider is down, sign-in goes to the error page and sign-out stays local", async () => {
+    const distDir = writeFixtureBuild();
+    const port = await freePort();
+    const manifestFile = `${distDir}/rapidoc-server.json`;
+    const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
+    manifest.auth.logout = "idp";
+    fs.writeFileSync(manifestFile, JSON.stringify(manifest));
+    let issuer;
+    try {
+      const { app } = await createApp({
+        distDir,
+        env: testEnv(`http://localhost:${port}`),
+        log: quiet,
+      });
+      const browser = createBrowser(app);
+      const login = await browser.send("/_rapidoc/auth/login?returnTo=/docs/partners/");
+      assert.equal(login.status, 302);
+      assert.equal(login.headers.get("location"), "/_rapidoc/sign-in-error/?reason=provider");
+      assert.equal(login.headers.get("cache-control"), "private, no-store");
+      const callback = await browser.send("/_rapidoc/auth/callback?code=x&state=y");
+      assert.match(callback.headers.get("location"), /^\/_rapidoc\/sign-in-error\/\?reason=/);
+
+      const logout = await browser.send("/_rapidoc/auth/logout", {
+        method: "POST",
+        headers: { "sec-fetch-site": "same-origin" },
+      });
+      assert.equal(logout.status, 303);
+      assert.equal(logout.headers.get("location"), "/", "no provider address to go to yet");
+
+      // The failed try starts a back-off: the provider is not asked again at once, even when it is up.
+      issuer = await startIssuer({ port });
+      const again = await browser.send("/_rapidoc/auth/login");
+      assert.equal(again.headers.get("location"), "/_rapidoc/sign-in-error/?reason=provider");
+    } finally {
+      await issuer?.close();
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("starts when the provider answers 5xx", async () => {
+    const distDir = writeFixtureBuild();
+    const down = http.createServer((req, res) => {
+      res.statusCode = 503;
+      res.end("maintenance");
+    });
+    await new Promise((resolve) => down.listen(0, "127.0.0.1", resolve));
+    try {
+      const { app, summary } = await createApp({
+        distDir,
+        env: testEnv(`http://localhost:${down.address().port}`),
+        log: quiet,
+      });
+      assert.equal(summary.providerReady, false);
+      assert.equal((await createBrowser(app).send("/")).status, 200);
+    } finally {
+      await new Promise((resolve) => down.close(resolve));
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("returns a summary without the secrets or the manifest", async () => {
+    const distDir = writeFixtureBuild();
+    const issuer = await startIssuer();
+    try {
+      const result = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet });
+      assert.deepEqual(Object.keys(result).sort(), ["app", "summary"]);
+      assert.deepEqual(result.summary, {
+        mode: "portal",
+        basePath: "",
+        mountPath: "",
+        publicUrl: PORTAL_ORIGIN,
+        issuer: issuer.issuer,
+        clientId: "portal-web",
+        providerReady: true,
+        access: { files: 3, zones: 2 },
+        mcp: { enabled: true, tools: 0 },
+      });
+      const text = JSON.stringify(result.summary);
+      assert.ok(!text.includes(testEnv("").RAPIDOC_SESSION_SECRET), "no session secret");
+      assert.ok(!text.includes(testEnv("").RAPIDOC_AUTH_CLIENT_SECRET), "no client secret");
+
+      const off = await createApp({
+        distDir,
+        env: testEnv(issuer.issuer, { RAPIDOC_MCP: "off" }),
+        log: quiet,
+      });
+      assert.deepEqual(off.summary.mcp, { enabled: false, tools: 0 });
+    } finally {
+      await issuer.close();
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses a build with protected files whose manifest is missing", async () => {
+    const distDir = writeFixtureBuild();
+    try {
+      fs.rmSync(`${distDir}/rapidoc-server.json`);
+      await assert.rejects(createApp({ distDir, env: {}, log: quiet }), (err) => {
+        assert.equal(err.name, "SettingsError");
+        assert.match(err.problems[0], /protected\/ folder but no rapidoc-server\.json/);
+        return true;
+      });
+    } finally {
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("with sign-in and no public URL, answers only requests to this machine", async () => {
+    const issuer = await startIssuer({ portalOrigin: "http://localhost" });
+    const distDir = writeFixtureBuild();
+    const lines = [];
+    try {
+      const env = testEnv(issuer.issuer, { RAPIDOC_PUBLIC_URL: "" });
+      const { app } = await createApp({ distDir, env, log: (line) => lines.push(line) });
+      const other = await app.fetch(new Request("http://portal.example.com/docs/intro/"));
+      assert.equal(other.status, 500);
+      assert.match(await other.text(), /no public URL/);
+      assert.equal(lines.filter((line) => line.includes("no public URL")).length, 1);
+      await app.fetch(new Request("http://portal.example.com/"));
+      assert.equal(lines.filter((line) => line.includes("no public URL")).length, 1, "said once");
+      // The health check still answers (a load balancer asks before the address is set), and a local run works
+      const health = await app.fetch(new Request("http://portal.example.com/_rapidoc/health"));
+      assert.equal(health.status, 200);
+      assert.equal((await app.fetch(new Request("http://localhost/docs/intro/"))).status, 200);
+      assert.equal((await app.fetch(new Request("http://127.0.0.1:8080/docs/intro/"))).status, 200);
+    } finally {
+      await issuer.close();
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("sends security headers, and lets RAPIDOC_FRAME_ANCESTORS choose who may frame the portal", async () => {
+    const issuer = await startIssuer();
+    const distDir = writeFixtureBuild();
+    try {
+      const start = (extra) =>
+        createApp({ distDir, env: testEnv(issuer.issuer, extra), log: quiet });
+      const page = (app) => app.fetch(new Request(`${PORTAL_ORIGIN}/docs/intro/`));
+
+      const byDefault = await page((await start({})).app);
+      assert.equal(byDefault.headers.get("content-security-policy"), "frame-ancestors 'self'");
+      assert.equal(byDefault.headers.get("referrer-policy"), "strict-origin-when-cross-origin");
+      assert.equal(byDefault.headers.get("x-content-type-options"), "nosniff");
+      assert.equal(byDefault.headers.get("strict-transport-security"), null, "not over http");
+
+      const https = await start({ RAPIDOC_PUBLIC_URL: "https://portal.test" });
+      assert.equal(
+        (await https.app.fetch(new Request("https://portal.test/docs/intro/"))).headers.get(
+          "strict-transport-security",
+        ),
+        "max-age=31536000",
+      );
+
+      const some = await page(
+        (await start({ RAPIDOC_FRAME_ANCESTORS: "'self' https://intranet.example.com" })).app,
+      );
+      assert.equal(
+        some.headers.get("content-security-policy"),
+        "frame-ancestors 'self' https://intranet.example.com",
+      );
+      const any = await page((await start({ RAPIDOC_FRAME_ANCESTORS: "*" })).app);
+      assert.equal(any.headers.get("content-security-policy"), null);
+      await assert.rejects(start({ RAPIDOC_FRAME_ANCESTORS: "self; script-src *" }), (err) => {
+        assert.match(err.problems.join(), /RAPIDOC_FRAME_ANCESTORS/);
+        return true;
+      });
+    } finally {
+      await issuer.close();
+      fs.rmSync(distDir, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses a request body over the limit without reading it all", async () => {
+    const issuer = await startIssuer();
+    const distDir = writeFixtureBuild();
+    try {
+      const { app } = await createApp({ distDir, env: testEnv(issuer.issuer), log: quiet });
+      const post = (path, bytes) =>
+        app.fetch(
+          new Request(`${PORTAL_ORIGIN}${path}`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ paths: ["/x".repeat(bytes / 2)] }),
+          }),
+        );
+      assert.equal((await post("/_rapidoc/access/check", 70 * 1024)).status, 413);
+      assert.equal((await post("/_rapidoc/access/check", 1024)).status, 200);
+      assert.equal((await post("/mcp", 2 * 1024 * 1024)).status, 413);
+    } finally {
+      await issuer.close();
       fs.rmSync(distDir, { recursive: true, force: true });
     }
   });
@@ -458,12 +764,23 @@ describe("rapidoc serve: startup", () => {
     const distDir = writeFixtureBuild();
     try {
       fs.rmSync(`${distDir}/rapidoc-server.json`);
-      const { app, settings } = await createApp({
+      const result = await createApp({
         distDir: `${distDir}/public`,
         env: {},
         log: quiet,
       });
-      assert.equal(settings.mode, "static");
+      const { app } = result;
+      assert.deepEqual(result.summary, {
+        mode: "static",
+        basePath: "",
+        mountPath: "",
+        publicUrl: null,
+        issuer: null,
+        clientId: null,
+        providerReady: false,
+        access: null,
+        mcp: { enabled: true, tools: 0 },
+      });
       const browser = createBrowser(app);
       assert.equal((await browser.send("/docs/intro/")).status, 200);
       assert.equal((await browser.send("/_rapidoc/auth/me")).status, 404);

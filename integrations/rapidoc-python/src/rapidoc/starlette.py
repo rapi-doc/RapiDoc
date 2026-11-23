@@ -18,6 +18,17 @@ __all__ = ["setup_rapidoc"]
 Nonce = Union[str, Callable[[Request], Union[str, None]], None]
 
 
+_NOSNIFF = {"x-content-type-options": "nosniff"}
+
+
+def _etag_matches(if_none_match: str | None, etag: str) -> bool:
+    """True when an ``If-None-Match`` header names ``etag``: a list, weak validators and ``*`` count."""
+    if not if_none_match:
+        return False
+    tags = (tag.strip().removeprefix("W/") for tag in if_none_match.split(","))
+    return any(tag in (etag, "*") for tag in tags)
+
+
 def _attributes(options: Mapping[str, Any] | None) -> dict[str, Any]:
     """Python-style names are accepted too: ``render_style`` is ``render-style``."""
     return {str(key).replace("_", "-"): value for key, value in (options or {}).items()}
@@ -46,11 +57,11 @@ def setup_rapidoc(
     lang: str = "en",
     nonce: Nonce = None,
     enabled: bool = True,
-    path: str | None = None,
 ) -> None:
     """Adds an API reference to a FastAPI or Starlette app.
 
-    :param ui_path: the URL path the reference page is served at, within the app. Default ``/docs``.
+    :param ui_path: the URL path the reference page is served at, within the app (the app's
+        ``root_path``, which a mount or a proxy sets, goes in front of it in the page). Default ``/docs``.
     :param spec_url: URL of the OpenAPI document. Default: the app's ``openapi_url``. A path starting
         with ``/`` is taken as a path of the app, so the app's ``root_path`` is put in front of it.
     :param spec: the OpenAPI document itself (a dict or JSON text), written into the page.
@@ -63,12 +74,10 @@ def setup_rapidoc(
     :param lang: language of the page.
     :param nonce: Content-Security-Policy nonce, or a function that reads it from the request.
     :param enabled: ``False`` adds nothing, for example outside development.
-    :param path: deprecated, the name ``ui_path`` had in version 0.1.
     """
     if not enabled:
         return
-    if ui_path is None:
-        ui_path = contract.DEFAULT_UI_PATH if path is None else path
+    ui_path = contract.normalize_path(contract.ui_path_of({"uiPath": ui_path})) or "/"
 
     manifest = rapidoc_manifest()
     base = {
@@ -105,7 +114,7 @@ def setup_rapidoc(
             url = f"{root_path}{url}"
         return {
             **base,
-            "uiPath": f"{root_path}{contract.normalize_path(ui_path)}",
+            "uiPath": f"{root_path}{contract.normalize_path(ui_path)}" or "/",
             "specUrl": url,
             "title": title,
             "nonce": nonce(request) if callable(nonce) else nonce,
@@ -119,8 +128,10 @@ def setup_rapidoc(
             etag = f'"{manifest["files"].get(name, {}).get("integrity", name)}"'
 
             async def serve_file(request: Request) -> Response:
-                headers = {"etag": etag, "cache-control": "public, max-age=3600"}
-                if request.headers.get("if-none-match") == etag:
+                # The URL has no version in it, so the browser asks every time and gets a 304 until a
+                # deploy brings another build
+                headers = {"etag": etag, "cache-control": "no-cache", **_NOSNIFF}
+                if _etag_matches(request.headers.get("if-none-match"), etag):
                     return Response(status_code=304, headers=headers)
                 if name not in files:
                     files[name] = (ASSETS / name).read_bytes()
@@ -135,7 +146,9 @@ def setup_rapidoc(
         )
 
         async def serve_page(request: Request) -> Response:
-            return HTMLResponse(render(page_options(request)), headers={"cache-control": "no-cache"})
+            return HTMLResponse(
+                render(page_options(request)), headers={"cache-control": "no-cache", **_NOSNIFF}
+            )
 
         return serve_page
 

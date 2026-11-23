@@ -1,7 +1,7 @@
 // The stateful mock's store: collections in memory, keyed by the classifier's key, with a copy per session.
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { createStore, valuesAt } from "../src/stateful/store.js";
+import { createStore, MAX_SESSIONS, valuesAt } from "../src/stateful/store.js";
 
 const seed = {
   Pet: [
@@ -47,6 +47,31 @@ describe("store", () => {
     assert.equal(count(), 1, "a session's restore leaves the default state");
     state.reset();
     assert.equal(count(), seeded, "a reset goes back to the loaded data, not the restored");
+  });
+
+  it("keeps the state of a limited number of sessions, dropping the one used longest ago", () => {
+    const store = createStore(
+      { Pet: { key: "id" }, User: { key: "username" } },
+      { maxSessions: 3 },
+    );
+    store.load(seed);
+    const write = (id) => store.session(id).insert("Pet", { name: id });
+    const pets = (id) => store.session(id).list("Pet").total;
+    ["a", "b", "c"].forEach(write);
+    assert.equal(store.sessionCount, 3);
+    assert.equal(pets("a"), 3, "a read counts as use: a is now the most recent");
+    write("d");
+    assert.equal(store.sessionCount, 3);
+    assert.equal(pets("b"), 2, "b, used longest ago, reads the seed data again");
+    assert.equal(pets("a"), 3);
+    assert.equal(pets("c"), 3);
+    assert.equal(pets("d"), 3);
+    assert.equal(pets("never-wrote"), 2);
+    assert.equal(store.sessionCount, 3, "a session that only reads holds nothing");
+
+    store.session("e").restore({ Pet: [] });
+    assert.equal(store.sessionCount, 3, "a restore into a new session counts too");
+    assert.equal(MAX_SESSIONS, 1000);
   });
 
   it("numbers a new key like the ones there, as text where they are text", () => {

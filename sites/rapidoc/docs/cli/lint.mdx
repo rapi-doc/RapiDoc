@@ -30,11 +30,17 @@ Each rule has a severity: `error` fails the run, `warn` is reported (and fails w
 | `operation-operationId` | Every operation has an `operationId`. | Anchors and page URLs are built from it (otherwise from the summary, which changes); so are MCP tool names. | warn |
 | `operation-operationId-unique` | No two operations share one. | They would share an anchor and a tool name. | error |
 | `operation-operationId-url-safe` | Letters, digits, `_`, `-` and `.` only. | It appears in URLs. | warn |
+| `operationId-casing-consistent` | operationIds are written one way: the casing most of them use (`camelCase`, `snake_case`, ...). Nothing is reported when no casing has a majority. | They become method names in generated clients and tool names for AI agents. | off |
+| `operation-parameters-unique` | A parameter is listed once per operation or path (same name and location). | Of two, Try and the mock server send one. | error |
+| `parameter-casing-consistent` | Query and path parameters are written one way: the casing most of them use. Headers are left out. | A client learns one convention, not two. | off |
 | `operation-summary` | Every operation has a summary. | The sidebar label and the MCP tool's title. | warn |
 | `operation-description` | Every operation has a description. | Readers, and the MCP tool's description. | off |
 | `parameter-description` | Every parameter has a description. A `$ref` is checked where the parameter is written. | The reference shows it beside the field; an AI agent calling the API through MCP has nothing else to go on. | warn |
+| `description-html-removed` | No description has HTML that the reference removes: `<script>`, `<iframe>`, `<form>` and similar elements, event handlers, `javascript:` links. | The reader would see the text without it ([what is kept](/docs/rapidoc/migration/v14-to-v15/)). | warn |
 | `operation-tag-defined` | Tags used are in the top-level `tags` list. | The sidebar group's description and order come from there. | warn |
+| `operation-singular-tag` | An operation has one tag. | With several, it is listed under each: twice in the sidebar and in search. | off |
 | `tag-description` | Every top-level tag has a description. | It introduces the group. | off |
+| `tags-alphabetical` | The top-level `tags` are in alphabetical order. | The sidebar shows them as written. | off |
 | `operation-2xx-response` | A 2xx or 3xx response is documented. | Try has nothing to show as the expected result. | warn |
 | `operation-4xx-response` | A 4xx response is documented. | Readers see the error shapes. | off |
 | `response-error-schema` | A 4xx or 5xx response that says what went wrong has a schema. 401, 403, 404, 405, 406, 410, 412 and 429 may go without. | Clients read the error from it; the mock server answers `Prefer: code=400` with a body of that shape. | warn |
@@ -45,7 +51,16 @@ Each rule has a severity: `error` fails the run, `warn` is reported (and fails w
 | `example-named-map` | A media type's `example` is the value itself, not a map of named examples (`example: { "Calendar": { ... } }`), which belongs under `examples`. | Try and the mock server would send the map, name included. | warn |
 | `example-matches-schema` | Request and response examples fit their schema. Needs `@rapidoc/mock` installed; without it the rule is skipped and lint says so. | Try sends them and the mock server answers with them. | warn |
 | `schema-oneof-discriminator` | A `oneOf` or `anyOf` between object schemas has a `discriminator`, or a property with a different fixed value (`const`, or an `enum` of one) in each. | A client, a code generator and the mock server otherwise guess the shape. | warn |
+| `no-enum-type-mismatch` | Every `enum` value has the schema's `type` (not `type: integer` with `enum: ["1", "2"]`). | The reference, generated examples and the mock server would offer values the schema refuses. | error |
+| `no-required-undefined-properties` | Every name under `required` is under `properties`. Schemas composed with `allOf`, `anyOf` or `oneOf`, or with typed `additionalProperties`, are left out. | Usually a typo or a leftover; no example or mock data can satisfy it. | warn |
+| `property-casing-consistent` | Schema properties are written one way: the casing most of them use. | A client reads `total_amount` beside `totalAmount` as two conventions to remember. | off |
 | `path-kebab-case` | Path segments other than parameters are kebab-case. | Naming. | off |
+| `no-ambiguous-paths` | No two paths differ only in a parameter's name (`/orders/{id}` and `/orders/{orderId}`). | A request matches both; Try, the mock server and your server each pick one. | error |
+| `no-path-trailing-slash` | A path does not end with a slash. | Servers and proxies disagree on whether `/orders` and `/orders/` are the same address. | warn |
+| `path-not-include-query` | A path has no query string (`/orders?open=true`). | It never matches a request; a query value is a parameter. | error |
+| `no-http-verbs-in-paths` | A path has no HTTP verb in it (`/getOrders`, `/orders/delete-all`). | The method says it already. | off |
+| `no-empty-servers` | The spec has `servers`, each with a `url` (Swagger 2.0: a `host`). | Try, an exported MCP server and a generated client have nowhere to send a request. | warn |
+| `no-server-trailing-slash` | A server `url` does not end with a slash. | Every path starts with one, so requests would have two. | warn |
 | `no-server-example-com` | Servers aren't example.com or localhost. | Try would call nowhere. | warn |
 | `info-contact` | `info.contact` is set. | Shown in the reference's header. | off |
 | `info-license` | `info.license` is set. | Shown in the reference's header. | off |

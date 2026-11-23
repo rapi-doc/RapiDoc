@@ -13,8 +13,6 @@ import {
 } from "../utils/oauth-utils.js";
 import { marked } from "marked";
 
-const localStorageKey = "rapidoc";
-
 function toBase64(str) {
   try {
     const bytes = new TextEncoder().encode(str);
@@ -125,25 +123,55 @@ export function onClearAllApiKeys() {
   this.requestUpdate();
 }
 
+/**
+ * persist-auth: the localStorage key of this API's saved keys. One entry per API (its spec URL, or its title for
+ * a spec given as an object), so two APIs on one origin with a scheme of the same name never share a key.
+ */
+export function authStorageKey() {
+  let id = this.specUrl || "";
+  try {
+    if (id) id = new URL(id, globalThis.location?.href).href;
+  } catch {
+    // not a URL: the value as given
+  }
+  return `rapidoc-auth:${id || this.resolvedSpec?.info?.title || ""}`;
+}
+
+// Storage can be blocked (privacy settings, sandboxed frames) or hold something else: never throws
 function getPersistedApiKeys() {
-  return JSON.parse(localStorage.getItem(localStorageKey)) || {};
+  try {
+    const stored = JSON.parse(localStorage.getItem(authStorageKey.call(this)));
+    return stored && typeof stored === "object" ? stored : {};
+  } catch {
+    return {};
+  }
 }
 
 function setPersistedApiKeys(obj) {
-  localStorage.setItem(localStorageKey, JSON.stringify(obj));
+  try {
+    const key = authStorageKey.call(this);
+    if (Object.keys(obj).length) {
+      localStorage.setItem(key, JSON.stringify(obj));
+    } else {
+      localStorage.removeItem(key);
+    }
+  } catch {
+    // the keys stay for this page view only
+  }
 }
 
+/** Applies the keys saved for this API. Called once per spec load, before `spec-loaded`. */
 export function recoverPersistedApiKeys() {
   const rapidocLs = getPersistedApiKeys.call(this);
   let expired = false;
   Object.entries(rapidocLs).forEach(([id, p]) => {
     // An OAuth token saved with its expiry is dropped once it has expired
-    if (p.expiresAt && p.expiresAt <= Date.now()) {
+    if (p?.expiresAt && p.expiresAt <= Date.now()) {
       delete rapidocLs[id];
       expired = true;
       return;
     }
-    applyApiKey.call(this, p.securitySchemeId, "", "", p.value);
+    applyApiKey.call(this, id, "", "", p?.value);
   });
   if (expired) {
     setPersistedApiKeys.call(this, rapidocLs);
@@ -465,7 +493,8 @@ async function onInvokeOAuthFlow(
     ? authFlowDivEl.querySelector(".oauth-send-client-secret-in").value.trim()
     : "request-body";
   const checkedScopeEls = [...authFlowDivEl.querySelectorAll(".scope-checkbox:checked")];
-  const pkceCheckboxEl = authFlowDivEl.querySelector(`#${securitySchemeId}-pkce`);
+  // By class: a scheme name is not always a valid CSS identifier
+  const pkceCheckboxEl = authFlowDivEl.querySelector(".oauth-pkce input");
   // Unguessable per sign-in: state ties the reply to this sign-in, the PKCE verifier proves it at the token endpoint.
   const state = randomUrlSafe(16);
   const nonce = randomUrlSafe(16);
@@ -484,6 +513,11 @@ async function onInvokeOAuthFlow(
 
   if (flowType === "authorizationCode" || flowType === "implicit") {
     const authUrlObj = new URL(authUrl);
+    // The authorization URL comes from the spec: only a web address may be opened
+    if (authUrlObj.protocol !== "https:" && authUrlObj.protocol !== "http:") {
+      console.error(`RapiDoc: authorizationUrl must be an http(s) URL, not ${authUrlObj.protocol}`);
+      return;
+    }
     if (flowType === "authorizationCode") {
       grantType = "authorization_code";
       responseType = "code";
@@ -615,42 +649,24 @@ function oAuthFlowTemplate(
 ) {
   let { authorizationUrl, tokenUrl, refreshUrl } = authFlow;
   const pkceOnly = authFlow["x-pkce-only"] || false;
-  const isUrlAbsolute = (url) => url.indexOf("://") > 0 || url.indexOf("//") === 0;
-  /*
-  Calculcate Relative URL based on the following logic
-  IF this.selectedServer?.computedUrl ends with slash and the refreshUrl / tokenUrl / authorizationUrl do not start with slash
-  THEN Relative URL is concatenate else use this.selectedServer?.computedUrl + refreshUrl / tokenUrl / authorizationUrl
-  ELSE Relative URL is concatenate else use (origin of this.selectedServer?.computedUrl) + refreshUrl / tokenUrl / authorizationUrl
-  */
-  const url = new URL(this.selectedServer?.computedUrl);
-  const originUrl = url.origin;
-  if (refreshUrl && !isUrlAbsolute(refreshUrl)) {
-    if (
-      this.selectedServer?.computedUrl.trim().endsWith("/") &&
-      !refreshUrl.trim().startsWith("/")
-    ) {
-      refreshUrl = `${this.selectedServer?.computedUrl.trim()}${refreshUrl.trim()}`;
-    } else {
-      refreshUrl = `${originUrl}/${refreshUrl.replace(/^\//, "")}`;
-    }
+  // A relative OAuth URL is relative to the selected server: appended to it when the server ends with a slash
+  // and the URL does not start with one, else placed at the server's origin
+  const serverUrl = (this.selectedServer?.computedUrl || "").trim();
+  let originUrl = "";
+  try {
+    originUrl = new URL(serverUrl, globalThis.location?.href).origin;
+  } catch {
+    // a server URL that is not one (a templated scheme, say): relative OAuth URLs stay as written
   }
-  if (tokenUrl && !isUrlAbsolute(tokenUrl)) {
-    if (this.selectedServer?.computedUrl.trim().endsWith("/") && !tokenUrl.trim().startsWith("/")) {
-      tokenUrl = `${this.selectedServer?.computedUrl.trim()}${tokenUrl.trim()}`;
-    } else {
-      tokenUrl = `${originUrl}/${tokenUrl.replace(/^\//, "")}`;
-    }
-  }
-  if (authorizationUrl && !isUrlAbsolute(authorizationUrl)) {
-    if (
-      this.selectedServer?.computedUrl.trim().endsWith("/") &&
-      !authorizationUrl.trim().startsWith("/")
-    ) {
-      authorizationUrl = `${this.selectedServer?.computedUrl.trim()}${authorizationUrl.trim()}`;
-    } else {
-      authorizationUrl = `${originUrl}/${authorizationUrl.replace(/^\//, "")}`;
-    }
-  }
+  const absoluteUrl = (url) => {
+    const u = url?.trim();
+    if (!u || u.indexOf("://") > 0 || u.startsWith("//")) return url;
+    if (serverUrl.endsWith("/") && !u.startsWith("/")) return `${serverUrl}${u}`;
+    return originUrl ? `${originUrl}/${u.replace(/^\//, "")}` : url;
+  };
+  refreshUrl = absoluteUrl(refreshUrl);
+  tokenUrl = absoluteUrl(tokenUrl);
+  authorizationUrl = absoluteUrl(authorizationUrl);
   let flowNameDisplay;
   if (flowName === "authorizationCode") {
     flowNameDisplay = "Authorization Code Flow";

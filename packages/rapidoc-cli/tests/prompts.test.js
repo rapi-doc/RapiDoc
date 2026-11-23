@@ -173,6 +173,42 @@ test("rapidoc migrate finds the project to migrate", async (t) => {
     assert.equal(declined.status, 130);
     assert.equal(fs.readFileSync(path.join(dir, "rapidoc.config.yaml"), "utf8"), "# mine\n");
   });
+
+  await t.test("an existing rapidoc.config.yaml and no way to ask: exit 1 naming --force", (t) => {
+    const dir = redoclyProject(t);
+    const file = path.join(dir, "rapidoc.config.yaml");
+    fs.writeFileSync(file, "# mine\n");
+    for (const args of [
+      ["migrate", "--from", "redocly"],
+      ["migrate", "--yes"],
+    ]) {
+      const result = run(args, { cwd: dir });
+      assert.equal(result.status, 1, args.join(" "));
+      assert.match(result.stderr, /rapidoc\.config\.yaml exists: pass --force to replace it/);
+      assert.equal(fs.readFileSync(file, "utf8"), "# mine\n");
+    }
+  });
+
+  await t.test("--force replaces it without asking, -f too", (t) => {
+    for (const flag of ["--force", "-f"]) {
+      const dir = redoclyProject(t);
+      const file = path.join(dir, "rapidoc.config.yaml");
+      fs.writeFileSync(file, "# mine\n");
+      const result = run(["migrate", "--from", "redocly", flag], { cwd: dir });
+      assert.equal(result.status, 0, result.stderr);
+      assert.match(fs.readFileSync(file, "utf8"), /orders/);
+    }
+  });
+
+  await t.test("takes the project's folder as [dir]", (t) => {
+    const dir = redoclyProject(t);
+    const result = run(["migrate", dir, "--from", "redocly"], { cwd: tempDir(t) });
+    assert.equal(result.status, 0, result.stderr);
+    assert.ok(fs.existsSync(path.join(dir, "rapidoc.config.yaml")));
+    const missing = run(["migrate", path.join(dir, "nope"), "--from", "redocly"]);
+    assert.equal(missing.status, 2);
+    assert.match(missing.stderr, /is not a folder/);
+  });
 });
 
 test("a busy port", async (t) => {

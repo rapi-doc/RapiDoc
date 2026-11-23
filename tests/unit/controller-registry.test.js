@@ -31,7 +31,7 @@ test("controller-registry", async (t) => {
     for (const [key, control] of Object.entries(CONTROL_REGISTRY)) {
       if (TUNER_ONLY.includes(key)) continue;
       const attribute = attributes[control.attr];
-      assert.ok(attribute && !attribute.deprecated, `${key} is not an attribute the element reads`);
+      assert.ok(attribute, `${key} is not an attribute the element reads`);
       assert.equal(control.label, attribute.name, "the label is the attribute name");
       assert.equal(control.category, attribute.group, "the section is the attribute's group");
       assert.ok(control.tip, `${key} has a tip`);
@@ -62,10 +62,7 @@ test("controller-registry", async (t) => {
       { label: "view", rawVal: "view" },
       { label: "focused", rawVal: "focused" },
     ]);
-    assert.deepEqual(
-      CONTROL_REGISTRY.mcp.options.map((option) => option.rawVal),
-      ["true", "false", "none"],
-    );
+    assert.equal(CONTROL_REGISTRY.mcp.type, "toggle", "true/false is a toggle");
     for (const control of Object.values(CONTROL_REGISTRY)) {
       const attribute = attributes[control.attr];
       if (control.type !== "segmented" || !attribute?.values || attribute.open) continue;

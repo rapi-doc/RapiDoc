@@ -9,9 +9,7 @@ import focusedEndpointTemplate from "~/templates/focused-endpoint-template";
 import overviewTemplate from "~/templates/overview-template";
 import endpointTemplate from "~/templates/endpoint-template";
 import serverTemplate from "~/templates/server-template";
-import securitySchemeTemplate, {
-  recoverPersistedApiKeys,
-} from "~/templates/security-scheme-template";
+import securitySchemeTemplate from "~/templates/security-scheme-template";
 import headerTemplate from "~/templates/header-template";
 import { tryAnywhere } from "~/utils/try-filter";
 import navbarTemplate from "~/templates/navbar-template";
@@ -30,10 +28,6 @@ export default function mainBodyTemplate(isMini = false, pathsExpanded = false) 
     }
     return "";
   }
-  if (this.persistAuth === "true") {
-    recoverPersistedApiKeys.call(this);
-  }
-
   if (this.resolvedSpec.specLoadError) {
     return html` <div id="spec-not-found">${this.resolvedSpec.info.description}</div>`;
   }

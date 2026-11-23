@@ -55,9 +55,21 @@ export function writeMcpOutput(outDir, config, { warn = () => {} } = {}) {
 
   const apis = {};
   for (const [id, spec] of specs) {
-    const manifest = buildMcpManifest(spec, { serverName: id, sourceName: id });
-    manifest.tools = manifest.tools.map((tool) => ({ ...tool, name: `${id}_${tool.name}` }));
-    manifest.resources = manifest.resources.map((r) => ({ ...r, name: `${id}_${r.name}` }));
+    let manifest;
+    try {
+      // The prefix is counted before names are cut to 64 characters, and makes resource URIs unique
+      // across the APIs that /mcp serves together
+      manifest = buildMcpManifest(spec, {
+        serverName: id,
+        sourceName: id,
+        toolNamePrefix: `${id}_`,
+      });
+    } catch (err) {
+      // Such as two security schemes that would read the same variable: the portal still builds,
+      // without this API's tools
+      warn(`${id}: no MCP tools: ${err.message}`);
+      continue;
+    }
     const file = path.posix.join(MCP_DIR, `${id}.json`);
     writeJson(path.join(outDir, file), manifest);
     apis[id] = { file, tools: manifest.tools.length };

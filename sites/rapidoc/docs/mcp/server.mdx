@@ -37,14 +37,24 @@ The [manifest](/docs/mcp/#the-manifest) ships in a small TypeScript project you 
 unzip commerce-fulfillment-api-mcp.zip -d commerce-fulfillment-api-mcp
 cd commerce-fulfillment-api-mcp
 npm install
-API_KEY="your-key" npm start
+MCP_AUTH_API_KEY="your-key" npm start
 ```
 
-When the server is up, `npm start` prints a line such as `[MCP] my_api: 2 tools on stdio`; stop it with Ctrl+C. It also starts without credentials, and calls then return the API's error. `server.ts` and the runtimes are the same for every API, so `manifest.json` is the one file to review.
+When the server is up, `npm start` prints a line such as `[MCP] my_api: 2 tools on stdio`; stop it with Ctrl+C. When the manifest has no base URL and `MCP_BASE_URL` is not set, it prints that first, and every tool call answers with that error. It also starts without credentials, and calls then return the API's error. `server.ts` and the runtimes are the same for every API, so `manifest.json` is the one file to review.
 
 ### Environment variables
 
-Credentials are read from environment variables named after the security schemes in the OpenAPI spec, in upper snake case: the scheme `petstore_auth` (or `petstoreAuth`) reads `PETSTORE_AUTH`, `api_key` reads `API_KEY`. The agent never sees or supplies a credential: the server adds it to each request. When the spec has one scheme, `API_KEY` also works as its variable; with several schemes, each needs its own variable, so one key is never sent as another scheme's credential. HTTP Basic takes `user:password` in the scheme's variable, or `<NAME>_USERNAME` and `<NAME>_PASSWORD`. `API_BASE_URL` overrides the manifest's base URL for every source. `EXTERNAL_HOSTS` (comma-separated, `*` for any) lists the hosts a workflow step's [`x-operation`](https://flow.rapidocui.com/docs/extensions/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names. `rapidoc mcp serve` and `rapidoc serve` read the same variable.
+Every variable the server reads starts with `MCP_`. The project's `README.md` and `mcp.json` name the exact ones for your API. `rapidoc mcp serve` and the `/mcp` endpoint of `rapidoc serve` read the same variables.
+
+| Variable | What it is |
+| :--- | :--- |
+| `MCP_AUTH_<SCHEME>` | The credential of a security scheme: an API key or a bearer token. `<SCHEME>` is the scheme's id in the OpenAPI spec, in upper snake case: `petstore_auth` (or `petstoreAuth`) reads `MCP_AUTH_PETSTORE_AUTH`, `api_key` reads `MCP_AUTH_API_KEY` |
+| `MCP_AUTH_<SCHEME>_USERNAME`, `MCP_AUTH_<SCHEME>_PASSWORD` | The same for an HTTP Basic scheme |
+| `MCP_BASE_URL` | The API's base URL. It overrides the one in the manifest, and is required when the manifest has none (a spec with a relative server URL or no `servers`, read from a file) |
+| `MCP_BASE_URL_<SOURCE>` | The base URL of each API when the server has several (workflows over more than one OpenAPI spec). `<SOURCE>` is the source's name in the Arazzo spec, in upper snake case. `MCP_BASE_URL` is then refused, so one API's credentials never go to another API's host |
+| `MCP_EXTERNAL_HOSTS` | Hosts, comma-separated (`*` for any), that a workflow step's [`x-operation`](https://flow.rapidocui.com/docs/extensions/#calls-outside-the-api-sources-x-operation) URL computed at run time may go to, besides those the workflow names |
+
+The agent never sees or supplies a credential: the server adds it to each request. Each scheme has its own variable and there is no shared fallback, so one key is never sent as another scheme's credential, and a scheme named `token` or `path` reads `MCP_AUTH_TOKEN` or `MCP_AUTH_PATH`, never `$TOKEN` or `$PATH`. Two schemes whose ids give the same variable (`api-key` and `apiKey`) stop the export with a message that names both: rename one in the spec.
 
 ### Workflows as tools
 
@@ -53,11 +63,11 @@ When the page also has a [`<rapi-flow>`](https://flow.rapidocui.com/) element ti
 For a server with only the workflow tools, and no tool per operation, export from `<rapi-flow>` itself: with `mcp="true"` it shows its own **Export MCP Server** button (see [Workflows](https://flow.rapidocui.com/)). Its steps call every API source of the Arazzo spec, where `<rapi-doc>` knows one. A short list of task-sized tools is often easier for a model to use, and cheaper in tokens. From `<rapi-doc>`'s code, `downloadMcpServer({ includeOperations: false })` builds the same for its one API (`<server-name>-workflows-mcp.zip`).
 
 ```javascript
-import { buildMcpManifest, createMcpRuntime, parseArazzo } from '@rapidoc/mcp';
+import { buildMcpManifest, createMcpRuntime, credentialsFromEnv, parseArazzo } from '@rapidoc/mcp';
 
 const arazzo = parseArazzo(readFileSync('petstore.arazzo.yaml', 'utf8'));
 const manifest = buildMcpManifest(spec, { arazzo, onProblem: console.warn });
-const runtime = createMcpRuntime(manifest, { credentials: { api_key: process.env.API_KEY } });
+const runtime = createMcpRuntime(manifest, { credentials: credentialsFromEnv(manifest, process.env) });
 const result = await runtime.callTool('adopt_pet', { quantity: 1 }, {
   onStep: (step) => console.log(step.stepId, step.outcome, step.response?.status),
 });
@@ -87,14 +97,20 @@ npm install @rapidoc/mcp
 
 ```javascript
 import { readFileSync } from 'node:fs';
-import { parse } from 'yaml';
-import { buildMcpManifest, createMcpRuntime, writeMcpProject } from '@rapidoc/mcp';
+import {
+  buildMcpManifest,
+  createMcpRuntime,
+  credentialsFromEnv,
+  writeMcpProject,
+} from '@rapidoc/mcp';
 
-const spec = parse(readFileSync('openapi.yaml', 'utf8'));
+// The spec as an object. For a YAML file, install a YAML package (npm install yaml) and parse it.
+const spec = JSON.parse(readFileSync('openapi.json', 'utf8'));
 const manifest = buildMcpManifest(spec, { serverName: 'petstore' });
 
-// Call a tool directly, with credentials by security scheme
-const runtime = createMcpRuntime(manifest, { credentials: { api_key: process.env.API_KEY } });
+// Call a tool directly. Credentials are by security scheme id: { api_key: '...' },
+// here read from MCP_AUTH_API_KEY and the other MCP_AUTH_<SCHEME> variables
+const runtime = createMcpRuntime(manifest, { credentials: credentialsFromEnv(manifest, process.env) });
 const result = await runtime.callTool('get_pet_by_id', { petId: 1 });
 
 // Or write the same project the Export button downloads
@@ -104,11 +120,11 @@ const files = writeMcpProject(manifest); // path → text
 writeMcpProject(manifest, { serverPath: '/srv/petstore-mcp/server.ts' });
 ```
 
-`@rapidoc/mcp` ships TypeScript types (`McpManifest`, `McpRuntime`, ...). Its only dependency is `yaml` (for Arazzo specs); requests use Node's `fetch`.
+`@rapidoc/mcp` ships TypeScript types (`McpManifest`, `McpRuntime`, ...). Its only dependency is `js-yaml` (for Arazzo specs); requests use Node's `fetch`. `buildMcpManifest` takes `specUrl`, the address the spec was loaded from, to resolve a relative server URL; without a base URL in the manifest, pass `baseUrls: { api: 'https://...' }` to `createMcpRuntime`.
 
 ## Connecting an AI App
 
-Every exported project includes `mcp.json`, a ready-to-use `mcpServers` entry. It is a template: nothing is added to your AI app until you copy it into the app's configuration. Any app that can start a local MCP server over stdio can use the server: **Claude Desktop**, **Cursor**, Claude Code, Codex and others. Most read this JSON format; an app with another format (Codex uses TOML) takes the same command, arguments and variables. The entry has one `env` entry per security scheme in the spec (`API_KEY` alone when the spec declares none).
+Every exported project includes `mcp.json`, a ready-to-use `mcpServers` entry. It is a template: nothing is added to your AI app until you copy it into the app's configuration. Any app that can start a local MCP server over stdio can use the server: **Claude Desktop**, **Cursor**, Claude Code, Codex and others. Most read this JSON format; an app with another format (Codex uses TOML) takes the same command, arguments and variables. The entry's `env` has one variable per credential in the spec (none when the spec declares no security scheme), and `MCP_BASE_URL` when the manifest has no base URL.
 
 Add the entry to the `mcpServers` object of the app's own configuration file, keeping the entries already there, and replace the placeholder path in `args` with the absolute path of the unzipped folder's `server.ts` (`rapidoc mcp export` writes the real path). Run `npm install` in that folder first. The app starts the server itself, as a child process that talks over stdin and stdout; it listens on no port, and `npm start` is only for trying it out.
 
@@ -121,7 +137,7 @@ Add the entry to the `mcpServers` object of the app's own configuration file, ke
 | Codex | `~/.codex/config.toml`: a `[mcp_servers.<name>]` section with the same `command`, `args` and `env`, written as TOML |
 
 <Aside type="caution">
-  Every tool call is a real request to your API, made with the credentials you set. Use a key with only the permissions the agent should have, or point `API_BASE_URL` at a staging server. Leaving an operation out of the export keeps it off the tool list; it is not access control.
+  Every tool call is a real request to your API, made with the credentials you set. Use a key with only the permissions the agent should have, or point `MCP_BASE_URL` at a staging server. Leaving an operation out of the export keeps it off the tool list; it is not access control.
 
   - The safety annotations are hints for the AI app; the server has no confirmation step of its own.
   - The OpenAPI spec's text and the API's responses reach the model as they are. Export only from specs you trust.
@@ -137,8 +153,8 @@ For the Swagger Petstore, which declares the schemes `api_key` and `petstore_aut
       "command": "npx",
       "args": ["-y", "tsx", "/absolute/path/to/petstore-mcp/server.ts"],
       "env": {
-        "API_KEY": "your-api-key",
-        "PETSTORE_AUTH": "your-petstore-auth"
+        "MCP_AUTH_PETSTORE_AUTH": "your-petstore-auth",
+        "MCP_AUTH_API_KEY": "your-api-key"
       }
     }
   }

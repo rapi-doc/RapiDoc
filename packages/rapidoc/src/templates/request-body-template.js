@@ -337,7 +337,7 @@ export function formDataTemplate(schema, mimeType, exampleValue = "", encoding =
                             @click="${(e) => {
                               const inputEl = e.target
                                 .closest(".param-list")
-                                .querySelector(`[data-pname="${fieldName}"]`);
+                                .querySelector(`[data-pname="${CSS.escape(fieldName)}"]`);
                               if (inputEl) {
                                 if (e.target.dataset.type === "array") {
                                   inputEl.value = [e.target.dataset.enum];

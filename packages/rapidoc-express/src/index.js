@@ -1,6 +1,6 @@
 // @rapidoc/express: an Express middleware over the responder of @rapidoc/embed. It also runs under Connect
 // and a plain node:http server, since it only reads `req.method`, `req.url` and the request headers.
-import { createResponder, rapidocManifest, uiPathOf } from "@rapidoc/embed";
+import { createResponder, rapidocManifest } from "@rapidoc/embed";
 import { readAsset } from "@rapidoc/embed/node";
 
 /**
@@ -15,15 +15,11 @@ export function rapidoc(options = {}) {
   return function rapidocMiddleware(req, res, next) {
     // Under a mount point Express strips it from req.url and keeps it in req.baseUrl
     const path = (req.path ?? new URL(req.url, "http://localhost").pathname) || "/";
-    const mount = req.baseUrl ?? "";
     respond({
       method: req.method,
       path,
+      mount: req.baseUrl ?? "",
       ifNoneMatch: req.headers["if-none-match"],
-      publicUiPath:
-        mount && !(options.publicUiPath ?? options.publicPath)
-          ? `${mount}${uiPathOf(options)}`
-          : undefined,
       nonce: typeof nonce === "function" ? nonce(req, res) : undefined,
     })
       .then((response) => {

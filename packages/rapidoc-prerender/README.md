@@ -21,6 +21,8 @@ import { renderRapiDoc } from "@rapidoc/prerender";
 const html = await renderRapiDoc({ spec: "./openapi.yaml", outputMode: "dsd" });
 ```
 
+Options are camelCase, named as `<rapi-doc>`'s properties (the attribute's kebab-case name works too); an unknown option name throws, and so does a spec that cannot be loaded. `@rapidoc/prerender/internal` is for the other RapiDoc packages and is not covered by semver.
+
 Load `rapidoc` in the page for the interactive element. Types are in `src/index.d.ts`. The guide: [rapidocui.com/docs/prerender/](https://rapidocui.com/docs/prerender/).
 
 ## Development

@@ -12,7 +12,6 @@ interface RapidocAttribute {
   example?: string;
   code?: string;
   hidden?: boolean;
-  deprecated?: boolean;
 }
 
 interface AttributesGroup {

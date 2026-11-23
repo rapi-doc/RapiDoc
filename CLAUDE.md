@@ -13,8 +13,8 @@
 | Workspace | Package | Entry |
 | :--- | :--- | :--- |
 | `packages/rapidoc` | `rapidoc` | `src/index.js` → `<rapi-doc>` in `src/rapidoc.ts`; `<rapi-flow>` in `src/rapi-flow.ts` (`rapidoc/flow`); bundles `dist/rapidoc-min.js`, `dist/rapidoc-flow-min.js`; no runtime dependencies |
-| `packages/rapidoc-prerender` | `@rapidoc/prerender` | `src/index.js` → `dist/index.js` (`renderRapiDoc`, `getNavBarHtml`, `getNavCss`, `renderArazzoWorkflow`): build-time renderer over the templates in `packages/rapidoc/src`; used by the portal and the prerender guide |
-| `packages/rapidoc-portal` | `@rapidoc/portal` | `src/index.js` (+ `./config`, `./markdoc`, `./search`, `./components`); build engine in `src/engine/`, portal pages in `src/pages/` |
+| `packages/rapidoc-prerender` | `@rapidoc/prerender` | `src/index.js` → `dist/index.js` (`renderRapiDoc`, `getNavBarHtml`, `getNavCss`, `renderArazzoWorkflow`; `./internal` is for this repository's packages only): build-time renderer over the templates in `packages/rapidoc/src`; used by the portal and the prerender guide |
+| `packages/rapidoc-portal` | `@rapidoc/portal` | `src/index.js` (+ `./config`, `./search`, `./components`; `./internal/*` is for the generated workspace only); build engine in `src/engine/`, portal pages in `src/pages/` |
 | `packages/rapidoc-cli` | `@rapidoc/cli` | `src/index.js` dispatcher + `src/commands/` (bin `rapidoc`: `init`, `dev`, `build`, `serve`, `preview`, `mock`, `validate`, `lint`, `bundle`, `pdf`, `mcp`, `migrate`, `doctor`, `completion`; loads `@rapidoc/portal`, `@rapidoc/server`, `@rapidoc/mock`, `rapipdf` and the MCP SDK, optional peers, only when needed) |
 | `packages/rapidoc-server` | `@rapidoc/server` | `src/index.js` (`createApp`, `startServer`): serves a built portal with OIDC sign-in and the access zones from `dist/rapidoc-server.json` |
 | `packages/rapidoc-mcp` | `@rapidoc/mcp` | `src/index.js` → `dist/index.js` (`buildMcpManifest`, `createMcpRuntime`, `writeMcpProject`, `parseArazzo`): re-exports the shared MCP and Arazzo code in `packages/rapidoc/src`, for the portal build and `@rapidoc/server` |

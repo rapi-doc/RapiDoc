@@ -2,6 +2,8 @@
 // function for function. It takes the contract's own option names (uiPath, specUrl, scriptUrl) as a
 // JsonObject, because the conformance fixtures are read as they are; RapiDocOptions translates .NET naming.
 // No ASP.NET Core type is used here. Change the output only together with core.js and its fixtures.
+// An option that is null or an empty string counts as absent, so its default applies. uiPath is written
+// into the pages as given: pass the public path, the one the browser requests.
 
 using System.Globalization;
 using System.Text;
@@ -20,7 +22,11 @@ public sealed record RapiDocRoute(string Path, string Kind, string ContentType, 
 /// <summary>The integration contract of <c>@rapidoc/embed</c>: options in, routes and HTML out.</summary>
 public static class RapiDocContract
 {
-    /// <summary>Version of the contract this port implements.</summary>
+    /// <summary>
+    /// Version of the contract this port implements: the options, routes and HTML that the fixtures fix. It
+    /// is not the version of this package or of <c>@rapidoc/embed</c>, and not the <c>contract</c> field of
+    /// rapidoc's <c>integration.json</c> (the format of that file).
+    /// </summary>
     public const int ContractVersion = 2;
 
     /// <summary>Where the reference is served when <c>uiPath</c> is not given.</summary>
@@ -65,9 +71,8 @@ public static class RapiDocContract
             .Replace(((char)0x2029).ToString(), Escape("2029"));
     }
 
-    /// <summary>The <c>uiPath</c> option; <c>path</c>, its name in contract version 1, is still read.</summary>
-    public static string UiPathOf(JsonObject? options) =>
-        Text(options?["uiPath"]) ?? Text(options?["path"]) ?? DefaultUiPath;
+    /// <summary>The <c>uiPath</c> option, or its default. The site root is <c>/</c>: an empty string is an absent option.</summary>
+    public static string UiPathOf(JsonObject? options) => Given(options?["uiPath"]) ?? DefaultUiPath;
 
     /// <summary>A public URL path without a trailing slash; the site root is the empty string.</summary>
     public static string NormalizePath(string? path = DefaultUiPath)
@@ -107,7 +112,7 @@ public static class RapiDocContract
             return new RapiDocUrls(page, scriptUrl, string.IsNullOrEmpty(integrity) ? null : integrity, oauthReceiver);
         }
 
-        switch (assets is null ? "bundled" : Text(assets))
+        switch (Given(assets) ?? "bundled")
         {
             case "bundled":
                 return new RapiDocUrls(page, $"{path}/{ScriptFile}", null, oauthReceiver);
@@ -159,11 +164,11 @@ public static class RapiDocContract
         var lines = new List<string>
         {
             "<!doctype html>",
-            $"<html lang=\"{EscapeHtml(Text(options?["lang"]) ?? "en")}\">",
+            $"<html lang=\"{EscapeHtml(Given(options?["lang"]) ?? "en")}\">",
             "  <head>",
             "    <meta charset=\"utf-8\">",
             "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
-            $"    <title>{EscapeHtml(Text(options?["title"]) ?? DefaultTitle)}</title>",
+            $"    <title>{EscapeHtml(Given(options?["title"]) ?? DefaultTitle)}</title>",
             $"    <style{nonceAttribute}>{BaseStyle}</style>",
         };
         var css = Text(options?["css"]);
@@ -179,7 +184,7 @@ public static class RapiDocContract
 
         var attributes = ToAttributes(options);
         var spec = options?["spec"];
-        var hasSpec = spec is not null;
+        var hasSpec = spec is not null && Text(spec) != "";
         if (attributes.Count == 0)
         {
             lines.Add(hasSpec ? "    <rapi-doc>" : "    <rapi-doc></rapi-doc>");
@@ -209,7 +214,7 @@ public static class RapiDocContract
         string.Join(
             "\n",
             "<!doctype html>",
-            $"<html lang=\"{EscapeHtml(Text(options?["lang"]) ?? "en")}\">",
+            $"<html lang=\"{EscapeHtml(Given(options?["lang"]) ?? "en")}\">",
             "  <head>",
             "    <meta charset=\"utf-8\">",
             "    <title>OAuth sign-in</title>",
@@ -235,7 +240,7 @@ public static class RapiDocContract
             new(urls.OAuthReceiver, "oauth-receiver", HtmlType),
         };
         var assets = options?["assets"];
-        if (assets is null || Text(assets) == "bundled")
+        if (assets is not JsonObject && (Given(assets) ?? "bundled") == "bundled")
         {
             routes.Add(new(urls.Script, "file", "text/javascript; charset=utf-8", ScriptFile));
             routes.Add(new($"{path}/{LicenseFile}", "file", "text/plain; charset=utf-8", LicenseFile));
@@ -269,6 +274,13 @@ public static class RapiDocContract
             JsonValueKind.Number => NumberText(value),
             _ => value.ToJsonString(),
         };
+    }
+
+    /// <summary>An option's value as text. A missing value, null and the empty string all mean the option is absent.</summary>
+    private static string? Given(JsonNode? node)
+    {
+        var text = Text(node);
+        return string.IsNullOrEmpty(text) ? null : text;
     }
 
     private static string AttributeValue(JsonNode value) => Text(value) ?? CompactJson(value);

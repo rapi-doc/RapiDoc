@@ -42,14 +42,25 @@ const fromServer = (origin) => ({
  * `fullPath` is a file's path or an http(s) address; a relative `$ref` in a spec read from an address is read from
  * that address's server too.
  *
+ * A spec read from an address never reads a file of this machine. With `ownFileOnly` (a spec imported while
+ * the mock runs, written to a file of its own) neither does a spec read from a file: a `$ref` to another
+ * file is refused, so an imported spec cannot pull a local file into the mock's answers.
+ *
  * @param {string} fullPath
+ * @param {{ ownFileOnly?: boolean }} [options]
  * @returns {Promise<object>}
  */
-export async function loadSpec(fullPath) {
+export async function loadSpec(fullPath, { ownFileOnly = false } = {}) {
   const remote = /^https?:\/\//i.test(fullPath);
+  // No node:path here: this file is also in the browser build. The parser passes the root file's path as given.
+  const sameFile = (a, b) => String(a).replaceAll("\\", "/") === String(b).replaceAll("\\", "/");
   const doc = await $RefParser.bundle(
     fullPath,
-    remote ? { resolve: { named: fromServer(new URL(fullPath).origin) } } : {},
+    remote
+      ? { resolve: { file: false, named: fromServer(new URL(fullPath).origin) } }
+      : ownFileOnly
+        ? { resolve: { file: { canRead: (file) => sameFile(file.url, fullPath) } } }
+        : {},
   );
   if (typeof doc?.openapi !== "string" || !/^3\.[012]\./.test(doc.openapi)) {
     const version = doc?.openapi || (doc?.swagger && `Swagger ${doc.swagger}`) || "no version";

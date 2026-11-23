@@ -36,12 +36,11 @@ export const allStyles = [
 ];
 
 /**
- * Returns aggregated CSS text for Declarative Shadow DOM or Light DOM SSR/SSG pre-rendering.
+ * Returns the CSS of <rapi-doc> for pre-rendering: every theme and color scheme is in it, selected by
+ * the element's `theme` and `color-scheme` attributes.
  *
  * @param {Object} [options]
- * @param {string} [options.theme='amber'] - Theme preset name or valid hex color code
- * @param {'dark'|'light'|'system'} [options.colorScheme='dark'] - Color scheme
- * @param {string} [options.scope=''] - Optional outer selector (for Light DOM / non-shadow pre-rendering)
+ * @param {string} [options.scope=''] - A selector to use in place of `:host` (light-DOM pre-rendering)
  * @returns {string} Fully concatenated CSS string
  */
 export function getBundledCss(options = {}) {
@@ -88,7 +87,7 @@ export function getNavCss(scope = "") {
       .replace(/:host\b/g, scope)
       .replace(/::slotted\(([^)]+)\)/g, `$1`)
       .replace(/^\s*\.nav-bar\s*\{/gm, "&.nav-bar, & {");
-    navCss = `${scope} {\n  --sidebar-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;\n${navCss}\n}\n[data-theme='light'] ${scope} .nav-method.as-colored-block {\n  color: var(--method-badge-fg);\n}\n`;
+    navCss = `${scope} {\n  --sidebar-item-padding: 0.3125rem 0.625rem;\n${navCss}\n}\n[data-theme='light'] ${scope} .nav-method.as-colored-block {\n  color: var(--method-badge-fg);\n}\n`;
   }
   return navCss;
 }

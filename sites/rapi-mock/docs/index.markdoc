@@ -12,7 +12,7 @@ npx rapidoc mock openapi.yaml --stateful
 
 ## Find your way
 
-{% card-grid %}
+{% card-grid columns=2 %}
 {% card title="Get started" icon="rocket-launch" href="/docs/getting-started/introduction/" %}
 What RapiMock is and is not, a quickstart, and how it reads a data model off a spec.
 {% /card %}

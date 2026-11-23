@@ -50,7 +50,7 @@ RapiDoc's tools read two kinds of file, and the docs name them so a reader alway
 - **A bare "spec"** is the OpenAPI spec, and only where Arazzo specs don't come up. Wherever they do (all of RapiFlow's docs, workflows in RapiDoc Portal, the MCP export, `rapidoc validate`), say "OpenAPI spec" or "Arazzo spec" every time. Placeholders in code (`<spec>`, a `spec` variable) stay as they are.
 - **A workflow** is one workflow inside an Arazzo spec, never the file.
 - **The standards** are the OpenAPI Specification and the Arazzo Specification, capitalized.
-- Attribute, key and tag names stay as they are (`spec-url`, `arazzo-url`, `workflows:`, `{% workflow file= %}`).
+- Attribute, key and tag names stay as they are (`spec-url`, `arazzo-url`, `workflows:`, `{% workflow document= %}`).
 
 ## Using it
 

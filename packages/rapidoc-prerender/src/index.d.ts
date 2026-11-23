@@ -1,70 +1,111 @@
 /**
- * TypeScript Type Definitions for '@rapidoc/prerender'
+ * Types of `@rapidoc/prerender`.
+ *
+ * Options are camelCase, named as `<rapi-doc>`'s property for the same thing. An option that is also
+ * an attribute of `<rapi-doc>` is accepted under the attribute's kebab-case name too
+ * (`"schema-style"`); the types list the camelCase names. An unknown option name throws, except in
+ * `renderRapiDoc`, which passes any other attribute of `<rapi-doc>` on to the element.
  */
 
-export interface RenderRapiDocOptions {
+/** A value of a `"true"` / `"false"` attribute of `<rapi-doc>`. */
+export type BooleanLike = boolean | "true" | "false";
+
+/** How a spec is read: the same options as `<rapi-doc>`'s attributes of these names. */
+export interface SpecOptions {
+  /** Give operations without a tag one named after their path's first segment (default `false`: they go under "General"). */
+  generateMissingTags?: BooleanLike;
+  sortTags?: BooleanLike;
+  sortSchemas?: BooleanLike;
+  /** Default `"none"`: the spec's order. (`<rapi-doc>` itself defaults to `"path"`.) */
+  sortEndpointsBy?: "path" | "method" | "summary" | "none";
+  apiKeyName?: string;
+  apiKeyLocation?: "header" | "query";
+  apiKeyValue?: string;
+  serverUrl?: string;
+  /** Which operations to keep, as `filter-operations` of `<rapi-doc>`: operationIds, `GET /path`, path globs, `tag:`, `badge:`, `deprecated`, `!` to leave out. */
+  filterOperations?: string;
+  /** Keep tags that no operation uses when they have a description, as `show-unused-tags` of `<rapi-doc>`. */
+  showUnusedTags?: BooleanLike;
+}
+
+export interface RenderRapiDocOptions extends SpecOptions {
+  /** A file path, a URL, JSON or YAML text, or a spec object. */
   spec: string | object;
+  /** Default `"read"`. */
   renderStyle?: "read" | "view" | "focused";
+  /** A preset (`ember`, `carbon`, `cobalt`, `jade`, `indigo`, `amber`) or a hex color. Default `"amber"`. */
   theme?: string;
-  colorScheme?: "dark" | "light" | "system";
+  /** Default `"dark"`. `"auto"` follows the page's theme in the browser; the HTML is rendered dark. */
+  colorScheme?: "dark" | "light" | "system" | "auto";
+  /** Default `"row"`. */
   layout?: "row" | "column";
-  showHeader?: boolean | string;
-  showSideNav?: boolean | string;
-  showInfo?: boolean | string;
-  allowSearch?: boolean | string;
-  allowAdvancedSearch?: boolean | string;
-  allowServerSelection?: boolean | string;
-  allowAuthentication?: boolean | string;
-  allowTry?: boolean | string;
-  schemaStyle?: "table" | "tree";
+  showHeader?: BooleanLike;
+  showSideNav?: BooleanLike;
+  showInfo?: BooleanLike;
+  allowSearch?: BooleanLike;
+  /** Default `true`. */
+  allowAdvancedSearch?: BooleanLike;
+  allowServerSelection?: BooleanLike;
+  allowAuthentication?: BooleanLike;
+  allowTry?: BooleanLike;
+  /** Default `"tree"`. */
+  schemaStyle?: "tree" | "table";
   schemaExpandLevel?: number;
   defaultSchemaTab?: "example" | "schema";
-  outputMode?: "dsd" | "html" | "light";
-  includeStyles?: boolean;
-  /** Which operations to render, as `filter-operations` of `<rapi-doc>`: operationIds, `GET /path`, path globs, `tag:`, `badge:`, `deprecated`, `!` to leave out. */
-  filterOperations?: string;
   pageDirection?: "ltr" | "rtl";
-  /** Keep tags that no operation uses when they have a description, as `show-unused-tags` of `<rapi-doc>`. */
-  showUnusedTags?: boolean | "true" | "false";
+  /** `"dsd"` (default): `<rapi-doc>` with Declarative Shadow DOM. `"html"` / `"light"`: plain light-DOM HTML. */
+  outputMode?: "dsd" | "html" | "light";
+  /** Inline the element's CSS in the output (default `true`). */
+  includeStyles?: boolean;
   /** Inline an object `spec` as a `<script type="application/json" slot="rapidoc-spec">` (default `true`). */
   inlineSpec?: boolean;
   /** The operation shown first in focused mode (default `"overview"`, or the first operation when `showInfo` is off). */
   focusedElementId?: string;
-  [key: string]: any;
+  /** Any other attribute of `<rapi-doc>`, in camelCase or kebab-case: written to the element (DSD output). */
+  [attribute: string]: unknown;
 }
 
-export type RapiDocOptions = RenderRapiDocOptions;
-
-export interface RenderEndpointOptions {
+export interface RenderEndpointOptions extends SpecOptions {
   spec: string | object;
+  /** The operation's path, matched exactly. */
   path: string;
+  /** The HTTP method, in any case. */
   method: string;
   renderStyle?: "read" | "view";
+  /** Default `"column"`. */
   layout?: "row" | "column";
   theme?: string;
   colorScheme?: "dark" | "light" | "system";
   includeStyles?: boolean;
-  allowTry?: boolean | string;
+  /** Default `false`. */
+  allowTry?: BooleanLike;
+  /** Default `"table"`. */
   schemaStyle?: "table" | "tree";
 }
 
 export interface RenderSchemaOptions {
+  /** A JSON Schema object, or a name under `components.schemas` of `spec`. */
   schema: object | string;
   spec?: string | object;
-  style?: "table" | "tree";
+  /** Default `"table"`. */
+  schemaStyle?: "table" | "tree";
   schemaExpandLevel?: number;
   theme?: string;
   colorScheme?: "dark" | "light" | "system";
   includeStyles?: boolean;
 }
 
+/** An operation in the navigation: these fields and no others. */
 export interface NavigationOperation {
+  /** Lower case. */
   method: string;
   path: string;
   summary: string;
   description: string;
+  /** The operation's anchor in `<rapi-doc>` (`#<elementId>`). */
   elementId: string;
   deprecated: boolean;
+  /** The spec's `operationId`, or one made from the method and path when it has none. */
   operationId: string;
   isWebhook: boolean;
 }
@@ -101,63 +142,68 @@ export interface SpecNavigation {
   remainingTags: NavigationTag[];
 }
 
-export interface RenderNavBarHtmlOptions {
+/** The sidebar's own options. */
+export interface NavBarOptions {
+  /** The prefix of every link, e.g. `/apis/orders`; a closing slash is ignored. */
   basePath?: string;
+  /** The current URL or anchor: the matching item is marked active. */
   activeHref?: string;
+  /** Include the filter box (default `true`). */
   includeSearch?: boolean;
   searchPlaceholder?: string;
   backToDocsHref?: string;
   backToDocsLabel?: string;
+  /** A class added to every operation link. */
   itemClassName?: string;
   includeOverview?: boolean;
+  /** The method's text with `showMethodInNavBar: "as-colored-block"` (default `"3-char"`). */
   methodBadgeFormat?: "3-char" | "full";
-  /** How each operation shows its HTTP method, as `show-method-in-nav-bar` of `<rapi-doc>` (default `as-colored-block`). */
+  /** `"single-page"` (default): links are `<basePath>#<anchor>`. `"tag-pages"`: `<basePath>/<tag slug>#<anchor>`, a page per tag. */
+  routingMode?: "tag-pages" | "single-page";
+  /** How each operation shows its HTTP method, as `show-method-in-nav-bar` of `<rapi-doc>` (default `as-colored-text`). */
   showMethodInNavBar?: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block";
-  "show-method-in-nav-bar"?: "false" | "as-plain-text" | "as-colored-text" | "as-colored-block";
   /** A dot on items whose operation shows a badge, as `show-badges-in-nav-bar` of `<rapi-doc>` (default `dot`). */
   showBadgesInNavBar?: "dot" | "false";
-  "show-badges-in-nav-bar"?: "dot" | "false";
   /** Show each operation's path instead of its summary, as `use-path-in-nav-bar` of `<rapi-doc>`. */
-  usePathInNav?: boolean | "true" | "false";
-  "use-path-in-nav-bar"?: boolean | "true" | "false";
-  routingMode?: "tag-pages" | "single-page";
-  "routing-mode"?: "tag-pages" | "single-page";
+  usePathInNavBar?: BooleanLike;
 }
 
+/** Options of `getNavBarHtml`: the sidebar's, and how the spec is read. */
+export interface GetNavBarHtmlOptions extends NavBarOptions, SpecOptions {}
+
+/**
+ * These functions throw when the spec cannot be loaded or parsed (a file that does not exist, a URL
+ * that does not answer, text that is not an OpenAPI document), and on an unknown option name.
+ */
 export function renderRapiDoc(options: RenderRapiDocOptions): Promise<string>;
 export function renderEndpoint(options: RenderEndpointOptions): Promise<string>;
 export function renderSchema(options: RenderSchemaOptions): Promise<string>;
-export function resolveSpecInput(specInput: string | object, options?: any): Promise<any>;
-export function renderTemplateToString(result: any, options?: { stripComments?: boolean }): string;
-export function escapeHtml(str: string): string;
 export function getSpecNavigation(
   specInput: string | object,
-  options?: any,
+  options?: SpecOptions,
 ): Promise<SpecNavigation>;
 export function getNavBarHtml(
   specInput: string | object,
-  options?: RenderNavBarHtmlOptions,
+  options?: GetNavBarHtmlOptions,
 ): Promise<string>;
-export function renderNavBarHtml(resolvedSpec: any, options?: RenderNavBarHtmlOptions): string;
+/** The sidebar's filter box alone. */
 export function getNavFilterHtml(options?: {
   searchPlaceholder?: string;
-  /** Alias of `searchPlaceholder`. */
-  placeholder?: string;
   inputClassName?: string;
 }): string;
+/** In the browser: ties a sidebar from `getNavBarHtml` to a `<rapi-doc>`. Returns a function that undoes it. */
 export function bindNavBar(
   sidebar: HTMLElement | string,
   rapiDoc?: HTMLElement | string,
   options?: { activeClass?: string; updateHistory?: boolean },
 ): () => void;
-export function getMethodBadge(method: string, format?: "3-char" | "full"): string;
-export function getBundledCss(options?: {
-  theme?: string;
-  colorScheme?: string;
-  scope?: string;
-}): string;
+/** The CSS of `<rapi-doc>`, every theme and color scheme included. `scope` replaces `:host`, for light-DOM HTML. */
+export function getBundledCss(options?: { scope?: string }): string;
+/** The sidebar's CSS; `scope` is the selector of the element that holds it. */
 export function getNavCss(scope?: string): string;
+/** The theme's CSS variables, on `:root` or `scope`. */
 export function getThemeTokensCss(theme?: string, scope?: string): string;
+/** A name as the kebab-case slug `<rapi-doc>` uses in anchors and the sidebar uses for tag pages. */
 export function toKebabCase(str: string): string;
 
 /** Anchor built from an operation's method and path (e.g. "get-routes-id-estimate"); <rapi-doc> resolves it to the operation. */

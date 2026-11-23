@@ -1,6 +1,6 @@
 // The public API of <rapi-doc> as data, read from packages/rapidoc/src/rapidoc.ts: each `@property`
 // declaration (attribute name, union type, initial value) with its doc comment, the documented methods
-// (`@public`), and the `@fires`, `@slot`, `@attr` and `@deprecatedAttr` tags of the class comment. The
+// (`@public`), and the `@fires`, `@slot` and `@attr` tags of the class comment. The
 // other elements are read the same way (ELEMENTS, DOCUMENTED_ELEMENTS). Nothing is written
 // to disk: the docs /api page and scripts/rapidoc-metadata.js call readApiManifest() and so cannot differ
 // from the source. The tags are described in the class comment of rapidoc.ts.
@@ -65,7 +65,6 @@ const TAGS = new Set([
   "fires",
   "slot",
   "attr",
-  "deprecatedAttr",
   // JSDoc's, read as tags so they end the text before them; the manifest does not use them
   "param",
   "returns",
@@ -264,18 +263,17 @@ export function readApiManifest(file = RAPIDOC_SOURCE, className = "RapiDoc") {
     }
   }
 
-  // `@attr` and `@deprecatedAttr`: `name | group | allowed values (comma-separated) | default | description`,
-  // for attributes the class does not declare as properties. Allowed values and default may be empty.
+  // `@attr`: `name | group | allowed values (comma-separated) | default | description`, for attributes
+  // the class does not declare as properties. Allowed values and default may be empty.
   const classDoc = docOf(element, sourceFile);
-  const pipeAttribute = (text, tag) => {
+  for (const text of tagTexts(classDoc, "attr")) {
     const [name, group, allowed, defaultValue, ...description] = text
       .split("|")
       .map((part) => part.replace(/\s+/g, " ").trim());
     if (!description.length || !group || !description.join("").trim()) {
-      throw new Error(`${fileName}: @${tag} ${name} needs five fields separated by |`);
+      throw new Error(`${fileName}: @attr ${name} needs five fields separated by |`);
     }
     const entry = { name };
-    if (tag === "deprecatedAttr") entry.deprecated = true;
     const values = allowed
       .split(",")
       .map((value) => value.trim())
@@ -284,9 +282,7 @@ export function readApiManifest(file = RAPIDOC_SOURCE, className = "RapiDoc") {
     entry.description = description.join(" | ");
     if (defaultValue) entry.default = defaultValue;
     addAttribute(group, entry);
-  };
-  for (const text of tagTexts(classDoc, "attr")) pipeAttribute(text, "attr");
-  for (const text of tagTexts(classDoc, "deprecatedAttr")) pipeAttribute(text, "deprecatedAttr");
+  }
 
   return {
     Attributes: [...groups].map(([group, items]) => ({ [`${group} Attributes`]: items })),

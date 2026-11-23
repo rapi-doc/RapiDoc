@@ -178,7 +178,6 @@ describe("the manifest read from an element", () => {
  * is rendered.
  * @slot - The default slot.
  * @slot tag--{tag-name} - Under a tag.
- * @deprecatedAttr old-one | Layout | a, b | a | No longer read.
  */`,
     );
     assert.deepEqual(api.Methods.items, [
@@ -200,19 +199,7 @@ describe("the manifest read from an element", () => {
       { name: "(default)", description: "The default slot." },
       { name: "tag--{tag-name}", description: "Under a tag." },
     ]);
-    assert.deepEqual(api.Attributes, [
-      {
-        "Layout Attributes": [
-          {
-            name: "old-one",
-            deprecated: true,
-            allowed: ["a", "b"],
-            description: "No longer read.",
-            default: "a",
-          },
-        ],
-      },
-    ]);
+    assert.deepEqual(api.Attributes, []);
   });
 });
 
@@ -233,7 +220,6 @@ describe("@attr tags", () => {
  * @attr spec-url | Spec | | | URL of the
  *   spec.
  * @attr output | Output | open, download | open | Where it goes.
- * @deprecatedAttr old-one | Output | a, b | a | No longer read.
  */`,
     );
     assert.deepEqual(api.Attributes, [
@@ -245,13 +231,6 @@ describe("@attr tags", () => {
             allowed: ["open", "download"],
             description: "Where it goes.",
             default: "open",
-          },
-          {
-            name: "old-one",
-            deprecated: true,
-            allowed: ["a", "b"],
-            description: "No longer read.",
-            default: "a",
           },
         ],
       },
@@ -375,7 +354,7 @@ describe("rapidoc metadata", () => {
     assert.deepEqual(byName["render-style"].values, ["read", "view", "focused"]);
     assert.equal(byName.theme.open, true, "a note in the list makes it open");
     assert.ok(!byName.theme.values.some((value) => value.startsWith("(")));
-    assert.equal(byName.mcp.kind, "enum", "true/false/none is not a boolean");
+    assert.equal(byName.mcp.kind, "boolean");
     assert.equal(byName["schema-expand-level"].kind, "number");
     assert.equal(byName["spec-url"].default, undefined, "(empty) is a note");
     assert.deepEqual(byName["fetch-credentials"].values, ["omit", "same-origin", "include"]);
@@ -389,7 +368,6 @@ describe("rapidoc metadata", () => {
     assert.deepEqual(schema.properties["render-style"].enum, ["read", "view", "focused"]);
     assert.equal(schema.properties.theme.enum, undefined);
     assert.equal(schema.properties["mock-server-delay"].type, "number");
-    assert.equal(schema.properties["on-nav-tag-click"].deprecated, true);
   });
 
   it("builds a custom elements manifest with every element, by bundle", () => {

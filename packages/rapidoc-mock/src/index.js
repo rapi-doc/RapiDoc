@@ -3,11 +3,13 @@ import { cors } from "hono/cors";
 import { getCookie } from "hono/cookie";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { METHODS as NODE_METHODS } from "node:http";
+import net from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { serve } from "@hono/node-server";
-import { createAuth, createVerifier, problem } from "./auth.js";
-import { control, CONTROL_PREFIX } from "./control.js";
+import { createAuth, createVerifier, problem, unknownSchemes } from "./auth.js";
+import { badPath, control, CONTROL_PREFIX, segmentsOf } from "./control.js";
+import { ImportError, isLocalCaller } from "./local.js";
 import { createRuntime } from "./runtime.js";
 import { serveUi } from "./ui.js";
 import { createRouter } from "./engine/router.js";
@@ -17,13 +19,27 @@ import { CONFIG_FILE, configFor } from "./stateful/config.js";
 import { createStateful, SESSION_HEADER } from "./stateful/handlers.js";
 import { DEFAULT_STREAM_INTERVAL, parseStreamBody, streamKind, timedStream } from "./stream.js";
 
-export { tokenScopes } from "./auth.js";
-export { CONTROL_PREFIX } from "./control.js";
-export { exampleError } from "./examples.js";
-export { CONFIG_FILE, configFor } from "./stateful/config.js";
-export { STATEFUL_RULES, statefulFindings, statefulReport } from "./stateful/findings.js";
+/*
+ * The package's public API: createMockApp(), startMockServer() and DEFAULT_PORT, with the options and
+ * return values their comments describe. Nothing else is exported from here. What `rapidoc lint` takes
+ * from the mock is in ./internal.js (`@rapidoc/mock/internal`), which may change in any release.
+ */
 
+/** The port `rapidoc mock` and startMockServer() listen on unless told another. */
 export const DEFAULT_PORT = 4010;
+
+/**
+ * One API the mock serves.
+ *
+ * @typedef {object} MockApi
+ * @property {string} id - The path prefix: the API is served under `/<id>`
+ * @property {string} [title] - The title given, else the spec's `info.title`
+ * @property {number} operations - How many operations it has
+ * @property {{resources: Record<string, number>, confident: number, needsReview: number, plainMock: number, review: string[]}} [stateful] -
+ *   With `stateful`: the records seeded per resource; how many operations work on stored records
+ *   (`confident`), do so but should be checked (`needsReview`), or answer as without state (`plainMock`);
+ *   and `review`, the notes on what should be checked
+ */
 
 /**
  * `rapidoc mock`: serves every API on one port, each under `/<api id>/`, with responses from the spec's examples
@@ -52,7 +68,9 @@ export const DEFAULT_PORT = 4010;
  * @param {string | string[]} [options.origin] - Origins allowed by CORS (default `*`; tokens travel in headers, not cookies)
  * @param {(line: string) => void} [options.log] - Request log; default console.log with a [rapidoc mock] prefix
  * @param {(line: string) => void} [options.warn] - Problems that don't stop the server; default console.warn
- * @returns {Promise<{app: Hono, apis: {id: string, title?: string, operations: number, stateful?: object}[], skipped: {id: string, error: string}[], verifier: object | null}>}
+ * @returns {Promise<{app: Hono, apis: MockApi[], skipped: {id: string, error: string}[]}>} `app`: a Hono app
+ *   (`app.fetch(request)` answers a request, with no port open); `apis`: what is served; `skipped`: the
+ *   APIs whose spec could not be loaded, and why
  */
 export async function createMockApp({
   apis,
@@ -87,6 +105,16 @@ export async function createMockApp({
     const doc = given ?? (await loadSpec(api.fullPath));
     const router = await createRouter(doc, { warn: (line) => warn(`${api.id}: ${line}`) });
     const operations = listOperations(doc);
+    // A requirement that names a scheme the spec does not define can't be met: said once, here
+    for (const { scheme, operations: names } of unknownSchemes(doc)) {
+      warn(
+        `${api.id}: security scheme "${scheme}" is not defined in components.securitySchemes: ${names
+          .slice(0, 3)
+          .join(
+            ", ",
+          )}${names.length > 3 ? ` and ${names.length - 3} more` : ""} can't be called with it (401 unless another requirement is met)`,
+      );
+    }
     const byKey = new Map(operations.map((op) => [`${op.method} ${op.path}`, op]));
     // Node's HTTP parser accepts a fixed list of methods (QUERY, PURGE, COPY, ... are in it)
     for (const op of operations) {
@@ -167,7 +195,7 @@ export async function createMockApp({
     } else throw new ImportError("Send a spec: { url } or { text, name }");
     let doc;
     try {
-      doc = await loadSpec(fullPath);
+      doc = await loadSpec(fullPath, { ownFileOnly: true });
     } catch (err) {
       // the file the text was written to is the mock's business: the message names what was sent
       throw new ImportError(
@@ -234,7 +262,8 @@ export async function createMockApp({
   // The mock's own endpoints: health, and the stored records of the stateful mode (see control.js)
   const controlHandler = async (c) => {
     const url = new URL(c.req.url);
-    const segments = url.pathname.split("/").filter(Boolean).slice(1).map(decodeURIComponent);
+    const segments = segmentsOf(url.pathname)?.slice(1);
+    if (!segments) return send(badPath());
     if (segments[0] === "ui" && c.req.method === "GET") {
       return send(await serveUi(segments.slice(1), url.pathname.endsWith("/")));
     }
@@ -246,7 +275,7 @@ export async function createMockApp({
         session: c.req.header(SESSION_HEADER),
         body: () => c.req.json(),
         // from this machine: only such a caller may import a spec (it can make the mock read any address)
-        local: isLoopback(c.env?.incoming?.socket?.remoteAddress),
+        local: isLocalCaller(c),
       },
       loaded,
       runtime,
@@ -285,21 +314,11 @@ export async function createMockApp({
       ...(state ? { stateful: statefulSummary(state) } : {}),
     })),
     skipped,
-    verifier,
   };
 }
 
 /** The largest spec an import takes as text. */
 const MAX_IMPORT = 25 * 1024 * 1024;
-
-/** A problem with a spec sent to import: answered as a 400 with its message (control.js). */
-export class ImportError extends Error {
-  name = "ImportError";
-}
-
-/** True for an address of this machine (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`). */
-const isLoopback = (address) =>
-  typeof address === "string" && /^(127\.|::1$|::ffff:127\.)/.test(address);
 
 /** A safe file name for an imported spec's text: its own name's last part, else `openapi.yaml`. */
 const fileName = (name) => {
@@ -505,23 +524,47 @@ async function readBody(c, contentType = "") {
   return /json/i.test(contentType) ? JSON.parse(text) : text;
 }
 
+const canListen = (port, host) =>
+  new Promise((resolve) => {
+    const probe = net.createServer();
+    probe.once("error", () => resolve(false));
+    probe.listen({ port, host }, () => probe.close(() => resolve(true)));
+  });
+
 /**
  * Starts the mock server.
  *
  * @param {object} options - createMockApp() options, plus:
  * @param {number} [options.port] - Default 4010 (0 picks a free port)
- * @param {string} [options.host] - Default 0.0.0.0
+ * @param {string} [options.host] - Default localhost: this machine only. `0.0.0.0` listens on every network
+ *   interface (a container, a shared test server); the mock checks no token then unless `issuer` is set
+ * @returns {Promise<{url: string, port: number, apis: MockApi[], skipped: {id: string, error: string}[], close: () => Promise<void>}>}
+ *   `url`: where the mock listens (`http://localhost:<port>`); `apis` and `skipped` as createMockApp() returns
+ *   them; `close()` stops it
  */
-export async function startMockServer({ port = DEFAULT_PORT, host = "0.0.0.0", ...options }) {
-  const { app, apis, skipped, verifier } = await createMockApp(options);
+export async function startMockServer({ port = DEFAULT_PORT, host = "localhost", ...options }) {
+  const { app, apis, skipped } = await createMockApp(options);
+  // "localhost" as a name to listen on is one address family, whichever the system lists first (IPv6 on
+  // macOS), and a client that asks for 127.0.0.1 then finds nothing. The IPv4 loopback address is what
+  // every client reaches, by either name.
+  const hostname = host === "localhost" ? "127.0.0.1" : host;
+  // Some systems (macOS) let a server take 127.0.0.1:<port> while another holds that port on every
+  // interface; requests to localhost would then reach whichever is more specific. Treat it as taken.
+  if (port && hostname.startsWith("127.") && !(await canListen(port, "0.0.0.0"))) {
+    throw Object.assign(
+      new Error(`listen EADDRINUSE: address already in use ${hostname}:${port}`),
+      {
+        code: "EADDRINUSE",
+      },
+    );
+  }
   return new Promise((resolve, reject) => {
-    const server = serve({ fetch: app.fetch, port, hostname: host }, (info) => {
+    const server = serve({ fetch: app.fetch, port, hostname }, (info) => {
       resolve({
-        url: `http://${host === "0.0.0.0" ? "localhost" : host}:${info.port}`,
+        url: `http://${hostname === "0.0.0.0" || hostname === "127.0.0.1" ? "localhost" : hostname}:${info.port}`,
         port: info.port,
         apis,
         skipped,
-        verifier,
         close: () => new Promise((done) => server.close(() => done())),
       });
     });

@@ -3,24 +3,26 @@ import PortalLayout from '../components/PortalLayout.astro';
 import PortalMobileNav from '../components/PortalMobileNav.astro';
 import PortalSidebarTabs from '../components/PortalSidebarTabs.astro';
 import Callout from '../components/Callout.astro';
-import { getNavBarHtml, getNavCss, getThemeTokensCss } from '@rapidoc/prerender';
+import { getNavCss, getThemeTokensCss } from '@rapidoc/prerender';
+import { renderNavBarHtml } from '@rapidoc/prerender/internal';
 import portalConfig from 'virtual:rapidoc-portal/config';
 import { OAUTH_RECEIVER_PATH } from '../engine/sync-assets.js';
-import { apiReferencePaths, readVersionSpec } from '../engine/api-routes.js';
+import { apiReferencePaths, loadVersionSpec } from '../engine/api-routes.js';
 import { withBase } from '../components/base-path.js';
 import { rapidocThemeAttributes } from '../components/rapidoc-theme.js';
 
 export async function getStaticPaths() {
-  const paths = await apiReferencePaths(portalConfig.apis);
+  // A spec that cannot be loaded stops a build; in `rapidoc dev` only that API's page shows the error.
+  const paths = await apiReferencePaths(portalConfig.apis, { deferSpecErrors: import.meta.env.DEV });
   return paths.map((page) => ({ ...page, props: { ...page.props, portalConfig } }));
 }
 
-const { api, version, versionTags = [], portalConfig, activeTagSlug = '', currentPath = version.path, redirectTo: redirectPath } = Astro.props;
+const { api, version, versionTags = [], portalConfig, activeTagSlug = '', currentPath = version.path, redirectTo: redirectPath, specError } = Astro.props;
+if (specError) throw new Error(specError);
 
 // Paths below are relative to the portal; links get the base path the portal is served under.
 const redirectTo = redirectPath && withBase(redirectPath);
 const specUrl = withBase(version.specUrl);
-const specInput = redirectTo ? null : readVersionSpec(version) || version.spec;
 const defaultVersion = api.versions[0];
 const versionChoices = api.versions.map((v, i) => ({ ...v, tags: versionTags[i] || [] }));
 
@@ -36,20 +38,18 @@ const navAttributes = {
   'use-path-in-nav-bar': portalConfig.rapidoc['use-path-in-nav-bar'] || 'false',
 };
 
-let sidebarNavHtml = '';
-try {
-  if (!redirectTo) sidebarNavHtml = await getNavBarHtml(specInput, {
-    basePath: withBase(version.path),
-    activeHref: withBase(currentPath),
-    routingMode: 'tag-pages',
-    includeSearch: true,
-    searchPlaceholder: 'Filter endpoints...',
-    itemClassName: 'portal-sidebar-op-item',
-    ...navAttributes,
-  });
-} catch (err) {
-  sidebarNavHtml = `<div style="padding: 1.5rem; color: #ef4444;">Failed to render navigation: ${err.message}</div>`;
-}
+// The spec is loaded once per run (engine/api-routes.js) and throws when it cannot be: no page without its sidebar.
+const sidebarNavHtml = redirectTo
+  ? ''
+  : renderNavBarHtml(await loadVersionSpec(api, version), {
+      basePath: withBase(version.path),
+      activeHref: withBase(currentPath),
+      routingMode: 'tag-pages',
+      includeSearch: true,
+      searchPlaceholder: 'Filter endpoints...',
+      itemClassName: 'portal-sidebar-op-item',
+      ...navAttributes,
+    });
 
 const navCss = getNavCss('.portal-sidebar');
 const themeTokensCss = getThemeTokensCss(themePreset);
@@ -179,15 +179,17 @@ const rapidocAttributes = {
     }
   }
   /* The guides' sidebar colors: links muted and brighter on hover (`.sidebar-pane a` in
-     styles/portal-theme.css), tag and group headings in Starlight's group-label color. Accent text
-     keeps WCAG AA contrast. Method colors are RapiDoc's own. */
+     styles/portal-theme.css), tags in a group in Starlight's group-label color. Section labels (and
+     the tags, without tag groups) keep RapiDoc's muted upper case. Accent text keeps WCAG AA
+     contrast. Method colors are RapiDoc's own. */
   .portal-api-nav {
     --sidebar: var(--portal-bg);
     --sidebar-primary: var(--portal-primary-text);
     --sidebar-foreground: var(--portal-muted);
+    --sidebar-label-foreground: var(--portal-muted);
     --sidebar-accent-foreground: var(--portal-fg);
   }
-  .portal-api-nav.portal-sidebar :is(.nav-bar-tag:not(.active), .nav-bar-tag-group-header) {
+  .portal-api-nav.portal-sidebar .nav-scroll:not(.tags-as-labels) .nav-bar-tag:not(.active) {
     color: var(--sl-color-white);
   }
 
@@ -203,16 +205,11 @@ const rapidocAttributes = {
   .portal-api-preset .portal-api-nav {
     --sidebar-primary: var(--primary-text, var(--primary));
     --sidebar-foreground: color-mix(in srgb, var(--foreground) 72%, var(--sidebar));
+    --sidebar-label-foreground: var(--sidebar-foreground);
     --sidebar-accent-foreground: var(--foreground);
   }
-  .portal-api-preset .portal-api-nav.portal-sidebar :is(.nav-bar-tag:not(.active), .nav-bar-tag-group-header) {
+  .portal-api-preset .portal-api-nav.portal-sidebar .nav-scroll:not(.tags-as-labels) .nav-bar-tag:not(.active) {
     color: var(--heading-color, var(--foreground));
-  }
-
-  /* One weight for every sidebar level, as in the guides' sidebar (PortalSidebarSublist); RapiDoc's
-     nav CSS makes the overview and tag titles bold. */
-  .portal-api-nav.portal-sidebar :is(.nav-bar-info, .nav-bar-tag, .nav-bar-tag-group-header, .nav-bar-section) {
-    font-weight: 400;
   }
 
   /* Fill the sidebar below the (mobile) header links; the nav CSS sizes its root for RapiDoc's own layout. */
@@ -232,7 +229,7 @@ const rapidocAttributes = {
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
-    padding: 8px 0;
+    padding: 8px 10px 24px;
     box-sizing: border-box;
     scrollbar-width: thin;
   }

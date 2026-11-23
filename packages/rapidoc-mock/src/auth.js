@@ -1,5 +1,5 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
-import { resolve, securityOf } from "./spec.js";
+import { listOperations, resolve, securityOf } from "./spec.js";
 
 /**
  * Bearer token verification against an OpenID Connect issuer: the JWKS comes from its discovery document, and a
@@ -79,7 +79,7 @@ const isTokenScheme = (scheme) =>
  * @param {object | null} verifier - createVerifier(), or null to accept bearer tokens unchecked
  */
 export function createAuth(doc, verifier) {
-  const schemes = {};
+  const schemes = Object.create(null); // no inherited names: `constructor` is not a scheme
   for (const [name, raw] of Object.entries(doc.components?.securitySchemes || {}))
     schemes[name] = resolve(doc, raw).node || {};
 
@@ -119,9 +119,12 @@ export function createAuth(doc, verifier) {
         let outcome = { ok: true };
         for (const [name, listed] of Object.entries(requirement)) {
           const scheme = schemes[name];
-          if (!scheme) continue; // an undefined scheme is a spec error the validator reports; don't block on it
           let result = { ok: true };
-          if (scheme.type === "apiKey") {
+          // A scheme the spec does not define can't be met: the requirement fails (never open by mistake).
+          // unknownSchemes() names these at start-up.
+          if (!scheme) {
+            result = { unauthorized: `security scheme "${name}" is not defined in the spec` };
+          } else if (scheme.type === "apiKey") {
             const key = scheme.name?.toLowerCase();
             const present =
               scheme.in === "query"
@@ -184,6 +187,28 @@ export function createAuth(doc, verifier) {
       );
     },
   };
+}
+
+/**
+ * The security requirements that name a scheme `components.securitySchemes` does not define, per scheme:
+ * `[{ scheme, operations: ["GET /pets", ...] }]`. Such a requirement can't be met, so an operation with no
+ * other alternative answers 401; the server warns about each scheme once when it loads the spec.
+ *
+ * @param {object} doc - Bundled OpenAPI document
+ */
+export function unknownSchemes(doc) {
+  const defined = doc.components?.securitySchemes || {};
+  const found = new Map();
+  for (const { method, path, operation } of listOperations(doc)) {
+    for (const requirement of securityOf(doc, operation)) {
+      for (const name of Object.keys(requirement || {})) {
+        if (Object.hasOwn(defined, name)) continue;
+        if (!found.has(name)) found.set(name, new Set());
+        found.get(name).add(`${method.toUpperCase()} ${path}`);
+      }
+    }
+  }
+  return [...found].map(([scheme, operations]) => ({ scheme, operations: [...operations] }));
 }
 
 const listOf = (items) => items.join(", ");

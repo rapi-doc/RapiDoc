@@ -76,7 +76,6 @@ describe("the in-browser mock reads the prefix", () => {
     enableMockServer(spec, {
       log: "false",
       statusCode: { "GET /a": "cycle:404,200", "GET /b": "first:500,200" },
-      statusStrategy: "random",
     });
     assert.deepEqual([await status("/a"), await status("/a")], [404, 200]);
     assert.deepEqual([await status("/b"), await status("/b")], [500, 500]);

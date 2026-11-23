@@ -1,6 +1,6 @@
 ---
 import GlobalLayout from '../../layouts/GlobalLayout.astro';
-import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
+import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import Icon from '../../components/Icon.astro';
@@ -43,7 +43,7 @@ const miniSnippetCode = `<!-- Pluck and render only a specific endpoint from a m
 <rapi-doc-mini
   spec-url="/specs/enterprise-huge-spec.json"
   filter-operations="GET /users/{id}"
-  theme="dark"
+  color-scheme="dark"
 ></rapi-doc-mini>`;
 
 const esmImportCode = `// Native ES Module import in modern frameworks
@@ -798,7 +798,7 @@ import 'rapidoc';
     rapidocEl.setAttribute('spec-url', currentSpec.url);
     rapidocEl.setAttribute('render-style', currentMode);
     rapidocEl.setAttribute('schema-style', 'table');
-    rapidocEl.setAttribute('theme', 'dark');
+    rapidocEl.setAttribute('color-scheme', 'dark');
     rapidocEl.setAttribute('bg-color', '#090d16');
     rapidocEl.setAttribute('primary-color', '#10b981');
     rapidocEl.setAttribute('show-header', 'false');

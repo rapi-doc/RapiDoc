@@ -45,7 +45,7 @@ test("rapidoc lint", async (t) => {
     const unique = rules["operation-operationId-unique"][0];
     assert.equal(unique.severity, "warning", "--rule made it a warning");
     assert.match(unique.message, /"createOrder" is also used by POST \/orderItems/);
-    assert.equal(unique.line, 37);
+    assert.equal(unique.line, 40);
     assert.equal(unique.pointer, "#/paths/~1orders~1{id}/delete/operationId");
     assert.match(
       rules["operation-operationId"][0].message,
@@ -80,16 +80,16 @@ test("rapidoc lint", async (t) => {
   await t.test("defaults: error, warn and off; pretty output shows the rule", () => {
     const result = run(["lint", MESSY]);
     assert.equal(result.status, 1);
-    assert.match(result.stderr, /2 error\(s\)/);
+    assert.match(result.stderr, /6 error\(s\)/);
     assert.match(
       result.stderr,
-      /messy\.yaml:37:7  operationId "createOrder" is also used by POST \/orderItems  \[operation-operationId-unique\]/,
+      /messy\.yaml:40:7  operationId "createOrder" is also used by POST \/orderItems  \[operation-operationId-unique\]/,
     );
     assert.match(result.stderr, /\[security-scheme-defined\]/);
     assert.match(result.stderr, /\[operation-summary\]/);
     assert.doesNotMatch(result.stderr, /\[operation-description\]/, "off by default");
     assert.doesNotMatch(result.stderr, /\[info-contact\]/);
-    assert.match(result.stderr, /1 spec\(s\) linted: 2 error\(s\), \d+ warning\(s\)/);
+    assert.match(result.stderr, /1 spec\(s\) linted: 6 error\(s\), \d+ warning\(s\)/);
   });
 
   await t.test("a clean spec passes every rule, --strict included", () => {
@@ -120,6 +120,13 @@ test("rapidoc lint", async (t) => {
       "operation-operationId-unique=off",
       "--rule",
       "security-scheme-defined=off",
+      // the other rules that are errors by default
+      ...[
+        "no-ambiguous-paths",
+        "path-not-include-query",
+        "operation-parameters-unique",
+        "no-enum-type-mismatch",
+      ].flatMap((rule) => ["--rule", `${rule}=off`]),
     ]);
     assert.equal(warned.status, 1);
     assert.match(warned.stderr, /--strict fails on warnings/);
@@ -257,7 +264,220 @@ test("rapidoc lint", async (t) => {
     assert.ok(ids.includes("openapi"), "validate's rules too");
     const unique = sarif.runs[0].results.find((r) => r.ruleId === "operation-operationId-unique");
     assert.equal(unique.level, "error");
-    assert.equal(unique.locations[0].physicalLocation.region.startLine, 37);
+    assert.equal(unique.locations[0].physicalLocation.region.startLine, 40);
+  });
+
+  await t.test("the structure, naming and description rules say what and where", () => {
+    const { report } = json([MESSY, ...EVERY_RULE_ON]);
+    const rules = byRule(report);
+    const one = (name) => {
+      assert.equal(rules[name].length, 1, `${name}: ${JSON.stringify(rules[name])}`);
+      return rules[name][0];
+    };
+    assert.match(
+      one("no-ambiguous-paths").message,
+      /\/orders\/\{orderId\} matches the same requests as \/orders\/\{id\}/,
+    );
+    assert.equal(one("no-ambiguous-paths").pointer, "#/paths/~1orders~1{orderId}");
+    assert.match(
+      one("operation-parameters-unique").message,
+      /query parameter "pageSize" is listed twice/,
+    );
+    assert.match(one("no-path-trailing-slash").message, /\/reports\/ ends with a slash/);
+    assert.match(one("path-not-include-query").message, /\/search\?kind=orders has a query string/);
+    assert.match(one("no-empty-servers").message, /Server 3 has no url/);
+    assert.match(one("no-server-trailing-slash").message, /v2\/" ends with a slash/);
+    assert.match(one("no-enum-type-mismatch").message, /enum value "open" is not of type integer/);
+    assert.match(
+      one("no-required-undefined-properties").message,
+      /required property "total" is not under properties/,
+    );
+    assert.match(
+      one("operation-singular-tag").message,
+      /GET \/orderItems has 2 tags \(orders, legacy\)/,
+    );
+    assert.match(
+      one("no-http-verbs-in-paths").message,
+      /\/getReports has the HTTP verb "get" in it/,
+    );
+    assert.match(one("tags-alphabetical").message, /Tag "billing" comes after "orders"/);
+    assert.match(
+      one("description-html-removed").message,
+      /has a <script> element, which the reference removes/,
+    );
+    // the casing rules name the odd one out and the convention the others follow
+    assert.match(
+      one("property-casing-consistent").message,
+      /property "total_amount" is snake_case; most \(3 of 4\) are camelCase/,
+    );
+    assert.match(
+      one("parameter-casing-consistent").message,
+      /parameter "page_token" is snake_case; most \(\d of \d\) are camelCase/,
+    );
+    assert.match(
+      one("operationId-casing-consistent").message,
+      /operationId "get_reports" is snake_case; most \(\d of \d\) are camelCase/,
+    );
+  });
+
+  await t.test("the new rules keep quiet where there is nothing to say", async () => {
+    const { traverse } = await import("../src/lint/traverse.js");
+    const found = (name, doc) =>
+      traverse(
+        { openapi: "3.1.0", info: { title: "T", version: "1" }, paths: {}, ...doc },
+        RULES.filter((rule) => rule.name === name),
+      ).map((finding) => finding.message);
+    const schemas = (all) => ({ components: { schemas: all } });
+    const props = (...names) => Object.fromEntries(names.map((name) => [name, { type: "string" }]));
+
+    // casing: one-word names fit any convention; without a majority there is no convention
+    assert.deepEqual(
+      found(
+        "property-casing-consistent",
+        schemas({ A: { properties: props("id", "name", "total") } }),
+      ),
+      [],
+    );
+    assert.deepEqual(
+      found(
+        "property-casing-consistent",
+        schemas({ A: { properties: props("firstName", "last_name") } }),
+      ),
+      [],
+    );
+    assert.equal(
+      found(
+        "property-casing-consistent",
+        schemas({ A: { properties: props("first_name", "last_name", "zipCode") } }),
+      ).length,
+      1,
+    );
+    // a property may be called properties, example or description: its value is a schema, not data
+    const odd = schemas({
+      A: {
+        properties: {
+          properties: { type: "object", properties: props("innerName", "otherName", "bad_name") },
+          example: { type: "object", properties: props("deepName") },
+          description: { type: "string", description: "plain" },
+        },
+        example: { some_data: 1, more_data: 2, even_more: 3 },
+      },
+    });
+    assert.deepEqual(found("property-casing-consistent", odd), [
+      'property "bad_name" is snake_case; most (3 of 4) are camelCase',
+    ]);
+    assert.deepEqual(found("description-html-removed", odd), []);
+
+    // descriptions: formatting HTML and ordinary links stay; what the reference removes is reported
+    const described = (description) =>
+      found("description-html-removed", { info: { title: "T", version: "1", description } });
+    assert.deepEqual(
+      described(
+        "A <b>bold</b> word, <details><summary>more</summary>text</details> and [a link](https://x.test).",
+      ),
+      [],
+    );
+    assert.deepEqual(
+      described("Use `onclick` handlers and <code>&lt;script&gt;</code> tags in your page."),
+      [],
+    );
+    assert.match(described('<a href="javascript:alert(1)">x</a>')[0], /a javascript: address/);
+    assert.match(described("[x](javascript:alert(1))")[0], /a javascript: link/);
+    assert.match(described("<img src=x onerror=alert(1)>")[0], /an event handler attribute/);
+    assert.match(described("<IFRAME src=//x.test></IFRAME>")[0], /an <iframe> element/);
+
+    // enums: a nullable or multi-type schema, and whole numbers for number
+    const enumOf = (schema) => found("no-enum-type-mismatch", schemas({ A: schema }));
+    assert.deepEqual(enumOf({ type: "number", enum: [1, 2.5] }), []);
+    assert.deepEqual(enumOf({ type: ["string", "null"], enum: ["a", null] }), []);
+    assert.deepEqual(enumOf({ type: "string", nullable: true, enum: ["a", null] }), []);
+    assert.deepEqual(enumOf({ enum: ["a", 1] }), [], "no type: nothing to compare with");
+    assert.equal(enumOf({ type: "integer", enum: [1, 2.5, "3"] }).length, 2);
+
+    // required: a schema composed of others, or open to more properties, may get the property elsewhere
+    const required = (schema) => found("no-required-undefined-properties", schemas({ A: schema }));
+    assert.deepEqual(required({ required: ["id"], properties: props("id") }), []);
+    assert.deepEqual(required({ required: ["id"], properties: props("name"), allOf: [{}] }), []);
+    assert.deepEqual(
+      required({
+        required: ["id"],
+        properties: props("name"),
+        additionalProperties: { type: "string" },
+      }),
+      [],
+    );
+    assert.deepEqual(required({ required: ["id"] }), [], "no properties listed at all");
+    assert.equal(required({ required: ["id", "name"], properties: props("name") }).length, 1);
+
+    // paths: different words are different paths; the root path may be a slash
+    const paths = (...names) => ({ paths: Object.fromEntries(names.map((name) => [name, {}])) });
+    assert.deepEqual(
+      found("no-ambiguous-paths", paths("/orders/{id}", "/orders/{id}/items", "/items/{id}")),
+      [],
+    );
+    assert.equal(found("no-ambiguous-paths", paths("/a/{x}/b/{y}", "/a/{p}/b/{q}")).length, 1);
+    assert.deepEqual(found("no-path-trailing-slash", paths("/", "/orders")), []);
+    assert.deepEqual(
+      found("no-http-verbs-in-paths", paths("/gettysburg", "/posts", "/budget", "/{get}")),
+      [],
+    );
+    assert.equal(found("no-http-verbs-in-paths", paths("/orders/delete-all")).length, 1);
+    // a webhook is named, not addressed
+    const webhooks = { webhooks: { delete: { post: { responses: {} } }, "order/": {}, "a?b": {} } };
+    for (const rule of [
+      "no-http-verbs-in-paths",
+      "no-path-trailing-slash",
+      "path-not-include-query",
+    ])
+      assert.deepEqual(found(rule, webhooks), [], rule);
+
+    // servers: Swagger 2.0 has a host instead; "/" is a server of its own
+    assert.deepEqual(found("no-empty-servers", { servers: [{ url: "/" }] }), []);
+    assert.deepEqual(found("no-empty-servers", {}), ["The spec has no servers"]);
+    assert.deepEqual(
+      found("no-empty-servers", { swagger: "2.0", openapi: undefined, host: "api.acme.test" }),
+      [],
+    );
+    assert.deepEqual(found("no-empty-servers", { swagger: "2.0", openapi: undefined }), [
+      "The spec has no host",
+    ]);
+    assert.deepEqual(
+      found("no-server-trailing-slash", {
+        servers: [{ url: "/" }, { url: "https://api.acme.test/v1" }],
+      }),
+      [],
+    );
+
+    // parameters: the same name in another place is another parameter; headers have their own convention
+    const operation = (parameters) => ({
+      paths: { "/a/{id}": { get: { parameters, responses: {} } } },
+    });
+    const parameter = (name, where) => ({ name, in: where, schema: { type: "string" } });
+    assert.deepEqual(
+      found(
+        "operation-parameters-unique",
+        operation([parameter("id", "path"), parameter("id", "query")]),
+      ),
+      [],
+    );
+    assert.deepEqual(
+      found(
+        "parameter-casing-consistent",
+        operation([
+          parameter("pageSize", "query"),
+          parameter("sortBy", "query"),
+          parameter("X-Request-Id", "header"),
+          parameter("x_trace", "header"),
+        ]),
+      ),
+      [],
+    );
+    assert.deepEqual(
+      found("tags-alphabetical", {
+        tags: [{ name: "accounts" }, { name: "Billing" }, { name: "orders" }],
+      }),
+      [],
+    );
   });
 
   const EXAMPLES = path.join(FIXTURES, "examples.yaml");

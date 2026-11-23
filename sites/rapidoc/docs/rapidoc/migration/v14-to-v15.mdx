@@ -1,0 +1,115 @@
+---
+title: Migrating from RapiDoc v14 to v15
+description: Upgrade guide for RapiDoc v15. A new sidebar with three clear levels, one shape for nav-active-change, saved keys kept per API, and the attributes, values and methods that were removed.
+---
+
+RapiDoc **v15** redraws the sidebar and clears out what earlier versions left behind. Most pages need no change: update the version and the sidebar takes the new look. Read on if you set `nav-item-spacing`, `show-method-in-nav-bar`, `mock-server-status-strategy` or `persist-auth`, listen to `nav-active-change`, call `scrollTo()` on the element, or style the sidebar with your own CSS.
+
+v15 has no compatibility aliases: what is removed is ignored. Every attribute removed in this and earlier versions is listed in [Removed attributes](/docs/rapidoc/migration/removed-attributes/).
+
+---
+
+## 1. The new sidebar
+
+The sidebar now has three levels, each with its own look:
+
+| Level | What | Looks like |
+| :-- | :-- | :-- |
+| 1 | **Section labels**: Overview, each `x-tagGroups` group (or OpenAPI 3.2 `parent` tag), Components | Small upper-case text. Not a link, and a tag group no longer opens or closes. |
+| 2 | **Rows**: the API title, API Servers, Authentication (each with an icon), and tags inside a group | Taller rows. |
+| 3 | **Operations** and the description's headings | Compact rows under a thin guide line, the method at the start of the row. |
+
+Without tag groups, the **tags themselves are the section labels**: upper-case, with their operations right below them, and no "Operations" heading. A tag is still two controls:
+
+- its **name** goes to the tag's section (its description), and opens the tag if it was closed;
+- its **arrow** only opens and closes it.
+
+The current item is a **filled block** in the accent color, in every render style. A closed tag that holds the current operation turns to the accent color.
+
+## 2. What to update
+
+| You use | Do this |
+| :-- | :-- |
+| `nav-item-spacing` | Remove it: it no longer has an effect. Each level has its own spacing. To change the operation rows' padding, set `--sidebar-item-padding` (now `0.3125rem 0.625rem`). |
+| `show-method-in-nav-bar` | The default is now `as-colored-text` (it was `false`), and the method comes before the summary. Set `show-method-in-nav-bar="false"` to keep the summary alone. |
+| CSS on `::part(section-navbar-tag-group)` | A tag group's header is a section label now, also `part="section-navbar-label"`. It has no arrow and no `aria-expanded`. |
+| CSS that relied on the left bar of the current item | The current item has a background instead: `color-mix(in srgb, var(--sidebar-primary) 14%, transparent)`. Restyle it with `::part(section-navbar-active-item)`. |
+| Tag names that need their own case (`OAuth`, `iOS`) | Without tag groups the tags are upper-case. Keep their case with `rapi-doc::part(section-navbar-tag) { text-transform: none; }`. |
+| CSS on `::part(section-navbar-operations-top)`, or the sidebar's Expand all and Collapse all controls | Removed. The "Operations" row was already hidden in v14: tag groups or tags are the labels now. The `operations-top` slot and the `#operations-top` anchor in the content are unchanged. |
+| Deprecated operations in the sidebar | Their label is struck through and dimmed (class `deprecated` on the row), as in the static sidebar. The row is no longer faded as a whole. |
+| `info-description-headings-in-navbar="true"` | The API title item now shows whenever `show-info` is on, also when the description has no headings. The headings follow `nav-item-overflow` like every other item. |
+| `page-direction="rtl"` | The sidebar is mirrored: its border, paddings, filter icon, menu button, arrows and the slide-over menu follow the text direction. |
+| `@rapidoc/prerender`'s `getNavBarHtml` | Its output follows the same structure. Its `showMethodInNavBar` default is now `as-colored-text` too (it was `as-colored-block`). |
+
+## 3. Removed and changed
+
+| v14 | v15 |
+| :-- | :-- |
+| `scrollTo(elementId)` method | Removed: it replaced the browser's own `Element.scrollTo()`. Call `scrollToPath(elementId)`, which did the same. `el.scrollTo()` is the browser's method again. |
+| `nav-active-change` detail `{ id, elementId }`, plus `operationId` on scroll only (an element ID, and for a tag the ID of its first operation) | One shape from every source (a click, `scrollToPath`, a hash change, scrolling): `{ elementId, type, operationId? }`. `id` is removed: read `elementId`. `type` is `"operation"`, `"tag"` or `"section"`. `operationId` is the operation's `operationId` from the spec, present only for an operation that has one. |
+| `bindNavBar` and a tag section | The static sidebar highlights the tag while its section is in view. In v14 it highlighted the tag's first operation. |
+| `mock-server-status-strategy="random"` (or `first`, `cycle`) | Removed. Write the strategy in front of the codes: `mock-server-status-code="random:200, 500"`. A list without a prefix is used in turn (`cycle`). |
+| `theme="light"`, `theme="dark"` | No longer read as a color scheme (deprecated since v11): the value is an unknown theme name and falls back to the default theme. Set `color-scheme="light"` or `color-scheme="dark"`. |
+| `default-schema-tab="model"` | Removed. Write `default-schema-tab="schema"`. `model` now falls back to `example`. |
+| `mcp="none"` as an allowed value | Write `mcp="false"`, the default. |
+| `loading`, `focusedElementId`, `searchVal`, `advancedSearchMatches` as attributes and public properties | Internal state now: the attributes (`loading`, `focusedelementid`, `searchval`, `advancedsearchmatches`) are no longer read and the properties are not in the types. To show an operation, call `scrollToPath()`; to know when the spec is ready, listen to `spec-loaded`. |
+| `apiKeyValue` property starts as `"-"` | Starts empty, as documented. `api-key-value` works as before. |
+| The header's **Local JSON file** button | Reads YAML as well as JSON, and is labelled **Local file**. A file that is neither says so next to the button. |
+
+`<rapi-doc-mini>` loses the same things where it has them: `mock-server-status-strategy`, `default-schema-tab="model"` and the `loading` attribute.
+
+## 4. Saved keys (`persist-auth`)
+
+With `persist-auth="true"`, v14 saved every key in one `localStorage` entry named `rapidoc`, by scheme name. Two APIs on one site that both had a scheme named `bearerAuth` shared a token.
+
+v15 saves them **per API**, under `rapidoc-auth:<spec URL>` (or `rapidoc-auth:<API title>` for a spec given as an object).
+
+- **Keys saved by v14 are not carried over.** Readers enter their keys once more after the upgrade. The old `rapidoc` entry is left untouched; you can remove it with `localStorage.removeItem('rapidoc')`.
+- Saved keys are applied **once per spec load**, before `spec-loaded` fires. A key your page sets with `setApiKey()` in a `spec-loaded` listener is no longer replaced by the saved one on the next render.
+- Blocked storage, or an entry that is not valid JSON, is ignored. In v14 it left the element blank.
+
+## 5. Relative server URLs
+
+A relative server URL is now resolved the way OpenAPI defines it, against the address the spec was loaded from. For a spec given as an object or as text, it is resolved against the page.
+
+| `servers[].url` | Spec at `https://api.example.com/docs/openapi.yaml` | v14 (page at `https://docs.example.com/`) |
+| :-- | :-- | :-- |
+| `/v1` | `https://api.example.com/v1` | `https://docs.example.com/v1` |
+| `api/v1` | `https://api.example.com/docs/api/v1` | `https://docs.example.comapi/v1` (broken) |
+| `../v2` | `https://api.example.com/v2` | `https://docs.example.com../v2` (broken) |
+
+Nothing changes when the spec is on the same origin as the page and its server URLs start with `/`, or when they are absolute. If your spec is on another host and you relied on `/v1` meaning the page's host, set `server-url`, or write the full URL in the spec.
+
+## 6. HTML in descriptions
+
+Markdown descriptions may contain HTML. v15 keeps a fixed list of elements and attributes and drops the rest, the same way in every browser and in pre-rendered pages (`@rapidoc/prerender`, RapiDoc Portal):
+
+| In a description | v15 |
+| :-- | :-- |
+| Text formatting, headings, lists, tables, links, images, `<details>`, `<kbd>`, `<sub>`, `<sup>`, `<span>` and `<div>` with `class`, `id`, `title`, `style` | Kept |
+| `<script>`, `<style>`, `<iframe>`, `<object>`, `<embed>`, `<svg>`, `<math>`, form controls | Removed, with their content |
+| Any other element, such as a custom element | The tag is removed, its text stays |
+| Event handlers (`onclick` ...), and attributes not on the list | Removed |
+| `href` and `src` that are not `http`, `https`, `mailto`, `tel` or relative (`javascript:`, `data:` other than an image) | Removed |
+| A `style` that loads a resource (`url(...)`, `@import`) | Removed |
+
+The links RapiDoc builds from the spec follow the same rule: `externalDocs.url`, `contact.url`, `license.url` and `termsOfService` are links only when they are web or mail addresses, and an OAuth `authorizationUrl` opens only when it is `http` or `https`.
+
+## 7. New CSS variable
+
+| Variable | Default | What |
+| :-- | :-- | :-- |
+| `--sidebar-label-foreground` | `color-mix(in srgb, var(--sidebar-foreground) 70%, var(--sidebar))` | Color of the section labels, and of the tags without tag groups |
+
+## 8. New CSS parts
+
+| Part | On |
+| :-- | :-- |
+| `section-navbar-label` | Every section label: Overview, tag groups, Components |
+| `section-navbar-icon` | The icon of the API title, API Servers and Authentication |
+
+## 9. Fixes that change behavior
+
+- **Moving the element in the page** (removing it and inserting it again) with `mock-server="true"` keeps the mock on. In v14 the mock stayed off afterwards and Try reached the real server.
+- **OAuth**: a security scheme whose name has a dot or starts with a digit sends PKCE and gets its token. The Authentication section no longer fails to render for a server URL such as `//host/v1` or `{scheme}://host`.
+- **`css-file`**: the stylesheet is copied into the element once, not again on every render.

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Readable } from "node:stream";
+import { bodyLimit } from "hono/body-limit";
 import { getMimeType } from "hono/utils/mime";
 
 /**
@@ -69,6 +70,10 @@ export function fileResponse(request, full, { status = 200, cacheControl = REVAL
   const body = request.method === "HEAD" ? null : Readable.toWeb(fs.createReadStream(full));
   return new Response(body, { status, headers });
 }
+
+/** Refuses a request body over `maxSize` bytes (413) while reading it, so it is never held in memory. */
+export const tooLarge = (maxSize) =>
+  bodyLimit({ maxSize, onError: (c) => c.json({ error: "too large" }, 413) });
 
 export function textResponse(status, text, extraHeaders = {}) {
   return new Response(text, {

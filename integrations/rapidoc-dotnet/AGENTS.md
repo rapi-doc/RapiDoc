@@ -23,6 +23,9 @@ RapiDoc for ASP.NET Core: `app.MapRapiDoc()` serves the reference, the OAuth ret
 
 ## 2. Boundaries and Invariants
 
+- **One name for each option, an empty string is an absent option.** No aliases (`path` is not read since 0.3.0). `UiPath` is the path within the app; `MapRapiDoc` puts `PathBase` and a route group's prefix in front before it renders.
+- **The conformance runner compares as the contract says**: the page byte for byte, except the inline spec, which is compared as parsed JSON.
+- **`ContractVersion` is the contract's version**, the same number as in `core.js`. It is not this package's version and not the `contract` field of `integration.json`.
 - **`RapiDocContract.cs` and `core.js` change together.** Any change to the contract's output is made in `@rapidoc/embed` first (new contract version, regenerated fixtures), then ported here until `ConformanceTests` passes. Never adjust a fixture to fit the port.
 - **`RapiDocContract` takes the contract's option names** (`uiPath`, `specUrl`, `scriptUrl`) as a `JsonObject`, because the fixtures are read as they are. .NET naming is translated in `MapRapiDoc`.
 - **JSON is written by the port's own writer**, not `System.Text.Json`'s: that one escapes non-ASCII and HTML characters, and the fixtures need what JavaScript's `JSON.stringify` writes.

@@ -1453,10 +1453,9 @@ export default class RapiFlow extends LitElement {
             byOperation[`${op.method.toUpperCase()} ${op.path}`] = codes[step.stepId];
         }
         if (codes["*"]) byOperation["*"] = codes["*"];
-        restore.push({ el, code: el.mockServerStatusCode, strategy: el.mockServerStatusStrategy });
+        restore.push({ el, code: el.mockServerStatusCode });
+        // Codes without a prefix are used in turn; a prefix (random:, cycle:) on a value says otherwise
         el.mockServerStatusCode = byOperation;
-        // Codes without a prefix are used in turn; a prefix (random:, cycle:) on a value wins
-        el.mockServerStatusStrategy = "cycle";
       }
       await Promise.all(restore.map((r) => r.el.updateComplete));
     }
@@ -1487,10 +1486,7 @@ export default class RapiFlow extends LitElement {
         return code ? { Prefer: `code=${code}` } : undefined;
       },
     });
-    for (const r of restore) {
-      r.el.mockServerStatusCode = r.code;
-      r.el.mockServerStatusStrategy = r.strategy;
-    }
+    for (const r of restore) r.el.mockServerStatusCode = r.code;
     // Cleared or switched to another workflow while it ran: that view has moved on
     if (this.runAbort !== abort) return;
     this.runAbort = null;

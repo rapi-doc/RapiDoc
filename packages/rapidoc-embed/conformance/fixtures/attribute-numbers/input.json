@@ -1,0 +1,13 @@
+{
+  "description": "Numbers as attribute values: a whole number is written without a fraction, also when the input has one (2.0); others in plain decimal. An empty string is a value and is written.",
+  "page": "host",
+  "options": {
+    "options": {
+      "schemaExpandLevel": 2.0,
+      "fontScale": 1.5,
+      "navItemCount": 10,
+      "offset": -0.25,
+      "headingText": ""
+    }
+  }
+}

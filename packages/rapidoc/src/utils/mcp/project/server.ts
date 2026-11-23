@@ -2,9 +2,11 @@
  * MCP server over stdio for the API described in manifest.json. Exported by RapiDoc.
  *
  * The tools, resources and the API's base URL come from the manifest and the requests are made
- * by runtime.js, so this file is the same for every API. Credentials come from environment
- * variables named after the API's security schemes (see mcp.json);
- * API_BASE_URL overrides the base URL.
+ * by runtime.js, so this file is the same for every API. Everything it reads from the environment
+ * starts with MCP_ (README.md and mcp.json name the exact variables):
+ *   MCP_AUTH_<SCHEME>    a security scheme's credential (_USERNAME and _PASSWORD for HTTP Basic)
+ *   MCP_BASE_URL         the API's base URL (MCP_BASE_URL_<SOURCE> each with several APIs)
+ *   MCP_EXTERNAL_HOSTS   hosts a workflow's URL computed at run time may go to
  */
 import { readFileSync } from "node:fs";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -15,7 +17,14 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { createMcpRuntime, credentialsFromEnv, externalHostsFromEnv } from "./runtime.js";
+import {
+  baseUrlEnvNames,
+  baseUrlsFromEnv,
+  createMcpRuntime,
+  credentialsFromEnv,
+  externalHostsFromEnv,
+  sourcesWithoutBaseUrl,
+} from "./runtime.js";
 
 // workflow-runtime.js is part of the export only when the manifest has workflow tools
 const { runWorkflow } = await import("./workflow-runtime.js").catch(() => ({
@@ -24,9 +33,11 @@ const { runWorkflow } = await import("./workflow-runtime.js").catch(() => ({
 
 const manifest = JSON.parse(readFileSync(new URL("./manifest.json", import.meta.url), "utf8"));
 
-const baseUrls: Record<string, string> = {};
-if (process.env.API_BASE_URL) {
-  for (const name of Object.keys(manifest.sources)) baseUrls[name] = process.env.API_BASE_URL;
+const baseUrls: Record<string, string> = baseUrlsFromEnv(manifest, process.env);
+for (const source of sourcesWithoutBaseUrl(manifest, baseUrls)) {
+  console.error(
+    `[MCP] ${manifest.server.name}: no base URL for "${source}". Set ${baseUrlEnvNames(manifest)[source]}; until then its tools answer with an error.`,
+  );
 }
 const runtime = createMcpRuntime(manifest, {
   credentials: credentialsFromEnv(manifest, process.env),

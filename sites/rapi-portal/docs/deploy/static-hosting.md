@@ -12,7 +12,7 @@ npx rapidoc build --out-dir site    # or another folder
 
 Don't build into `public/`: that is the [folder of static files](/docs/getting-started/project-structure/#public) the build copies into the site.
 
-Set `site.url` to the portal's public URL, for canonical links and the sitemap. To host the portal in a folder of another site, put the folder in the URL (`https://acme.com/developers`): links are built with `/developers` in front, and you upload `dist/` into that folder ([Serving under a path](/docs/configuration/site/#serving-under-a-path)).
+Set `site.url` to the portal's public URL: canonical links and the sitemap need it, and a build without it has neither. To host the portal in a folder of another site, put the folder in the URL (`https://acme.com/developers`): links are built with `/developers` in front, and you upload `dist/` into that folder ([Serving under a path](/docs/configuration/site/#serving-under-a-path)).
 
 ## GitHub Pages
 

@@ -233,6 +233,50 @@ describe("RapiDoc Portal build engine", () => {
     }
   });
 
+  it("should refuse an output folder that is, holds or is inside a source of the portal", async () => {
+    const { outDirProblem } = await import("../src/engine/build-portal.js");
+    const projectDir = path.resolve("/work/portal");
+    const workspace = {
+      projectDir,
+      configPath: path.join(projectDir, "rapidoc.config.yaml"),
+      config: {
+        docs: { fullPath: path.join(projectDir, "docs") },
+        theme: { css: [path.join(projectDir, "styles", "portal.css")] },
+        apis: [
+          {
+            id: "orders",
+            versions: [
+              { fullPath: path.join(projectDir, "specs", "orders.yaml") },
+              { isRemote: true, fullPath: null },
+            ],
+          },
+        ],
+        workflows: [{ id: "ship", fullPath: path.join(projectDir, "workflows", "ship.yaml") }],
+      },
+    };
+    const problem = (dir) => outDirProblem(path.resolve(projectDir, dir), workspace);
+    for (const ok of ["dist", "build/site", "../site", "out"]) assert.equal(problem(ok), null, ok);
+    assert.match(problem("."), /is the portal's folder/);
+    assert.match(problem(".."), /holds the portal's folder/);
+    assert.match(problem("public"), /is the public folder/);
+    assert.match(problem("docs"), /is the docs folder/);
+    assert.match(problem("docs/built"), /is inside the docs folder/);
+    assert.match(problem("pages"), /is the pages folder/);
+    assert.match(problem("specs"), /holds the spec of the API "orders"/);
+    assert.match(problem("workflows"), /holds the workflow file "ship"/);
+    assert.match(problem("styles"), /holds a stylesheet/);
+    assert.match(problem(".rapidoc-temp/x"), /is inside the build's own workspace/);
+    assert.match(problem("node_modules"), /is node_modules/);
+
+    // The build stops before it writes anything, and removes its workspace
+    const before = fs.readdirSync(path.join(DEMO_PORTAL_DIR, "public")).sort();
+    await assert.rejects(
+      buildPortal(DEMO_PORTAL_DIR, { outDir: "public" }),
+      /output folder "public" is the public folder/,
+    );
+    assert.deepEqual(fs.readdirSync(path.join(DEMO_PORTAL_DIR, "public")).sort(), before);
+  });
+
   it("should build rapi-portal-demo into static HTML and leave no files behind", async () => {
     const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "rapidoc-portal-build-"));
     const projectBefore = listTree(DEMO_PORTAL_DIR);
@@ -422,8 +466,29 @@ describe("RapiDoc Portal build engine", () => {
         "pages without an embed do not load RapiDoc",
       );
 
+      // {% card-grid %}: three columns by default, `columns` sets another count
+      assert.match(
+        read("docs/guides/loyalty-and-rewards"),
+        /<div class="portal-card-grid[^"]*" style="--portal-grid-columns: 3"/,
+      );
+      assert.match(
+        read("."),
+        /<div class="portal-card-grid[^"]*" style="--portal-grid-columns: 2"/,
+        "columns=2 on the home page",
+      );
+
+      // No site.url: no canonical links and no sitemap on a made-up domain
+      assert.ok(!firstShipment.includes('rel="canonical"'), "no canonical link without site.url");
+      assert.ok(!read("catalog").includes("developer.portal"));
+      assert.deepEqual(
+        fs.readdirSync(outDir).filter((name) => name.startsWith("sitemap")),
+        [],
+        "no sitemap without site.url",
+      );
+
       // {% workflow %}: a <rapi-flow> with the build-time SVG inside as fallback content
       assert.ok(firstShipment.includes("portal-workflow not-content"), "the workflow figure");
+      assert.ok(firstShipment.includes('data-document="track-a-shipment"'));
       assert.match(
         firstShipment,
         /<rapi-flow[^>]* arazzo-url="\/workflows\/track-a-shipment\.arazzo\.yaml"[^>]* workflow-id="trackShipment"/,
@@ -500,7 +565,7 @@ describe("RapiDoc Portal build engine", () => {
     }
   });
 
-  it("should show a notice for an api-operation embed of an unknown API", async () => {
+  it("should show a notice for an api-operation embed of an unknown API, and need site.url for canonical links and the sitemap", async (t) => {
     // Not the OS temp folder: Astro only compiles .astro files that share a parent folder with the root.
     const tmpRoot = fileURLToPath(new URL("./.test-tmp/", import.meta.url));
     fs.mkdirSync(tmpRoot, { recursive: true });
@@ -519,12 +584,40 @@ describe("RapiDoc Portal build engine", () => {
       );
       fs.writeFileSync(
         path.join(projectDir, "docs/guide.markdoc"),
-        '# Guide\n\n{% api-operation spec="orders" path="/orders" method="post" /%}\n',
+        '# Guide\n\n{% api-operation api="orders" path="/orders" method="post" /%}\n',
       );
 
+      const log = t.mock.method(console, "log", () => {});
       await buildPortal(projectDir, { outDir });
+      const notes = log.mock.calls
+        .map((call) => String(call.arguments[0]))
+        .filter((line) => line.includes("no site.url"));
+      log.mock.restore();
+      assert.equal(notes.length, 1, "one note that canonical links and the sitemap need site.url");
       const guide = fs.readFileSync(path.join(outDir, "docs/guide/index.html"), "utf8");
-      assert.ok(guide.includes("API operation not found"), "an unknown spec id shows a notice");
+      assert.ok(guide.includes("API operation not found"), "an unknown API id shows a notice");
+
+      // With site.url: canonical links and a sitemap on that address, and no note
+      fs.writeFileSync(
+        path.join(projectDir, "rapidoc.config.yaml"),
+        "site: { title: Acme, url: 'https://dev.acme.test' }\napis:\n  - { id: pets, spec: ./specs/pets.yaml }\n",
+      );
+      const quiet = t.mock.method(console, "log", () => {});
+      await buildPortal(projectDir, { outDir });
+      const noted = quiet.mock.calls.some((call) => String(call.arguments[0]).includes("site.url"));
+      quiet.mock.restore();
+      assert.ok(!noted, "no note with site.url");
+      assert.ok(
+        fs
+          .readFileSync(path.join(outDir, "docs/guide/index.html"), "utf8")
+          .includes('<link rel="canonical" href="https://dev.acme.test/docs/guide/"'),
+      );
+      assert.ok(fs.existsSync(path.join(outDir, "sitemap-index.xml")));
+      assert.ok(
+        fs
+          .readFileSync(path.join(outDir, "sitemap-0.xml"), "utf8")
+          .includes("https://dev.acme.test/docs/guide/"),
+      );
       assert.ok(
         !guide.includes("/assets/rapidoc-min.js"),
         "pages without a working embed do not load RapiDoc",

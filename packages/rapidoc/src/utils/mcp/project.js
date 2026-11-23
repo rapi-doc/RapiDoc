@@ -4,9 +4,10 @@
  */
 import runtimeSource from "./runtime.js?raw";
 import serverSource from "./project/server.ts?raw";
-import { envNameFor, generateHostConfigs, toSnakeCase } from "./common.js";
+import { generateHostConfigs, hostEnvFor, toSnakeCase } from "./common.js";
+import { baseUrlEnvNames, credentialEnvNames } from "./runtime.js";
 
-/** Whether a workflow step calls an x-operation URL computed at run time (EXTERNAL_HOSTS applies). */
+/** Whether a workflow step calls an x-operation URL computed at run time (MCP_EXTERNAL_HOSTS applies). */
 function dynamicExternalUrls(manifest) {
   return Object.values(manifest.workflows || {}).some((w) =>
     (w?.steps || []).some((s) => String(s?.operation?.url || "").includes("$")),
@@ -27,11 +28,10 @@ function dynamicExternalUrls(manifest) {
 export function writeMcpProject(manifest, options = {}) {
   const name = manifest.server.name || "api_mcp_server";
   const hasWorkflows = Object.keys(manifest.workflows || {}).length > 0;
-  const schemeIds = Object.values(manifest.sources || {}).flatMap((s) =>
-    Object.keys(s.securitySchemes || {}),
-  );
+  const credentialNames = credentialEnvNames(manifest);
+  const baseNames = baseUrlEnvNames(manifest);
   const hostConfigs = generateHostConfigs(options.serverName || name, {
-    schemes: schemeIds,
+    env: hostEnvFor(manifest),
     serverPath: options.serverPath,
   });
   const packageJson = {
@@ -43,20 +43,35 @@ export function writeMcpProject(manifest, options = {}) {
     dependencies: { "@modelcontextprotocol/sdk": "^1.12.0" },
     devDependencies: { tsx: "^4.19.0" },
   };
-  const envLines = schemeIds.length
-    ? schemeIds.map((id) => {
-        const scheme = Object.values(manifest.sources)
-          .map((s) => s.securitySchemes?.[id])
-          .find(Boolean);
-        const what =
-          scheme?.type === "apiKey"
-            ? `the API key sent as ${scheme.in || "header"} \`${scheme.name}\``
-            : scheme?.type === "http" && String(scheme.scheme).toLowerCase() === "basic"
-              ? "`user:password` for HTTP Basic"
-              : "the bearer token";
-        return `- \`${envNameFor(id)}\`: ${what} (security scheme \`${id}\`)`;
-      })
-    : ["- `API_KEY`: not needed; this API declares no security scheme"];
+  const schemeOf = (id) =>
+    Object.values(manifest.sources)
+      .map((s) => s.securitySchemes?.[id])
+      .find(Boolean);
+  const credentialLines = Object.entries(credentialNames).map(([id, names]) => {
+    const scheme = schemeOf(id);
+    if (names.length > 1) {
+      return `- \`${names[0]}\` and \`${names[1]}\`: the user name and password for HTTP Basic (security scheme \`${id}\`)`;
+    }
+    const what =
+      scheme?.type === "apiKey"
+        ? `the API key sent as ${scheme.in || "header"} \`${scheme.name}\``
+        : "the bearer token";
+    return `- \`${names[0]}\`: ${what} (security scheme \`${id}\`)`;
+  });
+  const several = Object.keys(manifest.sources).length > 1;
+  const baseLines = Object.entries(manifest.sources).map(([source, { baseUrl }]) => {
+    const whose = several ? ` of \`${source}\`` : "";
+    return baseUrl
+      ? `- \`${baseNames[source]}\`: overrides the base URL${whose} in the manifest (${baseUrl})`
+      : `- \`${baseNames[source]}\`: **required**, the base URL${whose}. The OpenAPI document names no absolute server URL, so the manifest has none and a tool call answers with an error until this is set`;
+  });
+  const required = Object.entries(manifest.sources)
+    .filter(([, source]) => !source.baseUrl)
+    .map(([source]) => `${baseNames[source]}="https://api.example.com" `);
+  const startEnv = [
+    ...required,
+    ...Object.values(credentialNames).flatMap((names) => names.map((n) => `${n}="..." `)),
+  ];
   const readme = `# ${manifest.server.name} MCP server
 
 Exported by RapiDoc from the API's OpenAPI document. \`manifest.json\` lists ${manifest.tools.length} tools${
@@ -71,17 +86,14 @@ Exported by RapiDoc from the API's OpenAPI document. \`manifest.json\` lists ${m
 
 \`\`\`bash
 npm install
-${schemeIds.map((id) => `${envNameFor(id)}="..." `).join("")}npm start
+${startEnv.length > 2 ? startEnv.map((v) => `${v}\\\n`).join("") : startEnv.join("")}npm start
 \`\`\`
 
-Environment variables:
+Environment variables (the server reads no variable outside the \`MCP_\` prefix):
 
-${envLines.join("\n")}
-- \`API_BASE_URL\`: overrides the base URL in the manifest (${
-    Object.values(manifest.sources)[0]?.baseUrl || ""
-  })${
+${[...credentialLines, ...baseLines].join("\n")}${
     dynamicExternalUrls(manifest)
-      ? "\n- `EXTERNAL_HOSTS`: hosts, separated by commas, that a workflow step's URL computed at run time (`x-operation`) may go to besides those the workflow names; `*` allows any"
+      ? "\n- `MCP_EXTERNAL_HOSTS`: hosts, separated by commas, that a workflow step's URL computed at run time (`x-operation`) may go to besides those the workflow names; `*` allows any"
       : ""
   }
 

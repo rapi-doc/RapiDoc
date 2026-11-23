@@ -9,12 +9,13 @@ description: Move a Zudoku or Redocly portal to RapiDoc Portal.
 npx @rapidoc/cli migrate                  # finds redocly.yaml or zudoku.config.* and asks to confirm
 npx @rapidoc/cli migrate --from zudoku
 npx @rapidoc/cli migrate --from redocly
+npx @rapidoc/cli migrate ./my-docs       # a project in another folder
 ```
 
-Run it in the project folder. Use `npx @rapidoc/cli`, not `npx rapidoc`: before the CLI is installed, `npx rapidoc` looks for the npm package `rapidoc`, the `<rapi-doc>` web component, which has no command. Without `--from` it looks for a Redocly (`redocly.yaml`) or Zudoku (`zudoku.config.*`) config and asks before migrating it; in CI or a script, pass `--from` (or `--yes` to take the one found). An existing `rapidoc.config.yaml` is replaced, after asking in a terminal. It lists anything it could not convert; fix those before you build.
+Run it in the project folder, or pass the folder. Use `npx @rapidoc/cli`, not `npx rapidoc`: before the CLI is installed, `npx rapidoc` looks for the npm package `rapidoc`, the `<rapi-doc>` web component, which has no command. Without `--from` it looks for a Redocly (`redocly.yaml`) or Zudoku (`zudoku.config.*`) config and asks before migrating it; in CI or a script, pass `--from` (or `--yes` to take the one found). It lists anything it could not convert; fix those before you build.
 
 :::caution
-It overwrites an existing `rapidoc.config.yaml`. Commit or copy yours first.
+An existing `rapidoc.config.yaml` is replaced only when you say so: in a terminal the command asks first, and in CI, a script or with `--yes` it stops unless you pass `--force` (`-f`). Commit or copy yours first.
 :::
 
 ## From Zudoku

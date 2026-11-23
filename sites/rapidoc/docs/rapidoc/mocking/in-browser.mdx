@@ -43,7 +43,6 @@ Only operations that `<rapi-doc>` shows are mocked: endpoints left out by a `<ra
 | :--- | :--- | :--- |
 | `mock-server` | `false` | `true` turns the mock on. Setting it back to `false` turns it off. |
 | `mock-server-status-code` | `200` | The status code to answer with, a comma-separated list used in turn (`"503, 503, 200"`), the same with a strategy in front (`"random:200, 500"`), or a JSON map by operation (see below). Set it to `""` to use the first `2xx` response in the spec (else `default`, else the first response listed). |
-| `mock-server-status-strategy` | `cycle` | **Deprecated**: write the strategy in front of the codes instead. How codes without a prefix are picked: `cycle`, `random` or `first`. |
 | `mock-server-delay` | `0` | Milliseconds to wait before answering, to show loading states. For a streamed response, the gap between its items (300 ms when `0`). |
 | `mock-server-log` | `false` | `true` logs each answered request to the browser console. |
 
@@ -71,7 +70,7 @@ Give `mock-server-status-code` several codes, with the strategy in front of them
   </TabItem>
 </Tabs>
 
-Each operation's place in its list starts again whenever the codes change. Earlier versions gave a list without a prefix only its first code unless `mock-server-status-strategy="cycle"` was set; that attribute still sets the strategy for codes without a prefix, but a prefix is clearer and can differ per operation.
+Each operation's place in its list starts again whenever the codes change. A list without a prefix is used in turn; write `random:` or `first:` in front of it for another strategy (the `mock-server-status-strategy` attribute was [removed in v15](/docs/rapidoc/migration/v14-to-v15/)).
 
 ### Per-operation status codes
 

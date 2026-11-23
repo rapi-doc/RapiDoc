@@ -3,11 +3,11 @@ import { css } from "lit";
 export default css`
   #advanced-search-btn {
     display: none;
-    margin-left: 5px;
+    margin-inline-start: 5px;
     width: 75px;
   }
   .btn-clear-filter {
-    margin-left: 5px;
+    margin-inline-start: 5px;
     color: var(--foreground);
     width: 75px;
   }
@@ -54,7 +54,8 @@ export default css`
   .nav-bar-search-input-wrapper .nav-bar-search-input {
     width: 100%;
     line-height: 1.25;
-    padding: 0.45em 28px 0.45em 10px;
+    padding-block: 0.45em;
+    padding-inline: 10px 28px;
     color: var(--foreground);
     border: 1px solid var(--input);
     border-radius: var(--radius);
@@ -74,7 +75,7 @@ export default css`
   }
   .nav-bar-search-icon {
     position: absolute;
-    right: 8px;
+    inset-inline-end: 8px;
     top: 50%;
     transform: translateY(-50%);
     font-size: var(--font-size-regular);
@@ -96,7 +97,7 @@ export default css`
   #nav-bar-btn {
     position: absolute;
     top: 16px;
-    right: 16px;
+    inset-inline-end: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -170,11 +171,17 @@ export default css`
   }
   .body.nav-floating .nav-bar:not(.floating-nav) {
     width: 0;
-    border-right: 0;
+    border-inline-end: 0;
   }
   @keyframes nav-slide-in {
     from {
       transform: translateX(-12px);
+      opacity: 0;
+    }
+  }
+  @keyframes nav-slide-in-rtl {
+    from {
+      transform: translateX(12px);
       opacity: 0;
     }
   }
@@ -185,7 +192,7 @@ export default css`
     color: var(--sidebar-foreground);
     background: var(--sidebar);
     background-blend-mode: multiply;
-    border-right: 1px solid var(--sidebar-border);
+    border-inline-end: 1px solid var(--sidebar-border);
     /* Same size as body text (14px by default), like most API references; 20px line height at that size. */
     font-size: var(--font-size-regular);
     line-height: calc(var(--font-size-regular) + 6px);
@@ -197,7 +204,7 @@ export default css`
     &.floating-nav {
       position: absolute;
       top: 0;
-      left: 0;
+      inset-inline-start: 0;
       width: 330px;
       overflow: scroll;
       z-index: 5;
@@ -206,21 +213,34 @@ export default css`
         2px 0 6px -2px rgba(0, 0, 0, 0.25);
       animation: nav-slide-in 0.18s ease-out;
     }
+    /* Right-to-left: it opens from the right, so the shadow and the slide are mirrored */
+    &.floating-nav:dir(rtl) {
+      box-shadow:
+        -8px 0 24px -6px rgba(0, 0, 0, 0.45),
+        -2px 0 6px -2px rgba(0, 0, 0, 0.25);
+      animation-name: nav-slide-in-rtl;
+    }
   }
 
+  /* ---------------------------------------------------------------------------------------------
+     Items. Three levels, each with its own look:
+     1. Section labels: small upper-case text, not links (Overview, each x-tagGroups group,
+        Components). Without tag groups the tags themselves take this place (.tags-as-labels),
+        but stay a link (the name) and a toggle (the arrow).
+     2. Rows with a leading icon: the API title, API Servers, Authentication, and tags in a group.
+     3. Operations and headings: compact rows under a guide line; the method leads the row.
+     The current item is a filled block; a closed tag that holds it turns to the accent.
+     --------------------------------------------------------------------------------------------- */
   .nav-bar-info:focus-visible,
   .nav-bar-tag:focus-visible,
-  .nav-bar-path:focus-visible {
-    outline: 1px solid;
-    box-shadow: none;
-    outline-offset: -4px;
-  }
-  .nav-bar-expand-all:focus-visible,
-  .nav-bar-collapse-all:focus-visible,
+  .nav-bar-tag-title:focus-visible,
+  .nav-bar-path:focus-visible,
+  .nav-bar-h1:focus-visible,
+  .nav-bar-h2:focus-visible,
   .nav-bar-tag-icon:focus-visible {
-    outline: 1px solid;
+    outline: 2px solid var(--sidebar-ring);
+    outline-offset: -2px;
     box-shadow: none;
-    outline-offset: 2px;
   }
   ::slotted([slot='nav-logo']) {
     max-height: var(--sidebar-logo-max-height);
@@ -238,79 +258,185 @@ export default css`
     scrollbar-color: var(--muted) transparent;
     scroll-padding-top: 60px;
     container-type: scroll-state;
+    padding: 0 10px 24px;
+    box-sizing: border-box;
+  }
+  /* The sticky header spans the full width, outside the items' inset */
+  .nav-scroll > .nav-bar-header {
+    margin-inline: -10px;
+    width: auto;
+  }
+  .nav-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  .nav-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .nav-scroll::-webkit-scrollbar-thumb {
+    background: var(--muted);
   }
 
-  .nav-bar-tag {
+  /* --- Level 1: section labels --- */
+  .nav-bar-section-label {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-direction: row;
-  }
-  /* Collapsing a tag or tag group slides its body shut: height auto -> 0 (interpolate-size lets the
-     keyword animate; browsers without it switch at once). The body goes visibility: hidden once
-     closed, so its links leave the tab order; opening shows it at once. */
-  .nav-bar-paths-under-tag,
-  .nav-bar-tags-under-group {
-    interpolate-size: allow-keywords;
-    height: auto;
-    overflow: hidden;
-    transition:
-      height 0.25s ease,
-      visibility 0s;
-  }
-  .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag,
-  .nav-bar-tag-group.collapsed .nav-bar-tags-under-group {
-    height: 0;
-    visibility: hidden;
-    transition:
-      height 0.25s ease,
-      visibility 0s linear 0.25s;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .nav-bar-paths-under-tag,
-    .nav-bar-tags-under-group {
-      transition: none;
-    }
-  }
-  .nav-bar-paths-under-tag {
-    padding-left: 10px;
-  }
-
-  .nav-bar-expand-all {
-    transform: rotate(90deg);
-    cursor: pointer;
-    margin-inline-end: 10px;
-  }
-  .nav-bar-collapse-all {
-    transform: rotate(270deg);
-    cursor: pointer;
-  }
-  .nav-bar-expand-all:hover,
-  .nav-bar-collapse-all:hover {
-    color: var(--primary);
-  }
-
-  .nav-bar-tag-icon,
-  .nav-bar-tag-group-icon {
-    font-size: 14px;
-    color: var(--foreground);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    line-height: 1;
+    box-sizing: border-box;
+    padding: 0 10px 6px;
+    margin-top: 22px;
+    font-size: var(--font-size-xs);
+    font-weight: 650;
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sidebar-label-foreground);
+    cursor: default;
     user-select: none;
+  }
+  .nav-scroll > .nav-bar-section-label:first-child,
+  .nav-bar-header + .nav-bar-section-label {
+    margin-top: 8px;
+  }
+  .nav-bar-tag-group {
+    margin-top: 22px;
+  }
+  .nav-bar-tag-group > .nav-bar-section-label {
+    margin-top: 0;
+  }
+
+  /* --- Every item --- */
+  .nav-bar-info,
+  .nav-bar-tag,
+  .nav-bar-path,
+  .nav-bar-h1,
+  .nav-bar-h2 {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Border-box and no underline here too: getNavCss() (@rapidoc/prerender) styles these on a page
+       without the component's global box-sizing reset and link styles */
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    border: none;
+    border-radius: calc(var(--radius) * 2);
+    color: var(--sidebar-foreground);
+    background: transparent;
+    font-weight: 400;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+  a.nav-bar-info:hover,
+  a.nav-bar-path:hover,
+  a.nav-bar-tag:hover {
+    text-decoration: none;
+  }
+  .nav-bar-info:hover,
+  .nav-bar-tag:hover,
+  .nav-bar-path:hover,
+  .nav-bar-h1:hover,
+  .nav-bar-h2:hover {
+    color: var(--sidebar-accent-foreground);
+    background: var(--sidebar-accent);
+  }
+  .nav-bar-info.active,
+  .nav-bar-tag.active,
+  .nav-bar-path.active,
+  .nav-bar-h1.active,
+  .nav-bar-h2.active {
+    color: var(--sidebar-accent-foreground);
+    background: color-mix(in srgb, var(--sidebar-primary) 14%, transparent);
+    font-weight: 550;
+  }
+
+  /* --- Level 2: rows with an icon --- */
+  .nav-bar-info {
+    min-height: 36px;
+    padding: 0 10px;
+  }
+  .nav-bar-icon {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    color: color-mix(in srgb, var(--sidebar-foreground) 60%, transparent);
     transition: color 0.15s ease;
   }
-  .nav-bar-tag-icon:hover,
-  .nav-bar-tag-group-icon:hover {
-    color: var(--foreground);
+  .nav-bar-info:hover .nav-bar-icon {
+    color: var(--sidebar-accent-foreground);
+  }
+  .nav-bar-info.active .nav-bar-icon {
+    color: var(--sidebar-primary);
+  }
+  .nav-bar-info-title,
+  .nav-bar-tag-title,
+  .nav-bar-tag-group-title {
+    flex: 1;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
   }
 
-  .nav-bar-tag-icon::after,
-  .nav-bar-tag-group-icon::after {
+  /* A tag: its name is a link to its section, its arrow a button beside it. A tag with nothing to open
+     (description-only, a component) is a link itself. */
+  .nav-bar-tag {
+    min-height: 36px;
+    padding-inline: 10px 4px;
+  }
+  div.nav-bar-tag {
+    padding-inline-start: 0;
+    cursor: default;
+  }
+  /* The link fills the row up to the arrow, so the whole name is one target */
+  div.nav-bar-tag > a.nav-bar-tag-title {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding-inline-start: 10px;
+    border-radius: inherit;
+    cursor: pointer;
+  }
+  a.nav-bar-tag-title,
+  .nav-bar-tag a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag {
+    color: var(--sidebar-primary);
+  }
+  .nav-bar-tag-icon {
+    /* a <button>: none of the browser's own look */
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: calc(var(--radius) * 1.5);
+    color: color-mix(in srgb, var(--sidebar-foreground) 60%, transparent);
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+  .nav-bar-tag-icon:hover {
+    color: var(--sidebar-accent-foreground);
+    background: color-mix(in srgb, var(--sidebar-foreground) 12%, transparent);
+  }
+  .nav-bar-tag-icon::after {
     content: '';
     width: 14px;
     height: 14px;
@@ -327,136 +453,129 @@ export default css`
     transition: transform 0.2s ease-out 0s;
     transform-origin: center;
   }
-
-  .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after,
-  .nav-bar-tag-group.collapsed .nav-bar-tag-group-icon::after {
+  .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon::after {
     transform: rotate(-90deg);
   }
+  .nav-bar-tag-and-paths.collapsed .nav-bar-tag-icon:dir(rtl)::after {
+    transform: rotate(90deg);
+  }
 
-  .nav-bar-tag-and-paths.expanded .nav-bar-tag-icon::after,
-  .nav-bar-tag-group.expanded .nav-bar-tag-group-icon::after {
-    transform: rotate(0deg);
-  }
-  .nav-scroll::-webkit-scrollbar {
-    width: 8px;
-  }
-  .nav-scroll::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .nav-scroll::-webkit-scrollbar-thumb {
-    background: var(--muted);
-  }
-  .nav-bar-tag-group {
-    margin-top: 6px;
-    margin-bottom: 2px;
-  }
-  .nav-bar-tag-group-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 15px 4px 6px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--sidebar-foreground);
-    cursor: pointer;
-    user-select: none;
-    border-inline-start: 4px solid transparent;
+  /* Collapsing a tag slides its operations shut: height auto -> 0 (interpolate-size lets the
+     keyword animate; browsers without it switch at once). The body goes visibility: hidden once
+     closed, so its links leave the tab order; opening shows it at once. */
+  .nav-bar-paths-under-tag {
+    interpolate-size: allow-keywords;
+    height: auto;
+    overflow: hidden;
     transition:
-      border-color 0.15s ease,
-      color 0.15s ease;
+      height 0.25s ease,
+      visibility 0s;
   }
-  .nav-bar-tag-group-header:hover {
-    color: var(--sidebar-accent-foreground);
+  .nav-bar-tag-and-paths.collapsed .nav-bar-paths-under-tag {
+    height: 0;
+    visibility: hidden;
+    transition:
+      height 0.25s ease,
+      visibility 0s linear 0.25s;
   }
-  .nav-bar-tag-group-title {
-    flex: 1;
-    min-width: 0;
+  @media (prefers-reduced-motion: reduce) {
+    .nav-bar-paths-under-tag,
+    .nav-bar-tag-icon::after {
+      transition: none;
+    }
   }
-  .nav-bar-tags-under-group {
-    border-inline-start: 1px solid var(--border);
+
+  /* --- Level 3: indented under a guide line, the current item ticked on it --- */
+  .nav-bar-paths-under-tag,
+  .overview-headers {
+    position: relative;
+    padding-inline-start: 11px;
+  }
+  /* Under the tag's name (tags have no icon) or under the API title's icon */
+  .nav-bar-paths-under-tag {
     margin-inline-start: 10px;
   }
-
-  .nav-bar-tag {
-    color: var(--primary);
-    border-inline-start: 4px solid transparent;
-    font-weight: 600;
-    padding: 10px 15px 10px 10px;
-    text-transform: capitalize;
-    min-width: 0;
+  .overview-headers {
+    margin-inline-start: 19px;
   }
-  .nav-bar-tag a,
-  .nav-bar-tag-title,
-  a.nav-bar-tag-title {
-    color: inherit;
-    text-decoration: none;
-    flex: 1;
-    min-width: 0;
+  .nav-bar-paths-under-tag::before,
+  .overview-headers::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 2px;
+    bottom: 2px;
+    width: 1px;
+    background: var(--sidebar-border);
   }
-  .nav-bar-tag a:hover,
-  .nav-bar-tag-title:hover,
-  a.nav-bar-tag-title:hover {
-    color: inherit;
-    text-decoration: none;
+  .nav-bar-paths-under-tag > .nav-bar-path.active::before,
+  .overview-headers > .active::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: -11px;
+    width: 1px;
+    height: 18px;
+    background: var(--sidebar-primary);
   }
-  /* a description-only tag (show-unused-tags) is itself the link */
-  a.nav-bar-tag {
-    text-decoration: none;
-  }
-
-  .nav-bar-components,
-  .nav-bar-h1,
-  .nav-bar-h2,
-  .nav-bar-info,
-  .nav-bar-tag,
-  .nav-bar-path {
-    display: flex;
-    cursor: pointer;
-    /* Border-box and no underline here too: getNavCss() (@rapidoc/prerender) styles these on a page
-       without the component's global box-sizing reset and link styles */
-    box-sizing: border-box;
-    width: 100%;
-    border: none;
-    color: var(--sidebar-foreground);
-    background: transparent;
-    border-inline-start: 4px solid transparent;
-    text-decoration: none;
-    transition:
-      background 0.15s ease,
-      color 0.15s ease;
-  }
-
   .nav-bar-path,
-  a.nav-bar-path {
-    align-items: center;
-    justify-content: space-between;
+  .nav-bar-h1,
+  .nav-bar-h2 {
+    min-height: 30px;
+    padding: var(--sidebar-item-padding);
     gap: 8px;
-    min-width: 0;
   }
-
-  a.nav-bar-info:hover,
-  a.nav-bar-path:hover {
-    text-decoration: none;
+  .nav-bar-h2 {
+    padding-inline-start: 22px;
   }
-
   .nav-bar-path > * {
     pointer-events: none;
   }
+  .nav-bar-path.deprecated .nav-bar-path-label {
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+  .nav-bar-path-label {
+    display: block;
+    min-width: 0;
+    flex: 1;
+  }
 
-  .nav-bar-path.deprecated {
-    filter: opacity(0.5);
+  /* --- No tag groups: the tags are the section labels, still a link and an arrow --- */
+  .tags-as-labels .nav-bar-tag-and-paths {
+    margin-top: 18px;
+  }
+  .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-tag {
+    min-height: 30px;
+    font-size: var(--font-size-xs);
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--sidebar-label-foreground);
+  }
+  .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-tag:hover {
+    color: var(--sidebar-accent-foreground);
+  }
+  .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-tag.active,
+  .tags-as-labels .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag {
+    color: var(--sidebar-primary);
+    font-weight: 700;
+  }
+  .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-tag .nav-bar-tag-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-paths-under-tag {
+    margin-inline-start: 0;
+    padding-inline-start: 0;
+    padding-top: 2px;
+  }
+  .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-paths-under-tag::before,
+  .tags-as-labels .nav-bar-tag-and-paths > .nav-bar-paths-under-tag > .nav-bar-path.active::before {
+    display: none;
   }
 
   .portal-sidebar-footer-link {
     padding: 16px 12px;
-  }
-
-  .nav-bar-path-label {
-    display: flex;
-    align-items: baseline;
-    min-width: 0;
-    flex: 1;
   }
 
   /* show-badges-in-nav-bar="dot": the operation shows a badge (part nav-badge-dot to restyle it) */
@@ -466,19 +585,15 @@ export default css`
     height: 6px;
     border-radius: 50%;
     align-self: center;
-  }
-  /* Last in its row (no method shown: the element renders .nav-method.false, the static sidebar
-     nothing): centered under the tag's 16px chevron, which sits 1px further in */
-  .nav-badge-dot:has(+ .nav-method.false),
-  .nav-badge-dot:last-child {
     margin-inline-end: 4px;
   }
 
   .nav-bar-webhook {
     font-weight: bold;
-    margin-right: 8px;
+    margin-inline-end: 6px;
     font-size: var(--font-size-xs);
     flex-shrink: 0;
+    opacity: 0.7;
   }
 
   /* A path in place of the summary (use-path-in-nav-bar); also in the static navigation, which has no font styles */
@@ -486,11 +601,14 @@ export default css`
     font-family: var(--font-mono);
   }
 
+  /* show-method-in-nav-bar: the method leads the row, in a column of its own */
   .nav-method {
-    font-weight: bold;
-    margin-inline-start: auto;
-    flex-shrink: 0;
-    font-size: var(--font-size-xs);
+    flex: none;
+    min-width: 3.6em;
+    font-family: var(--font-mono);
+    font-size: calc(var(--font-size-xs) - 1px);
+    font-weight: 700;
+    line-height: 1.4;
     white-space: nowrap;
 
     &.false {
@@ -536,24 +654,14 @@ export default css`
   }
 
   .nav-method.as-colored-block {
-    padding: 1px 4px;
     min-width: 32px;
+    padding: 1px 4px;
+    box-sizing: border-box;
     text-align: center;
     border-radius: 4px;
     color: var(--method-badge-fg);
     background: var(--method-default);
     font-weight: 600;
-  }
-  :host([color-scheme='light']) .nav-method.as-colored-block {
-    color: var(--method-badge-fg);
-  }
-  @media (prefers-color-scheme: light) {
-    :host([color-scheme='system']) .nav-method.as-colored-block {
-      color: var(--method-badge-fg);
-    }
-  }
-  .colored-block .nav-method.as-colored-block {
-    outline: 1px solid;
   }
 
   .nav-method.as-colored-block.get {
@@ -590,128 +698,25 @@ export default css`
     background: var(--method-default);
   }
 
-  .nav-bar-h1,
-  .nav-bar-h2,
-  .nav-bar-path {
-    font-weight: 400;
-    padding: var(--sidebar-item-padding);
-  }
-
-  .nav-bar-info {
-    padding: 12px 10px;
-    font-weight: 600;
-  }
-  .nav-bar-section {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    color: var(--foreground);
-    padding: var(--sidebar-item-padding);
-    font-weight: 700;
-  }
-  .nav-bar-section.operations {
-    display: none !important;
-  }
-
-  .nav-bar-section:first-child {
-    display: none;
-  }
-  .nav-bar-h2 {
-    padding-inline-start: 28px;
-  }
-
-  /* Active item indicator - always left-bar style */
-  .nav-bar-h1.active,
-  .nav-bar-h2.active,
-  .nav-bar-info.active,
-  .nav-bar-tag.active,
-  .nav-bar-path.active,
-  .nav-bar-section.operations.active,
-  .nav-bar-h1.left-bar.active,
-  .nav-bar-h2.left-bar.active,
-  .nav-bar-info.left-bar.active,
-  .nav-bar-tag.left-bar.active,
-  .nav-bar-path.left-bar.active,
-  .nav-bar-section.left-bar.operations.active {
-    border-inline-start: 4px solid var(--sidebar-primary);
-    color: var(--sidebar-primary);
-  }
-
-  .nav-bar-h1.active:hover,
-  .nav-bar-h2.active:hover,
-  .nav-bar-info.active:hover,
-  .nav-bar-tag.active:hover,
-  .nav-bar-path.active:hover,
-  .nav-bar-section.operations.active:hover,
-  .nav-bar-h1.left-bar.active:hover,
-  .nav-bar-h2.left-bar.active:hover,
-  .nav-bar-info.left-bar.active:hover,
-  .nav-bar-tag.left-bar.active:hover,
-  .nav-bar-path.left-bar.active:hover,
-  .nav-bar-section.left-bar.operations.active:hover {
-    color: var(--sidebar-primary);
-  }
-
-  /* Highlight collapsed parents using modern CSS :has() */
-  .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag {
-    border-inline-start-color: var(--sidebar-primary);
-    color: var(--sidebar-primary);
-  }
-
-  .nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header {
-    border-inline-start-color: var(--sidebar-primary);
-    color: var(--sidebar-primary);
-  }
-
-  .nav-bar-tag-and-paths.collapsed:has(.nav-bar-path.active) > .nav-bar-tag:hover,
-  .nav-bar-tag-group.collapsed:has(.active) > .nav-bar-tag-group-header:hover {
-    color: var(--sidebar-primary);
-  }
-
-  .nav-bar-h1:hover,
-  .nav-bar-h2:hover,
-  .nav-bar-info:hover,
-  .nav-bar-tag:hover,
-  .nav-bar-path:hover {
-    color: var(--sidebar-accent-foreground);
-    background: var(--sidebar-accent);
-  }
-
-  /* nav-item-overflow: ellipsis (default) vs wrap */
-  :host([nav-item-overflow='ellipsis']) .nav-bar-tag-group-title,
-  :host(:not([nav-item-overflow])) .nav-bar-tag-group-title,
-  .overflow-ellipsis .nav-bar-tag-group-title,
-  :host([nav-item-overflow='ellipsis']) .nav-bar-tag-title,
-  :host(:not([nav-item-overflow])) .nav-bar-tag-title,
-  .overflow-ellipsis .nav-bar-tag-title,
-  :host([nav-item-overflow='ellipsis']) .nav-bar-path-label,
-  :host(:not([nav-item-overflow])) .nav-bar-path-label,
-  .overflow-ellipsis .nav-bar-path-label,
-  :host([nav-item-overflow='ellipsis']) .nav-bar-info,
-  :host(:not([nav-item-overflow])) .nav-bar-info,
-  .overflow-ellipsis .nav-bar-info,
-  :host([nav-item-overflow='ellipsis']) .nav-bar-section-title,
-  :host(:not([nav-item-overflow])) .nav-bar-section-title,
-  .overflow-ellipsis .nav-bar-section-title {
+  /* nav-item-overflow: ellipsis (default) vs wrap; section labels always cut off */
+  .nav-bar-section-label,
+  :host([nav-item-overflow='ellipsis']) :is(.nav-bar-tag-group-title, .nav-bar-tag-title, .nav-bar-path-label, .nav-bar-info-title),
+  :host(:not([nav-item-overflow])) :is(.nav-bar-tag-group-title, .nav-bar-tag-title, .nav-bar-path-label, .nav-bar-info-title),
+  .overflow-ellipsis :is(.nav-bar-tag-group-title, .nav-bar-tag-title, .nav-bar-path-label, .nav-bar-info-title) {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block;
   }
 
-  :host([nav-item-overflow='wrap']) .nav-bar-tag-group-title,
-  .overflow-wrap .nav-bar-tag-group-title,
-  :host([nav-item-overflow='wrap']) .nav-bar-tag-title,
-  .overflow-wrap .nav-bar-tag-title,
-  :host([nav-item-overflow='wrap']) .nav-bar-path-label,
-  .overflow-wrap .nav-bar-path-label,
-  :host([nav-item-overflow='wrap']) .nav-bar-info,
-  .overflow-wrap .nav-bar-info,
-  :host([nav-item-overflow='wrap']) .nav-bar-section-title,
-  .overflow-wrap .nav-bar-section-title {
+  :host([nav-item-overflow='wrap']) :is(.nav-bar-tag-title, .nav-bar-path-label, .nav-bar-info-title),
+  .overflow-wrap :is(.nav-bar-tag-title, .nav-bar-path-label, .nav-bar-info-title) {
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
     word-break: break-word;
+  }
+  :host([nav-item-overflow='wrap']) :is(.nav-bar-info, .nav-bar-tag, .nav-bar-path, .nav-bar-h1, .nav-bar-h2),
+  .overflow-wrap :is(.nav-bar-info, .nav-bar-tag, .nav-bar-path, .nav-bar-h1, .nav-bar-h2) {
+    padding-block: 5px;
   }
 `;

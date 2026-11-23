@@ -1,5 +1,5 @@
 import { css, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { scheduleHighlight } from "~/utils/highlighter";
 
 // Styles
@@ -24,7 +24,11 @@ import { rapidocApiKey } from "~/utils/common-utils";
 import ProcessSpec from "~/utils/spec-parser";
 import { enableMockServer, disableMockServer, updateMockConfig } from "~/utils/mock-interceptor";
 import mainBodyTemplate from "~/templates/main-body-template";
-import { applyApiKey, onClearAllApiKeys } from "~/templates/security-scheme-template";
+import {
+  applyApiKey,
+  onClearAllApiKeys,
+  recoverPersistedApiKeys,
+} from "~/templates/security-scheme-template";
 import { setApiServer } from "~/templates/server-template";
 import "~/utils/markdown-utils";
 import { AutoColorSchemeController } from "~/utils/auto-color-scheme";
@@ -61,15 +65,6 @@ const paramsConverter = {
  * @fires spec-loaded - Dispatched after the OpenAPI specification has been fully fetched, parsed,
  * resolved, and rendered into the DOM. Provides the resolved spec object in <span class="mono
  * yellow">e.detail</span>.
- *
- * @deprecatedAttr match-paths | Spec & Content | | | <span class="red bold">[REMOVED]</span> Use
- * <span class="mono yellow">filter-operations</span>: a path glob (<span class="mono
- * yellow">/pet/**</span>), a method and path, or operationIds.
- * @deprecatedAttr match-type | Spec & Content | includes, regex | includes | <span class="red
- * bold">[REMOVED]</span> <span class="mono yellow">filter-operations</span> matches exact terms and
- * path globs, not substrings or regular expressions.
- * @deprecatedAttr remove-endpoints-with-badge-label-as | Spec & Content | | | <span class="red
- * bold">[REMOVED]</span> Use <span class="mono yellow">filter-operations="!badge:Beta"</span>.
  */
 @customElement("rapi-doc-mini")
 export default class RapiDocMini extends LitElement {
@@ -184,7 +179,7 @@ export default class RapiDocMini extends LitElement {
    * @default (empty)
    */
   @property({ type: String, attribute: "api-key-value" })
-  apiKeyValue = "-";
+  apiKeyValue = "";
   /**
    * Selects which server URL from the spec's servers list should be selected by default.
    * @group Try & Servers
@@ -259,16 +254,6 @@ export default class RapiDocMini extends LitElement {
    */
   @property({ type: String, attribute: "mock-server-status-code" })
   mockServerStatusCode: string | Record<string, string> = "200";
-  /**
-   * <span class="orange bold">Deprecated:</span> put the strategy in front of the codes in <span
-   * class="mono yellow">mock-server-status-code</span> instead (<span class="mono
-   * yellow">random:200, 500</span>). How codes without a prefix are picked: 'cycle' uses them in
-   * turn per operation (the default); 'random' picks one for each call; 'first' always answers the
-   * first code, the same as giving only that code.
-   * @group Mock Server
-   */
-  @property({ type: String, attribute: "mock-server-status-strategy" })
-  mockServerStatusStrategy: "first" | "cycle" | "random" = "cycle";
   /**
    * Simulated network latency in milliseconds before resolving mock responses. Useful for testing
    * client loading spinners and optimistic UI updates.
@@ -392,8 +377,7 @@ export default class RapiDocMini extends LitElement {
   @property({ type: String, attribute: "show-tags" })
   showTags: "true" | "false" = "false";
 
-  /** @internal */
-  @property({ type: Boolean }) loading = false;
+  @state() loading = false;
 
   isMini: boolean;
   _specLoadSeq: number;
@@ -512,13 +496,8 @@ export default class RapiDocMini extends LitElement {
       this.setAttribute("scale", this.scale);
     }
     applyCustomTheme(this, this.theme);
-    if (
-      !this.defaultSchemaTab ||
-      !"example, schema, model,".includes(`${this.defaultSchemaTab},`)
-    ) {
+    if (!this.defaultSchemaTab || !"example, schema,".includes(`${this.defaultSchemaTab},`)) {
       this.defaultSchemaTab = "example";
-    } else if ((this.defaultSchemaTab as string) === "model") {
-      this.defaultSchemaTab = "schema";
     }
     this.pathsExpanded = this.pathsExpanded === "true";
     if (!this.schemaExpandLevel || this.schemaExpandLevel < 1) {
@@ -546,9 +525,6 @@ export default class RapiDocMini extends LitElement {
     // "true", "false", or filter-operations terms (utils/try-filter.js)
     if (!this.allowTry || !String(this.allowTry).trim()) {
       this.allowTry = "true";
-    }
-    if (!this.apiKeyValue) {
-      this.apiKeyValue = "-";
     }
     if (!this.apiKeyLocation) {
       this.apiKeyLocation = "header";
@@ -579,6 +555,20 @@ export default class RapiDocMini extends LitElement {
     ) {
       this.fetchCredentials = "";
     }
+    // Moved in the page (disconnected, then connected again): disconnectedCallback turned the mock off
+    if (this.mockServer === "true" && this.resolvedSpec?.tags && !this.resolvedSpec.isSpecLoading) {
+      this.enableMock();
+    }
+  }
+
+  // Answers this element's Try requests (and the page's calls to the spec's servers) from the mock
+  enableMock() {
+    enableMockServer(this.resolvedSpec, {
+      owner: this,
+      statusCode: this.mockServerStatusCode,
+      delay: this.mockServerDelay,
+      log: this.mockServerLog,
+    });
   }
 
   disconnectedCallback() {
@@ -636,27 +626,19 @@ export default class RapiDocMini extends LitElement {
 
     if (changedProperties.has("mockServer")) {
       if (this.mockServer === "true" && this.resolvedSpec) {
-        enableMockServer(this.resolvedSpec, {
-          owner: this,
-          statusCode: this.mockServerStatusCode,
-          statusStrategy: this.mockServerStatusStrategy,
-          delay: this.mockServerDelay,
-          log: this.mockServerLog,
-        });
+        this.enableMock();
       } else if (this.mockServer !== "true") {
         disableMockServer(this);
       }
     }
     if (
       changedProperties.has("mockServerStatusCode") ||
-      changedProperties.has("mockServerStatusStrategy") ||
       changedProperties.has("mockServerDelay") ||
       changedProperties.has("mockServerLog")
     ) {
       updateMockConfig({
         owner: this,
         statusCode: this.mockServerStatusCode,
-        statusStrategy: this.mockServerStatusStrategy,
         delay: this.mockServerDelay,
         log: this.mockServerLog,
       });
@@ -865,12 +847,15 @@ export default class RapiDocMini extends LitElement {
    * @public
    */
   setApiServer(apiServerUrl) {
-    // return apiServerUrl;
     return setApiServer.call(this, apiServerUrl);
   }
 
   async afterSpecParsedAndValidated(spec, token = this._specLoadSeq) {
     this.resolvedSpec = spec;
+    // Once per load and before spec-loaded, so a key the page sets there (setApiKey) is not overwritten
+    if (this.persistAuth === "true" && !spec.specLoadError) {
+      recoverPersistedApiKeys.call(this);
+    }
     this.selectedServer = undefined;
     if (this.defaultApiServerUrl) {
       if (this.defaultApiServerUrl === this.serverUrl) {
@@ -899,13 +884,7 @@ export default class RapiDocMini extends LitElement {
     this.dispatchEvent(specLoadedEvent);
 
     if (this.mockServer === "true") {
-      enableMockServer(this.resolvedSpec, {
-        owner: this,
-        statusCode: this.mockServerStatusCode,
-        statusStrategy: this.mockServerStatusStrategy,
-        delay: this.mockServerDelay,
-        log: this.mockServerLog,
-      });
+      this.enableMock();
     }
   }
 

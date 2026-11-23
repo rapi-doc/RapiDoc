@@ -9,11 +9,19 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { createMcpRuntime, credentialsFromEnv, externalHostsFromEnv } from "@rapidoc/mcp";
+import {
+  MANIFEST_VERSION,
+  baseUrlEnvNames,
+  baseUrlsFromEnv,
+  createMcpRuntime,
+  credentialsFromEnv,
+  externalHostsFromEnv,
+  sourcesWithoutBaseUrl,
+} from "@rapidoc/mcp";
 import { allows } from "./access.js";
 import { isSameOrigin } from "./auth/routes.js";
 import { cookieNames } from "./auth/session.js";
-import { NO_STORE } from "./static.js";
+import { NO_STORE, tooLarge } from "./static.js";
 
 /**
  * The portal's APIs and workflows as MCP tools, from the manifests `rapidoc build` writes to
@@ -26,12 +34,19 @@ import { NO_STORE } from "./static.js";
  * the tools of the zones the reader may see, and operations secured with oauth2, openIdConnect or a
  * bearer scheme are called with the reader's access token (auth.tryIt) when the portal has one. Other
  * schemes (API keys, HTTP Basic) take the server's environment, named as in the exported project:
- * `<SCHEME>` (scheme id in upper snake case), or `API_KEY` when the API has one scheme. A workflow
- * step's x-operation URL computed at run time goes only to a host the workflow names, or one
- * `EXTERNAL_HOSTS` lists (comma-separated, `*` for any), also as in the exported project.
+ * `MCP_AUTH_<SCHEME>` (scheme id in upper snake case; `_USERNAME` and `_PASSWORD` for HTTP Basic),
+ * and no variable outside that prefix, so a scheme id can never name one of the server's own
+ * secrets. A workflow step's x-operation URL computed at run time goes only to a host the workflow
+ * names, or one `MCP_EXTERNAL_HOSTS` lists (comma-separated, `*` for any).
+ *
+ * An API's base URL is its manifest's, or `MCP_BASE_URL_<API ID>` (`MCP_BASE_URL` when the portal
+ * has one API). An API with neither (its spec names no absolute server URL) has its tools left
+ * out, as has a manifest of a version this server does not read; both are logged at start.
  */
 
 export const MCP_PATH = "/mcp";
+/** A JSON-RPC request with a tool's arguments: far below this */
+const MAX_MCP_BODY = 1024 * 1024;
 export const MCP_TOKEN_PATH = "/_rapidoc/mcp/token";
 const MCP_DIR = "mcp";
 const BEARER_TYPES = new Set(["oauth2", "openIdConnect"]);
@@ -42,47 +57,112 @@ const BEARER_TYPES = new Set(["oauth2", "openIdConnect"]);
  *
  * @param {string} distDir
  * @param {object | null} [section] - `manifest.mcp` of rapidoc-server.json
+ * @param {object} [options]
+ * @param {Record<string, string | undefined>} [options.env] - For the base URL variables
+ * @param {(line: string) => void} [options.log] - Told what is left out and why
  * @returns {{ tools: Map<string, { manifest: object, zones: string[] }>,
- *   resources: Map<string, { manifest: object, zones: string[] }>, count: number }}
+ *   resources: Map<string, { manifest: object, zones: string[] }>,
+ *   baseUrls: Map<object, Record<string, string>>, count: number }} `baseUrls` are each manifest's
+ *   base URLs from the environment, by source name
  */
-export function loadMcpManifests(distDir, section) {
+export function loadMcpManifests(distDir, section, { env = {}, log = () => {} } = {}) {
   const tools = new Map();
   const resources = new Map();
+  const loaded = [];
   const read = (rel) => JSON.parse(fs.readFileSync(path.join(distDir, rel), "utf8"));
-  const add = (manifest, zones) => {
-    for (const tool of manifest.tools || []) tools.set(tool.name, { manifest, zones });
-    for (const resource of manifest.resources || [])
-      resources.set(resource.uri, { manifest, zones });
+  const add = (manifest, zones, file) => {
+    if (manifest.manifestVersion !== MANIFEST_VERSION) {
+      log(
+        `mcp: ${file} left out: it is manifest version ${JSON.stringify(manifest.manifestVersion ?? null)} and this server reads version ${MANIFEST_VERSION}. Build the portal again with the same RapiDoc version as the server.`,
+      );
+      return;
+    }
+    loaded.push({ manifest, zones, file });
   };
-
   if (section) {
     const apiZone = {};
     for (const [id, entry] of Object.entries(section.apis || {})) {
       apiZone[id] = entry.zone;
-      add(read(entry.file), [entry.zone]);
+      add(read(entry.file), [entry.zone], entry.file);
     }
     for (const entry of Object.values(section.workflows || {})) {
-      add(read(entry.file), [...new Set(entry.apis.map((id) => apiZone[id]).filter(Boolean))]);
+      add(
+        read(entry.file),
+        [...new Set(entry.apis.map((id) => apiZone[id]).filter(Boolean))],
+        entry.file,
+      );
     }
-    return { tools, resources, count: tools.size };
+  } else {
+    const dir = path.join(distDir, MCP_DIR);
+    const files = fs.existsSync(dir)
+      ? [
+          ...fs
+            .readdirSync(dir)
+            .filter((f) => f.endsWith(".json"))
+            .map((f) => path.join(MCP_DIR, f)),
+          ...(fs.existsSync(path.join(dir, "workflows"))
+            ? fs
+                .readdirSync(path.join(dir, "workflows"))
+                .filter((f) => f.endsWith(".json"))
+                .map((f) => path.join(MCP_DIR, "workflows", f))
+            : []),
+        ]
+      : [];
+    for (const file of files) add(read(file), ["public"], file);
   }
 
-  const dir = path.join(distDir, MCP_DIR);
-  if (!fs.existsSync(dir)) return { tools, resources, count: 0 };
-  const files = [
-    ...fs
-      .readdirSync(dir)
-      .filter((f) => f.endsWith(".json"))
-      .map((f) => path.join(MCP_DIR, f)),
-    ...(fs.existsSync(path.join(dir, "workflows"))
-      ? fs
-          .readdirSync(path.join(dir, "workflows"))
-          .filter((f) => f.endsWith(".json"))
-          .map((f) => path.join(MCP_DIR, "workflows", f))
-      : []),
-  ];
-  for (const file of files) add(read(file), ["public"]);
-  return { tools, resources, count: tools.size };
+  // Base URLs from the environment, named after the API ids of the build: MCP_BASE_URL when the
+  // portal has one API, MCP_BASE_URL_<API ID> each when it has several. A workflow manifest names
+  // its sources as the Arazzo file does; its `apis` maps them to API ids.
+  const apiIdOf = (manifest, source) => manifest.apis?.[source] || source;
+  const allApis = { sources: {} };
+  for (const { manifest } of loaded) {
+    for (const source of Object.keys(manifest.sources || {})) {
+      allApis.sources[apiIdOf(manifest, source)] = {};
+    }
+  }
+  let fromEnv = {};
+  try {
+    fromEnv = baseUrlsFromEnv(allApis, env);
+  } catch (err) {
+    log(`mcp: ${err.message}`);
+  }
+  const variables = baseUrlEnvNames(allApis);
+  const baseUrls = new Map();
+  const reported = new Set();
+  for (const { manifest, zones, file } of loaded) {
+    const own = {};
+    for (const source of Object.keys(manifest.sources || {})) {
+      const url = fromEnv[apiIdOf(manifest, source)];
+      if (url) own[source] = url;
+    }
+    baseUrls.set(manifest, own);
+    const unset = new Set(sourcesWithoutBaseUrl(manifest, own));
+    // A workflow needs every source its steps call; x-operation steps name their own URL
+    const sourcesOf = (tool) =>
+      tool.workflow
+        ? (manifest.workflows?.[tool.workflow]?.steps || []).map((s) => s.operation?.source)
+        : [tool.operation?.source];
+    const usable = (item) => !sourcesOf(item).some((source) => unset.has(source));
+    let skipped = 0;
+    for (const tool of manifest.tools || []) {
+      if (usable(tool)) tools.set(tool.name, { manifest, zones });
+      else skipped++;
+    }
+    for (const resource of manifest.resources || []) {
+      if (usable(resource)) resources.set(resource.uri, { manifest, zones });
+    }
+    for (const source of unset) {
+      const id = apiIdOf(manifest, source);
+      if (reported.has(id)) continue;
+      reported.add(id);
+      log(
+        `mcp: no base URL for the API "${id}": its spec names no absolute server URL. Its tools are left out of ${MCP_PATH}; set ${variables[id]} to offer them.`,
+      );
+    }
+    if (skipped) log(`mcp: ${file}: ${skipped} tool(s) left out, no base URL`);
+  }
+  return { tools, resources, baseUrls, count: tools.size };
 }
 
 /**
@@ -121,7 +201,11 @@ export function registerMcpRoutes(
   app,
   { settings, zones = {}, sealer, userOf, originOf, base = "", env, log, fetch: fetchImpl },
 ) {
-  const { tools, resources, count } = loadMcpManifests(settings.distDir, settings.manifest?.mcp);
+  const { tools, resources, baseUrls, count } = loadMcpManifests(
+    settings.distDir,
+    settings.manifest?.mcp,
+    { env, log },
+  );
   const serverInfo = { name: settings.manifest?.site?.title || "RapiDoc portal", version: "1.0.0" };
   const names = (c) => cookieNames(originOf(c).startsWith("https:"));
   const now = () => Math.floor(Date.now() / 1000);
@@ -134,7 +218,7 @@ export function registerMcpRoutes(
     const header = c.req.header("authorization") || "";
     if (!/^bearer /i.test(header)) return { user: null, apiToken: null };
     if (!sealer) return null;
-    const payload = await sealer.open(header.slice(7).trim());
+    const payload = await sealer.open(header.slice(7).trim(), "mcp");
     if (!payload?.mcp) return null;
     const apiToken = payload.apiToken && payload.apiExp > now() ? payload.apiToken : null;
     return { user: payload.user, apiToken };
@@ -146,6 +230,7 @@ export function registerMcpRoutes(
         manifest,
         createMcpRuntime(manifest, {
           credentials: credentialsFor(manifest, apiToken, env),
+          baseUrls: baseUrls.get(manifest),
           externalHosts: externalHostsFromEnv(env),
           ...(fetchImpl && { fetch: fetchImpl }),
         }),
@@ -154,7 +239,7 @@ export function registerMcpRoutes(
     return cache.get(manifest);
   };
 
-  app.all(MCP_PATH, async (c) => {
+  app.all(MCP_PATH, tooLarge(MAX_MCP_BODY), async (c) => {
     const agent = await agentOf(c);
     if (!agent) {
       c.header("www-authenticate", `Bearer realm="${MCP_PATH}", error="invalid_token"`);
@@ -223,7 +308,8 @@ export function registerMcpRoutes(
       if (!isSameOrigin(c, originOf(c))) return c.json({ error: "same-origin only" }, 403);
       const user = await userOf(c);
       if (!user) return c.json({ error: "sign-in required" }, 401);
-      const saved = settings.auth.tryIt && (await sealer.open(getCookie(c, names(c).apiToken)));
+      const saved =
+        settings.auth.tryIt && (await sealer.open(getCookie(c, names(c).apiToken), "api-token"));
       const exp = user.exp || now() + settings.auth.sessionMaxAge;
       const { exp: _exp, iat: _iat, ...session } = user;
       const token = await sealer.seal(
@@ -233,6 +319,7 @@ export function registerMcpRoutes(
           ...(saved?.token && { apiToken: saved.token, apiExp: saved.exp }),
         },
         Math.max(1, exp - now()),
+        "mcp",
       );
       log(`mcp token: ${user.sub}`);
       return c.json({ token, expires_at: exp, url: `${originOf(c)}${base}${MCP_PATH}` });

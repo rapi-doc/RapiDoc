@@ -77,9 +77,7 @@ describe("E2E: Sections, Navigation & Client Routing", () => {
 
     const tagOrder = await page.evaluate(() => {
       const doc = document.getElementById("thedoc");
-      const tags = Array.from(
-        doc.shadowRoot.querySelectorAll(".nav-bar-section-title, .nav-bar-tag, .sub-title.tag"),
-      );
+      const tags = Array.from(doc.shadowRoot.querySelectorAll(".nav-bar-tag, .sub-title.tag"));
       return tags.map((t) => t.textContent.trim()).filter(Boolean);
     });
 

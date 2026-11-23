@@ -2,13 +2,23 @@ import net from "node:net";
 import { CancelledError, ProblemError } from "./errors.js";
 import { assumingYes, canAsk, confirm } from "./prompt.js";
 
-/** Whether `port` can be listened on at `host` right now. */
-export function isPortFree(port, host) {
-  return new Promise((resolve) => {
+const canListen = (port, host) =>
+  new Promise((resolve) => {
     const server = net.createServer();
     server.once("error", () => resolve(false));
     server.listen({ port, host }, () => server.close(() => resolve(true)));
   });
+
+const LOOPBACK = /^(localhost|127(\.\d{1,3}){3}|::1)$/i;
+
+/**
+ * Whether `port` can be listened on at `host` right now. For a loopback host the port must also be free
+ * on every interface: some systems (macOS) let a server take 127.0.0.1:<port> while another holds the
+ * port on 0.0.0.0, and the two then answer the same address by turns of who is more specific.
+ */
+export async function isPortFree(port, host) {
+  if (!(await canListen(port, host))) return false;
+  return !host || !LOOPBACK.test(host) || canListen(port, "0.0.0.0");
 }
 
 /** The first free port after `port` (up to 50 further), or 0 (let the system pick). */

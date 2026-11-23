@@ -5,7 +5,7 @@ import { dirname, resolve } from "path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // `@rapidoc/mcp` for Node: bundles the shared MCP and Arazzo code from packages/rapidoc/src (no Lit,
-// no element; tests/unit/headless-boundary.test.js keeps it that way) and leaves `yaml` external.
+// no element; tests/unit/headless-boundary.test.js keeps it that way) and leaves `js-yaml` external.
 export default defineConfig({
   build: {
     ssr: true,
@@ -14,7 +14,7 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: [/^node:/, "yaml"],
+      external: [/^node:/, "js-yaml"],
       output: {
         entryFileNames: "index.js",
       },

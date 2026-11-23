@@ -1,6 +1,6 @@
 ---
 /**
- * {% workflow file="<workflows id>" id="<workflowId>" view="compact" title="..." /%}: one Arazzo
+ * {% workflow document="<workflows id>" id="<workflowId>" view="compact" title="..." /%}: one Arazzo
  * workflow of `workflows:`, shown as a <rapi-flow> (the diagram with its run panel). Inside it, the
  * same diagram drawn at build time as a static SVG (@rapidoc/prerender) is the fallback content:
  * it shows until the <rapi-flow> bundle loads, and without JavaScript. Once the element upgrades,
@@ -15,24 +15,24 @@ import { FLOW_BUNDLE_PATH } from '../../engine/sync-assets.js';
 import { withBase } from '../../components/base-path.js';
 
 interface Props {
-  file: string;
+  document: string;
   id?: string;
   view?: 'expanded' | 'compact';
   title?: string;
 }
 
-const { file, id, view, title } = Astro.props;
+const { document: documentId, id, view, title } = Astro.props;
 const workflows = portalConfig.workflows || [];
-const entry = workflows.find((w: any) => w.id === file);
+const entry = workflows.find((w: any) => w.id === documentId);
 const apis = portalConfig.apis || [];
 
 let svg = '';
 let workflowId = id || '';
 let problem = '';
 if (!entry) {
-  console.warn(`[rapidoc-portal] workflow on ${Astro.url.pathname}: no workflow file with id "${file}" in workflows:`);
+  console.warn(`[rapidoc-portal] workflow on ${Astro.url.pathname}: no workflow document with id "${documentId}" in workflows:`);
 } else if (id && !entry.workflowIds.includes(id)) {
-  problem = `The file has no workflow "${id}". Its workflows: ${entry.workflowIds.join(', ')}.`;
+  problem = `The document has no workflow "${id}". Its workflows: ${entry.workflowIds.join(', ')}.`;
   console.warn(`[rapidoc-portal] workflow on ${Astro.url.pathname}: ${problem}`);
 } else {
   // Steps resolve against the default version of each source's API
@@ -46,7 +46,7 @@ if (!entry) {
     workflowId: id,
     sources,
     view,
-    idPrefix: `rf-${file}-${id || 'first'}`,
+    idPrefix: `rf-${documentId}-${id || 'first'}`,
   });
   svg = drawn.svg;
   workflowId = drawn.graph?.workflowId || id || '';
@@ -61,7 +61,7 @@ const firstApi = entry && apis.find((a: any) => a.id === entry.apiIds[0]);
 
 {
   entry && !problem ? (
-    <figure class="portal-workflow not-content" data-file={file} data-workflow={workflowId}>
+    <figure class="portal-workflow not-content" data-document={documentId} data-workflow={workflowId}>
       {title && <figcaption>{title}</figcaption>}
       <rapi-flow
         arazzo-url={withBase(entry.url)}
@@ -85,7 +85,7 @@ const firstApi = entry && apis.find((a: any) => a.id === entry.apiIds[0]);
         <>{problem}</>
       ) : (
         <>
-          No workflow file with id <code>{file}</code> in <code>workflows:</code> of <code>rapidoc.config.yaml</code>
+          No workflow document with id <code>{documentId}</code> in <code>workflows:</code> of <code>rapidoc.config.yaml</code>
           {workflows.length > 0 && <>. Available ids: {workflows.map((w: any) => w.id).join(', ')}</>}.
         </>
       )}

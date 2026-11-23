@@ -16,6 +16,7 @@ import { NO_STORE } from "../static.js";
 
 export const AUTH_PREFIX = "/_rapidoc/auth";
 const SIGN_IN_ERROR_PAGE = "/_rapidoc/sign-in-error/";
+const MAX_LOG_VALUE = 200;
 
 /**
  * A same-site path to return to after sign-in; anything else (other origins, `//host`, auth routes, paths outside
@@ -34,6 +35,16 @@ export function safeReturnTo(value, base = "") {
   return value;
 }
 
+/**
+ * A value from outside (a query parameter, a claim) as it goes into a log line: control characters
+ * removed, so it can't start a line of its own, and cut to 200 characters.
+ */
+export function logValue(value) {
+  // oxlint-disable-next-line no-control-regex -- control characters are what is removed
+  const text = String(value ?? "").replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/g, " ");
+  return text.length > MAX_LOG_VALUE ? `${text.slice(0, MAX_LOG_VALUE)}...` : text;
+}
+
 /** POST from a page of this portal: Sec-Fetch-Site, or the Origin header where a browser doesn't send it. */
 export function isSameOrigin(c, origin) {
   const site = c.req.header("sec-fetch-site");
@@ -49,7 +60,8 @@ export function isSameOrigin(c, origin) {
  * @param {import('hono').Hono} app
  * @param {object} ctx
  * @param {object} ctx.settings - From loadSettings()
- * @param {object} ctx.provider - From discoverProvider()
+ * @param {{get: () => Promise<object | null>, current: () => object | null}} ctx.providerSource - From
+ *   createProviderSource(): the provider may not be discovered yet (it was down when the server started)
  * @param {object} ctx.sealer - From createSealer()
  * @param {(c) => Promise<object | null>} ctx.userOf - The request's session user
  * @param {(c) => string} ctx.originOf - External origin of the portal
@@ -58,7 +70,7 @@ export function isSameOrigin(c, origin) {
  */
 export function registerAuthRoutes(
   app,
-  { settings, provider, sealer, userOf, originOf, base = "", log },
+  { settings, providerSource, sealer, userOf, originOf, base = "", log },
 ) {
   const { auth, manifest } = settings;
   const ruleGroups = new Set(manifest.access.groups || []);
@@ -81,6 +93,9 @@ export function registerAuthRoutes(
 
   app.get(`${AUTH_PREFIX}/login`, async (c) => {
     const returnTo = safeReturnTo(c.req.query("returnTo"), base);
+    // Not discovered yet: this try asks the provider again (unless it failed moments ago)
+    const provider = await providerSource.get();
+    if (!provider) return signInError(c, "provider");
     const { url, checks } = await startSignIn(provider, {
       redirectUri: redirectUri(c),
       scopes: auth.scopes,
@@ -89,7 +104,7 @@ export function registerAuthRoutes(
     setCookie(
       c,
       names(c).signIn,
-      await sealer.seal({ ...checks, returnTo }, SIGN_IN_MAX_AGE),
+      await sealer.seal({ ...checks, returnTo }, SIGN_IN_MAX_AGE, "sign-in"),
       cookieOptions(c, SIGN_IN_MAX_AGE),
     );
     c.header("cache-control", NO_STORE);
@@ -98,14 +113,16 @@ export function registerAuthRoutes(
 
   app.get(`${AUTH_PREFIX}/callback`, async (c) => {
     const cookieName = names(c).signIn;
-    const checks = await sealer.open(getCookie(c, cookieName));
+    const checks = await sealer.open(getCookie(c, cookieName), "sign-in");
     deleteCookie(c, cookieName, cookieOptions(c));
     const providerError = c.req.query("error");
     if (providerError) {
-      log(`sign-in refused by the provider: ${providerError}`);
+      log(`sign-in refused by the provider: ${logValue(providerError)}`);
       return signInError(c, providerError === "access_denied" ? "denied" : "provider");
     }
     if (!checks) return signInError(c, "expired");
+    const provider = await providerSource.get();
+    if (!provider) return signInError(c, "provider");
 
     let claims;
     let accessToken;
@@ -132,7 +149,7 @@ export function registerAuthRoutes(
       setCookie(
         c,
         names(c).session,
-        await sealer.seal(user, auth.sessionMaxAge),
+        await sealer.seal(user, auth.sessionMaxAge, "session"),
         cookieOptions(c, auth.sessionMaxAge),
       );
     } catch (err) {
@@ -148,14 +165,14 @@ export function registerAuthRoutes(
         setCookie(
           c,
           names(c).apiToken,
-          await sealer.seal({ token: accessToken, exp: expiresAt }, maxAge),
+          await sealer.seal({ token: accessToken, exp: expiresAt }, maxAge, "api-token"),
           cookieOptions(c, maxAge),
         );
       } catch (err) {
         log(`no Try-it token for ${user.sub}: ${err.message}`);
       }
     }
-    log(`signed in: ${user.sub}${user.email ? ` <${user.email}>` : ""}`);
+    log(`signed in: ${logValue(user.sub)}`);
     if (ruleGroups.size && !claimList(claims, auth.claims.groups).length) {
       log(
         `no "${auth.claims.groups}" claim for ${user.sub}: group rules can't match. Check auth.claims.groups, and auth.scopes if the provider needs a scope for groups.`,
@@ -176,8 +193,13 @@ export function registerAuthRoutes(
     deleteCookie(c, names(c).session, cookieOptions(c));
     deleteCookie(c, names(c).apiToken, cookieOptions(c));
     if (user) log(`signed out: ${user.sub}`);
+    // A provider that is not discovered yet (down since the server started) has no sign-out address to
+    // go to: the reader is signed out of the portal only, and never waits for a provider that is down.
+    const provider = auth.logout === "idp" ? providerSource.current() : null;
+    if (auth.logout === "idp" && !provider)
+      log("signed out of the portal only: the sign-in provider is not discovered yet");
     const providerLogout =
-      auth.logout === "idp" &&
+      provider &&
       endSessionUrl(provider, {
         postLogoutRedirectUri: `${originOf(c)}${base}/`,
         clientId: auth.clientId,
@@ -209,7 +231,7 @@ export function registerAuthRoutes(
     if (site && site !== "same-origin" && site !== "none")
       return c.json({ error: "same-origin only" }, 403);
     const user = await userOf(c);
-    const saved = user && (await sealer.open(getCookie(c, names(c).apiToken)));
+    const saved = user && (await sealer.open(getCookie(c, names(c).apiToken), "api-token"));
     if (!saved?.token || saved.exp <= Math.floor(Date.now() / 1000))
       return c.json({ access_token: null }, 401);
     return c.json({ access_token: saved.token, expires_at: saved.exp });

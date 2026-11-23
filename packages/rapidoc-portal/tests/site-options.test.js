@@ -193,7 +193,7 @@ describe("site options: LLM output", () => {
       "",
       '<Aside type="note">MDX note.</Aside>',
       "",
-      '{% api-operation spec="orders" path="/orders" method="post" title="Place an order" /%}',
+      '{% api-operation api="orders" path="/orders" method="post" title="Place an order" /%}',
       "",
       '{% card title="Quickstart" href="/docs/quickstart" %}Five minutes.{% /card %}',
       "",

@@ -36,7 +36,9 @@ public static class RapiDocEndpointRouteBuilderExtensions
         var group = endpoints.MapGroup("");
         if (!options.Enabled) return group;
 
-        var uiPath = RapiDocContract.NormalizePath(options.UiPath);
+        // The path within the app; empty at its root. An empty option is an absent one, as in the contract
+        var uiPath = RapiDocContract.NormalizePath(
+            string.IsNullOrEmpty(options.UiPath) ? RapiDocContract.DefaultUiPath : options.UiPath);
         var spec = SpecNode(options.Spec);
         var specUrl = options.SpecUrl ?? (spec is null ? "/openapi/v1.json" : null);
         var applicationName = endpoints.ServiceProvider.GetService<IHostEnvironment>()?.ApplicationName;
@@ -46,13 +48,16 @@ public static class RapiDocEndpointRouteBuilderExtensions
                 ? RapiDocContract.DefaultTitle
                 : $"{applicationName} - {RapiDocContract.DefaultTitle}");
         var attributes = options.Attributes.ToDictionary(pair => AttributeKey(pair.Key), pair => pair.Value);
-        var publicUiPath = options.PublicUiPath is null ? null : RapiDocContract.NormalizePath(options.PublicUiPath);
+        var publicUiPath = string.IsNullOrEmpty(options.PublicUiPath)
+            ? null
+            : RapiDocContract.NormalizePath(options.PublicUiPath);
 
         // A fresh object each time: a JsonNode has one parent, and the page's path and nonce vary by request
         JsonObject ContractOptions(string pagePath, string? pageSpecUrl, string? nonce) =>
             new()
             {
-                ["uiPath"] = pagePath,
+                // The contract's site root is "/": an empty string would be an absent option
+                ["uiPath"] = pagePath.Length == 0 ? "/" : pagePath,
                 ["specUrl"] = pageSpecUrl,
                 ["spec"] = spec?.DeepClone(),
                 ["title"] = title,
@@ -122,6 +127,7 @@ public static class RapiDocEndpointRouteBuilderExtensions
                     }
 
                     context.Response.Headers.CacheControl = "no-cache";
+                    context.Response.Headers.XContentTypeOptions = "nosniff";
                     return WriteBody(context, body, route.ContentType);
                 });
         }
@@ -149,13 +155,32 @@ public static class RapiDocEndpointRouteBuilderExtensions
     {
         var headers = context.Response.Headers;
         headers.ETag = file.ETag;
-        headers.CacheControl = "public, max-age=3600";
-        if (context.Request.Headers.IfNoneMatch.ToString() == file.ETag)
+        // The URL has no version in it, so the browser asks every time and gets a 304 until a deploy brings
+        // another build
+        headers.CacheControl = "no-cache";
+        headers.XContentTypeOptions = "nosniff";
+        if (ETagMatches(context.Request.Headers.IfNoneMatch, file.ETag))
         {
             context.Response.StatusCode = StatusCodes.Status304NotModified;
             return Task.CompletedTask;
         }
         return WriteBody(context, file.Content, contentType);
+    }
+
+    /// <summary>True when an If-None-Match header names the tag: a list, weak validators and <c>*</c> count.</summary>
+    private static bool ETagMatches(Microsoft.Extensions.Primitives.StringValues ifNoneMatch, string etag)
+    {
+        foreach (var value in ifNoneMatch)
+        {
+            if (value is null) continue;
+            foreach (var item in value.Split(','))
+            {
+                var tag = item.Trim();
+                if (tag.StartsWith("W/", StringComparison.Ordinal)) tag = tag[2..];
+                if (tag == etag || tag == "*") return true;
+            }
+        }
+        return false;
     }
 
     private static Task WriteBody(HttpContext context, byte[] body, string contentType)

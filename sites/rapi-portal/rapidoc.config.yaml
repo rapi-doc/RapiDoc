@@ -10,6 +10,11 @@ site:
       dark: /rapidoc-lockup-dark.svg
     text: Portal
   favicon: /rapidoc-leaves.svg
+  banner:
+    message: RapiDoc Portal 1.0 is here, stable and ready for production.
+    href: /docs/getting-started/whats-new/
+    background: "#f6a821"
+    color: "#1c1917"
 # Google Analytics: the same property as rapidocui.com; content_group tells the sites apart.
 head:
   - script:
@@ -107,6 +112,8 @@ navigation:
         icon: rocket-launch
         items:
           - { slug: getting-started/introduction }
+          - { slug: getting-started/whats-new, badge: New }
+          - { slug: getting-started/upgrading-to-1-0 }
           - { slug: getting-started/quickstart }
           - { slug: getting-started/project-structure }
       - label: Reference

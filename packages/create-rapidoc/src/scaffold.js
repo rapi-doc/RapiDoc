@@ -190,14 +190,14 @@ ${
 
 Any operation from your specs can be embedded live in a guide (\`spec\` is the API's \`id\` in \`rapidoc.config.yaml\`):
 
-{% api-operation spec="core" path="/items" method="get" /%}
+{% api-operation api="core" path="/items" method="get" /%}
 `
     : ""
 }
 ## Code Examples
 
 {% tabs %}
-{% tab name="JavaScript" %}
+{% tab label="JavaScript" %}
 \`\`\`javascript
 const res = await fetch('https://api.example.com/v1/items', {
   headers: { Authorization: 'Bearer YOUR_TOKEN' }
@@ -206,7 +206,7 @@ const items = await res.json();
 \`\`\`
 {% /tab %}
 
-{% tab name="Python" %}
+{% tab label="Python" %}
 \`\`\`python
 import requests
 
@@ -217,7 +217,7 @@ items = res.json()
 \`\`\`
 {% /tab %}
 
-{% tab name="cURL" %}
+{% tab label="cURL" %}
 \`\`\`bash
 curl -H "Authorization: Bearer YOUR_TOKEN" https://api.example.com/v1/items
 \`\`\`
@@ -241,7 +241,7 @@ hero:
       variant: minimal
 ---
 
-{% card-grid %}
+{% card-grid columns=2 %}
 {% card title="Getting Started" icon="rocket" href="/docs/getting-started/" %}
 Authenticate and make your first request.
 {% /card %}
@@ -258,7 +258,7 @@ const STARTER_CONFIG = (
 site:
   title: "${title}"
   description: "Official developer portal and interactive API reference."
-  # url: "https://developers.example.com"   # canonical links and sitemap; a path (https://example.com/developers) is where the portal is served
+  # url: "https://developers.example.com"   # needed for canonical links and the sitemap; a path (https://example.com/developers) is where the portal is served
   # image: "/social-card.png"               # preview image for shared links (needs url)
   banner:
     message: "🎉 Welcome to our brand new developer portal!"
@@ -315,7 +315,7 @@ ${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join("")}# S
 #     - "./specs/api-v2.yaml"
 #     - "./specs/api-v1.yaml"
 
-# Arazzo workflow files: drawn by {% workflow file="<id>" /%} in docs pages and exported as MCP
+# Arazzo workflow files: drawn by {% workflow document="<id>" /%} in docs pages and exported as MCP
 # tools. A source description named like an API id resolves against that API's spec.
 # workflows:
 #   - file: "./workflows/checkout.arazzo.yaml"

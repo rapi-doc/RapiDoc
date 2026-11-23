@@ -12,7 +12,9 @@ export interface RapidocHonoOptions extends Omit<ResponderOptions, "nonce"> {
 
 /**
  * Hono middleware that serves an API reference at `uiPath` (default `/docs`):
- * `app.use(rapidoc({ specUrl: "/openapi.json" }))`.
+ * `app.use(rapidoc({ specUrl: "/openapi.json" }))`. `uiPath` is the path within the app the middleware is
+ * registered in: under `basePath("/v1")`, `app.route("/v1", sub)` or `app.use("/v1/*", ...)` the page is
+ * at `/v1/docs`.
  */
 export declare function rapidoc(options?: RapidocHonoOptions): MiddlewareHandler;
 

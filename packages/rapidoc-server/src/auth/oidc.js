@@ -6,10 +6,15 @@ import * as client from "openid-client";
  */
 
 const CLOCK_TOLERANCE_SECONDS = 60;
+const DISCOVERY_TIMEOUT_SECONDS = 10;
+const REQUEST_TIMEOUT_SECONDS = 30;
+const FIRST_RETRY_MS = 5000;
+const MAX_RETRY_MS = 60000;
 const isLocalhost = (url) => ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
 
 /**
- * Discovers the provider (/.well-known/openid-configuration). Throws when it can't be reached.
+ * Discovers the provider (/.well-known/openid-configuration). Throws when it can't be reached or its
+ * answer is not this issuer's; `isUnreachable(err)` tells the two apart.
  *
  * @param {{issuer: string, clientId: string, clientSecret: string | null}} auth
  */
@@ -19,18 +24,92 @@ export async function discoverProvider(auth) {
     [client.clockTolerance]: CLOCK_TOLERANCE_SECONDS,
     ...(auth.clientSecret && { client_secret: auth.clientSecret }),
   };
-  // Plain http is only allowed for a provider on this machine (development, tests).
-  const options =
-    issuer.protocol === "http:" && isLocalhost(issuer)
-      ? { execute: [client.allowInsecureRequests] }
-      : undefined;
-  return client.discovery(
+  const options = {
+    timeout: DISCOVERY_TIMEOUT_SECONDS,
+    // Plain http is only allowed for a provider on this machine (development, tests).
+    ...(issuer.protocol === "http:" &&
+      isLocalhost(issuer) && { execute: [client.allowInsecureRequests] }),
+  };
+  const config = await client.discovery(
     issuer,
     auth.clientId,
     metadata,
     auth.clientSecret ? undefined : client.None(),
     options,
   );
+  // The short timeout is for discovery only: a reader waits for it. Later requests keep the library's.
+  config.timeout = REQUEST_TIMEOUT_SECONDS;
+  return config;
+}
+
+/**
+ * Whether a discovery error means the provider is down (no connection, a timeout, a 5xx answer) and not
+ * that the settings are wrong (a 4xx answer, a document for another issuer, something that is no
+ * discovery document). Down is worth trying again; wrong is not.
+ */
+export function isUnreachable(err) {
+  if (err?.code === "OAUTH_TIMEOUT") return true;
+  if (err?.code === "OAUTH_RESPONSE_IS_NOT_CONFORM")
+    return typeof err.cause?.status === "number" && err.cause.status >= 500;
+  // fetch() itself failed: DNS, connection refused or reset, TLS
+  return err instanceof TypeError && !err.code;
+}
+
+/** A discovery error in one line, with the network reason fetch() keeps in `cause`. */
+export function discoveryErrorText(err) {
+  const status = typeof err?.cause?.status === "number" ? ` (HTTP ${err.cause.status})` : "";
+  const reason = err?.cause?.code || err?.cause?.cause?.code;
+  return `${err?.message || err}${status}${reason ? ` (${reason})` : ""}`;
+}
+
+/**
+ * The provider, discovered when first needed and again after a failure, for a server that started while
+ * the provider was down. `get()` answers the configuration or null; after a failed try it answers null
+ * without asking the provider until the back-off is over (5 seconds, doubling to a minute), so a provider
+ * that is down is not asked once per reader. Requests that arrive during a try share it.
+ *
+ * @param {object} auth - Settings of the provider (see discoverProvider)
+ * @param {object} [options]
+ * @param {object | null} [options.provider] - A configuration discovered already
+ * @param {(line: string) => void} [options.log]
+ * @param {() => number} [options.now] - Clock in milliseconds (tests)
+ * @param {(auth: object) => Promise<object>} [options.discover] - Default discoverProvider (tests)
+ */
+export function createProviderSource(
+  auth,
+  { provider = null, log = () => {}, now = Date.now, discover = discoverProvider } = {},
+) {
+  let current = provider;
+  let pending = null;
+  let retryAt = 0;
+  let delay = FIRST_RETRY_MS;
+  return {
+    /** The configuration when it is known, without asking the provider. */
+    current: () => current,
+    async get() {
+      if (current) return current;
+      if (pending) return pending;
+      if (now() < retryAt) return null;
+      pending = discover(auth)
+        .then((config) => {
+          current = config;
+          log(`sign-in provider ${auth.issuer} discovered: sign-in works again`);
+          return config;
+        })
+        .catch((err) => {
+          retryAt = now() + delay;
+          delay = Math.min(delay * 2, MAX_RETRY_MS);
+          log(
+            `sign-in provider ${auth.issuer} ${isUnreachable(err) ? "is still unreachable" : "could not be discovered"}: ${discoveryErrorText(err)}`,
+          );
+          return null;
+        })
+        .finally(() => {
+          pending = null;
+        });
+      return pending;
+    },
+  };
 }
 
 /**

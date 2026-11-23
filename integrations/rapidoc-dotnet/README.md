@@ -50,7 +50,7 @@ app.MapRapiDoc("/reference", options =>
 | `PublicUiPath` | | `UiPath` as the browser sees it. Only needed behind a proxy that strips a prefix without telling the app |
 | `Enabled` | `true` | `false` maps nothing |
 
-These are the options of every RapiDoc integration, in .NET naming.
+These are the options of every RapiDoc integration, in .NET naming. An empty string counts as an option that is not set.
 
 ## Notes
 
@@ -58,10 +58,14 @@ These are the options of every RapiDoc integration, in .NET naming.
 - To serve it only in development, call it inside `if (app.Environment.IsDevelopment())`.
 - The request's `PathBase` (`UsePathBase`, or a reverse proxy with forwarded headers) and a route group's prefix are part of every URL the page writes.
 - OAuth sign-in returns to `{UiPath}/oauth-receiver.html`, which the app serves on its own origin, also with `RapiDocAssets.Cdn`.
-- The endpoints answer `GET` and `HEAD`, are left out of the OpenAPI document, and send the bundle with an `ETag`.
+- The endpoints answer `GET` and `HEAD` and are left out of the OpenAPI document. The bundle is sent with `cache-control: no-cache` and an `ETag`, so browsers pick up a new RapiDoc build on the first visit after a deploy and get a `304` otherwise.
 - The package ships one RapiDoc release (the version in `RAPIDOC_VERSION`); `rapidoc-min.js.LICENSE.txt`, served next to the bundle, lists the libraries inside it.
 
 .NET 8 or later. MIT.
+
+## Upgrading to 0.3.0
+
+0.3.0 changes no option of `MapRapiDoc`. `RapiDocContract` no longer reads `path`, the name `uiPath` had in contract version 1. An option that is an empty string now counts as not set (`Lang = ""` is `en`; the site root is `UiPath = "/"`). The bundle is sent with `cache-control: no-cache` in place of `max-age=3600`, and every response has `x-content-type-options: nosniff`.
 
 ## Upgrading to 0.2.2
 

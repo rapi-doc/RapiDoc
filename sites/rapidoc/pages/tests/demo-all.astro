@@ -18,8 +18,8 @@ import TestCaseLayout from '../../layouts/TestCaseLayout.astro';
     type="button"
     class="rd-pretty-action-btn"
     style="width: 100%; border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; justify-content: flex-start; padding: 8px 12px; height: auto;"
-    onclick="const doc = document.getElementById('thedoc'); if (doc) { doc.scrollTo('get-/pet/findByStatus'); }"
-    title="Programmatically scroll to the findByStatus endpoint using doc.scrollTo()"
+    onclick="const doc = document.getElementById('thedoc'); if (doc) { doc.scrollToPath('get-/pet/findByStatus'); }"
+    title="Programmatically scroll to the findByStatus endpoint using doc.scrollToPath()"
   >
     <span>📍 Scroll to findByStatus</span>
   </button>

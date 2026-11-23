@@ -41,7 +41,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "yaml": "^2.9.1"
+    "js-yaml": "^5.5.0"
   },
   "devDependencies": {
     "vite": "^8.3.6"

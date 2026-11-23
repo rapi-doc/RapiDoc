@@ -38,7 +38,6 @@ function onApiServerVarChange(e, serverObj) {
 }
 
 function serverVarsTemplate() {
-  // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables
     ? html`
         <h3 class="rapidoc-heading label-heading table-title" part="heading heading-3">Server variables</h3>

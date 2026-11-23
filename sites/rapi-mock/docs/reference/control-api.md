@@ -15,7 +15,7 @@ The mock's own endpoints are at `/__mock`, beside the APIs. With an `X-Mock-Sess
 | `GET /__mock/lint/<api id>` | What [lint](/docs/correcting/lint/) finds in the API's spec, as `rapidoc lint --stateful` reports it: every finding with its rule and line, and the share of checks that passed per category. The first call lints the spec, which takes a few seconds on a large one; the answer is kept. |
 | `GET /__mock/settings` | How the mock was started: state, seed, rows, delay, tokens, the APIs. |
 | `PATCH /__mock/settings` | Changes the response delay while the mock runs: `{ "delay": 250 }`. |
-| `POST /__mock/apis` | Adds a spec while the mock runs: `{ "url": "https://example.com/openapi.yaml" }`, or `{ "text": "<YAML or JSON>", "name": "orders-api.yaml" }`. It is served at once under an id made from its file name (pasted text without a name: its title), made unique, with state, until the mock stops. Answers `201` with `{ id, title, operations, stateful }`, or `400` saying why the spec can't be served. Accepted only from the machine the mock runs on (`403` otherwise): it makes the mock read the address you give, and a `$ref` in the text can name a local file. `GET /__mock/settings` lists such an API with `imported: true`. |
+| `POST /__mock/apis` | Adds a spec while the mock runs: `{ "url": "https://example.com/openapi.yaml" }`, or `{ "text": "<YAML or JSON>", "name": "orders-api.yaml" }`. It is served at once under an id made from its file name (pasted text without a name: its title), made unique, with state, until the mock stops. Answers `201` with `{ id, title, operations, stateful }`, or `400` saying why the spec can't be served. Accepted only from the machine the mock runs on (`403` otherwise), because it makes the mock read the address you give: a program there, or the mock's own page. A request from another site's page in your browser, one that came through a proxy, or one sent to a name other than `localhost` is refused. A `$ref` in the text to another file of the machine is refused too (`400`). `GET /__mock/settings` lists such an API with `imported: true`. |
 | `DELETE /__mock/apis/<api id>` | Removes an API added with `POST /__mock/apis`. The APIs the mock started with can't be removed. |
 | `POST /__mock/reset` | Puts the data back to what the mock started with. `?api=<id>` resets one API. With a body `{ "rows": 25, "seed": 7 }` it makes new seed data of that size, and drops every session's records. |
 | `GET /__mock/state` | The stored records. Narrow it with `/<api id>`, `/<api id>/<Resource>` or `/<api id>/<Resource>/<key>`. |
@@ -39,7 +39,7 @@ The sentences the model writes (`does`, `why`, `review`, a parameter's `role`) p
 
 ## Errors
 
-Problems come back as `application/problem+json`, with a `detail` that says what to do. Without `--stateful`, every endpoint except `health` returns `409`.
+Problems come back as `application/problem+json`, with a `detail` that says what to do. Without `--stateful`, `health`, `settings`, `apis` and `ui` still work; the endpoints that read or change the state (`model`, `lint`, `reset`, `state`, `snapshot`, `restore`) return `409`. A path with a percent-escape that can't be decoded (`/__mock/state/%E0%A4%A`) gets `400`.
 
 ## Not for a public server
 

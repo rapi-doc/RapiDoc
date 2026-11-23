@@ -418,10 +418,12 @@ export default css`
 
     /* --- Navigation Sidebar (shadcn/ui sidebar tokens) --- */
     --sidebar-width: 18.75rem;
-    --sidebar-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
+    --sidebar-item-padding: 0.3125rem 0.625rem;
     --sidebar-logo-max-height: 60px;
     --sidebar: var(--background);
     --sidebar-foreground: var(--foreground);
+    /* Section labels: the sidebar's text faded toward its background, still 4.5:1 at 11px */
+    --sidebar-label-foreground: color-mix(in srgb, var(--sidebar-foreground) 70%, var(--sidebar));
     --sidebar-primary: var(--primary);
     --sidebar-accent-foreground: var(--foreground);
     --sidebar-border: var(--border);
@@ -429,7 +431,7 @@ export default css`
   }
 
   /* =========================================================================
-     2. SCALE & GEOMETRY TOKENS (radius, scale, nav-item-spacing)
+     2. SCALE & GEOMETRY TOKENS (radius, scale)
      ========================================================================= */
 
   /* --- 2A. Corner Radius Scale (radius) --- */
@@ -475,18 +477,6 @@ export default css`
     --font-size-mono: 15px;
     --font-size-regular: 16px;
     --sidebar-width: 21rem;
-  }
-
-  /* --- 2C. Navigation Density (nav-item-spacing) --- */
-  :host([nav-item-spacing='compact']) {
-    --sidebar-item-padding: 0.3125rem 1rem 0.3125rem 0.625rem;
-  }
-  :host([nav-item-spacing='default']),
-  :host(:not([nav-item-spacing])) {
-    --sidebar-item-padding: 0.4375rem 1rem 0.4375rem 0.625rem;
-  }
-  :host([nav-item-spacing='relaxed']) {
-    --sidebar-item-padding: 0.625rem 1rem 0.625rem 0.625rem;
   }
 
   /* =========================================================================

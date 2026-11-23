@@ -106,7 +106,7 @@ export function renderExample(example, paramType, paramName) {
       @click="${(e) => {
         const inputEl = e.target
           .closest(".param-list")
-          .querySelector(`[data-pname="${paramName}"]`);
+          .querySelector(`[data-pname="${CSS.escape(paramName)}"]`);
         if (inputEl) {
           inputEl.value =
             e.target.dataset.exampleType === "array"
@@ -445,7 +445,7 @@ export function inputParametersTemplate(paramType) {
                           @click="${(e) => {
                             const inputEl = e.target
                               .closest(".param-list")
-                              .querySelector(`[data-pname="${param.name}"]`);
+                              .querySelector(`[data-pname="${CSS.escape(param.name)}"]`);
                             if (inputEl) {
                               if (e.target.dataset.type === "array") {
                                 inputEl.value = [e.target.dataset.enum];

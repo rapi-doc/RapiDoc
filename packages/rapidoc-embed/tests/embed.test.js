@@ -13,17 +13,33 @@ describe("@rapidoc/embed/core", () => {
     assert.equal(core.normalizePath("/a/b//"), "/a/b");
   });
 
-  it("reads uiPath, and path as its older name", () => {
+  it("reads uiPath, and no other name for it", () => {
     assert.equal(core.uiPathOf({}), "/docs");
     assert.equal(core.uiPathOf({ uiPath: "/reference" }), "/reference");
-    assert.equal(core.uiPathOf({ path: "/old" }), "/old");
-    assert.equal(core.uiPathOf({ uiPath: "/new", path: "/old" }), "/new");
     assert.equal(
-      core.renderHostPage({ path: "/old" }),
-      core.renderHostPage({ uiPath: "/old" }),
-      "a version 1 option still works",
+      core.uiPathOf({ path: "/old" }),
+      "/docs",
+      "the name of contract version 1 is gone",
     );
-    assert.deepEqual(core.embedRoutes({ path: "/x" }), core.embedRoutes({ uiPath: "/x" }));
+    assert.equal(core.DEFAULT_PATH, undefined);
+    assert.deepEqual(core.embedRoutes({ path: "/x" }), core.embedRoutes({}));
+  });
+
+  it("takes an empty option as an absent one", () => {
+    const empty = { uiPath: "", specUrl: "", spec: "", title: "", assets: "", lang: "" };
+    assert.equal(
+      core.renderHostPage({ ...empty, head: "", css: "", nonce: "" }),
+      core.renderHostPage(),
+    );
+    assert.equal(
+      core.renderOAuthReceiverPage({ ...empty, nonce: "" }),
+      core.renderOAuthReceiverPage(),
+    );
+    assert.deepEqual(core.embedRoutes(empty), core.embedRoutes());
+    const nulls = Object.fromEntries(Object.keys(empty).map((key) => [key, null]));
+    assert.equal(core.renderHostPage(nulls), core.renderHostPage());
+    // An attribute of <rapi-doc> is not an option: its empty value is written
+    assert.match(core.renderHostPage({ options: { headingText: "" } }), /heading-text=""/);
   });
 
   it("converts option names to attribute names", () => {
@@ -138,25 +154,63 @@ describe("createResponder", () => {
     assert.equal((await respond({ path: "/docs", method: "HEAD" })).status, 200);
   });
 
-  it("answers 304 for a bundle the browser already has", async () => {
+  it("has the browser revalidate the bundle, and answers 304 when it has the same build", async () => {
     const { headers } = await respond({ path: "/docs/rapidoc-min.js" });
-    const again = await respond({ path: "/docs/rapidoc-min.js", ifNoneMatch: headers.etag });
-    assert.equal(again.status, 304);
-    assert.equal(again.body, null);
+    assert.equal(headers["cache-control"], "no-cache");
+    assert.equal(headers["x-content-type-options"], "nosniff");
+    assert.equal(headers.etag, `"${embed.rapidocManifest.files["rapidoc-min.js"].integrity}"`);
+    for (const ifNoneMatch of [
+      headers.etag,
+      `W/${headers.etag}`,
+      `"other", W/${headers.etag} , "more"`,
+      "*",
+    ]) {
+      const again = await respond({ path: "/docs/rapidoc-min.js", ifNoneMatch });
+      assert.equal(again.status, 304, ifNoneMatch);
+      assert.equal(again.body, null);
+      assert.equal(again.headers.etag, headers.etag);
+    }
+    for (const ifNoneMatch of ['"other"', 'W/"other", "more"', "", headers.etag.slice(1, -1)]) {
+      const full = await respond({ path: "/docs/rapidoc-min.js", ifNoneMatch });
+      assert.equal(full.status, 200, ifNoneMatch);
+    }
+    const page = await respond({ path: "/docs" });
+    assert.equal(page.headers["cache-control"], "no-cache");
+    assert.equal(page.headers["x-content-type-options"], "nosniff");
   });
 
-  it("writes the public path and the nonce of the request into the page", async () => {
-    const page = await respond({ path: "/docs", publicUiPath: "/api/docs", nonce: "n1" });
+  it("writes the mount's prefix and the nonce of the request into the page", async () => {
+    const page = await respond({ path: "/docs", mount: "/api", nonce: "n1" });
     assert.match(page.body, /src="\/api\/docs\/rapidoc-min\.js" nonce="n1"/);
+    assert.match(page.body, /oauth-receiver="\/api\/docs\/oauth-receiver\.html"/);
+    const receiver = await respond({ path: "/docs/oauth-receiver.html", mount: "/api/" });
+    assert.match(receiver.body, /src="\/api\/docs\/rapidoc-min\.js"/);
+
+    // uiPath is the path within the mount, with or without its slashes
+    for (const uiPath of ["reference", "/reference/"]) {
+      const inside = embed.createResponder({ uiPath }, { readAsset });
+      assert.equal(await inside({ path: "/docs", mount: "/api" }), null);
+      const body = (await inside({ path: "/reference", mount: "/api" })).body;
+      assert.match(body, /src="\/api\/reference\/rapidoc-min\.js"/, uiPath);
+    }
+
+    // at the root of a mount, and at the site root
+    const root = embed.createResponder({ uiPath: "/" }, { readAsset });
+    assert.match((await root({ path: "/", mount: "/api" })).body, /src="\/api\/rapidoc-min\.js"/);
+    assert.match((await root({ path: "/" })).body, /src="\/rapidoc-min\.js"/);
+    assert.equal((await root({ path: "/rapidoc-min.js" })).status, 200);
+  });
+
+  it("writes publicUiPath in place of the mount and uiPath, behind a proxy", async () => {
     const fixed = embed.createResponder({ publicUiPath: "/gw/docs", nonce: "n0" }, { readAsset });
     assert.match(
-      (await fixed({ path: "/docs" })).body,
+      (await fixed({ path: "/docs", mount: "/api" })).body,
       /src="\/gw\/docs\/rapidoc-min\.js" nonce="n0"/,
     );
-    // the names before contract version 2
+    // the names before contract version 2 are not read
     const old = embed.createResponder({ path: "/ref", publicPath: "/gw/ref" }, { readAsset });
-    assert.match((await old({ path: "/ref" })).body, /src="\/gw\/ref\/rapidoc-min\.js"/);
-    assert.equal(await old({ path: "/docs" }), null);
+    assert.equal(await old({ path: "/ref" }), null);
+    assert.match((await old({ path: "/docs" })).body, /src="\/docs\/rapidoc-min\.js"/);
   });
 
   it("loads from the CDN without a file reader, and refuses to serve the bundle", async () => {

@@ -442,7 +442,7 @@ export async function migrateConfig(targetDir = process.cwd(), options = {}) {
   const { content, problems, warnings } = await generateMigratedConfig(targetDir, options.from);
   if (fs.existsSync(outputPath) && !options.overwrite) {
     throw new Error(
-      `File already exists: "${outputPath}". Use --overwrite or pass { overwrite: true } to replace it.`,
+      `File already exists: "${outputPath}". Pass { overwrite: true } to replace it.`,
     );
   }
   fs.writeFileSync(outputPath, content, "utf8");

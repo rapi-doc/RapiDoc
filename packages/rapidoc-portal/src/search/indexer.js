@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import GithubSlugger from "github-slugger";
 import yaml from "yaml";
+import { toKebabCase } from "@rapidoc/prerender";
+import { OperationSlugger } from "@rapidoc/prerender/internal";
 import { docPageUrl } from "../config/doc-paths.js";
 import { splitFrontmatter } from "../config/doc-source.js";
 import { activeTab } from "../components/header-nav.js";
@@ -116,8 +118,106 @@ export function extractDocSections(
   return records;
 }
 
+/** The HTTP methods of a path item, in the order RapiDoc's parser reads them (anchors depend on it). */
+const HTTP_METHODS = ["get", "put", "post", "delete", "patch", "head", "options", "trace", "query"];
+
+/** `/orders/{id}` as `OrdersId`, the way the parser names an operation without an operationId. */
+const pascalCase = (pathName) =>
+  String(pathName)
+    .replace(/[{}]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+    .replace(/^[a-z]/, (chr) => chr.toUpperCase());
+
+const isHidden = (item) =>
+  [item?.["x-internal"], item?.["x-hidden"]].some((value) => value === true || value === "true");
+
+/** An OpenAPI 3.2 tag without `kind`, or with `nav`, is a section of the sidebar; other kinds only label. */
+const isNavTag = (tag) => !tag?.kind || tag.kind === "nav";
+
 /**
- * Indexes an OpenAPI specification file into searchable operation records.
+ * Every operation of a spec with the link the API sidebar gives it (`getNavBarHtml` of
+ * `@rapidoc/prerender` with `routingMode: 'tag-pages'`): the page of its first tag and the anchor
+ * `<rapi-doc>` gives the operation there, from the same slugger (`OperationSlugger`), in the parser's
+ * order (the parity is checked by `tests/search.test.js`). Operations the sidebar hides (`x-internal`, `x-hidden`, on the operation, its path or its
+ * tag) are marked `hidden`.
+ *
+ * @param {object} spec - The OpenAPI document
+ * @returns {Array<{ method: string, path: string, operation: object, pathItem: object, tag: string, link: string, hidden: boolean }>}
+ *   `link` is relative to the API's page: `/<tag slug>#<anchor>`, or `#<anchor>` for untagged operations
+ */
+export function operationLinks(spec) {
+  const slugger = new OperationSlugger();
+  const declaredTags = new Map(
+    (Array.isArray(spec.tags) ? spec.tags : []).map((tag) => [String(tag.name).toLowerCase(), tag]),
+  );
+  const hasTagGroups = ["x-tagGroups", "x-tag-groups"].some((key) => spec[key]?.length > 0);
+  const found = [];
+  const items = [...Object.entries(spec.paths || {}), ...Object.entries(spec.webhooks || {})];
+
+  for (const [pathName, pathItem] of items) {
+    if (!pathItem || typeof pathItem !== "object") continue;
+    const operations = HTTP_METHODS.filter((method) => pathItem[method]).map((method) => [
+      method,
+      pathItem[method],
+    ]);
+    for (const [name, operation] of Object.entries(pathItem.additionalOperations || {})) {
+      if (operation && typeof operation === "object")
+        operations.push([name.toLowerCase(), operation]);
+    }
+
+    for (const [method, operation] of operations) {
+      const own =
+        Array.isArray(operation.tags) && operation.tags.length > 0 ? operation.tags : null;
+      const navTags = (own || []).filter((name) =>
+        isNavTag(declaredTags.get(String(name).toLowerCase())),
+      );
+      const tags = navTags.length > 0 ? navTags : own || ["General"];
+      const slugSource = {
+        method,
+        path: pathName,
+        operationId: operation.operationId,
+        summary: operation.summary || operation.description,
+      };
+      // Without a tag prefix the sidebar builds the anchor from the parsed operation, whose operationId is
+      // never empty (method + path when the spec has none)
+      const sidebarSource = {
+        method,
+        path: pathName,
+        operationId: operation.operationId || `${method}${pascalCase(pathName)}`,
+        summary: operation.summary || "",
+      };
+      // Every tag the operation is under takes an anchor, as in the parser, so later ones come out the same
+      const links = tags.map((tag) => {
+        const tagSlug = toKebabCase(tag);
+        const elementId = slugger.slug(slugSource, hasTagGroups ? tagSlug : "");
+        if (!tagSlug || tagSlug === "general") return `#${elementId}`;
+        const prefix = `${tagSlug}--`;
+        const anchor = elementId.startsWith(prefix)
+          ? elementId.slice(prefix.length)
+          : slugger.slugOp(sidebarSource);
+        return `/${tagSlug}#${anchor}`;
+      });
+      const shown = tags.findIndex((tag) => !isHidden(declaredTags.get(String(tag).toLowerCase())));
+      found.push({
+        method,
+        path: pathName,
+        operation,
+        pathItem,
+        tag: tags[Math.max(shown, 0)],
+        link: links[Math.max(shown, 0)],
+        hidden: isHidden(operation) || isHidden(pathItem) || shown === -1,
+      });
+    }
+  }
+  return found;
+}
+
+/**
+ * Indexes an OpenAPI specification file into searchable operation records. Each record's URL is the
+ * operation's link in the API sidebar (its tag's page and anchor); operations the sidebar hides are
+ * left out.
  *
  * @param {object} api - API configuration entry
  * @returns {Array<object>} List of API search records
@@ -133,51 +233,40 @@ export function indexOpenApiSpec(api) {
     const parsed = yaml.parse(content);
     if (!parsed || !parsed.paths) return records;
 
-    const httpMethods = ["get", "post", "put", "delete", "patch", "options", "head"];
+    for (const { method, path: endpoint, operation, tag, link, hidden } of operationLinks(parsed)) {
+      if (hidden) continue;
+      const methodUpper = method.toUpperCase();
+      const title = operation.summary || operation.operationId || `${methodUpper} ${endpoint}`;
+      const operationId = operation.operationId || "";
+      const shownTag = Array.isArray(operation.tags) && operation.tags.length > 0 ? tag : "";
 
-    for (const [endpoint, pathItem] of Object.entries(parsed.paths)) {
-      if (!pathItem) continue;
+      const paramNames = Array.isArray(operation.parameters)
+        ? operation.parameters.map((p) => p.name).join(" ")
+        : "";
 
-      for (const method of httpMethods) {
-        const operation = pathItem[method];
-        if (!operation) continue;
+      const searchContent = [
+        title,
+        operation.description || "",
+        operationId,
+        endpoint,
+        shownTag,
+        paramNames,
+      ]
+        .filter(Boolean)
+        .join(" ");
 
-        const methodUpper = method.toUpperCase();
-        const title = operation.summary || operation.operationId || `${methodUpper} ${endpoint}`;
-        const tag =
-          Array.isArray(operation.tags) && operation.tags.length > 0 ? operation.tags[0] : "";
-        const operationId = operation.operationId || "";
-        const slugId = operationId || `${method}-${endpoint.replace(/[^a-zA-Z0-9]/g, "-")}`;
-        const url = `${api.path}#${slugId}`;
-
-        const paramNames = Array.isArray(operation.parameters)
-          ? operation.parameters.map((p) => p.name).join(" ")
-          : "";
-
-        const searchContent = [
-          title,
-          operation.description || "",
-          operationId,
-          endpoint,
-          tag,
-          paramNames,
-        ]
-          .filter(Boolean)
-          .join(" ");
-
-        records.push({
-          id: `api-${api.id}-${method}-${endpoint}`,
-          type: "api",
-          title,
-          subtitle: `${methodUpper} ${endpoint}`,
-          method: methodUpper,
-          endpoint,
-          tag,
-          category: api.title || `${api.id.toUpperCase()} API`,
-          url,
-          content: stripMarkup(searchContent).slice(0, 500),
-        });
-      }
+      records.push({
+        id: `api-${api.id}-${method}-${endpoint}`,
+        type: "api",
+        title,
+        subtitle: `${methodUpper} ${endpoint}`,
+        method: methodUpper,
+        endpoint,
+        tag: shownTag,
+        category: api.title || `${api.id.toUpperCase()} API`,
+        url: `${api.path}${link}`,
+        content: stripMarkup(searchContent).slice(0, 500),
+      });
     }
   } catch (err) {
     console.warn(`[search-indexer] Failed to parse OpenAPI spec at ${api.fullPath}:`, err.message);
@@ -427,97 +516,4 @@ export function indexBuiltPages(outDir, pages = [], { siteTitle } = {}) {
   if (records.length === 0) return 0;
   writePageRecords(indexFile, records);
   return records.length;
-}
-
-/**
- * In-memory search function for querying indexed records.
- *
- * @param {Array<object>} records
- * @param {string} query
- * @param {object} [options]
- * @param {string} [options.filter='all'] - 'all' | 'doc' | 'api' | 'page'
- * @param {number} [options.limit=15]
- * @returns {Array<object>}
- */
-export function searchRecords(records = [], query = "", options = {}) {
-  const filter = options.filter || "all";
-  const limit = options.limit || 15;
-  const q = query.toLowerCase().trim();
-
-  if (!q) return [];
-
-  const tokens = q.split(/\s+/).filter(Boolean);
-  // A name written with hyphens is found without them, and the other way round: "rapidoc" finds
-  // <rapi-doc>, "rapi-doc" finds RapiDoc. A field with hyphens is searched in both spellings.
-  const foldHyphens = (text) => (text.includes("-") ? text + " " + text.replace(/-/g, "") : text);
-  const hasWord = (field, word) => {
-    if (field.includes(word)) return true;
-    const plain = word.replace(/-/g, "");
-    return plain !== word && plain.length > 0 && field.includes(plain);
-  };
-
-  const scored = [];
-
-  for (const record of records) {
-    if (filter !== "all" && record.type !== filter) {
-      continue;
-    }
-
-    const titleLower = foldHyphens((record.title || "").toLowerCase());
-    const subtitleLower = foldHyphens((record.subtitle || "").toLowerCase());
-    const endpointLower = (record.endpoint || "").toLowerCase();
-    const methodLower = (record.method || "").toLowerCase();
-    const categoryLower = (record.category || "").toLowerCase();
-    const contentLower = foldHyphens((record.content || "").toLowerCase());
-
-    let score = 0;
-    let matchesAllTokens = true;
-
-    for (const token of tokens) {
-      let tokenMatched = false;
-
-      if (hasWord(titleLower, token)) {
-        score += titleLower.startsWith(token) ? 25 : 15;
-        tokenMatched = true;
-      }
-      if (hasWord(endpointLower, token)) {
-        score += endpointLower.startsWith(token) ? 20 : 12;
-        tokenMatched = true;
-      }
-      if (hasWord(subtitleLower, token)) {
-        score += 10;
-        tokenMatched = true;
-      }
-      if (methodLower === token) {
-        score += 15;
-        tokenMatched = true;
-      }
-      if (hasWord(categoryLower, token)) {
-        score += 8;
-        tokenMatched = true;
-      }
-      if (hasWord(contentLower, token)) {
-        score += 4;
-        tokenMatched = true;
-      }
-
-      if (!tokenMatched) {
-        matchesAllTokens = false;
-        break;
-      }
-    }
-
-    if (matchesAllTokens && score > 0) {
-      // Bonus for exact title or endpoint match
-      if (titleLower === q || endpointLower === q) score += 30;
-
-      scored.push({
-        ...record,
-        score,
-      });
-    }
-  }
-
-  scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, limit);
 }

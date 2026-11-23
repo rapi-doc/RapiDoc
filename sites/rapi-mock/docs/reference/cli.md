@@ -22,7 +22,7 @@ Relative `$ref`s in it are read from the same server. A `$ref` to another server
 | Option | Environment variable | Meaning |
 | :--- | :--- | :--- |
 | `--port <number>` | | Port to listen on. Default `4010`; if it is taken, the next free port is offered. |
-| `--host <host>` | | Address to listen on. Default `0.0.0.0`. |
+| `--host <host>` | | Address to listen on. Default `localhost`: this machine only. In a container or on a shared test server, pass `--host 0.0.0.0`; the mock and its [control API](/docs/reference/control-api/) are then open to that network. |
 | `--stateful` | | [Keep state](/docs/state/overview/): writes change stored records that reads and lists return. |
 | `--rows <number>` | | With `--stateful`: seed records per resource. Default `10`. |
 | `--seed <number>` | | Seed for generated data. Default `1`. |

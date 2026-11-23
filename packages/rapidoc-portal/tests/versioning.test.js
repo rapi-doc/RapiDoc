@@ -6,14 +6,14 @@ import path from "node:path";
 import YAML from "yaml";
 import {
   ConfigError,
-  compileMarkdoc,
   convertConfig,
   loadConfig,
   migrateConfig,
   resolveConfig,
 } from "../src/index.js";
 import { activeTab } from "../src/components/header-nav.js";
-import { apiReferencePaths } from "../src/engine/api-routes.js";
+import { renderNavBarHtml } from "@rapidoc/prerender/internal";
+import { apiReferencePaths, loadVersionSpec } from "../src/engine/api-routes.js";
 import { copySpecs } from "../src/engine/sync-assets.js";
 import { checkPortalSpecs } from "../src/engine/spec-checks.js";
 import { buildSearchIndex } from "../src/search/indexer.js";
@@ -277,6 +277,85 @@ describe("API versions: pages, specs and search", () => {
     });
   });
 
+  it("builds tag pages for a remote spec, fetched once, and its sidebar from the same copy", async () => {
+    const url = "https://specs.example.test/remote-labels.json";
+    const realFetch = globalThis.fetch;
+    let fetched = 0;
+    globalThis.fetch = async (input) => {
+      assert.equal(String(input?.url ?? input), url);
+      fetched += 1;
+      return new Response(spec("9.0.0", ["Labels", "Stamps"]), {
+        headers: { "content-type": "application/json" },
+      });
+    };
+    try {
+      await withProject(
+        { "rapidoc.config.yaml": config([{ id: "remote", spec: url }]) },
+        async (dir) => {
+          const { config: portal } = await loadConfig(dir);
+          const paths = await apiReferencePaths(portal.apis);
+          assert.deepEqual(
+            paths.map((p) => p.params.apiRoute),
+            ["remote", "remote/labels", "remote/stamps"],
+            "the pages the sidebar links to exist",
+          );
+          const [api] = portal.apis;
+          const sidebar = renderNavBarHtml(await loadVersionSpec(api, api.versions[0]), {
+            basePath: api.path,
+            routingMode: "tag-pages",
+          });
+          const pages = new Set(paths.map((p) => `/apis/${p.params.apiRoute}`));
+          const linked = [...sidebar.matchAll(/href="([^"#]+)#/g)].map((m) => m[1]);
+          assert.ok(linked.length >= 2);
+          for (const href of linked) assert.ok(pages.has(href), `${href} is a built page`);
+          assert.equal(fetched, 1, "the page list and the sidebar share one fetch");
+        },
+      );
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  it("fails, naming the API and the spec, when a spec cannot be loaded", async () => {
+    const url = "https://specs.example.test/down.json";
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async () => new Response("down", { status: 503 });
+    try {
+      await withProject(
+        {
+          "rapidoc.config.yaml": config([LABELS, { id: "down", spec: url }]),
+        },
+        async (dir) => {
+          const { config: portal } = await loadConfig(dir);
+          await assert.rejects(apiReferencePaths(portal.apis), (err) => {
+            assert.match(err.message, /^API "down": cannot load its spec /);
+            assert.ok(err.message.includes(url));
+            return true;
+          });
+
+          // The dev server keeps the API's overview page, which shows the error; the other APIs are untouched
+          const paths = await apiReferencePaths(portal.apis, { deferSpecErrors: true });
+          const down = paths.filter((p) => p.props.api.id === "down");
+          assert.deepEqual(
+            down.map((p) => p.params.apiRoute),
+            ["down"],
+          );
+          assert.match(down[0].props.specError, /^API "down": cannot load its spec /);
+          assert.ok(paths.some((p) => p.params.apiRoute === "labels/stamps" && !p.props.specError));
+
+          // A local spec that stops parsing after the config was read
+          fs.writeFileSync(path.join(dir, "specs/labels-v2.json"), "{ not json");
+          await assert.rejects(
+            apiReferencePaths([portal.apis[0]]),
+            /^Error: API "labels", version "2\.0\.0": cannot load its spec .*labels-v2\.json/,
+          );
+        },
+      );
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
   it("fails when a version has the URL of a tag page of the default version", async () => {
     const apis = [
       {
@@ -319,10 +398,14 @@ describe("API versions: pages, specs and search", () => {
       const { config: portal } = await loadConfig(dir);
       const records = buildSearchIndex(portal, dir).records.map((r) => [r.id, r.url, r.category]);
       assert.deepEqual(records, [
-        ["api-labels-get-/labels", "/apis/labels#listLabels", "Labels API"],
-        ["api-labels-get-/stamps", "/apis/labels#listStamps", "Labels API"],
-        ["api-labels@2.0.0-get-/labels", "/apis/labels/2.0.0#listLabels", "Labels API · 2.0.0"],
-        ["api-labels@v1-get-/labels", "/apis/labels/v1#listLabels", "Labels API · 1.0.0"],
+        ["api-labels-get-/labels", "/apis/labels/labels#list-labels", "Labels API"],
+        ["api-labels-get-/stamps", "/apis/labels/stamps#list-stamps", "Labels API"],
+        [
+          "api-labels@2.0.0-get-/labels",
+          "/apis/labels/2.0.0/labels#list-labels",
+          "Labels API · 2.0.0",
+        ],
+        ["api-labels@v1-get-/labels", "/apis/labels/v1/labels#list-labels", "Labels API · 1.0.0"],
       ]);
     });
   });
@@ -347,19 +430,6 @@ describe("API versions: pages, specs and search", () => {
         assert.match(warnings[0], /^labels v1: 1 operation has no operationId/);
       },
     );
-  });
-
-  it("embeds an operation of a version with compileMarkdoc()", () => {
-    const { html } = compileMarkdoc(
-      '{% api-operation spec="labels" version="v1" path="/labels" method="get" /%}',
-      {
-        variables: {
-          specUrls: { labels: "/specs/labels.json", "labels@v1": "/specs/labels/v1.json" },
-        },
-      },
-    );
-    assert.match(html, /data-version="v1"/);
-    assert.match(html, /spec-url="\/specs\/labels\/v1\.json"/);
   });
 });
 

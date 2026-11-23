@@ -106,13 +106,12 @@ test("theme-validation", async (t) => {
       navStyles.cssText,
       /color:\s*var\(--sidebar-accent-foreground\);\s*background:\s*var\(--sidebar-accent\);/,
     );
+    // The current item is a filled block in the accent color, the same in every mode
     assert.match(
       navStyles.cssText,
-      /border-inline-start:\s*4px solid var\(--sidebar-primary\);\s*color:\s*var\(--sidebar-primary\);/,
+      /background:\s*color-mix\(in srgb, var\(--sidebar-primary\) 14%, transparent\);/,
     );
-
-    // Active items always use the left-bar marker style
-    assert.match(navStyles.cssText, /\.left-bar\.active/);
+    assert.doesNotMatch(navStyles.cssText, /\.left-bar\.active/);
     assert.doesNotMatch(navStyles.cssText, /\.colored-block\.active/);
   });
 

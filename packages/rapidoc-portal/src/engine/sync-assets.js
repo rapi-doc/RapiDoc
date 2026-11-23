@@ -11,10 +11,23 @@ import { buildSearchIndex } from "../search/indexer.js";
 /** Markers that only exist in RapiDoc bundles new enough for portal navigation sync. */
 const REQUIRED_BUNDLE_MARKERS = ["nav-active-change", "slugger"];
 
+/** isSourceCheckout for a bundle that may not exist (a missing file has no real path). */
+function inSourceCheckout(bundlePath) {
+  try {
+    return isSourceCheckout(bundlePath);
+  } catch {
+    return !bundlePath.split(path.sep).includes("node_modules");
+  }
+}
+
 export class StaleRapidocBundleError extends Error {
   constructor(bundlePath, reason) {
     super(
-      `RapiDoc bundle is ${reason}: ${bundlePath}\nRun \`npm run build:rapidoc\` from the RapiDoc monorepo root and try again.`,
+      `RapiDoc bundle is ${reason}: ${bundlePath}\n${
+        inSourceCheckout(bundlePath)
+          ? "Run `npm run build:rapidoc` from the RapiDoc repository root and try again."
+          : "Reinstall the `rapidoc` package at the version @rapidoc/portal asks for (`npm install rapidoc@latest`) and try again."
+      }`,
     );
     this.name = "StaleRapidocBundleError";
   }

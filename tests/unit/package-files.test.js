@@ -26,7 +26,9 @@ test("every publishable package lists the files it ships", () => {
         `${pkg.name} would publish ${entry}`,
       );
     // What the package points at must be inside what it ships.
+    // npm always ships package.json, whatever `files` says.
     const shipped = (target) =>
+      target === "package.json" ||
       pkg.files.some((entry) => target === entry || target.startsWith(`${entry}/`));
     const targets = [
       ...Object.values(pkg.bin ?? {}),

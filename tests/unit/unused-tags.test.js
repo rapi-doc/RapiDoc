@@ -1,11 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import {
-  resolveSpecInput,
-  getSpecNavigation,
-  getNavBarHtml,
-  renderRapiDoc,
-} from "@rapidoc/prerender";
+import { getSpecNavigation, getNavBarHtml, renderRapiDoc } from "@rapidoc/prerender";
+import { resolveSpecInput } from "../../packages/rapidoc-prerender/src/internal.js";
 import { isNavTagVisible } from "~/templates/navbar-template";
 
 // Tags no operation uses can hold a guide or concepts section (#923)

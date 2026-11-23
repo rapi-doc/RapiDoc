@@ -1,0 +1,8 @@
+{
+  "description": "Routes with an empty assets and uiPath: the defaults, so the bundle is served under /docs.",
+  "page": "routes",
+  "options": {
+    "uiPath": "",
+    "assets": ""
+  }
+}

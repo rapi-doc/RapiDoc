@@ -75,7 +75,7 @@ A page with its own document can still have the portal's header, so the whole si
 ```astro title="pages/landing.astro"
 ---
 import PortalHead from '@rapidoc/portal/components/PortalHead.astro';
-import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
+import PortalPageHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 ---
 
 <html lang="en" data-theme="dark">
@@ -85,7 +85,7 @@ import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';
     <PortalHead title="Welcome" />
   </head>
   <body>
-    <PortalHeader />
+    <PortalPageHeader />
     <main>...</main>
   </body>
 </html>

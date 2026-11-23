@@ -5,6 +5,8 @@
  * a browser window, headless browser, or full DOM emulator (JSDOM/HappyDOM).
  */
 
+import { CSSResult } from "lit";
+
 // Minimal polyfill for customElements registry in pure Node/Bun environments
 if (typeof globalThis.customElements === "undefined") {
   globalThis.customElements = {
@@ -94,13 +96,18 @@ function serializeValue(result, options, inAttribute) {
     return result.map((item) => serializeValue(item, options, inAttribute)).join("");
   }
 
-  // Handle Lit CSSResult
-  if (typeof result === "object" && result.cssText) {
+  // The three kinds of object below are recognised by marks only Lit's own code can set, never by their
+  // shape: a value from a spec is JSON, and JSON holding "strings" and "values" (or "cssText") must not be
+  // read as markup. Any other object is not something a template renders, so it gives nothing.
+
+  // Handle Lit CSSResult (css`...`). Its `_$cssResult$` mark is a plain `true`, which JSON can carry, so
+  // the class is what counts.
+  if (result instanceof CSSResult) {
     return result.cssText;
   }
 
-  // Handle Lit directives (unsafeHTML, guard, live)
-  if (typeof result === "object" && result._$litDirective$) {
+  // Handle Lit directives (unsafeHTML, guard, live): `_$litDirective$` is the directive's class
+  if (typeof result === "object" && typeof result._$litDirective$ === "function") {
     // unsafeHTML(str) / unsafeSVG(str): inserted as markup, never escaped
     if (RAW_MARKUP_DIRECTIVES.has(result._$litDirective$.directiveName)) {
       const markup = result.values?.[0];
@@ -117,8 +124,14 @@ function serializeValue(result, options, inAttribute) {
     return "";
   }
 
-  // Handle Lit TemplateResult
-  if (typeof result === "object" && "strings" in result && "values" in result) {
+  // Handle Lit TemplateResult (html`...`): `strings` is a template strings array, which has `raw`
+  if (
+    typeof result === "object" &&
+    result._$litType$ !== undefined &&
+    Array.isArray(result.strings) &&
+    Array.isArray(result.strings.raw) &&
+    Array.isArray(result.values)
+  ) {
     let out = "";
     let skipNextLeadingQuote = false;
     // Whether the parser position is inside a start tag (between `<` and `>`), so a binding is an attribute value

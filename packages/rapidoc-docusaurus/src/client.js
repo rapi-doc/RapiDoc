@@ -102,7 +102,7 @@ export function RapidocReference({ api, spec, options = {} }) {
       markActive(id);
     })();
     // The element says which section is showing, also when the reader scrolls to another one
-    const onActive = (event) => markActive(event.detail?.elementId ?? event.detail?.id ?? "");
+    const onActive = (event) => markActive(event.detail?.elementId ?? "");
     const current = element.current;
     current?.addEventListener("nav-active-change", onActive);
     return () => {

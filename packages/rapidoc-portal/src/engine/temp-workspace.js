@@ -85,7 +85,7 @@ const WORKSPACE_PACKAGE_JSON = {
 
 // Read by @astrojs/markdoc from the project root: renders .mdoc docs (synced from .markdoc).
 const markdocConfigMjs = (base) => `import { defineMarkdocConfig } from '@astrojs/markdoc/config';
-import { portalMarkdocConfig } from '@rapidoc/portal/markdoc/astro';
+import { portalMarkdocConfig } from '@rapidoc/portal/internal/markdoc-config';
 
 export default defineMarkdocConfig(portalMarkdocConfig(${JSON.stringify({ base })}));
 `;
@@ -93,7 +93,7 @@ export default defineMarkdocConfig(portalMarkdocConfig(${JSON.stringify({ base }
 const CONTENT_CONFIG_TS = `import { defineCollection } from 'astro:content';
 import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders';
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema';
-import { portalFrontmatterSchema } from '@rapidoc/portal/frontmatter';
+import { portalFrontmatterSchema } from '@rapidoc/portal/internal/frontmatter';
 
 export const collections = {
   docs: defineCollection({

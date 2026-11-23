@@ -26,13 +26,14 @@ export default async function ProcessSpec(
   showUnusedTags = false,
 ) {
   let jsonParsedSpec;
+  // The spec's address when it was loaded from one: relative $refs and server URLs resolve against it
+  let specLocation;
   // filter-operations: each shown operation's place, for ordering them within their tag
   let operationRanks = new Map();
   try {
     this?.requestUpdate?.(); // important to show the initial loader
 
     let inputSpec = specUrl;
-    let specLocation;
     if (typeof specUrl === "string" && isUrlLike(specUrl)) {
       // Resolved against the page once, so the spec and its relative $refs are fetched from the same base
       // (passing the relative path on made it relative to itself: `a/z.yaml` was fetched as `a/a/z.yaml`)
@@ -228,19 +229,8 @@ export default async function ProcessSpec(
       jsonParsedSpec.servers.length > 0
     ) {
       jsonParsedSpec.servers.forEach((v) => {
-        let computedUrl = String(v.url ?? "").trim();
-        if (
-          !(
-            computedUrl.startsWith("http") ||
-            computedUrl.startsWith("//") ||
-            computedUrl.startsWith("{")
-          )
-        ) {
-          if (typeof window !== "undefined" && window.location?.origin?.startsWith("http")) {
-            v.url = window.location.origin + v.url;
-            computedUrl = v.url;
-          }
-        }
+        v.url = resolveServerUrl(v.url, specLocation);
+        let computedUrl = v.url;
         // Apply server-variables to generate final computed-url
         if (v.variables) {
           Object.entries(v.variables).forEach((kv) => {
@@ -303,6 +293,24 @@ export default async function ProcessSpec(
  * "<method> <path>", for groupByTags to order them. A path keeps its path-level fields
  * (`parameters`, `servers`, ...) while it has an operation left; webhooks are not filtered.
  */
+/**
+ * A relative server URL (`/v1`, `api/v1`, `../v2`) made absolute against the spec's address, or against the page's
+ * for a spec that has none (OpenAPI: a server URL is relative to the document). Absolute, protocol-relative and
+ * templated (`{scheme}://...`) URLs are returned as they are, and so is every URL outside a browser.
+ */
+export function resolveServerUrl(url, specLocation) {
+  const raw = String(url ?? "").trim();
+  if (/^([a-z][a-z\d+.-]*:|\/\/|\{)/i.test(raw) || typeof window === "undefined") return raw;
+  const base = [specLocation, window.location?.href].find((v) => /^https?:/i.test(v || ""));
+  if (!base) return raw;
+  try {
+    // URL() percent-encodes the braces of server variables: put them back
+    return new URL(raw || "/", base).href.replace(/%7B/gi, "{").replace(/%7D/gi, "}");
+  } catch {
+    return raw;
+  }
+}
+
 function filterPaths(openApiObject, filterText = "") {
   const filter = parseOperationFilter(filterText);
   const ranks = new Map();
@@ -753,8 +761,6 @@ function groupByTags(
           callbacks: pathOrHookObj.callbacks,
           deprecated: pathOrHookObj.deprecated,
           security: pathOrHookObj.security ?? openApiSpec.security,
-          // commonSummary: commonPathProp.summary,
-          // commonDescription: commonPathProp.description,
           xBadges: xBadges.length > 0 ? xBadges : pathOrHookObj["x-badges"] || undefined,
           // The names of its kind: badge tags, which badge: terms match as well as their labels
           badgeTagNames: badgeTags.map((t) => t.name),

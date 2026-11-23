@@ -147,10 +147,10 @@ describe("Building a project with pages/", () => {
       // Its own document again, with the portal's header (and so the portal's stylesheet)
       "pages/with-header.astro": [
         "---",
-        "import PortalHeader from '@rapidoc/portal/components/PortalHeader.astro';",
+        "import PortalPageHeader from '@rapidoc/portal/components/PortalPageHeader.astro';",
         "---",
         "<html lang='en' data-theme='dark'><head><meta charset='utf-8' /><title>Own</title></head>",
-        "<body><PortalHeader /><p id='own-content'>Mine, with <code>code</code></p></body></html>",
+        "<body><PortalPageHeader /><p id='own-content'>Mine, with <code>code</code></p></body></html>",
         "",
       ].join("\n"),
       // The project's own 404 page, in place of the portal's

@@ -2,13 +2,16 @@
 // hosts <rapi-doc>. Pure string functions, no Node or DOM APIs and no imports, so this file runs in any
 // JavaScript runtime and is short enough to port to another language. Ports are checked against
 // conformance/fixtures/, which this file's tests also run. Change the output or an option's name only
-// with a new contract version. Version 2 renamed the option `path` to `uiPath`; `path` is still read.
+// with a new contract version (version 2 named the option `uiPath`; version 1 called it `path`).
 
+/**
+ * Version of this contract: the options, the routes and the HTML that conformance/fixtures/ fix. It is not
+ * the version of this package, and not the `contract` field of rapidoc's integration.json (the format of
+ * that file).
+ */
 export const CONTRACT_VERSION = 2;
 
 export const DEFAULT_UI_PATH = "/docs";
-/** @deprecated Use DEFAULT_UI_PATH. */
-export const DEFAULT_PATH = DEFAULT_UI_PATH;
 export const DEFAULT_TITLE = "API Reference";
 
 /** File names under the page's path. The bundle keeps its name so the copied license file still matches. */
@@ -19,6 +22,9 @@ export const OAUTH_RECEIVER_FILE = "oauth-receiver.html";
 const BASE_STYLE = "html,body{height:100%;margin:0}rapi-doc{height:100vh;width:100%}";
 
 const HTML_ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
+
+/** An option's value. null, undefined and the empty string all mean the option is absent. */
+const given = (value) => (value === null || value === "" ? undefined : value);
 
 /** Escapes text for HTML content and double-quoted attribute values. */
 export function escapeHtml(value) {
@@ -36,11 +42,9 @@ export function inlineJson(spec) {
     .replace(/\u2029/g, "\\u2029");
 }
 
-/**
- * The `uiPath` option: where the reference is served. `path`, its name in contract version 1, is still read.
- */
+/** The `uiPath` option, or its default. The site root is `/`: an empty string is an absent option. */
 export function uiPathOf(options = {}) {
-  return options.uiPath ?? options.path ?? DEFAULT_UI_PATH;
+  return given(options.uiPath) ?? DEFAULT_UI_PATH;
 }
 
 /** A public URL path without a trailing slash; the site root is the empty string. */
@@ -64,10 +68,15 @@ function attributeValue(value) {
   return String(value);
 }
 
-/** Where the page, the bundle and the OAuth return page are, and how the bundle is loaded. */
+/**
+ * Where the page, the bundle and the OAuth return page are, and how the bundle is loaded.
+ * `uiPath` is used as given. For the pages, pass the public path, the one the browser requests: an
+ * integration takes `uiPath` from its user as the path within the app or mount it is registered in, and
+ * puts the mount's prefix in front before it renders (conformance/README.md, "Paths").
+ */
 export function embedUrls(options = {}) {
   const path = normalizePath(uiPathOf(options));
-  const assets = options.assets ?? "bundled";
+  const assets = given(options.assets) ?? "bundled";
   const urls = {
     page: path === "" ? "/" : path,
     script: `${path}/${SCRIPT_FILE}`,
@@ -100,7 +109,7 @@ export function embedUrls(options = {}) {
  */
 export function toAttributes(options = {}) {
   const attributes = new Map();
-  if (options.specUrl) attributes.set("spec-url", options.specUrl);
+  if (given(options.specUrl)) attributes.set("spec-url", options.specUrl);
   attributes.set("oauth-receiver", embedUrls(options).oauthReceiver);
   for (const [key, value] of Object.entries(options.options ?? {})) {
     attributes.set(attributeName(key), value);
@@ -114,7 +123,7 @@ export function toAttributes(options = {}) {
 function scriptTag(urls, nonce) {
   let tag = `<script type="module" src="${escapeHtml(urls.script)}"`;
   if (urls.integrity) tag += ` integrity="${escapeHtml(urls.integrity)}" crossorigin="anonymous"`;
-  if (nonce) tag += ` nonce="${escapeHtml(nonce)}"`;
+  if (given(nonce)) tag += ` nonce="${escapeHtml(nonce)}"`;
   return `${tag}></script>`;
 }
 
@@ -127,23 +136,23 @@ const styleText = (css) => String(css).replace(/<\/(style)/gi, "<\\/$1");
  */
 export function renderHostPage(options = {}) {
   const urls = embedUrls(options);
-  const nonce = options.nonce ? ` nonce="${escapeHtml(options.nonce)}"` : "";
+  const nonce = given(options.nonce) ? ` nonce="${escapeHtml(options.nonce)}"` : "";
   const lines = [
     "<!doctype html>",
-    `<html lang="${escapeHtml(options.lang ?? "en")}">`,
+    `<html lang="${escapeHtml(given(options.lang) ?? "en")}">`,
     "  <head>",
     '    <meta charset="utf-8">',
     '    <meta name="viewport" content="width=device-width, initial-scale=1">',
-    `    <title>${escapeHtml(options.title ?? DEFAULT_TITLE)}</title>`,
+    `    <title>${escapeHtml(given(options.title) ?? DEFAULT_TITLE)}</title>`,
     `    <style${nonce}>${BASE_STYLE}</style>`,
   ];
-  if (options.css) lines.push(`    <style${nonce}>${styleText(options.css)}</style>`);
+  if (given(options.css)) lines.push(`    <style${nonce}>${styleText(options.css)}</style>`);
   lines.push(`    ${scriptTag(urls, options.nonce)}`);
-  if (options.head) lines.push(`    ${options.head}`);
+  if (given(options.head)) lines.push(`    ${options.head}`);
   lines.push("  </head>", "  <body>");
 
   const attributes = toAttributes(options);
-  const hasSpec = options.spec !== null && options.spec !== undefined;
+  const hasSpec = given(options.spec) !== undefined;
   if (attributes.length === 0) {
     lines.push(hasSpec ? "    <rapi-doc>" : "    <rapi-doc></rapi-doc>");
   } else {
@@ -168,7 +177,7 @@ export function renderHostPage(options = {}) {
 export function renderOAuthReceiverPage(options = {}) {
   return [
     "<!doctype html>",
-    `<html lang="${escapeHtml(options.lang ?? "en")}">`,
+    `<html lang="${escapeHtml(given(options.lang) ?? "en")}">`,
     "  <head>",
     '    <meta charset="utf-8">',
     "    <title>OAuth sign-in</title>",
@@ -195,7 +204,7 @@ export function embedRoutes(options = {}) {
     { path: urls.page, kind: "page", contentType: HTML_TYPE },
     { path: urls.oauthReceiver, kind: "oauth-receiver", contentType: HTML_TYPE },
   ];
-  if ((options.assets ?? "bundled") === "bundled") {
+  if ((given(options.assets) ?? "bundled") === "bundled") {
     routes.push(
       {
         path: urls.script,

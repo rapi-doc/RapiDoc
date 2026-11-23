@@ -29,22 +29,24 @@ Other exports:
 
 | Export | Does |
 | :--- | :--- |
-| `normalizeConfig`, `migrateConfig`, `RapidocConfigSchema` | Config helpers and the zod schema. |
-| `compileMarkdoc`, `markdocTags` | Render Markdoc with the portal's tags to HTML. |
-| `buildSearchIndex`, `searchRecords` | The search index of guides and operations. |
+| `resolveConfig(raw, baseDir)` | Validates a config object and returns the normalized config, as `loadConfig` does for a file. Throws a `ConfigError` that lists every problem. |
+| `migrateConfig`, `RapidocConfigSchema`, `defineConfig` | The Redocly and Zudoku converter, the zod schema, and the typing helper for a JavaScript config. |
+| `buildSearchIndex` | The search index of guides and operations. |
 | `checkPortalSpecs`, `checkApiSpec` | What `rapidoc validate` runs. |
 
-Subpath exports: `@rapidoc/portal/config`, `/markdoc`, `/search`, `/components` (MDX components) and `/schema.json`.
+Subpath exports: `@rapidoc/portal/config`, `/search`, `/components` (MDX components), `/components/PortalHead.astro`, `/components/PortalPageHeader.astro` and `/components/PortalPageFooter.astro` (for [your own pages](/docs/writing/pages/)) and `/schema.json`. Paths under `@rapidoc/portal/internal/` are for the build itself and can change in any release.
 
 ## `@rapidoc/server`
 
 ```js title="serve.mjs"
 import { createApp, startServer } from '@rapidoc/server';
 
-const { app } = await createApp({ distDir: 'dist' }); // a Hono app: mount it or add middleware
-const server = await startServer({ distDir: 'dist', port: 8080 });
+const { app, summary } = await createApp({ distDir: 'dist' }); // app: a Hono app, mount it or add middleware
+const server = await startServer({ distDir: 'dist', port: 8080 }); // { url, port, summary, close }
 await server.close();
 ```
+
+`summary` describes the running server and holds no secret: `mode`, `basePath`, `mountPath`, `publicUrl`, `issuer`, `clientId`, `providerReady`, `access` (`{ files, zones }`, counts) and `mcp` (`{ enabled, tools }`).
 
 ## `@rapidoc/mock`
 

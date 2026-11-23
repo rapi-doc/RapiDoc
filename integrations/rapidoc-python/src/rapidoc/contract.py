@@ -1,9 +1,14 @@
-"""The RapiDoc integration contract, version 1, in Python.
+"""The RapiDoc integration contract, version 2 (``CONTRACT_VERSION``), in Python.
 
 A port of ``src/core.js`` of ``@rapidoc/embed``: how an integration turns its options into the page
 that hosts ``<rapi-doc>``. Pure string functions with no framework import. The output is fixed by the
 conformance fixtures of ``@rapidoc/embed`` (``conformance/fixtures``), which ``tests/test_conformance.py``
-runs; change it only together with the reference implementation and a new contract version.
+runs; change it only together with the reference implementation and a new contract version. That
+version is the contract's own: it is not the version of this package or of ``@rapidoc/embed``, and not
+the ``contract`` field of rapidoc's ``integration.json`` (the format of that file).
+
+An option that is ``None`` or an empty string counts as absent, so its default applies. ``uiPath`` is
+written into the pages as given: pass the public path, the one the browser requests.
 
 Option names are the contract's (``specUrl``, ``scriptUrl``), as in the fixtures. ``rapidoc.starlette.setup_rapidoc``
 is the Python-style front end.
@@ -18,8 +23,6 @@ from typing import Any, Mapping
 CONTRACT_VERSION = 2
 
 DEFAULT_UI_PATH = "/docs"
-# The name DEFAULT_UI_PATH had in version 0.1
-DEFAULT_PATH = DEFAULT_UI_PATH
 DEFAULT_TITLE = "API Reference"
 
 SCRIPT_FILE = "rapidoc-min.js"
@@ -28,7 +31,12 @@ OAUTH_RECEIVER_FILE = "oauth-receiver.html"
 
 _BASE_STYLE = "html,body{height:100%;margin:0}rapi-doc{height:100vh;width:100%}"
 _HTML_TYPE = "text/html; charset=utf-8"
-_ATTRIBUTE_NAME = re.compile(r"^[a-z][a-z0-9-]*$")
+_ATTRIBUTE_NAME = re.compile(r"[a-z][a-z0-9-]*")
+
+
+def _given(value: Any) -> Any:
+    """An option's value. ``None`` and the empty string both mean the option is absent."""
+    return None if value == "" else value
 
 
 def escape_html(value: Any) -> str:
@@ -67,7 +75,8 @@ def normalize_path(path: str | None = DEFAULT_UI_PATH) -> str:
 def attribute_name(key: str) -> str:
     """``allowTry`` → ``allow-try``; names already in kebab-case pass through."""
     name = re.sub(r"[A-Z]", lambda match: f"-{match.group(0).lower()}", str(key))
-    if not _ATTRIBUTE_NAME.match(name):
+    # fullmatch: with match() and a "$", a name ending in a newline would pass
+    if not _ATTRIBUTE_NAME.fullmatch(name):
         raise ValueError(f'rapidoc: "{key}" is not a valid attribute name')
     return name
 
@@ -75,20 +84,18 @@ def attribute_name(key: str) -> str:
 def _attribute_value(value: Any) -> str:
     if isinstance(value, bool):
         return "true" if value else "false"
-    if isinstance(value, float) and value.is_integer():
-        return str(int(value))
+    if isinstance(value, float):
+        # As JavaScript writes a number: no fraction on a whole one (2.0 is "2")
+        return str(int(value)) if value.is_integer() else repr(value)
     if isinstance(value, (dict, list)):
         return json.dumps(value, separators=(",", ":"), ensure_ascii=False)
     return str(value)
 
 
 def ui_path_of(options: Mapping[str, Any] | None = None) -> str:
-    """The URL path the page is served at: ``uiPath``, or ``path``, its name in contract version 1."""
-    options = options or {}
-    for key in ("uiPath", "path"):
-        if options.get(key) is not None:
-            return options[key]
-    return DEFAULT_UI_PATH
+    """The ``uiPath`` option, or its default. The site root is ``/``: an empty string is an absent option."""
+    path = _given((options or {}).get("uiPath"))
+    return DEFAULT_UI_PATH if path is None else path
 
 
 def embed_urls(options: Mapping[str, Any] | None = None) -> dict[str, Any]:
@@ -156,7 +163,7 @@ def render_host_page(options: Mapping[str, Any] | None = None) -> str:
     nonce = options.get("nonce")
     nonce_attribute = f' nonce="{escape_html(nonce)}"' if nonce else ""
     lang = options.get("lang") or "en"
-    title = options.get("title")
+    title = _given(options.get("title"))
     lines = [
         "<!doctype html>",
         f'<html lang="{escape_html(lang)}">',
@@ -174,7 +181,7 @@ def render_host_page(options: Mapping[str, Any] | None = None) -> str:
     lines += ["  </head>", "  <body>"]
 
     attributes = to_attributes(options)
-    has_spec = options.get("spec") is not None
+    has_spec = _given(options.get("spec")) is not None
     if not attributes:
         lines.append("    <rapi-doc>" if has_spec else "    <rapi-doc></rapi-doc>")
     else:
