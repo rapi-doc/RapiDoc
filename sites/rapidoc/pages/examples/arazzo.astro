@@ -128,14 +128,21 @@ import ExampleLayout from '../../layouts/ExampleLayout.astro';
   /* The header slot: logo on the left, the server switch on the right, a note below */
   .header-bar {
     display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
     align-items: center;
     justify-content: space-between;
   }
   .switches {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
   }
+  .switch {
+    display: flex;
+  }
   .switch button {
+    white-space: nowrap;
     padding: 0.25rem 0.75rem;
     font: inherit;
     font-size: 0.8125rem;
