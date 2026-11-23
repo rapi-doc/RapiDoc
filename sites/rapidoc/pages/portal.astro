@@ -7,6 +7,8 @@ import PortalHeader from '@rapidoc/portal/components/PortalPageHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CodeBlock from '../components/CodeBlock.astro';
 import Icon from '../components/Icon.astro';
+import ComparisonTable from '../components/ComparisonTable.astro';
+import { portalComparison } from '../page-data/portal-comparison';
 
 const PORTAL_DOCS = 'https://portal.rapidocui.com';
 // Rapid Parcels, the RapiDoc Portal demo with sign-in (the rapi-portal-demo repository)
@@ -244,6 +246,18 @@ const features = [
         </div>
         <CodeBlock code={startCode} lang="bash" filename="terminal" />
       </div>
+    </section>
+
+    <section class="rd-section" id="compare">
+      <div class="rd-section-header rd-section-header--center">
+        <div class="rd-section-badge">Compare</div>
+        <h2 class="rd-section-title">How RapiDoc Portal Compares</h2>
+        <p class="rd-section-desc">
+          Hosted platforms put single sign-on, access rules and self-hosting on their higher plans. RapiDoc Portal has
+          all of it in the open-source packages, with a mock server and Arazzo workflows beside the docs.
+        </p>
+      </div>
+      <ComparisonTable data={portalComparison} />
     </section>
 
     <section class="rd-next-steps">
