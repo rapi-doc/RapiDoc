@@ -19,8 +19,9 @@ export default css`
     flex-direction: column;
     box-sizing: border-box;
     width: 100%;
-    backdrop-filter: blur(12px);
+    /* Prefixed first: the bundle's CSS minifier keeps only the last of the two */
     -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
     transition:
       box-shadow 0.2s ease,
       background 0.2s ease;
