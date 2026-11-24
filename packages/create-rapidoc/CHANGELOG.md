@@ -1,5 +1,16 @@
 # create-rapidoc
 
+## 1.0.0
+
+### Major Changes
+
+- aa3c878: RapiDoc and its family, in sync: RapiDoc Portal and the RapiDoc CLI (with the server, the mock, the prerenderer, the MCP builder and `create-rapidoc`), the integration contract (`@rapidoc/embed`) and RapiDoc for Hono, Express and Fastify were reviewed end to end together with `rapidoc` 15 and are 1.0.0, a new start for the family. The same names for the same things, one sidebar from `<rapi-doc>` to the portal, and safer defaults everywhere; names that were wrong or unclear were corrected once, with no old spellings kept: the portal site's "Upgrading from 0.2 to 1.0" page lists every change. From here they follow semver: a breaking change to the config, the CLI, the integration contract or an integration's options comes only in a new major version.
+
+### Patch Changes
+
+- aa3c878: Clean-up before 1.0, with no old names kept. Markdoc tags: `{% api-operation %}` takes the API's id as `api` (was `spec`), `{% workflow %}` takes the `workflows:` entry's id as `document` (was `file`), `{% tab %}` takes `label` only (`name` is gone), and `{% card-grid columns=N %}` now sets the number of columns (1 to 4, default 3; it was ignored and always 2). An old attribute fails the build as an unknown attribute. `@rapidoc/portal` no longer exports the unused second Markdoc renderer (`compileMarkdoc`, `compileDocFile`, `createMarkdocConfig`, `markdocTags`, `extractHeadings`, the `./markdoc` subpath) or `searchRecords`; `resolveConfig` replaces `normalizeConfig` as the config helper. The header and footer for a page with its own document are imported under their real names, `@rapidoc/portal/components/PortalPageHeader.astro` and `PortalPageFooter.astro` (were `PortalHeader.astro` and `PortalFooter.astro`), and the paths the build's workspace imports moved under `@rapidoc/portal/internal/`. Without `site.url`, pages no longer get a canonical link and a sitemap on the placeholder domain `developer.portal`: a build has neither and prints one note that both need `site.url`. `rapidoc migrate` takes the project folder (`rapidoc migrate [dir]`) and `--force` / `-f`; when `rapidoc.config.yaml` exists and it cannot ask (no terminal, or `--yes`), it stops unless `--force` is given. `@rapidoc/cli` has an `exports` field: it is a command, and none of its files can be imported. New portals from `create-rapidoc` and `rapidoc init` use the new attribute names.
+- 543ef8d: New portals (`npm create rapidoc`, `rapidoc init`) leave `theme.primary` as a comment, so they take the portal's default accents, those of RapiDoc's `amber` theme. `rapidoc.theme` is a comment too, listing the presets.
+
 ## 0.2.6
 
 ### Patch Changes

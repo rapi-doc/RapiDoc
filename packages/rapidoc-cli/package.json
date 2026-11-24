@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/cli",
-  "version": "0.2.6",
+  "version": "1.0.0",
   "description": "RapiDoc CLI: the rapidoc command to build developer portals and to preview, validate, lint, bundle, mock and export OpenAPI specs as PDFs and MCP servers",
   "keywords": [
     "arazzo",
@@ -45,17 +45,17 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.8.1",
-    "@rapidoc/mcp": "^0.2.6",
+    "@rapidoc/mcp": "^1.0.0",
     "@scalar/openapi-validator": "^0.1.18",
-    "create-rapidoc": "^0.2.6",
-    "rapidoc": "^14.2.1",
+    "create-rapidoc": "^1.0.0",
+    "rapidoc": "^15.0.0",
     "yaml": "^2.9.1"
   },
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@rapidoc/mock": "^0.2.6",
-    "@rapidoc/portal": "^0.2.6",
-    "@rapidoc/server": "^0.2.6",
+    "@rapidoc/mock": "^1.0.0",
+    "@rapidoc/portal": "^1.0.0",
+    "@rapidoc/server": "^1.0.0",
     "rapipdf": "^3.0.1"
   },
   "peerDependenciesMeta": {

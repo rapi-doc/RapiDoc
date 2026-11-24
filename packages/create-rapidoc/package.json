@@ -1,6 +1,6 @@
 {
   "name": "create-rapidoc",
-  "version": "0.2.6",
+  "version": "1.0.0",
   "description": "Interactive scaffolding CLI to create new developer portals with RapiDoc Portal",
   "keywords": [
     "create-rapidoc",
