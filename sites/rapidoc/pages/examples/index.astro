@@ -197,7 +197,7 @@ const categories = [
 
           return (
             <div
-              class={`rd-item-card ${isDoc ? 'is-doc-card' : ''} ${isWide ? 'is-wide-card' : ''}`}
+              class={`rd-item-card ${isDoc ? 'is-doc-card' : ''} ${isWide ? 'is-wide-card' : ''} ${hasDirectLink ? 'is-link-card' : ''} ${item.subExamples ? 'has-variants' : ''}`}
               data-category={item.category}
               data-elements={item.elements.join(' ')}
               data-title={item.title.toLowerCase()}
@@ -460,14 +460,15 @@ const categories = [
     font-size: 13px;
   }
 }
+/* The elements an example shows: plain text, not a button-like chip (they aren't links) */
 .rd-card-element-badge {
   font-family: var(--rd-font-mono);
-  font-size: 11px;
-  padding: 2px 7px;
-  border-radius: var(--rd-radius-xs);
+  font-size: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
   color: var(--rd-accent-light);
-  background: var(--rd-accent-dim);
-  border: 1px solid var(--rd-accent-border);
 }
 
 /* The controls bar centers its children: give the search its full width */
@@ -542,6 +543,32 @@ const categories = [
   border-color: rgba(139, 92, 246, 0.5);
 }
 
+/* One link: the whole card opens it. The footer link's ::after covers the card
+   (positioned by .rd-item-card), so a click anywhere lands on that link. */
+.rd-item-card.is-link-card {
+  cursor: pointer;
+}
+.rd-item-card.is-link-card .rd-action-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.rd-item-card.is-link-card:has(.rd-action-link:focus-visible) {
+  border-color: var(--rd-card-border-hover);
+}
+
+/* Several links (variants): the card itself is not a link, so it stays still on
+   hover; its border lights up while one of its buttons is hovered or focused. */
+.rd-item-card.has-variants:hover {
+  background: var(--rd-surface);
+  border-color: var(--rd-border);
+}
+.rd-item-card.has-variants:has(.rd-sub-btn:hover, .rd-sub-btn:focus-visible) {
+  background: var(--rd-card-bg-hover);
+  border-color: var(--rd-card-border-hover);
+}
+
 /* Card Header */
 .rd-card-top {
   display: flex;
@@ -563,7 +590,8 @@ const categories = [
   color: var(--rd-accent);
   transition: var(--rd-transition);
 }
-.rd-item-card:hover .rd-card-icon-box {
+.rd-item-card:not(.has-variants):hover .rd-card-icon-box,
+.rd-item-card.has-variants:has(.rd-sub-btn:hover) .rd-card-icon-box {
   color: var(--rd-accent-light);
 }
 .rd-card-icon {
