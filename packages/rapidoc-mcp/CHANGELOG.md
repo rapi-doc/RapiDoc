@@ -1,5 +1,16 @@
 # @rapidoc/mcp
 
+## 1.0.0
+
+### Major Changes
+
+- aa3c878: RapiDoc and its family, in sync: RapiDoc Portal and the RapiDoc CLI (with the server, the mock, the prerenderer, the MCP builder and `create-rapidoc`), the integration contract (`@rapidoc/embed`) and RapiDoc for Hono, Express and Fastify were reviewed end to end together with `rapidoc` 15 and are 1.0.0, a new start for the family. The same names for the same things, one sidebar from `<rapi-doc>` to the portal, and safer defaults everywhere; names that were wrong or unclear were corrected once, with no old spellings kept: the portal site's "Upgrading from 0.2 to 1.0" page lists every change. From here they follow semver: a breaking change to the config, the CLI, the integration contract or an integration's options comes only in a new major version.
+
+### Patch Changes
+
+- aa3c878: `rapidoc/flow` (`<rapi-flow>`) is 41 KB smaller (283 KB to 242 KB minified, 89 KB to 76 KB gzipped): Arazzo documents are now read with `js-yaml`, half the size of `yaml`. Values are read the same way (YAML 1.2, merge keys, no dates); a tag the reader does not know keeps its plain value, and stray control characters are dropped. `@rapidoc/mcp` depends on `js-yaml` in place of `yaml`, and `@rapidoc/prerender` on both. OpenAPI specs are read as before. In `rapidoc-min.js`, the syntax highlighter no longer carries grammars for Astro, Svelte, Vue, Objective-C, Perl, R and TOML. The first three are drawn as HTML and Objective-C as C; Perl, R and TOML code shows as plain text.
+- aa3c878: MCP servers read their settings from `MCP_` variables only, the same in an exported server, `rapidoc mcp serve` and the `/mcp` endpoint of `rapidoc serve`: a security scheme's credential is `MCP_AUTH_<SCHEME>` (`MCP_AUTH_<SCHEME>_USERNAME` and `MCP_AUTH_<SCHEME>_PASSWORD` for HTTP Basic), the base URL is `MCP_BASE_URL` (`MCP_BASE_URL_<SOURCE>` each when a server has several APIs) and the host allow-list is `MCP_EXTERNAL_HOSTS`. The old names (`<SCHEME>`, `API_KEY`, `API_BASE_URL`, `EXTERNAL_HOSTS`) are no longer read, so a scheme called `token` or `path` can no longer send `$TOKEN` or `$PATH` to an API, and two schemes that would share a variable stop the export with a message. Tool names are now always valid and stable: at most 64 characters, never empty for a non-Latin `operationId`, and a name two operations share ends in a short hash of the operation instead of `_2`, so reordering the spec renames nothing. Every operation is a tool with all its parameters; a `GET` becomes an MCP resource as well only with `x-mcp-resource: true`, no longer because of its path. Swagger 2.0 specs get HTTP Basic for `type: basic` and a form body for `formData` parameters. A spec with a relative server URL or none is resolved against the address it was loaded from; read from a file, the manifest has no base URL, `rapidoc mcp export` and `rapidoc mcp serve` say that one is required, and a tool call without one fails with that message instead of calling `http://localhost`. The runtime refuses a manifest version it does not know, `<rapi-doc>`'s `mcp` attribute shows the export button for `true` only, and `@rapidoc/mcp` no longer exports `parseMcpEnabled`.
+
 ## 0.2.6
 
 No changes in this release.

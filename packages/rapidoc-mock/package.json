@@ -1,6 +1,6 @@
 {
   "name": "@rapidoc/mock",
-  "version": "0.2.6",
+  "version": "1.0.0",
   "description": "RapiMock: a mock server from OpenAPI specs, with request validation, OAuth scope checks, state and a UI (rapidoc mock)",
   "keywords": [
     "api-mocking",

@@ -1,5 +1,26 @@
 # @rapidoc/vitepress
 
+## 0.2.0
+
+### Minor Changes
+
+- 22b7bd6: For `rapidoc` 15: the API pages get its new three-level sidebar and keyboard support. Requires `rapidoc` 15, `@rapidoc/embed` 1 and `@rapidoc/prerender` 1.
+
+### Patch Changes
+
+- Updated dependencies [aa3c878]
+- Updated dependencies [aa3c878]
+- Updated dependencies [aa3c878]
+- Updated dependencies [f0c81ab]
+- Updated dependencies [aa3c878]
+- Updated dependencies [aa3c878]
+- Updated dependencies [aa3c878]
+- Updated dependencies [aa3c878]
+- Updated dependencies [aa3c878]
+  - @rapidoc/embed@1.0.0
+  - rapidoc@15.0.0
+  - @rapidoc/prerender@1.0.0
+
 ## 0.1.3
 
 ### Patch Changes

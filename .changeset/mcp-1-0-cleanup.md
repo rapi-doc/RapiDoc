@@ -1,8 +1,0 @@
----
-"@rapidoc/mcp": patch
-"@rapidoc/server": patch
-"@rapidoc/cli": patch
-"rapidoc": patch
----
-
-MCP servers read their settings from `MCP_` variables only, the same in an exported server, `rapidoc mcp serve` and the `/mcp` endpoint of `rapidoc serve`: a security scheme's credential is `MCP_AUTH_<SCHEME>` (`MCP_AUTH_<SCHEME>_USERNAME` and `MCP_AUTH_<SCHEME>_PASSWORD` for HTTP Basic), the base URL is `MCP_BASE_URL` (`MCP_BASE_URL_<SOURCE>` each when a server has several APIs) and the host allow-list is `MCP_EXTERNAL_HOSTS`. The old names (`<SCHEME>`, `API_KEY`, `API_BASE_URL`, `EXTERNAL_HOSTS`) are no longer read, so a scheme called `token` or `path` can no longer send `$TOKEN` or `$PATH` to an API, and two schemes that would share a variable stop the export with a message. Tool names are now always valid and stable: at most 64 characters, never empty for a non-Latin `operationId`, and a name two operations share ends in a short hash of the operation instead of `_2`, so reordering the spec renames nothing. Every operation is a tool with all its parameters; a `GET` becomes an MCP resource as well only with `x-mcp-resource: true`, no longer because of its path. Swagger 2.0 specs get HTTP Basic for `type: basic` and a form body for `formData` parameters. A spec with a relative server URL or none is resolved against the address it was loaded from; read from a file, the manifest has no base URL, `rapidoc mcp export` and `rapidoc mcp serve` say that one is required, and a tool call without one fails with that message instead of calling `http://localhost`. The runtime refuses a manifest version it does not know, `<rapi-doc>`'s `mcp` attribute shows the export button for `true` only, and `@rapidoc/mcp` no longer exports `parseMcpEnabled`.
