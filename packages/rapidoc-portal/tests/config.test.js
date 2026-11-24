@@ -55,6 +55,7 @@ describe("rapidoc.config.yaml (v2)", () => {
     assert.equal(config.site.banner.dismissible, true);
     assert.deepEqual(config.theme, {
       primary: "#f76b39",
+      primaryLight: "#f76b39",
       mode: "dark",
       fonts: {
         sans: {

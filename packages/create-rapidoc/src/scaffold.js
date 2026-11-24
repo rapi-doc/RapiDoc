@@ -265,7 +265,7 @@ site:
     href: "/docs/getting-started"
 
 theme:
-  primary: "#f59e0b"
+  # primary: "#2563eb"   # your brand's accent, in dark and light mode; without it, RapiDoc's amber accents
   mode: auto
   # css: "./styles/portal.css"   # your stylesheet, loaded after the portal's own
 
@@ -321,6 +321,8 @@ ${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join("")}# S
 #   - file: "./workflows/checkout.arazzo.yaml"
 
 rapidoc:
+  # A RapiDoc theme for the API reference, with its own surfaces as well as its accent:
+  # theme: amber   # ember | carbon | cobalt | jade | indigo | amber
   render-style: "focused"
   schema-style: "tree"
 

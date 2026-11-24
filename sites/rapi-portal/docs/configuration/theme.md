@@ -14,7 +14,9 @@ theme:
 
 ## Accent color
 
-`primary` (default `#f76b39`) colors links, buttons, the active tab and sidebar item, and the API reference.
+`primary` colors links, buttons, the active tab and sidebar item, and the API reference.
+
+Without it, the portal uses the accents of RapiDoc's default theme, `amber`: `#f6a821` in dark mode, and the deeper `#ab6534` with white text in light mode. With `primary` set, that one color is the accent in both modes.
 
 You pick one color, and the portal keeps it readable. At build time it derives the text variants from it so that accent text keeps WCAG AA contrast (4.5:1) on both the light and the dark background. Text on accent-filled buttons is black or white, whichever reads better. So a light brand color like yellow still gives readable links.
 

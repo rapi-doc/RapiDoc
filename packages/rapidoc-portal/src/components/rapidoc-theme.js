@@ -6,6 +6,8 @@
  *   colors on the element.
  * - Otherwise the accent is the portal's: `theme.primary`, or a `#hex` given as `rapidoc.theme`, over the
  *   portal's background and text colors. RapiDoc's `primary-color` replaces the theme with that color.
+ *   `data-portal-accent` marks the portal's own accent, which the light theme replaces with its light
+ *   accent (the `rapi-doc[data-portal-accent]` rule of pages/api-reference.astro).
  *
  * `preset` is what the sidebar's theme tokens are built from (`getThemeTokensCss`).
  *
@@ -19,6 +21,8 @@ export function rapidocThemeAttributes(rapidocConfig, portalPrimary) {
   const preset = configured || "amber";
   const attributes = usesPreset
     ? { theme: preset, "data-portal-preset": "" }
-    : { theme: preset, "primary-color": configured || portalPrimary };
+    : configured
+      ? { theme: preset, "primary-color": configured }
+      : { theme: preset, "primary-color": portalPrimary, "data-portal-accent": "" };
   return { preset, usesPreset, attributes };
 }

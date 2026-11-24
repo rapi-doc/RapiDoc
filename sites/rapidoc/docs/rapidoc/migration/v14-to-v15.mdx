@@ -26,6 +26,8 @@ Without tag groups, the **tags themselves are the section labels**: upper-case, 
 
 The current item is a **filled block** in the accent color, in every render style. A closed tag that holds the current operation turns to the accent color.
 
+Operation names are 1px smaller than the rows above them, and with `show-method-in-nav-bar="as-colored-block"` the method badges have 2px corners. The filter box at the top keeps its frosted-glass background as the list scrolls under it.
+
 ## 2. What to update
 
 | You use | Do this |
@@ -49,6 +51,7 @@ The current item is a **filled block** in the accent color, in every render styl
 | `nav-active-change` detail `{ id, elementId }`, plus `operationId` on scroll only (an element ID, and for a tag the ID of its first operation) | One shape from every source (a click, `scrollToPath`, a hash change, scrolling): `{ elementId, type, operationId? }`. `id` is removed: read `elementId`. `type` is `"operation"`, `"tag"` or `"section"`. `operationId` is the operation's `operationId` from the spec, present only for an operation that has one. |
 | `bindNavBar` and a tag section | The static sidebar highlights the tag while its section is in view. In v14 it highlighted the tag's first operation. |
 | `mock-server-status-strategy="random"` (or `first`, `cycle`) | Removed. Write the strategy in front of the codes: `mock-server-status-code="random:200, 500"`. A list without a prefix is used in turn (`cycle`). |
+| `amber` theme (the default), light color scheme: accent `#ff791a` with black text on it | Accent `#ab6534` with white text on it, which reaches 4.5:1. Links and the current sidebar item take a matching shade, `#9a5b2f`. The dark scheme is unchanged. |
 | `theme="light"`, `theme="dark"` | No longer read as a color scheme (deprecated since v11): the value is an unknown theme name and falls back to the default theme. Set `color-scheme="light"` or `color-scheme="dark"`. |
 | `default-schema-tab="model"` | Removed. Write `default-schema-tab="schema"`. `model` now falls back to `example`. |
 | `mcp="none"` as an allowed value | Write `mcp="false"`, the default. |

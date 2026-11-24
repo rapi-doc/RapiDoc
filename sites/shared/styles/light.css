@@ -1,15 +1,16 @@
 /*
- * The light theme every RapiDoc site shares: the orange of RapiDoc's `amber` theme in light mode, the
+ * The light theme every RapiDoc site shares: the copper of RapiDoc's `amber` theme in light mode (white text on it), the
  * accent of the API reference pages too, on white. `theme.primary` in each config is the dark accent
- * (amber); this sets the light one. As text, the shade RapiDoc picks for it (#ad5212), so the guides'
- * and the API reference's sidebars match: 4.69:1 or more on white, grey and the accent tint. The dark
+ * (amber); this sets the light one. As text, the shade RapiDoc picks for it (#9a5b2f), so the guides'
+ * and the API reference's sidebars match: 4.5:1 or more on white, grey and the accent tint. The dark
  * theme is dark.css.
  */
 [data-theme="light"] {
-  --portal-primary: #ff791a;
-  --portal-primary-text: #ad5212;
-  --sl-color-accent: #ff791a;
-  --sl-color-accent-low: color-mix(in srgb, #ff791a 18%, #ffffff);
+  --portal-primary: #ab6534;
+  --portal-primary-text: #9a5b2f;
+  --portal-on-primary: #ffffff;
+  --sl-color-accent: #ab6534;
+  --sl-color-accent-low: color-mix(in srgb, #ab6534 18%, #ffffff);
   --portal-bg: #ffffff;
   --portal-header-bg: #ffffff;
   --portal-border: color-mix(in srgb, #ffffff 85%, #2a2d35);

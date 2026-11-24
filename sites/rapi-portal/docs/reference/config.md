@@ -32,7 +32,7 @@ Every key, with its default. The guides explain each section: [Configuration](/d
 
 | Key | Type | Default |
 | :--- | :--- | :--- |
-| `theme.primary` | CSS color | `#f76b39` |
+| `theme.primary` | CSS color | RapiDoc's amber accents: `#f6a821` (dark), `#ab6534` (light) |
 | `theme.mode` | `auto` \| `light` \| `dark` | `auto` |
 | `theme.fonts.sans`, `theme.fonts.mono` | `{ family, url? }` | System fonts |
 | `theme.css` | path, or list of paths | |

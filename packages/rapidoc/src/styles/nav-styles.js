@@ -19,8 +19,9 @@ export default css`
     flex-direction: column;
     box-sizing: border-box;
     width: 100%;
-    backdrop-filter: blur(12px);
+    /* Prefixed first: the bundle's CSS minifier keeps only the last of the two */
     -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
     transition:
       box-shadow 0.2s ease,
       background 0.2s ease;
@@ -539,6 +540,10 @@ export default css`
     min-width: 0;
     flex: 1;
   }
+  /* Operations (not headings or schemas): a step smaller than the other rows */
+  .nav-bar-path[part~="section-navbar-path"] > .nav-bar-path-label {
+    font-size: calc(1em - 1px);
+  }
 
   /* --- No tag groups: the tags are the section labels, still a link and an arrow --- */
   .tags-as-labels .nav-bar-tag-and-paths {
@@ -657,7 +662,7 @@ export default css`
     padding: 1px 4px;
     box-sizing: border-box;
     text-align: center;
-    border-radius: 4px;
+    border-radius: 2px;
     color: var(--method-badge-fg);
     background: var(--method-default);
     font-weight: 600;

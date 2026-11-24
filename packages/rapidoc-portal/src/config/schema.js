@@ -320,7 +320,12 @@ const fontSchema = z.strictObject({
 });
 
 export const ThemeSchema = z.strictObject({
-  primary: z.string().optional().describe("Accent color (default #f76b39)."),
+  primary: z
+    .string()
+    .optional()
+    .describe(
+      "Accent color, for dark and light mode (default: RapiDoc's amber accents, #f6a821 dark and #ab6534 light).",
+    ),
   mode: z
     .enum(["auto", "dark", "light"])
     .optional()
