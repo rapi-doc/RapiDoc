@@ -10,7 +10,7 @@ site:
       light: /assets/images/rapidoc-lockup-light.svg
       dark: /assets/images/rapidoc-lockup-dark.svg
     alt: RapiDoc
-    badge: v14.2 # RapiDoc's version; scripts/sync-version.mjs keeps it current, don't edit it
+    badge: v15.0 # RapiDoc's version; scripts/sync-version.mjs keeps it current, don't edit it
 # Google Analytics on the docs pages, as the live site sends it: the page title as "Docs / <title>" and the
 # content group "Docs". The site's own pages (home, /api, examples) send theirs from their own layout
 # (components/GoogleAnalytics.astro), so this must stay the same property.
