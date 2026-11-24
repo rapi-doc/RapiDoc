@@ -127,7 +127,7 @@
       "type": "object",
       "properties": {
         "primary": {
-          "description": "Accent color (default #f76b39).",
+          "description": "Accent color, for dark and light mode (default: RapiDoc's amber accents, #f6a821 dark and #ab6534 light).",
           "type": "string"
         },
         "mode": {

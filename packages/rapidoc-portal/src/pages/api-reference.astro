@@ -165,6 +165,13 @@ const rapidocAttributes = {
     --background: var(--portal-bg);
     --foreground: var(--portal-fg);
   }
+  /* The portal's accent in the light theme, which can differ from theme.primary (amber's light accent when
+     it is not set). `!important` because RapiDoc writes its `primary-color` as an inline style. */
+  :root[data-theme="light"] rapi-doc[data-portal-accent] {
+    --primary: var(--portal-primary) !important;
+    --primary-foreground: var(--portal-on-primary) !important;
+    --primary-text-light: var(--portal-primary-text) !important;
+  }
   @media (min-width: 50em) {
     rapi-doc {
       --h1-font-size: 2.25rem;

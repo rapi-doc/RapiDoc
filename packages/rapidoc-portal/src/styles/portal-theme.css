@@ -1,7 +1,8 @@
 /*
  * RapiDoc Portal theme for Starlight and the portal pages.
  * Tokens replaced at build time by src/engine/theme-css.js:
- *   PORTAL_PRIMARY_COLOR, PORTAL_ON_PRIMARY, PORTAL_PRIMARY_TEXT_LIGHT, PORTAL_PRIMARY_TEXT_DARK,
+ *   PORTAL_PRIMARY_COLOR, PORTAL_ON_PRIMARY, PORTAL_PRIMARY_TEXT_DARK (dark theme),
+ *   PORTAL_PRIMARY_LIGHT, PORTAL_ON_PRIMARY_LIGHT, PORTAL_PRIMARY_TEXT_LIGHT (light theme),
  *   FONT_SANS_STACK, FONT_MONO_STACK (each wrapped in double underscores)
  *
  * Accent usage, so text keeps WCAG AA contrast for any primary color (engine/accent-colors.js):
@@ -83,7 +84,10 @@
   --portal-muted: #5b5f6b;
   --portal-sidebar-label: #727683;
   --portal-hover-bg: rgba(0, 0, 0, 0.05);
+  /* The light accent: theme.primary, or amber's light accent without it (engine/theme-css.js) */
+  --portal-primary: __PORTAL_PRIMARY_LIGHT__;
   --portal-primary-text: __PORTAL_PRIMARY_TEXT_LIGHT__;
+  --portal-on-primary: __PORTAL_ON_PRIMARY_LIGHT__;
   --portal-card-bg: #ffffff;
   --portal-card-shadow:
     0 0 0 1px rgba(19, 19, 22, 0.075), 0 1px 5px -4px rgba(19, 19, 22, 0.7),
@@ -107,7 +111,8 @@
   --sl-color-gray-6: #f4f4f5;
   --sl-color-gray-7: #ffffff;
   --sl-color-hairline-light: rgba(0, 0, 0, 0.04);
-  --sl-color-accent-low: color-mix(in srgb, __PORTAL_PRIMARY_COLOR__ 18%, #ffffff);
+  --sl-color-accent: __PORTAL_PRIMARY_LIGHT__;
+  --sl-color-accent-low: color-mix(in srgb, __PORTAL_PRIMARY_LIGHT__ 18%, #ffffff);
   --sl-color-accent-high: var(--portal-primary-text);
   --sl-color-text-accent: var(--portal-primary-text);
 }

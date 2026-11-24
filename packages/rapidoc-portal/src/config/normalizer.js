@@ -22,7 +22,9 @@ export const API_PATH = "/apis";
 export const SPECS_PATH = "/specs";
 /** Workflow files are published at WORKFLOWS_PATH/<id>.arazzo<ext>. */
 export const WORKFLOWS_PATH = "/workflows";
-export const DEFAULT_PRIMARY_COLOR = "#f76b39";
+/** Without `theme.primary`, the accents of RapiDoc's default theme (amber): one for dark, one for light. */
+export const DEFAULT_PRIMARY_COLOR = "#f6a821";
+export const DEFAULT_LIGHT_ACCENT = { primary: "#ab6534", onPrimary: "#ffffff" };
 
 /** info.title / info.description / info.version of a local spec, or {} if it cannot be read. */
 function readSpecInfo(fullPath) {
@@ -536,6 +538,8 @@ export function normalizeConfig(raw, baseDir = process.cwd(), fileName = "rapido
     },
     theme: {
       primary: raw.theme?.primary || DEFAULT_PRIMARY_COLOR,
+      // The light theme's accent: theme.primary, or amber's light accent when it is not set
+      primaryLight: raw.theme?.primary || DEFAULT_LIGHT_ACCENT.primary,
       mode: raw.theme?.mode || "auto",
       fonts: {
         sans: normalizeFont(raw.theme?.fonts?.sans),

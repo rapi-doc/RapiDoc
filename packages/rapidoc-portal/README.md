@@ -62,7 +62,7 @@ site:
     color: '#000000'
 
 theme:
-  primary: '#f76b39' # accent color, also used by the API reference
+  primary: '#f76b39' # accent color, also used by the API reference (default: RapiDoc's amber accents)
   mode: auto # auto | dark | light, until the visitor picks one
   fonts: # a family alone loads from Google Fonts (weights 400-700)
     sans: { family: Inter }
