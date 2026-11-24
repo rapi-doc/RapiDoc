@@ -76,4 +76,6 @@ rapidoc:
   theme: amber   # ember | carbon | cobalt | jade | indigo | amber
 ```
 
+A new portal from `npm create rapidoc` or `rapidoc init` starts with `theme: amber`. Remove the line to have the API reference follow the portal theme.
+
 The API reference pages then use the theme's colors, still light or dark with the rest of the site: the reference and its sidebar on the theme's background, the header and footer in its sidebar color, and its accent. The guides keep the portal's colors and `theme.primary`; to match them, set the same colors in [your own CSS](#your-own-css), as this site does. A `#hex` value sets only the accent, over the portal's colors. To change more of RapiDoc's look, see [RapiDoc attributes](/docs/api-reference/rapidoc-attributes/).

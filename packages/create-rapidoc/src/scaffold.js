@@ -321,6 +321,9 @@ ${apis.map((api) => `  - id: ${api.id}\n    spec: "${api.spec}"\n`).join("")}# S
 #   - file: "./workflows/checkout.arazzo.yaml"
 
 rapidoc:
+  # The API reference's colors: a RapiDoc preset (amber, ember, carbon, cobalt, jade, indigo), with its own
+  # palette for dark and light mode. A #hex sets only the accent; without this line, theme.primary.
+  theme: amber
   render-style: "focused"
   schema-style: "tree"
 
